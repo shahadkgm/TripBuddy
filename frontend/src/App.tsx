@@ -1,24 +1,36 @@
-import { Routes, Route } from "react-router-dom";
-import HomePage from "./modules/auth/pages/HomePage"; // Adjust path based on where you saved it
+// src/App.tsx
+import { Routes, Route, Navigate } from "react-router-dom";
+import HomePage from "./modules/auth/pages/HomePage";
 import AuthPage from "./modules/auth/pages/AuthPage";
+import ProtectedRoute from "./routes/ProtectedRoute";
+
+// Optional: A simple Dashboard component if you haven't created the file yet
+const DashboardPlaceholder = () => (
+  <div className="p-8">
+    <h1 className="text-2xl font-bold">Welcome to your Trip Planner!</h1>
+    <p className="text-gray-600">This is your private dashboard.</p>
+  </div>
+);
 
 function App() {
   return (
     <Routes>
-      {/* 1. Root Route: Now shows the actual Home Page instead of redirecting */}
+      {/* --- Public Routes --- */}
       <Route path="/" element={<HomePage />} />
       
-      {/* 2. Auth Routes */}
+      {/* Auth Routes */}
       <Route path="/register" element={<AuthPage mode="register" />} />
       <Route path="/login" element={<AuthPage mode="login" />} />
-      
-      {/* 3. Fallback Route: Matches any URL that doesn't exist */}
-      <Route path="*" element={
-        <div className="flex flex-col items-center justify-center min-h-screen">
-          <h1 className="text-4xl font-bold">404</h1>
-          <p>Oops! This travel destination doesn't exist.</p>
-        </div>
-      } />
+
+      {/* --- Protected Routes (User must be logged in) --- */}
+      {/* The ProtectedRoute component will handle the redirection to /login */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<DashboardPlaceholder />} />
+        {/* You can add /profile or /my-trips here later */}
+      </Route>
+
+      {/* --- Catch All --- */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

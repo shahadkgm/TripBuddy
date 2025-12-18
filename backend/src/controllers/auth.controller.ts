@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken"; // 1. Import JWT
 import User from "../models/user.models.js";
 
 export const register = async (req: Request, res: Response) => {
@@ -27,8 +28,18 @@ export const register = async (req: Request, res: Response) => {
       password: hashedPassword,
     });
 
+    // 5️⃣ Generate JWT Token
+    // We use the User ID as the payload so we can identify them later
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET || "your_fallback_secret", // Ensure this is in your .env
+      { expiresIn: "7d" } // Token valid for 7 days
+    );
+
+    // 6️⃣ Send response with Token
     res.status(201).json({
       message: "User registered successfully",
+      token, // Include the token here
       user: {
         id: user._id,
         name: user.name,
@@ -36,7 +47,54 @@ export const register = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    console.error("Registration Error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+// src/controllers/auth.controllers.ts
+
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    // 1️⃣ Validate input
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // 2️⃣ Find the user by email
+    // Use .select("+password") if your schema has { select: false } for passwords
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Use a generic message for security (don't reveal if email exists)
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    // 3️⃣ Compare the typed password with the hashed password in DB
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    // 4️⃣ Generate JWT Token (Same logic as register)
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET || "your_fallback_secret",
+      { expiresIn: "7d" }
+    );
+
+    // 5️⃣ Send response
+    res.status(200).json({
+      message: "Logged in successfully",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.error("Login Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
