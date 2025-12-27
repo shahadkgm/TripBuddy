@@ -1,6 +1,7 @@
+// backend/src/controllers/auth.controllers.ts
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken"; // 1. Import JWT
+import jwt from "jsonwebtoken"; 
 import User from "../models/user.models.js";
 
 export const register = async (req: Request, res: Response) => {
@@ -13,7 +14,7 @@ export const register = async (req: Request, res: Response) => {
     }
 
     // 2️⃣ Check existing user
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email });  
     if (existingUser) {
       return res.status(409).json({ message: "User already exists" });
     }
@@ -28,8 +29,7 @@ export const register = async (req: Request, res: Response) => {
       password: hashedPassword,
     });
 
-    // 5️⃣ Generate JWT Token
-    // We use the User ID as the payload so we can identify them later
+    
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET || "your_fallback_secret", // Ensure this is in your .env
@@ -51,7 +51,6 @@ export const register = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-// src/controllers/auth.controllers.ts
 
 export const login = async (req: Request, res: Response) => {
   try {

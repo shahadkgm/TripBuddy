@@ -5,7 +5,7 @@ const userSchema = new Schema<IUserDocument>({
     name: {
         type: String,
         required: true,
-        trim: true, // removes extra spaces
+        trim: true, 
     },
     email: {
         type: String,

@@ -1,15 +1,19 @@
-import UserRepository from '../repositories/user.repository.js';
+// src/services/user.service.ts
+import { IUserRepository } from '../interfaces/IUserRepository.js';
 import { RegisterUserDTO } from '../types/user.dto.js';
 
-class UserService {
-  async registerUser(userData: RegisterUserDTO) {
-    const existingUser = await UserRepository.findByEmail(userData.email);
+export class UserService {
+  // We depend on the Interface, not the Class
+  constructor(private userRepository: IUserRepository) {}
+
+  async  registerUser(userData: RegisterUserDTO) {
+    const existingUser = await this.userRepository.findByEmail(userData.email);
 
     if (existingUser) {
       throw new Error("User with this email already exists.");
     }
 
-    const newUser = await UserRepository.create(userData);
+    const newUser = await this.userRepository.create(userData as any);
 
     return {
       id: newUser._id,
@@ -19,8 +23,8 @@ class UserService {
   }
 
   async getAllUsers() {
-    return await UserRepository.findAll();
+    return await this.userRepository.findAll();
   }
 }
 
-export default new UserService();
+// export default new UserService();

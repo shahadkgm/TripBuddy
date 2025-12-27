@@ -1,15 +1,18 @@
 // src/routes/user.routes.ts
-
 import { Router } from 'express';
-// IMPT: Using .js extension for the Controller file
-import { registerUser, getUsers } from '../controllers/user.controller.js'; 
+import { UserRepository } from '../repositories/user.repository.js';
+import { UserService } from '../services/user.service.js';
+import { UserController } from '../controllers/user.controller.js';
 
 const router = Router();
 
-// POST /api/users/register
-router.post('/register', registerUser);
+// 1. Manually Inject Dependencies (The "SOLID" way)
+const userRepository = new UserRepository();
+const userService = new UserService(userRepository);
+const userController = new UserController(userService);
 
-// GET /api/users
-router.get('/', getUsers);
+// 2. Define Routes
+router.post('/register', userController.registerUser);
+router.get('/', userController.getUsers);
 
 export default router;

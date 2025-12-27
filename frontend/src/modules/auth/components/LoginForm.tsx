@@ -17,7 +17,7 @@ export const LoginForm = () => {
     try {
       // The payload must match what your backend expects
       await authService.login({ email, password });
-      navigate('/'); // Success! Go to protected area
+      navigate('/'); 
     } catch (error) {
       alert("Invalid email or password. Please try again.");
     } finally {

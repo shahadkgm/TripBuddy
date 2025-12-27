@@ -2,22 +2,28 @@
 import * as dotenv from 'dotenv';
 import healthRoutes from "./routes/health.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import uploadRoutes from './routes/upload.routes.js';
+import planRoutes from './routes/plan.routes.js';
+ import tripRoutes from './routes/trip.routes.js';
+
+
 dotenv.config(); 
 
 import express from 'express';
 import cors from 'cors';
-// IMPT: Using .js extension for the config and routes files
 import { connectDB } from './config/db.js'; 
 import UserRoutes from './routes/user.routes.js'; 
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// --- 1. Middleware ---
 app.use(cors());
 app.use(express.json()); 
 app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
+app.use('/api', uploadRoutes);
+app.use('/api/trips', tripRoutes);
+app.use('/api/plantrips', planRoutes);
 
 
 
