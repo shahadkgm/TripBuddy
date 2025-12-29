@@ -1,3 +1,4 @@
+// backend/src/models/user.model.ts
 import { Schema, model } from 'mongoose';
 import { IUserDocument } from '../types/User.js';
 
@@ -17,7 +18,16 @@ const userSchema = new Schema<IUserDocument>({
     password: {
         type: String,
         required: true,
-        minlength: 6, // ensures strong password
+        minlength: 6,
+    },
+    // --- ADD THESE FIELDS ---
+    passwordResetToken: {
+        type: String,
+        default: undefined
+    },
+    passwordResetExpires: {
+        type: Date,
+        default: undefined
     },
 }, {
     timestamps: true,

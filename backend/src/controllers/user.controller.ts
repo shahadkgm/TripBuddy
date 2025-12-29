@@ -39,4 +39,36 @@ export class UserController {
       });
     }
   };
+async forgotPassword(req: Request, res: Response) {
+    try {
+      console.log("its call forgot password from backend ",process.env.EMAIL_USER)
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      const result = await this.userService.forgotPassword(email);
+      return res.status(200).json(result);
+    } catch (error: any) {
+      // Return 400 or 404 depending on your error handling logic
+      return res.status(400).json({ message: error.message });
+    }
+  }
+  async resetPassword(req: Request, res: Response) {
+    try {
+        const { token } = req.params;
+        const { password } = req.body;
+
+        if (!password) {
+            return res.status(400).json({ message: "New password is required" });
+        }
+
+        const result = await this.userService.resetPassword(token, password);
+        return res.status(200).json(result);
+    } catch (error: any) {
+        return res.status(400).json({ message: error.message });
+    }
+}
+
 }

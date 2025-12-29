@@ -1,11 +1,15 @@
+// backend/src/types/User.ts
 import { Document } from 'mongoose';
 
-// Interface for User properties
 export interface IUser {
-    name: string;
-    email: string;
-    password: string; 
+//   _id?: string;
+  name: string;
+  email: string;
+  password?: string;
+  passwordResetToken?: string;
+  passwordResetExpires?: number | Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-// Interface for the Mongoose Document
 export interface IUserDocument extends IUser, Document {}
