@@ -9,6 +9,7 @@ import authRoutes from "./routes/auth.routes.js";
 import uploadRoutes from './routes/upload.routes.js';
 import planRoutes from './routes/plan.routes.js';
 import tripRoutes from './routes/trip.routes.js';
+import guideRoutes from "./routes/guide.routes.js"
 
 import { connectDB } from './config/db.js'; 
 import UserRoutes from './routes/user.routes.js'; 
@@ -27,6 +28,7 @@ app.use('/api', uploadRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/plantrips', planRoutes);
 app.use('/api/users', UserRoutes);
+app.use("/api/guides",guideRoutes)
 
 // --- Base Route ---
 app.get('/', (req, res) => {
