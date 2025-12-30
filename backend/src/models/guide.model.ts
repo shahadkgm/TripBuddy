@@ -1,16 +1,8 @@
 // backend/src/models/guide.model.ts
 import mongoose, { Schema, Document } from 'mongoose';
+import { IGuideProfile } from '../interfaces/IGuideInterface.js';
 
-export interface IGuideProfile extends Document {
-  userId: mongoose.Types.ObjectId;
-  bio: string;
-  hourlyRate: number;
-  serviceArea: string;
-  avatarURL: string;
-  specialities: string[];
-  isVerified: boolean;
-  experience?: number;
-}
+
 
 const GuideProfileSchema: Schema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
@@ -20,6 +12,7 @@ const GuideProfileSchema: Schema = new Schema({
   avatarURL: { type: String },
   specialities: [{ type: String }],
   isVerified: { type: Boolean, default: false }, 
+  lastUpdated: { type: Date, default: Date.now } 
 }, { timestamps: true });
 
 export default mongoose.model<IGuideProfile>('GuideProfile', GuideProfileSchema);

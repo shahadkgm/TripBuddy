@@ -9,7 +9,7 @@ export const Button = ({ variant = 'primary', size = 'md', className = "", child
   
   const variants = {
   primary: "bg-[#5537ee] text-white hover:bg-opacity-90",
-  alert: "bg-amber-100 text-amber-700 hover:bg-amber-200 flex items-center", // Matching your UI screenshot
+  alert: "bg-amber-100 text-amber-700 hover:bg-amber-200 flex items-center", 
   outline: "border border-gray-300 text-gray-700 hover:bg-gray-50",
 };
 

@@ -12,10 +12,9 @@ export interface ITrip {
     _id: string;
     name: string;
     email: string;
-    avatar?: string; // If you add avatars to your User model
+    avatar?: string; // venel pinne avatar add aaakka 
   };
   status: 'active' | 'completed' | 'cancelled';
-  // Include preferences if you store them in description or a separate field
   preferences?: {
     travelers: number;
     transport: string;

@@ -4,7 +4,6 @@ import { TravelerCard } from '../components/TravelerCard';
 import type { ITrip } from '../interface/ITripdetails';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
-// Import your Pagination component here
 import { Pagination } from '../components/Pagination'; 
 
 export const FindTravelers = () => {
@@ -21,7 +20,6 @@ export const FindTravelers = () => {
     interest: 'Any'
   });
 
-  // CHANGE 1: Added 'page' to dependency array so it re-fetches when you click "Next/Prev"
   useEffect(() => {
     loadTrips();
   }, [page]); 
@@ -35,11 +33,9 @@ export const FindTravelers = () => {
         limit
       };
       
-      // CHANGE 2: Destructure the object response { trips, total }
       const response = await tripService.getAllTrips(activeFilters);
       
       setTrips(response.trips);
-      // Calculate total pages based on the 'total' count from backend
       setTotalPages(Math.ceil(response.total / limit)); 
       
     } catch (error) {
@@ -49,7 +45,7 @@ export const FindTravelers = () => {
     }
   };
 
-  // CHANGE 3: Reset to page 1 whenever a new search is performed
+  // Reset to page 1 whenever a new search is performed
   const handleApplyFilters = () => {
     setPage(1);
     loadTrips();
@@ -131,7 +127,6 @@ export const FindTravelers = () => {
               )}
             </div>
 
-            {/* CHANGE 4: Uncommented and added window scroll for UX */}
             {totalPages > 1 && (
               <Pagination 
                 currentPage={page} 

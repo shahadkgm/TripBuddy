@@ -6,7 +6,7 @@ import axios from 'axios';
 import { authService } from '../services/auth.service';
 import { Camera, MapPin, DollarSign, Award, ArrowLeft,Loader2 } from 'lucide-react';
 import { GuideStatusPage } from './GuideStatusPage';
-import {Navigate } from 'react-router-dom'; // Added Navigate
+import {Navigate } from 'react-router-dom'; 
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -21,12 +21,12 @@ export const GuideRegistrationPage = () => {
  const navigate = useNavigate();
     const user = authService.getCurrentUser();
     
-    // 1. ALL HOOKS MUST BE AT THE TOP
+    
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [preview, setPreview] = useState<string | null>(null);
     const [appStatus, setAppStatus] = useState<'none' | 'pending' | 'verified' | 'loading'>('loading');
 
-    // This hook was being skipped by the early returns, causing the error
+    
     const [formData, setFormData] = useState({
         bio: '',
         hourlyRate: '',
@@ -55,7 +55,7 @@ export const GuideRegistrationPage = () => {
         checkStatus();
     }, [user]);
 
-    // 2. NOW YOU CAN DO YOUR EARLY RETURNS
+    
     if (appStatus === 'loading') {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
@@ -105,7 +105,7 @@ export const GuideRegistrationPage = () => {
             await axios.post(`${API_URL}/api/guides/register`, data);
             
             toast.success("Application submitted!", { id: t });
-            // Instead of just navigating, we flip the status to show the pending page immediately
+            //  to show the pending page immediately
             setAppStatus('pending'); 
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Registration failed", { id: t });

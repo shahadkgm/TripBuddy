@@ -1,34 +1,39 @@
 // backend/src/services/guide.service.ts
-import GuideProfile from '../models/guide.model.js';
-import User from '../models/user.models.js';
+
+import { IGuideRepository } from "../interfaces/IGuideInterface.js";
+
+// import { IGuideRepository } from "../interfaces/IGuideInterface.js";
 
 export class GuideService {
+  // Dependency Injection: Service depends on the interface, not the model
+  constructor(private guideRepository: IGuideRepository) {}
+
   /**
-   * SOLID: Single Responsibility - Handles the business logic of registration
+   * SOLID: Single Responsibility - Handles business logic for guide registration
    */
   async register(userId: string, data: any, fileName?: string) {
-    const existing = await GuideProfile.findOne({ userId });
+    // Use repository for data access
+    const existing = await this.guideRepository.findByUserId(userId);
     if (existing) throw new Error("Application already exists");
 
-    const newProfile = new GuideProfile({
+    // Prepare clean data object
+    const profileData = {
       userId,
       bio: data.bio,
       hourlyRate: Number(data.hourlyRate),
       serviceArea: data.serviceArea,
-      specialities: JSON.parse(data.specialties),
+      specialities: typeof data.specialties === 'string' ? JSON.parse(data.specialties) : data.specialties,
       avatarURL: fileName ? `/uploads/guides/${fileName}` : ''
-    });
+    };
 
-    await newProfile.save();
-    // We don't change the role to 'guide' until the admin verifies them
-    return newProfile;
+    return await this.guideRepository.create(profileData);
   }
 
   /**
    * Logic to check the current status of a guide application
    */
   async getStatus(userId: string) {
-    const profile = await GuideProfile.findOne({ userId });
+    const profile = await this.guideRepository.findByUserId(userId);
     if (!profile) return { exists: false };
     
     return { 
@@ -36,6 +41,21 @@ export class GuideService {
       isVerified: profile.isVerified 
     };
   }
-}
 
-export const guideService = new GuideService();
+  /**
+   * New method for the "Find Local Experts" page
+   */
+  async getAllVerifiedGuides(query: any) {
+    const filters: any = { isVerified: true };
+
+    if (query.destination) {
+      filters.serviceArea = { $regex: query.destination, $options: 'i' };
+    }
+
+    if (query.maxPrice) {
+      filters.hourlyRate = { $lte: Number(query.maxPrice) };
+    }
+
+    return await this.guideRepository.findAll(filters);
+  }
+}

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; //
-import { authService } from "../services/auth.service"; // Ensure this path is correct
+import { useNavigate } from "react-router-dom"; 
+import { authService } from "../services/auth.service"; 
 
 const RegisterForm = () => {
   const [form, setForm] = useState({
@@ -21,7 +21,7 @@ const RegisterForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 2. Client-side Validation
+   
     if (form.password !== form.confirmPassword) {
       alert("Passwords do not match!");
       return;
@@ -30,16 +30,16 @@ const RegisterForm = () => {
     setIsLoading(true);
 
     try {
-      // 3. Prepare payload (removing confirmPassword before sending to backend)
+      // 3. removing confirmPassword before sending to backend
       const { confirmPassword, ...registerData } = form;
       
       // 4. Call authService
       await authService.register(registerData);
       
       alert("Registration successful!");
-      navigate("/login"); // Redirect to login page after success
+      navigate("/login"); 
     } catch (error: any) {
-      // Handle errors from backend (e.g., email already exists)
+      // Handle errors from backend email already exists
       alert(error.response?.data?.message || "Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
@@ -49,7 +49,7 @@ const RegisterForm = () => {
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Name Input */}
+        
         <div>
           <label className="block text-sm font-medium text-gray-700">Name</label>
           <input
@@ -62,7 +62,6 @@ const RegisterForm = () => {
           />
         </div>
 
-        {/* Email Input */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Email address</label>
           <input
@@ -76,7 +75,6 @@ const RegisterForm = () => {
           />
         </div>
 
-        {/* Password Input */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Password</label>
           <input
@@ -90,7 +88,6 @@ const RegisterForm = () => {
           />
         </div>
 
-        {/* Confirm Password Input */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
           <input
@@ -104,7 +101,6 @@ const RegisterForm = () => {
           />
         </div>
 
-        {/* 5. Submit Button with Loading State */}
         <button 
           type="submit"
           disabled={isLoading}
@@ -116,7 +112,6 @@ const RegisterForm = () => {
         </button>
       </form>
 
-      {/* --- Divider --- */}
       <div className="relative flex items-center py-2">
         <div className="grow border-t border-gray-200"></div>
         <span className="shrink mx-4 text-gray-400 text-sm">or</span>

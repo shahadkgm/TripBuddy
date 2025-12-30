@@ -2,7 +2,7 @@
 import type { PaginationProps } from "../interface/IPaginatedTrips";
 
 export const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) => {
-  // Hide pagination if there is only one page
+  // Hide pagination if  one page
   if (totalPages <= 1) return null;
 
   return (

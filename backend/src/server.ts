@@ -1,6 +1,7 @@
 // ✅ MUST be the very first import
 import 'dotenv/config';
 
+import path from 'path';
 import express from 'express';
 import cors from 'cors';
 
@@ -16,6 +17,7 @@ import UserRoutes from './routes/user.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // --- Middlewares ---
 app.use(cors());

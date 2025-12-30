@@ -7,17 +7,14 @@ export class TripService implements ITripService {
 
   async getAvailableTrips(filters: any) {
     const query: any = { status: 'active' };
-    // 1. Destination (Partial Search)
     if (filters.destination && filters.destination.trim() !== "") {
       query.destination = { $regex: filters.destination, $options: 'i' };
     }
     
-    // 2. Transport (Ignore if "Any")
     if (filters.transport && filters.transport !== 'Any') {
       query['preferences.transport'] = filters.transport;
     }
     
-    // 3. Interests (Ignore if "Any")
     if (filters.interest && filters.interest !== 'Any') {
       query['preferences.interests'] = { $in: [filters.interest] };
     }
@@ -35,7 +32,20 @@ export class TripService implements ITripService {
     return await this.tripRepository.findAll(query, skip, limit);
   }
 
-  async createNewTrip(data: any) {
-    return await this.tripRepository.create(data);
+  async createNewTrip(userId: string, data: any, filePath?: string) {
+    const tripData = {
+      title: data.title,
+      destination: data.destination,
+      startDate: new Date(data.startDate),
+      endDate: new Date(data.endDate),
+      description: data.description,
+      budget: Number(data.budget),
+      userId: userId,
+      tripImage: filePath || null, 
+      tripMember: [userId], 
+      status: 'upcoming' 
+    };
+
+    return await this.tripRepository.create(tripData);
   }
 }

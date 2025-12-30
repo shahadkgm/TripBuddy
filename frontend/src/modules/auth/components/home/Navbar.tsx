@@ -60,14 +60,14 @@ return ()=>{isMounted=false;}
         </button>
       ) : (
         <div 
-          onClick={() => navigate("/kyc-status")} // Navigate to a status detail page
+          onClick={() => navigate("/kyc-status")} 
           className={`cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border shadow-sm transition-all hover:scale-105 ${
             kycStatus === 'approved' ? 'bg-green-50 text-green-700 border-green-200' :
             kycStatus === 'rejected' ? 'bg-red-50 text-red-700 border-red-200' :
             'bg-blue-50 text-blue-700 border-blue-200'
           }`}
         >
-          {/* Ensure text is explicitly rendered */}
+         
           {kycStatus === 'approved' && <span>✅ Verified</span>}
           {kycStatus === 'pending' && <span>⏳ Pending Review</span>}
           {kycStatus === 'rejected' && <span>❌ Rejected</span>}

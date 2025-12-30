@@ -3,3 +3,7 @@ export interface RegisterPayload {
   email: string;
   password: string;
 }
+
+export interface AuthPageProps {
+  mode: 'login' | 'register';
+}

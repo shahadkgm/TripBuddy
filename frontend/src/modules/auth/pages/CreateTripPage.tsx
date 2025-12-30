@@ -34,7 +34,7 @@ const CreateTripPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false); 
-  // Error state to act as our "DTO Validation" feedback
+  // Error state 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -50,10 +50,9 @@ const CreateTripPage = () => {
     }
   };
 
-  /**
-   * DTO-style Validation Logic
-   * SOLID: Separates validation rules from the API submission logic
-   */
+  
+    //Validation Logic
+   
   const validateTripData = () => {
     const newErrors: Record<string, string> = {};
     const today = new Date();
@@ -87,7 +86,7 @@ const CreateTripPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Trigger our DTO-style validation
+    //  validation
     if (!validateTripData()) return;
 
     const userId = user?.user?.id;
@@ -210,7 +209,6 @@ const CreateTripPage = () => {
               </div>
             </section>
 
-            {/* Other sections remain largely the same, but using the base layout... */}
             {/* Preferences & Budget Section */}
             <section>
               <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">

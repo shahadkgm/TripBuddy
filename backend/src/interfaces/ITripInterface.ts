@@ -20,6 +20,6 @@ export interface ITripService {
     page?: number;  
     limit?: number;  
   }): Promise<{ trips: any[], total: number }>; 
-  
-  createNewTrip(data: any): Promise<any>;
-}  
+
+  createNewTrip(userId: string, data: any, filePath?: string): Promise<any>;
+} 

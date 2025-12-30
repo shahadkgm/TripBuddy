@@ -11,6 +11,7 @@ import { FindTravelers } from "./modules/auth/pages/FindTravelers";
 import { ForgotPasswordPage } from "./modules/auth/pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./modules/auth/pages/ResetPasswordPage";
 import { GuideRegistrationPage } from "./modules/auth/pages/GuideRegistrationPage";
+import { FindGuidesPage } from "./modules/auth/pages/FindGuidesPage";
 //  import { Toaster } from 'react-hot-toast';
 
 
@@ -37,9 +38,10 @@ function App() {
           <Route path="/kyc-verification" element={<KYCPage />} /> 
           <Route path="/find-travelers" element={<FindTravelers/>}/>
          <Route path="/join-guide" element={<GuideRegistrationPage/>}/>
+          <Route path="/find-guide" element={<FindGuidesPage/>}/>
+
 
         </Route>
-
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

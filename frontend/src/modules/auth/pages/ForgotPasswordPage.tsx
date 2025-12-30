@@ -18,11 +18,9 @@ export const ForgotPasswordPage = () => {
     const resetToast = toast.loading("Sending verification email...");
 
     try {
-      // Update this endpoint to match your actual backend route
       await axios.post(`${API_URL}/api/users/forgot-password`, { email });
       
       toast.success("Verification email sent! Check your inbox.", { id: resetToast });
-      // Optionally redirect to login or a code entry page
       setTimeout(() => navigate('/login'), 3000);
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to send email. Try again later.", { id: resetToast });

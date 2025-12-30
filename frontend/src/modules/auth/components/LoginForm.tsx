@@ -1,7 +1,7 @@
 // frontend/src/modules/auth/components/LoginForm.tsx
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; // Added Link
-import toast from 'react-hot-toast'; // Added toast
+import { useNavigate, Link } from 'react-router-dom'; 
+import toast from 'react-hot-toast'; // Added toast but it have problem i want to recheck this 
 import { authService } from '../services/auth.service';
 import { Button } from '../../../shared/Button';
 
@@ -21,8 +21,7 @@ export const LoginForm = () => {
       toast.success("Welcome back!", { id: loginToast });
       navigate('/'); 
     } catch (error: any) {
-      // User-friendly error notification
-      toast.error(error.response?.data?.message || "Invalid email or password.", { id: loginToast });
+      toast.error(error.response?.data?.message || "Invalid email or password.", { id: loginToast });//not work re check needed
     } finally {
       setIsLoading(false);
     }
@@ -44,7 +43,6 @@ export const LoginForm = () => {
         <div>
           <div className="flex justify-between">
             <label className="block text-sm font-medium text-gray-700">Password</label>
-            {/* Added Forgot Password Link */}
             <Link 
               to="/forgot-password" 
               className="text-sm font-medium text-[#5537ee] hover:underline"

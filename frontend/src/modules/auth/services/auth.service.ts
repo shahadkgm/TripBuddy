@@ -1,7 +1,7 @@
 // src/modules/auth/services/auth.service.ts
 import axios from 'axios';
 
-const API_URL = 'http://localhost:4000/api/auth'; // Adjust to your backend URL
+const API_URL = 'http://localhost:4000/api/auth'; 
 
 export const authService = {
   async register(userData: any) {
@@ -15,7 +15,6 @@ export const authService = {
   async login(credentials: any) {
     const response = await axios.post(`${API_URL}/login`, credentials);
     if (response.data.token) {
-      // Store user data and JWT token in localStorage
       localStorage.setItem('user', JSON.stringify(response.data));
     }
     return response.data;

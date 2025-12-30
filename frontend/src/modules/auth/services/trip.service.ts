@@ -1,13 +1,13 @@
 // src/modules/auth/services/trip.service.ts
 import axios from 'axios';
 import type { ITrip } from '../interface/ITripdetails';
-import type { PaginatedTrips } from '../interface/IPaginatedTrips';
+import type {  PaginationProps } from '../interface/IPaginatedTrips';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 class TripService {
  
-  async getAllTrips(filters?: any): Promise<PaginatedTrips> {
+  async getAllTrips(filters?: any): Promise<PaginationProps> {
     const response = await axios.get(`${API_URL}/api/trips`, { params: filters });
     return response.data;
   }
