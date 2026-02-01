@@ -1,5 +1,5 @@
 import axios from "axios"
-import { authService } from "../store/authStore";
+import { authService } from "../services/authService";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -10,6 +10,7 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = authService.getToken();
+    console.log("token",token)
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -27,6 +28,7 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       // 1. Clear everything immediately
       localStorage.clear(); 
+      // window.location.replace("/login")
       
       // 2. Only redirect if we aren't already on a public page
       const publicPages = ['/login', '/register'];
@@ -35,6 +37,11 @@ api.interceptors.response.use(
         window.location.replace("/login");
       }
     }
+    if(error.response.status===403&&error.response.message==="User blocked"){
+      localStorage.clear();
+      window.location.replace("/login?blocked=true")
+    }
+
     return Promise.reject(error);
   }
 );

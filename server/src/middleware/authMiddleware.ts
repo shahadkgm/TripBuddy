@@ -3,29 +3,43 @@ import jwt from 'jsonwebtoken';
 import { Response, NextFunction } from 'express';
 import { StatusCode } from "../constants/statusCode.enum.js"; // Use your enum
 import UserModel from '../models/user.models.js';
+import { AuthRequest } from '../types/authrequst.js';
 
-export const protect = async (req: any, res: Response, next: NextFunction) => {
+export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.startsWith('Bearer') ? authHeader.split(" ")[1] : null;
+  if(!authHeader||!authHeader.startsWith("Bearer ")){
+    return res.status(StatusCode.UNAUTHORIZED).json({message:"no token provided"})
+  }
+  const token =  authHeader.split(" ")[1] ;
 console.log("user from token",req.user)
   if (!token) {
     return res.status(StatusCode.UNAUTHORIZED).json({ message: "Not authorized, no token" });
   }
 
   try {
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET || "fallback");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!)as{
+      id:string;
+      role:string;
+    };
     
-    const user= await UserModel.findById(decoded.id||decoded._id);
+    const user= await UserModel.findById(decoded.id);
      
-    if(!user||user.isBlocked){
-      return res.status(StatusCode.UNAUTHORIZED).json({message:"user is blocked or no longer exit"})
+    // if(!user||user.isBlocked){
+    //   return res.status(StatusCode.UNAUTHORIZED).json({message:"user is blocked or no longer exit"})
+    // }
+    if(!user){
+      return res.status(StatusCode.UNAUTHORIZED).json({message:"User not found"})
+    }
+    if(user.isBlocked){
+      return res.status(StatusCode.FORBIDDEN).json({messaage:"User blocked"})
     }
 
-
+console.log("req.user from authMiddleware server",req.user)
     // Ensure the decoded object matches what the controller expects (req.user.id)
     req.user = {
-      id: decoded.id || decoded._id,
-      role: decoded.role
+     _id: user._id.toString() ,
+      role: user.role,
+      email:user.email
     }; 
     next();
   } catch (error) {

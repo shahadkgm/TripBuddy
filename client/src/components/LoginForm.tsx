@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom'; 
 import toast from 'react-hot-toast'; // Added toast but it have problem i want to recheck this 
-import { authService } from '../store/authStore';
+import { authService } from '../services/authService';
 import { Button } from './Button';
 
 export const LoginForm = () => {
@@ -27,9 +27,11 @@ export const LoginForm = () => {
     }
 
     toast.success("Welcome back!", { id: loginToast });
-
+console.log("role",result.user.role)
     // Unified Redirection
     if (result.user.role === "admin") {
+      console.log("working")
+      window.location.href="/admin/dashboard"
       navigate("/admin/dashboard");
     } else if (result.user.role === "guide") {
       navigate("/guide-dashboard");

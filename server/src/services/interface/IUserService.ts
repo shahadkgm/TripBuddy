@@ -1,4 +1,4 @@
-import { RegisterUserDTO } from '../../types/auth.dto.js';
+import { RegisterUserDTO } from '../../dto/auth.dto.js';
 
 export interface IUserService {
   registerUser(userData: RegisterUserDTO): Promise<any>;

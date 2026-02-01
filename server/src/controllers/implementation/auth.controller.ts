@@ -1,12 +1,17 @@
 // server/src/controllers/implementation/auth.controller.ts
 import { Request, Response, NextFunction } from "express";
-import { IAuthService } from "../interfaces/IAuthController.js";
 import { StatusCode } from "../../constants/statusCode.enum.js";
+import { IAuthController } from "../interfaces/IAuthController.js";
+import { IAuthService } from "../../services/interface/IAuthservice.js";
 
-export class AuthController {
+export class AuthController implements IAuthController {
   constructor(private readonly _authService: IAuthService) {}
 
-  register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  register = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const { name, email, password } = req.body;
 
@@ -14,26 +19,25 @@ export class AuthController {
         res.status(StatusCode.BAD_REQUEST).json({ message: "All fields are required" });
         return;
       }
-//dto based
-      const result = await this._authService.registerUser(req.body);
 
-      res.status(StatusCode.CREATED).json({
-        // message: "User registered successfully",
-        ...result // result matches the interface { user, token }
-      });
+      const result = await this._authService.registerUser(req.body);
+      res.status(StatusCode.CREATED).json(result);
     } catch (error: any) {
       if (error.message === "USER_EXISTS") {
         res.status(StatusCode.CONFLICT).json({ message: "User already exists" });
         return;
       }
-      next(error); 
+      next(error);
     }
   };
 
-  login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  login = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const { email, password } = req.body;
-      console.log("email and password from  login",email,password)
 
       if (!email || !password) {
         res.status(StatusCode.BAD_REQUEST).json({ message: "All fields are required" });
@@ -41,12 +45,12 @@ export class AuthController {
       }
 
       const result = await this._authService.loginUser({ email, password });
-      console.log("result from logincontroll",result)
-
-      res.status(StatusCode.OK).json({
-        // message: "Logged in successfully",
-        ...result
-      });
+      // res.cookie("tokens",result.tokens,{
+      //   httpOnly:true,
+      //   sameSite:"none",
+      //   maxAge:604800000
+      // })
+      res.status(StatusCode.OK).json(result);
     } catch (error: any) {
       if (error.message === "INVALID_CREDENTIALS") {
         res.status(StatusCode.UNAUTHORIZED).json({ message: "Invalid email or password" });
@@ -54,22 +58,25 @@ export class AuthController {
       }
       next(error);
     }
-  }
-  googleLogin = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { token } = req.body;
-    if (!token) {
-      return res.status(400).json({ message: "Google token is required" });
+  };
+
+  googleLogin = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const { token } = req.body;
+
+      if (!token) {
+        res.status(StatusCode.BAD_REQUEST).json({ message: "Google token is required" });
+        return;
+      }
+
+      const result = await this._authService.googleLogin(token);
+      res.status(StatusCode.OK).json(result);
+    } catch (error: any) {
+      next(error);
     }
-
-    // Call the newly implemented service method
-    const result = await this._authService.googleLogin(token);
-
-    // Return the AuthResponse structure
-    return res.status(200).json(result);
-  } catch (error: any) {
-    console.error("Google Auth Error:", error.message);
-    next(error);
-  }
-};
+  };
 }

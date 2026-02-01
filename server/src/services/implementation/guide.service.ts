@@ -3,7 +3,6 @@
 import { IGuideRepository } from "../../repositories/interface/IGuideRepository.js";
 import { IGuideService } from "../interface/IGuideService.js";
 
-// import { IGuideRepository } from "../interfaces/IGuideInterface.js";
 
 export class GuideService implements IGuideService {
 // DI

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
-import { authService } from "../store/authStore"; 
+import { authService } from "../services/authService"; 
 import { GoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
 import { motion } from "framer-motion";

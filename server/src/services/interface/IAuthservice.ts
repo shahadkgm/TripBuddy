@@ -1,4 +1,4 @@
-import { RegisterUserDTO, LoginDTO } from "../../types/auth.dto.js";
+import { RegisterUserDTO, LoginDTO } from "../../dto/auth.dto.js";
 import { AuthResponse } from "../../types/authResponse.js";
 
 export interface IAuthService {

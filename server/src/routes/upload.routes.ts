@@ -4,11 +4,12 @@ import { upload } from '../middleware/upload.middleware.js';
 import { UploadController } from '../controllers/implementation/upload.controller.js';
 import { UploadService } from '../services/implementation/upload.service.js';
 import { protect } from '../middleware/authMiddleware.js';
+import { KycRepository } from '../repositories/implementation/Kyc.repository.js';
 
 const router = Router();
 // router.use(protect);
-
-const service = new UploadService();
+const  kycRepository=new KycRepository();
+const service = new UploadService(kycRepository);
 
 const controller = new UploadController(service);
 

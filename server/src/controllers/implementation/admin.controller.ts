@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
 import { AdminService } from '../../services/implementation/admin.service.js';
 import { StatusCode } from '../../constants/statusCode.enum.js';
+import { IAdminService } from '../../services/interface/Iadminservice.js';
+import { IAdminController } from '../interfaces/IadminController.js';
 
-export class AdminController {
-  constructor(private adminService: AdminService) {}
+export class AdminController implements IAdminController {
+  constructor(private adminService: IAdminService) {}
 
   getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -20,11 +22,15 @@ export class AdminController {
   }
 };
 
-  handleBlockUser = async (req: Request, res: Response) => {
+  handleBlockUser = async (req:Request, res: Response) => {
     try {
       const { id } = req.params;
+      console.log("from admin",id)
       const { blocked } = req.body;
-      // console.log("from admin block",blocked )
+       console.log("from admin block",blocked )
+//         if(!req.user?._id){
+// return res.status(StatusCode.UNAUTHORIZED).json({message:"unauthorized from admin cntrl"})
+//         }
       const adminId = (req as any).user._id;
 
       const updatedUser = await this.adminService.toggleUserBlock(id, blocked, adminId);

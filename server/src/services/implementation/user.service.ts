@@ -2,7 +2,7 @@
 import { IUserRepository } from '../../repositories/interface/IUserRepository.js';
 import { IUserService } from '../interface/IUserService.js';
 import { IMailService } from '../interface/IMailService.js'; 
-import { RegisterUserDTO } from '../../types/auth.dto.js';
+import { RegisterUserDTO } from '../../dto/auth.dto.js';
 import crypto from 'crypto';
 
 
@@ -47,7 +47,7 @@ export class UserService implements IUserService {
     const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
     const expires = Date.now() + 3600000; 
 
-    await this.userRepository.updateResetToken(user._id, hashedToken, expires);
+    await this.userRepository.updateResetToken(user._id.toString(), hashedToken, expires);
 
     // Send Email
     await this.mailService.sendResetEmail(user.email, resetToken);
@@ -60,11 +60,11 @@ export class UserService implements IUserService {
 
     const user = await this.userRepository.findByResetToken(hashedToken);
     
-    if (!user || user.passwordResetExpires < Date.now()) {
+    if (!user ||! user.passwordResetExpires||new Date(user.passwordResetExpires).getTime()< Date.now()) {
       throw new Error("Token is invalid or has expired.");
     }
 
-    await this.userRepository.updatePassword(user._id, newPassword);
+    await this.userRepository.updatePassword(user._id.toString(), newPassword);
 
     return { message: "Password updated successfully" };
   }

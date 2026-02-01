@@ -2,11 +2,13 @@
 import { Router } from "express";
 import { AuthController } from "../controllers/implementation/auth.controller.js";
 import { AuthService } from "../services/implementation/auth.service.js";
+import { UserRepository } from "../repositories/implementation/user.repository.js";
 
 const router = Router();
 
 // DI
-const authService = new AuthService();
+const userRepo=new UserRepository();
+const authService = new AuthService(userRepo);
 const authController = new AuthController(authService);
 
 router.post("/register", authController.register);

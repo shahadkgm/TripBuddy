@@ -1,11 +1,17 @@
 // backend/src/services/mail.service.ts
-import nodemailer from "nodemailer";
+import nodemailer, { Transporter } from "nodemailer";
 import { IMailService } from "../interface/IMailService.js";
 
 export class MailService implements IMailService {
-  private transporter;
+  private transporter:Transporter
 
   constructor() {
+    if(!process.env.EMAIL_USER||!process.env.EMAIL_PASS){
+      throw new Error("Email credentials are not configurd")
+    }
+    if(!process.env.FRONTEND_URL){
+      throw new Error("FRONTEND_URL is not configured")
+    }
     console.log(
       "Checking Email Config from Mail service:",
       process.env.EMAIL_USER

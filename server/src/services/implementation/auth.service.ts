@@ -1,25 +1,31 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import User from "../../models/user.models.js";
 import { IAuthService } from "../interface/IAuthservice.js"; // Fixed path
-import { RegisterUserDTO, LoginDTO } from "../../types/auth.dto.js";
+import { RegisterUserDTO, LoginDTO } from "../../dto/auth.dto.js";
 import { AuthResponse } from "../../types/authResponse.js";
 import { OAuth2Client } from 'google-auth-library';
-
+import { IUserRepository } from "../../repositories/interface/IUserRepository.js";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export class AuthService implements IAuthService {
-  private readonly JWT_SECRET = process.env.JWT_SECRET || "your_fallback_secret";
+  private readonly JWT_SECRET :string
+  
+  constructor(private userRepo:IUserRepository){
+    if(!process.env.JWT_SECRET){
+      throw new Error("JWT_SECRET IS NOT DEFINE")
+    }
+    this.JWT_SECRET=process.env.JWT_SECRET;
+  }
 
   async registerUser(data: RegisterUserDTO): Promise<AuthResponse> {
     const { name, email, password } = data;
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await this.userRepo.findByEmail( email );
     if (existingUser) throw new Error("USER_EXISTS");
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({
+    const user = await this.userRepo.create({
       name,
       email,
       password: hashedPassword,
@@ -48,9 +54,12 @@ const tokens = this.generateTokens({
   async loginUser(data: LoginDTO): Promise<AuthResponse> {
     const { email, password } = data;
     
-    const user = await User.findOne({ email });
+    const user = await this.userRepo.findByEmail( email );
     if (!user || !user.password) {
       throw new Error("INVALID_CREDENTIALS");
+    }
+    if(user.isBlocked){
+      throw new Error("User_blocked")
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -60,6 +69,8 @@ const tokens = this.generateTokens({
   id: user._id.toString(),
   role: user.role
 });
+
+console.log("tokens from authservice",tokens)
 
     return {
       message: "Logged in successfully",
@@ -81,7 +92,6 @@ const tokens = this.generateTokens({
   //   };
   // },
   async googleLogin(token: string): Promise<AuthResponse> {
-    // 2. Verify Google Token
     const ticket = await googleClient.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -92,21 +102,16 @@ const tokens = this.generateTokens({
       throw new Error("INVALID_GOOGLE_TOKEN");
     }
 
-    // 3. Find or Create User
-    let user = await User.findOne({ email: payload.email });
-
-    if (!user) {
-      // Create user if they don't exist
-      user = await User.create({
-        name: payload.name,
-        email: payload.email,
-        role: "user",
-        isVerified: true ,
-        isBlocked:false 
+    let user = await this.userRepo.findOrCreateGoogleUser({
+       email: payload.email,
+       name:payload.name||"Google user"
       });
-    }
+      if(user.isBlocked){
+        throw new Error("User blocked")
+      }
 
-    // 4. Reuse your existing token logic
+   
+
 const tokens = this.generateTokens({
   id: user._id.toString(),
   role: user.role

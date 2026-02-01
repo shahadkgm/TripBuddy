@@ -46,7 +46,26 @@ async findByResetToken(hashedToken: string) {
             }
         });
     }
+
+    async findOrCreateGoogleUser(data:{
+        name:string;
+        email:string
+    }){
+        let user=await UserModel.findOne({email:data.email})
+        if(!user){
+            user=await UserModel.create({
+                name:data.name,
+                email:data.email,
+                role:"user",
+                isVerified:true,
+                isBlocked:false
+            })
+        }
+        return user;
+    }
     
 }
+
+
 
 // export default new UserRepository();

@@ -1,6 +1,8 @@
+import { Types } from "mongoose";
+
 // src/domain/entities/GuideProfile.ts
 export interface IGuideProfile {
-  userId: string;
+  userId:Types.ObjectId| string;
   bio: string;
   hourlyRate: number;
   serviceArea: string;

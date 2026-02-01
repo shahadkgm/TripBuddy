@@ -1,26 +1,24 @@
 // server/src/services/implementation/upload.service.ts
-import { KYC } from '../../models/kyc.model.js';
-import { IUploadService } from '../../controllers/interfaces/IUploadService.js';
+import { IUploadService } from '../interface/IUploadService.js';
+import { IKYCRepository } from '../../repositories/interface/IKycRepository.js';
 
 export class UploadService implements IUploadService {
   
-  /**
-   * Logic to save a new KYC document to the database
-   */
+  constructor(private kycRepo:IKYCRepository){}
   async saveKYCDocument(file: Express.Multer.File, userId: string, docType: string): Promise<any> {
-    const newKYC = await KYC.create({
-      userId: userId,
-      documentType: docType,
-      filePath: file.path, 
-      status: 'pending' 
-    });
+    const newKYC = await this.kycRepo.createKYC(
+      file,
+       userId,
+       docType,
+      // status: 'pending' 
+    );
     
     console.log("KYC saved to DB:", newKYC);
     return newKYC;
   }
 
   async getKYCStatus(userId: string): Promise<any> {
-  const kyc = await KYC.findOne({ userId: userId }).sort({ uploadedAt: -1 }).lean();
+  const kyc = await this.kycRepo.findLatestKYCByUserId(  userId )
   
   if (!kyc) {
     console.log(`New user detected: ${userId}. No KYC record found.`);

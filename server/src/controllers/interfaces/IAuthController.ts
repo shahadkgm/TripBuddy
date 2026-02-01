@@ -1,9 +1,21 @@
-import { LoginDTO, RegisterUserDTO } from "../../types/auth.dto.js";
-import { AuthResponse } from "../../types/authResponse.js";
+import { Request, Response, NextFunction } from "express";
 
-export interface IAuthService {
-  registerUser(data: RegisterUserDTO): Promise<AuthResponse>;
-  loginUser(data: LoginDTO): Promise<AuthResponse> 
-    googleLogin(token: string): Promise<AuthResponse>; 
+export interface IAuthController {
+  register(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void>;
 
+  login(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void>;
+
+  googleLogin(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void>;
 }

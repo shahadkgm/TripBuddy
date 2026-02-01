@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { authService } from '../../store/authStore';
+import { authService } from '../../services/authService';
 
 const KYCStatusPage = () => {
   const [kycData, setKycData] = useState<any>(null);

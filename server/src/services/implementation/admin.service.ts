@@ -1,13 +1,36 @@
 // backend/src/services/implementation/admin.service.ts
-import UserModel from "../../models/user.models.js";
-import { AdminRepository } from "../../repositories/implementation/admin.repository.js";
+import { IAdminRepository } from "../../repositories/interface/IAdminRepository.js";
+import { IAdminService } from "../interface/Iadminservice.js";
 
-export class AdminService {
-  constructor(private adminRepo: AdminRepository) {}
+export class AdminService implements IAdminService {
+  constructor(private adminRepo: IAdminRepository) {}
 
   async fetchAllUsers(page: number = 1, limit: number = 10, search: string = '') {
     return await this.adminRepo.getAllUsers(page, limit, search);
   }
+
+  
+  async toggleUserBlock(userId: string, blockedStatus: boolean, adminId: string) {
+    if (userId === adminId) {
+      throw new Error("You cannot block your own account.");
+    }
+    console.log("from userid in servise admin",userId)
+    const user = await this.adminRepo.findUserById(userId);
+    if (!user) throw new Error("User not found");
+    
+    if (user.role === 'admin') {
+      throw new Error("Cannot modify status of another admin.");
+    }
+    
+    return await this.adminRepo.updateUserBlockStatus(userId, blockedStatus);
+  }
+
+   async removeUser(userId: string, adminId: string) {
+    if (userId === adminId) throw new Error("Cannot delete yourself.");
+    return await this.adminRepo.deleteUser(userId);
+  }
+
+   //dashbord
 
   async getDashboardStats() {
     const userStats = await this.adminRepo.getAllUsers(1, 1, '');
@@ -19,28 +42,10 @@ export class AdminService {
       // (trips, revenue, etc.)
     };
   }
+  
+ 
 
-  async toggleUserBlock(userId: string, blockedStatus: boolean, adminId: string) {
-    if (userId === adminId) {
-      throw new Error("You cannot block your own account.");
-    }
-
-    const user = await this.adminRepo.findUserById(userId);
-    if (!user) throw new Error("User not found");
-    
-    if (user.role === 'admin') {
-      throw new Error("Cannot modify status of another admin.");
-    }
-
-    return await this.adminRepo.updateUserBlockStatus(userId, blockedStatus);
-  }
-
-  async removeUser(userId: string, adminId: string) {
-    if (userId === adminId) throw new Error("Cannot delete yourself.");
-    return await this.adminRepo.deleteUser(userId);
-  }
-
-  // 4 guide Management
+  //  guide Management
   async fetchPendingGuides() {
     return await this.adminRepo.getAllPendingGuides();
   }
@@ -50,9 +55,7 @@ export class AdminService {
     if (!updatedProfile) throw new Error("Guide application not found");
 
     
-    await UserModel.findByIdAndUpdate(updatedProfile.userId, {
-      role: 'guide'
-    });
+await this.adminRepo.updateUserRole(updatedProfile.userId.toString(),"guide")
 
     return updatedProfile;
   }

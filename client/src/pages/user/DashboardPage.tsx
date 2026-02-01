@@ -12,14 +12,14 @@ const DASHBOARD_FEATURES = [
     desc: "Organize flights, hotels, and activities in one place.", 
     icon: <Calendar className="w-5 h-5 text-indigo-600" />, 
     color: "bg-indigo-50",
-    path: "/create-trip"
+    path: "/dashboard"
   },
   { 
     title: "Find Travelers", 
     desc: "Connect with others on similar travel paths.", 
     icon: <Users className="w-5 h-5 text-blue-600" />, 
     color: "bg-blue-50",
-    path: "/find-travelers"
+    path: "/dashboard"
   },
   { 
     title: "Chat with Travelers", 
@@ -75,7 +75,7 @@ const DASHBOARD_FEATURES = [
     desc: "Connect with local guides", 
     icon: <Search className="w-5 h-5 text-amber-600" />, 
     color: "bg-amber-50",
-    path: "/find-guide"
+    path: "/dashboard"
   },
   { 
     title: "Join as a guide", 

@@ -2,15 +2,15 @@
  import React, { useState, useEffect } from 'react';
 import { Search, Filter, MoreVertical, Ban, Trash2, UserCheck, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+// import axios from 'axios';
 import { AdminLayout } from '../../components/admin/AdminLayout';
-import { authService } from '../../store/authStore';
+import { authService } from '../../services/authService';
 import api from "../../utils/api"
 import { Pagination } from '../../components/Pagination';
 
 
 interface UserData {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   role: 'admin' | 'guide' | 'user';
@@ -28,12 +28,11 @@ export const UserManagement = () => {
 
  useEffect(() => {
     fetchUsers();
-  }, [currentPage, searchTerm]); // Refetch when page or search changes
+  }, [currentPage, searchTerm]); 
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      // Pass page, limit, and search to backend
       const { data } = await api.get('/api/admin/users', {
         params: {
           page: currentPage,
@@ -58,15 +57,17 @@ export const UserManagement = () => {
 
   const handleToggleBlock = async (userId: string, isBlocked: boolean) => {
     try {
-        const token=authService.getToken()
+      console.log("userId from frontend",userId)
+        // const token=authService.getToken()
       await api.patch(`/api/admin/users/${userId}/block`,
-          { blocked: !isBlocked }
+          { blocked: !isBlocked },
         // {headers:{Authorization:`Bearer ${token}`}}
         );
       toast.success(isBlocked ? "User unblocked" : "User blocked");
       // Update local state to reflect change
-      setUsers(users.map(u => u.id === userId ? { ...u, isBlocked: !isBlocked } : u));
+      setUsers(users.map(u => u._id === userId ? { ...u, isBlocked: !isBlocked } : u));
     } catch (error) {
+      console.log("from clieant handle toggle block",error)
       toast.error("Action failed");
     }
   };
@@ -109,7 +110,7 @@ export const UserManagement = () => {
             </thead>
             <tbody className="divide-y divide-gray-100">
                   {users.map((user) => (
-                    <tr key={user.id} className="hover:bg-slate-50 transition-colors">
+                    <tr key={user._id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-[#f0f9ff] flex items-center justify-center text-[#5537ee] font-bold">
@@ -138,7 +139,7 @@ export const UserManagement = () => {
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
                       <button 
-                        onClick={() => handleToggleBlock(user.id, user.isBlocked)}
+                        onClick={() => handleToggleBlock(user._id, user.isBlocked)}
                         className={`p-2 rounded-lg transition ${user.isBlocked ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-red-50 text-red-600 hover:bg-red-100'}`}
                         title={user.isBlocked ? "Unblock" : "Block"}
                       >

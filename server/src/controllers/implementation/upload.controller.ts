@@ -1,6 +1,6 @@
 // server/src/controllers/implementation/upload.controller.ts
 import { Request, Response, NextFunction } from 'express';
-import { IUploadService } from '../interfaces/IUploadService.js';
+import { IUploadService } from '../../services/interface/IUploadService.js';
 import { StatusCode } from '../../constants/statusCode.enum.js';
 
 export class UploadController {

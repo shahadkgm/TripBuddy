@@ -1,58 +1,40 @@
 // src/controllers/user.controller.ts
 import { Request, Response } from 'express';
-import { UserService } from '../../services/implementation/user.service.js';
+import { StatusCode } from '../../constants/statusCode.enum.js';
+import { IUserService } from '../../services/interface/IUserService.js';
+import { ForgotPasswordDTO } from '../../dto/user.dto.js';
 
 export class UserController {
-  // Injecting the interface, not the concrete class
-  constructor(private userService: UserService) {}
+  constructor(private userService: IUserService) {}
 
-  // registerUser = async (req: Request, res: Response): Promise<void> => {
-  //   try {
-  //     const { name, email, password } = req.body;
-      
-  //     const newUser = await this.userService.registerUser({ email, name, password });
-
-  //     res.status(201).json({
-  //       message: "User registered successfully",
-  //       user: newUser
-  //     });
-  //   } catch (error) {
-  //     if (error instanceof Error && error.message.includes("already exists")) {
-  //       res.status(409).json({ message: error.message });
-  //     } else {
-  //       res.status(500).json({ 
-  //         message: "Failed to register user.", 
-  //         error: (error as Error).message 
-  //       });
-  //     }
-  //   }
-  // };
 
   getUsers = async (req: Request, res: Response): Promise<void> => {
     try {
       const users = await this.userService.getAllUsers();
-      res.status(200).json(users);
+      res.status(StatusCode.OK).json(users);
     } catch (error) {
-      res.status(500).json({ 
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({ 
         message: "Failed to fetch users.", 
         error: (error as Error).message 
       });
     }
   };
-async forgotPassword(req: Request, res: Response) {
+ forgotPassword=async(req: Request<{},{},ForgotPasswordDTO>, res: Response):Promise<void>=> {
     try {
       console.log("its call forgot password from backend ",process.env.EMAIL_USER)
       const { email } = req.body;
       
       if (!email) {
-        return res.status(400).json({ message: "Email is required" });
+         res.status(StatusCode.BAD_REQUEST).json({ message: "Email is required" });
+         return;
       }
 
       const result = await this.userService.forgotPassword(email);
-      return res.status(200).json(result);
+       res.status(StatusCode.OK).json(result);
     } catch (error: any) {
+      console.log("from forget password")
       // Return 400 or 404 depending on your error handling logic
-      return res.status(400).json({ message: error.message });
+       res.status(StatusCode.BAD_REQUEST).json({ message: error.message });
     }
   }
   async resetPassword(req: Request, res: Response) {
@@ -61,13 +43,13 @@ async forgotPassword(req: Request, res: Response) {
         const { password } = req.body;
 
         if (!password) {
-            return res.status(400).json({ message: "New password is required" });
+            return res.status(StatusCode.BAD_REQUEST).json({ message: "New password is required" });
         }
 
         const result = await this.userService.resetPassword(token, password);
-        return res.status(200).json(result);
+        return res.status(StatusCode.OK).json(result);
     } catch (error: any) {
-        return res.status(400).json({ message: error.message });
+        return res.status(StatusCode.BAD_REQUEST).json({ message: error.message });
     }
 }
 

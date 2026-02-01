@@ -1,7 +1,7 @@
 // src/components/home/Hero.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { authService } from "../../store/authStore";
+import { authService } from "../../services/authService";
 import axios from "axios";
 import toast from 'react-hot-toast'; // Added toast but it have problem i want to recheck this 
 const API_URL = import.meta.env.VITE_API_URL;

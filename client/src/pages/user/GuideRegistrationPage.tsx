@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from 'axios';
-import { authService } from '../../store/authStore';
+import { authService } from '../../services/authService';
 import { Camera, MapPin, DollarSign, Award, ArrowLeft,Loader2 } from 'lucide-react';
 import { GuideStatusPage } from './GuideStatusPage';
 import {Navigate } from 'react-router-dom'; 
@@ -43,7 +43,7 @@ export const GuideRegistrationPage = () => {
                 return;
             }
             try {
-                const res = await axios.get(`${API_URL}/api/guides/status/${user.id}`);
+                const res = await axios.get(`${API_URL}/api/guides/status/${user._id}`);
                 if (res.data.exists) {
                   console.log("exist in register")
                     setAppStatus(res.data.isVerified ? 'verified' : 'pending');
@@ -103,7 +103,7 @@ export const GuideRegistrationPage = () => {
               setIsSubmitting(false);
               return
             }
-            data.append('userId', user.id);
+            data.append('userId', user._id);
             data.append('bio', formData.bio);
             data.append('hourlyRate', formData.hourlyRate);
             data.append('serviceArea', formData.serviceArea);

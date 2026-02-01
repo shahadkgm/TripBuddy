@@ -1,5 +1,5 @@
 // client/src/components/Pagination.tsx
-import type { PaginationProps } from "../interface/IPaginatedTrips";
+import type { PaginationProps } from "../interface/IPagination";
 
 export const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) => {
   if (totalPages <= 1) return null;

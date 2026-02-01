@@ -2,7 +2,7 @@
 import RegisterForm from "../../components/RegisterForm";
 import LoginForm from "../../components/LoginForm";
 import { Link } from "react-router-dom";
-import type { AuthPageProps } from "../../interface/Auth.types";
+import type { AuthPageProps } from "../../interface/IAuth";
 
 
 
