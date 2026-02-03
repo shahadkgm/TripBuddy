@@ -4,7 +4,7 @@ import { Search, Filter, MoreVertical, Ban, Trash2, UserCheck, Loader2 } from 'l
 import toast from 'react-hot-toast';
 // import axios from 'axios';
 import { AdminLayout } from '../../components/admin/AdminLayout';
-import { authService } from '../../services/authService';
+import { authService } from '../../services/c.authService';
 import api from "../../utils/api"
 import { Pagination } from '../../components/Pagination';
 

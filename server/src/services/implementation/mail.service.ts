@@ -55,4 +55,32 @@ export class MailService implements IMailService {
       throw error;
     }
   }
+  async sendVerificationEmail(
+  email: string,
+  name: string,
+  verificationLink: string
+): Promise<void> {
+  const mailOptions = {
+    from: `"Trip Buddy" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: "Verify Your Email Address",
+    html: `
+      <div style="font-family: sans-serif; padding: 20px;">
+        <h2>Welcome, ${name} 👋</h2>
+        <p>Please verify your email to activate your account.</p>
+        <a href="${verificationLink}"
+           style="background:#5537ee;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none;">
+          Verify Email
+        </a>
+        <p style="margin-top:12px;font-size:12px;">
+          Or copy this link: ${verificationLink}
+        </p>
+      </div>
+    `,
+  };
+
+  await this.transporter.sendMail(mailOptions);
+}
+
+
 }

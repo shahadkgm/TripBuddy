@@ -16,6 +16,7 @@ import { GuideDashboard } from "./pages/guide/GuideDashboard";
 import { UserManagement } from "./pages/admin/UserManagement";
 import { useEffect } from "react";
 import { GuideManagement } from "./pages/admin/GuideManagement";
+import VerifyEmail from "./pages/auth/VerifyEmail";
 
 
 
@@ -43,6 +44,8 @@ function App() {
         <Route path="/register" element={<AuthPage mode="register" />} />
         <Route path="/login" element={<AuthPage mode="login" />} />
          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+         <Route path="/verify-email" element={<VerifyEmail />} />
+
          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
         {/* --- Protected Routes --- */}
         <Route element={<ProtectedRoute allowedRoles={'user'} />}>

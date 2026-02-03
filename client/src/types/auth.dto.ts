@@ -16,7 +16,7 @@ export interface GoogleLoginDTO {
 
 // Data received FROM backend
 export interface AuthUser {
-  _id: string;
+  id: string;
   name: string;
   email: string;
   role: "user" | "admin" | "guide";

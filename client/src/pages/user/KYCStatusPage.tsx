@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { authService } from '../../services/authService';
+import { authService } from '../../services/c.authService';
 
 const KYCStatusPage = () => {
   const [kycData, setKycData] = useState<any>(null);
@@ -12,7 +12,7 @@ const KYCStatusPage = () => {
 
   useEffect(() => {
   const fetchKYCDetails = async () => {
-    const userId = user.id; // The ID from your log
+    const userId = user?.id; // The ID from your log
     if (userId) {
       try {
         console.log("userId",userId)
@@ -27,7 +27,7 @@ const KYCStatusPage = () => {
     }
   };
   fetchKYCDetails();
-}, [user?.user?.id]);
+}, [user?.id]);
 
   if (loading) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
 

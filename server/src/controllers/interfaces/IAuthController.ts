@@ -18,4 +18,9 @@ export interface IAuthController {
     res: Response,
     next: NextFunction
   ): Promise<void>;
+  verifyEmail(
+    req:Request,
+    res:Response,
+    next:NextFunction
+  ):Promise<void>
 }

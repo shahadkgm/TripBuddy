@@ -12,6 +12,9 @@ export interface IUser {
   isBlocked: boolean; 
   createdAt?: Date;
   updatedAt?: Date;
+  isVerified:boolean;
+  verificationToken:string
+verificationTokenExpires:boolean
 }
 
 export interface IUserDocument extends IUser, Document {}

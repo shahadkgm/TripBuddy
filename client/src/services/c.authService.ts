@@ -1,14 +1,12 @@
-import axios from "axios";
 import type { AuthTokens, AuthUser, LoginDTO, RegisterDTO } from "../types/auth.dto";
 import api from "../utils/api";
 
 
-const API_URL = "http://localhost:4000/api/auth";
+// const API_URL = "http://localhost:4000/api";
 
 export const authService = {
   async register(userData: RegisterDTO) {
-    const response = await axios.post(API_URL + "/register", userData);
-
+const response = await api.post("/auth/register", userData);console.log("from cauth register",response)
     const { user, token } = response.data;
 
     if (token && user) {
@@ -20,8 +18,7 @@ export const authService = {
   },
 
   async login(credentials: LoginDTO) {
-    const response = await axios.post(API_URL + "/login", credentials);
-
+const response = await api.post("/auth/login", credentials);
     const { user, tokens }: { user: AuthUser; tokens: AuthTokens } =
       response.data;
       console.log("from frontend tokens",tokens)
@@ -35,10 +32,12 @@ export const authService = {
 
     return response.data;
   },
+  
+verifyEmail: async (token: string) => {
+return await api.get(`/auth/verify-email/${token}`);  },
 
   async googleLogin(token: string) {
-    const response = await axios.post(API_URL + "/google-login", { token });
-
+const response = await api.post("/auth/google-login", { token });
     const { user, tokens }: { user: AuthUser; tokens: AuthTokens } =
       response.data;
 

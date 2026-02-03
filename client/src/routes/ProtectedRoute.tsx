@@ -1,6 +1,6 @@
 //client/src/routes/protectedRoute.tsx
 import { Navigate, Outlet } from 'react-router-dom';
-import { authService } from '../services/authService';
+import { authService } from '../services/c.authService';
 
 interface ProtectedRouteProps {
   allowedRoles?: string; 

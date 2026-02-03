@@ -20,16 +20,21 @@ const userSchema = new Schema<IUserDocument>({
         required: false, 
         minlength: 6,
     },
-    // --- ADD THIS FIELD FOR BLOCKING ---
     isBlocked: {
         type: Boolean,
         default: false
     },
     role: {
         type: String,
-        enum: ["user", "guide", "admin"], // If your frontend uses 'explorer', change 'user' to 'explorer'
+        enum: ["user", "guide", "admin"], 
         default: "user"
     },
+    verificationToken: String,
+verificationTokenExpires: Date,
+isVerified: {
+  type: Boolean,
+  default: false,
+},
     passwordResetToken: { type: String, default: undefined },
     passwordResetExpires: { type: Date, default: undefined },
 }, {

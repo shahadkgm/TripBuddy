@@ -33,6 +33,9 @@ console.log("user from token",req.user)
     if(user.isBlocked){
       return res.status(StatusCode.FORBIDDEN).json({messaage:"User blocked"})
     }
+    if(!user.isVerified){
+      throw new Error("Please verify your email first")
+    }
 
 console.log("req.user from authMiddleware server",req.user)
     // Ensure the decoded object matches what the controller expects (req.user.id)

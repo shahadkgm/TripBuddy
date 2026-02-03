@@ -63,6 +63,26 @@ async findByResetToken(hashedToken: string) {
         }
         return user;
     }
+    async updateVerificationToken(userId: string,token: string,expires: number) {
+        
+  await UserModel.findByIdAndUpdate(userId, {
+    verificationToken: token,
+    verificationTokenExpires: expires,
+  });
+}
+    async findByVerificationToken(token:string){
+        return await UserModel.findOne({verificationToken:token,verificationTokenExpires:{$gt:Date.now()}}).exec();
+
+    }
+    async verifyUser(userId: string) {
+  await UserModel.findByIdAndUpdate(userId, {
+    isVerified: true,
+    $unset: {
+      verificationToken: 1,
+      verificationTokenExpires: 1,
+    },
+  });
+}
     
 }
 

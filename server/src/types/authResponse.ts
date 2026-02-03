@@ -1,11 +1,11 @@
 // src/types/auth/authResponse.ts
 export interface AuthResponse {
   message: string;
-  tokens: {
+  tokens?: {
     accessToken: string;
     refreshToken: string;
   };
-  user: {
+  user?: {
     id: string;
     name: string;
     email: string;

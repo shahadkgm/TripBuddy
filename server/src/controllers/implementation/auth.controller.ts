@@ -13,22 +13,17 @@ export class AuthController implements IAuthController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const { name, email, password } = req.body;
-
-      if (!name || !email || !password) {
-        res.status(StatusCode.BAD_REQUEST).json({ message: "All fields are required" });
-        return;
-      }
-
-      const result = await this._authService.registerUser(req.body);
-      res.status(StatusCode.CREATED).json(result);
-    } catch (error: any) {
-      if (error.message === "USER_EXISTS") {
-        res.status(StatusCode.CONFLICT).json({ message: "User already exists" });
-        return;
-      }
+    const result = await this._authService.registerUser(req.body);
+    res.status(StatusCode.CREATED).json(result);
+  } catch (error: any) {
+    if (error.message === "USER_EXISTS") {
+      res.status(StatusCode.CONFLICT).json({ message: "User already exists" });
+    } else if (error.message === "EMAIL_NOT_VERIFIED") {
+      res.status(StatusCode.OK).json({ message: "Verification email resent. Please check your inbox." });
+    } else {
       next(error);
     }
+  }
   };
 
   login = async (
@@ -52,12 +47,23 @@ export class AuthController implements IAuthController {
       // })
       res.status(StatusCode.OK).json(result);
     } catch (error: any) {
-      if (error.message === "INVALID_CREDENTIALS") {
-        res.status(StatusCode.UNAUTHORIZED).json({ message: "Invalid email or password" });
-        return;
-      }
-      next(error);
-    }
+  if (error.message === "INVALID_CREDENTIALS") {
+    res.status(StatusCode.UNAUTHORIZED).json({
+      message: "Invalid email or password"
+    });
+    return;
+  }
+
+  if (error.message === "EMAIL_NOT_VERIFIED") {
+    res.status(StatusCode.FORBIDDEN).json({
+      message: "Please verify your email before logging in"
+    });
+    return;
+  }
+
+  next(error);
+}
+
   };
 
   googleLogin = async (
@@ -79,4 +85,15 @@ export class AuthController implements IAuthController {
       next(error);
     }
   };
+  verifyEmail=async(req:Request,res:Response,next:NextFunction):Promise<void>=>{
+    try{
+      const{token}=req.params;
+      console.log("token from frontend",token)
+      const result=await this._authService.verifyEmail(token)
+      res.status(StatusCode.OK).json(result)
+      
+    }catch(err){
+       next(err)
+    }
+  }
 }

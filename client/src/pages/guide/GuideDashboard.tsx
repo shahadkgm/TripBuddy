@@ -9,7 +9,7 @@ import {
   LogOut
 
 } from "lucide-react";
-import { authService } from "../../services/authService";
+import { authService } from "../../services/c.authService";
 import { GuideSidebar } from "./GuideSidebar";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";

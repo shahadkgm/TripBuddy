@@ -4,6 +4,6 @@ import { AuthResponse } from "../../types/authResponse.js";
 export interface IAuthService {
   registerUser(data: RegisterUserDTO): Promise<AuthResponse>;
   loginUser(data: LoginDTO): Promise<AuthResponse>;
-  // Add this line
-  googleLogin(token: string): Promise<AuthResponse>; 
+  googleLogin(token: string): Promise<AuthResponse>;
+  verifyEmail (token:string):Promise<AuthResponse>
 }

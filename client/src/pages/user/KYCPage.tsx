@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'; 
-import { authService } from '../../services/authService';
+import { authService } from '../../services/c.authService';
 import { Button } from '../../components/Button';
 import toast from 'react-hot-toast';
 
@@ -19,7 +19,8 @@ const KYCPage = () => {
 
 useEffect(() => {
   const checkExistingStatus = async () => {
-    const userId = user?.user?.id;
+    console.log("user form kyc",user)
+const userId = user?.id;
     if (userId) {
       try {
         const res = await axios.get(`${API_URL}/api/kyc-status/${userId}`);
@@ -36,7 +37,7 @@ if (checking) return <div>Checking verification status...</div>;
     }
   };
   checkExistingStatus();
-}, [user?.user?.id, navigate]);
+}, [user?.id, navigate]);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
@@ -47,8 +48,7 @@ if (checking) return <div>Checking verification status...</div>;
     e.preventDefault();
     if (!file) return toast.error("Please upload a document");
 
-    // 3. Extract the actual ID string (e.g., "694695...")
-    const userId = user.id; 
+    const userId = user?.id; 
 
     if (!userId) {
       return toast.error("User session not found. Please log in again.");
@@ -57,7 +57,7 @@ if (checking) return <div>Checking verification status...</div>;
     setIsSubmitting(true);
     const formData = new FormData();
     formData.append('image', file);
-    formData.append('userId', userId); // Now sending the correct string!
+    formData.append('userId', userId); 
     formData.append('documentType', docType);
 
     try {

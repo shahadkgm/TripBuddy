@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
-import { authService } from "../services/authService"; 
+import { authService } from "../services/c.authService"; 
 import { GoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
 import { motion } from "framer-motion";
@@ -23,6 +23,7 @@ const calculatePasswordStrength = (password: string) => {
 };
 
 const RegisterForm = () => {
+  const [isVerificationSent, setIsVerificationSent] = useState(false); 
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -85,8 +86,9 @@ const RegisterForm = () => {
     try {
       const { confirmPassword, ...registerData } = form;
       await authService.register(registerData);
-      toast.success("Registration successful!", { id: loadingToast });
-      navigate("/login"); 
+      toast.success("verification email send", { id: loadingToast });
+      // navigate("/login"); 
+      setIsVerificationSent(true)
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Registration failed", { id: loadingToast });
     } finally {
@@ -106,7 +108,32 @@ const RegisterForm = () => {
       setIsLoading(false);
     }
   };
-
+  if (isVerificationSent) {
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="text-center space-y-4 py-8"
+    >
+      <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+        <svg className="w-10 h-10 text-[#5537ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <h2 className="text-2xl font-bold text-gray-800">Verify your email</h2>
+      <p className="text-gray-600">
+        We've sent a link to <span className="font-semibold">{form.email}</span>.<br />
+        Please click the link to activate your account.
+      </p>
+      <button 
+        onClick={() => setIsVerificationSent(false)} 
+        className="text-[#5537ee] text-sm hover:underline"
+      >
+        Entered wrong email? Go back
+      </button>
+    </motion.div>
+  );
+}
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
