@@ -5,3 +5,12 @@ export interface ForgotPasswordDTO {
 export interface ResetPasswordDTO {
   password: string;
 }
+export interface UserResponseDTO {
+  id: string;
+  name: string;
+  email: string;
+  role: "user"|"guide"|"admin";
+  isVerified: boolean;
+  isBlocked: boolean;
+  createdAt: string;
+}

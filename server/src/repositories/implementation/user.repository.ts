@@ -4,8 +4,8 @@ import UserModel from '../../models/user.models.js';
 import { IUser } from '../../types/user.type.js';       
 import bcrypt from 'bcryptjs'; // Make sure to install bcryptjs
 
-export class UserRepository implements IUserRepository  {
-
+export class UserRepository  implements IUserRepository  {
+  
     async create(userData: IUser) {
         // const newUser = await UserModel.create(userData);
         // return newUser;
@@ -46,6 +46,7 @@ async findByResetToken(hashedToken: string) {
             }
         });
     }
+    
 
     async findOrCreateGoogleUser(data:{
         name:string;

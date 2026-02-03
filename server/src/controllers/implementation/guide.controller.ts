@@ -9,6 +9,7 @@ export class GuideController {
   registerGuide = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = (req as any).user?.id; 
+      console.log("userid from register Guide",userId)
 
       if (!userId) {
         res.status(StatusCode.UNAUTHORIZED).json({ message: "User not authenticated" });

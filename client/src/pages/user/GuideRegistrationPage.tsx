@@ -7,6 +7,7 @@ import { authService } from '../../services/c.authService';
 import { Camera, MapPin, DollarSign, Award, ArrowLeft,Loader2 } from 'lucide-react';
 import { GuideStatusPage } from './GuideStatusPage';
 import {Navigate } from 'react-router-dom'; 
+import api from '../../utils/api';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -43,7 +44,7 @@ export const GuideRegistrationPage = () => {
                 return;
             }
             try {
-                const res = await axios.get(`${API_URL}/api/guides/status/${user._id}`);
+                const res = await api.get(`/api/guides/status/${user.id}`);
                 if (res.data.exists) {
                   console.log("exist in register")
                     setAppStatus(res.data.isVerified ? 'verified' : 'pending');
@@ -103,14 +104,14 @@ export const GuideRegistrationPage = () => {
               setIsSubmitting(false);
               return
             }
-            data.append('userId', user._id);
+            data.append('userId', user.id);
             data.append('bio', formData.bio);
             data.append('hourlyRate', formData.hourlyRate);
             data.append('serviceArea', formData.serviceArea);
             data.append('specialties', JSON.stringify(formData.specialties));
             if (formData.avatarFile) data.append('avatar', formData.avatarFile);
 
-await axios.post(`${API_URL}/api/guides/register`, data, {
+await api.post(`/api/guides/register`, data, {
             headers: {
                 Authorization: `Bearer ${token}`, 
                 'Content-Type': 'multipart/form-data'

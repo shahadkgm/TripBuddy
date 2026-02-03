@@ -9,7 +9,7 @@ const router = Router();
 
 // DI
 const userRepository = new UserRepository();
-const mailService = new MailService(); // Create instance
+const mailService = new MailService(); 
 const userService = new UserService(userRepository, mailService); 
 const userController = new UserController(userService);
 

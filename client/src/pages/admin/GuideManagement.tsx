@@ -82,7 +82,7 @@ console.log("from managem",guides)
           {guides.map((guide) => (
 <tr key={guide._id} className="border-t hover:bg-gray-50 transition-colors">
   <td className="p-4">
-    <div className="font-bold text-gray-900">{guide.userId?.name || "Unknown"}</div>
+    <div className="font-bold text-gray-900">{guide._id || "Unknown"}</div>
     <div className="text-xs text-gray-500">{guide.userId?.email}</div>
     <div className="text-xs italic text-gray-400 truncate max-w-[200px]" title={guide.bio}>
       "{guide.bio}"

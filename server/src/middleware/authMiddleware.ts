@@ -1,7 +1,7 @@
 // backend/src/middleware/authMiddleware.ts
 import jwt from 'jsonwebtoken';
 import { Response, NextFunction } from 'express';
-import { StatusCode } from "../constants/statusCode.enum.js"; // Use your enum
+import { StatusCode } from "../constants/statusCode.enum.js"; 
 import UserModel from '../models/user.models.js';
 import { AuthRequest } from '../types/authrequst.js';
 
@@ -38,9 +38,8 @@ console.log("user from token",req.user)
     }
 
 console.log("req.user from authMiddleware server",req.user)
-    // Ensure the decoded object matches what the controller expects (req.user.id)
     req.user = {
-     _id: user._id.toString() ,
+     id: user._id.toString() ,
       role: user.role,
       email:user.email
     }; 

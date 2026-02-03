@@ -6,6 +6,8 @@ import { AuthResponse } from "../../types/authResponse.js";
 import { OAuth2Client } from 'google-auth-library';
 import { IUserRepository } from "../../repositories/interface/IUserRepository.js";
 import { MailService } from "./mail.service.js";
+import { UserMapper } from "../../utils/userMapper.js";
+
 import crypto from "crypto";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -48,7 +50,6 @@ if (existingUser) {
     throw new Error("EMAIL_NOT_VERIFIED");
   }
 
-  // ✅ User exists AND verified
   throw new Error("USER_EXISTS");
 }
 
@@ -86,13 +87,14 @@ if (existingUser) {
     return {
 message: "Registration successful. Please verify your email.",
       //  tokens,
-      user: {
-        id: user._id.toString(),
-        name: user.name,
-        email: user.email,
-        role: user.role as "user" | "guide" | "admin",
-        isBlocked:user.isBlocked
-      }
+      // user: {
+      //   id: user._id.toString(),
+      //   name: user.name,
+      //   email: user.email,
+      //   role: user.role as "user" | "guide" | "admin",
+      //   isBlocked:user.isBlocked
+      // }
+      user:UserMapper.toResponseDTO(user)
     };
   }
 
@@ -127,13 +129,14 @@ console.log("tokens from authservice",tokens)
     return {
       message: "Logged in successfully",
        tokens,
-      user: {
-        id: user._id.toString(),
-        name: user.name,
-        email: user.email,
-        role: user.role as "user" | "guide" | "admin",
-        isBlocked: user.isBlocked 
-      }
+      // user: {
+      //   id: user._id.toString(),
+      //   name: user.name,
+      //   email: user.email,
+      //   role: user.role as "user" | "guide" | "admin",
+      //   isBlocked: user.isBlocked 
+      // }
+      user:UserMapper.toResponseDTO(user)
     };
   }
 
@@ -172,13 +175,14 @@ const tokens = this.generateTokens({
     return {
       message: "Google login successful",
        tokens,
-      user: {
-        id: user._id.toString(),
-        name: user.name,
-        email: user.email,
-        role: user.role as "user" | "guide" | "admin",
-        isBlocked:false
-      }
+      // user: {
+      //   id: user._id.toString(),
+      //   name: user.name,
+      //   email: user.email,
+      //   role: user.role as "user" | "guide" | "admin",
+      //   isBlocked:false
+      // }
+      user:UserMapper.toResponseDTO(user)
     };
   }
 
