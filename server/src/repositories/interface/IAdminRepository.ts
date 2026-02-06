@@ -1,7 +1,7 @@
 // backend/src/repositories/interfaces/IAdminRepository.ts
 
-import { IUser } from "../../types/user.type.js";
-import { IGuideProfile } from "../../domain/entities/GuideProfile.js";
+import { IUser } from '../../types/user.type.js';
+import { IGuideProfile } from '../../domain/entities/GuideProfile.js';
 
 export interface IAdminRepository {
   // users
@@ -27,7 +27,7 @@ export interface IAdminRepository {
  
     updateUserRole(
       userId:string,
-      role:"user"|"guide"|"admin"
+      role:'user'|'guide'|'admin'
     ):Promise<IUser|null>;
 
 

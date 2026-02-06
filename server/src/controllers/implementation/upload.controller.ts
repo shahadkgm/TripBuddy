@@ -41,7 +41,7 @@ export class UploadController {
 
       // 1. Validate Input First
       if (!userId) {
-        res.status(StatusCode.BAD_REQUEST).json({ message: "User ID is required" });
+        res.status(StatusCode.BAD_REQUEST).json({ message: 'User ID is required' });
         return;
       }
 
@@ -60,7 +60,7 @@ export class UploadController {
       // 4. Return Success
       res.status(StatusCode.OK).json(kyc);
     } catch (error) {
-      console.error("Upload Controller error:", error);
+      console.error('Upload Controller error:', error);
       next(error);
     }
   };

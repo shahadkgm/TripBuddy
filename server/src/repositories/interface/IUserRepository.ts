@@ -1,4 +1,4 @@
-import { IUser, IUserDocument } from "../../types/user.type.js";
+import { IUser, IUserDocument } from '../../types/user.type.js';
 
 export interface IUserRepository {
   create(userData: Partial<IUser>): Promise<IUserDocument>;

@@ -16,12 +16,12 @@ export class UserService implements IUserService {
   async registerUser(userData: RegisterUserDTO) {
     const existingUser = await this.userRepository.findByEmail(userData.email);
     if (existingUser) {
-      throw new Error("User with this email already exists.");
+      throw new Error('User with this email already exists.');
     }
 
     const newUser = await this.userRepository.create({
       ...userData,
-      role:userData.role||"user",
+      role:userData.role||'user',
       isBlocked:false
 
       });
@@ -29,7 +29,7 @@ export class UserService implements IUserService {
       id: newUser._id,
       name: newUser.name,
       email: newUser.email,
-      role: newUser.role || "user",
+      role: newUser.role || 'user',
       
     };
   }
@@ -40,7 +40,7 @@ export class UserService implements IUserService {
 
   async forgotPassword(email: string): Promise<{ message: string }> {
     const user = await this.userRepository.findByEmail(email);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error('User not found');
 
     // Generate token
     const resetToken = crypto.randomBytes(32).toString('hex');
@@ -52,7 +52,7 @@ export class UserService implements IUserService {
     // Send Email
     await this.mailService.sendResetEmail(user.email, resetToken);
 
-    return { message: "Reset link sent to email" };
+    return { message: 'Reset link sent to email' };
   }
 
   async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
@@ -61,11 +61,11 @@ export class UserService implements IUserService {
     const user = await this.userRepository.findByResetToken(hashedToken);
     
     if (!user ||! user.passwordResetExpires||new Date(user.passwordResetExpires).getTime()< Date.now()) {
-      throw new Error("Token is invalid or has expired.");
+      throw new Error('Token is invalid or has expired.');
     }
 
     await this.userRepository.updatePassword(user._id.toString(), newPassword);
 
-    return { message: "Password updated successfully" };
+    return { message: 'Password updated successfully' };
   }
 }

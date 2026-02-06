@@ -1,16 +1,16 @@
 // backend/src/repositories/admin.repository.ts
-import UserModel from "../../models/user.models.js";
- import GuideProfile from "../../models/guide.model.js";
-import { IUser } from "../../types/user.type.js";
-import { IGuideProfile } from "../../domain/entities/GuideProfile.js";
-import { IAdminRepository } from "../interface/IAdminRepository.js";
+import UserModel from '../../models/user.models.js';
+ import GuideProfile from '../../models/guide.model.js';
+import { IUser } from '../../types/user.type.js';
+import { IGuideProfile } from '../../domain/entities/GuideProfile.js';
+import { IAdminRepository } from '../interface/IAdminRepository.js';
 
 export class AdminRepository implements IAdminRepository{
   // backend/src/repositories/admin.repository.ts
 
 async getAllUsers(page: number, limit: number, search: string) {
-  page=Math.max(1,page)
-  limit=Math.max(1,limit)
+  page=Math.max(1,page);
+  limit=Math.max(1,limit);
   const skip = (page - 1) * limit;
   
   const query = search 
@@ -44,20 +44,20 @@ async getAllUsers(page: number, limit: number, search: string) {
 
   
   async findUserById(id: string): Promise<IUser | null> {
-    return await UserModel.findById(id).select("-password");
+    return await UserModel.findById(id).select('-password');
   }
 
   
   async updateUserBlockStatus(id: string, isBlocked: boolean): Promise<IUser | null> {
-    console.log("id",id)
+    console.log('id',id);
     return await UserModel.findByIdAndUpdate(
       id,
       { isBlocked },
       { new: true }
-    ).select("-password");
+    ).select('-password');
   }
   async deleteUser(id: string): Promise<boolean> {
-    console.log("from adminrepo",id)
+    console.log('from adminrepo',id);
     const result = await UserModel.findByIdAndDelete(id);
     return !!result;
   }
@@ -74,7 +74,7 @@ async getAllGuides():Promise<IGuideProfile[]> {
   return await GuideProfile.find({})
     .populate('userId', 'name email role isBlocked')
     .sort({ createdAt: -1 })
-    .lean()
+    .lean();
 }
 async verifyGuide(guideId: string): Promise<IGuideProfile|null> {
     return await GuideProfile.findByIdAndUpdate(
@@ -87,8 +87,8 @@ async verifyGuide(guideId: string): Promise<IGuideProfile|null> {
   return await GuideProfile.findByIdAndDelete(id).lean();
 }
 
-async updateUserRole(userId:string,role:"user"|"guide"|"admin"):Promise<IUser|null>{
-  return await UserModel.findByIdAndUpdate(userId,{role},{new:true}).lean()
+async updateUserRole(userId:string,role:'user'|'guide'|'admin'):Promise<IUser|null>{
+  return await UserModel.findByIdAndUpdate(userId,{role},{new:true}).lean();
 }
 
 }

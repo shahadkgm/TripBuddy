@@ -52,15 +52,15 @@ async findByResetToken(hashedToken: string) {
         name:string;
         email:string
     }){
-        let user=await UserModel.findOne({email:data.email})
+        let user=await UserModel.findOne({email:data.email});
         if(!user){
             user=await UserModel.create({
                 name:data.name,
                 email:data.email,
-                role:"user",
+                role:'user',
                 isVerified:true,
                 isBlocked:false
-            })
+            });
         }
         return user;
     }

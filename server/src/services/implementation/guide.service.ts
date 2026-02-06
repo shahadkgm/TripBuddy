@@ -1,9 +1,9 @@
 // backend/src/services/guide.service.ts
 
-import { IGuideRepository } from "../../repositories/interface/IGuideRepository.js";
-import { IUserRepository } from "../../repositories/interface/IUserRepository.js";
-import { IGuideService } from "../interface/IGuideService.js";
-import { IUserService } from "../interface/IUserService.js";
+import { IGuideRepository } from '../../repositories/interface/IGuideRepository.js';
+import { IUserRepository } from '../../repositories/interface/IUserRepository.js';
+import { IGuideService } from '../interface/IGuideService.js';
+import { IUserService } from '../interface/IUserService.js';
 
 
 export class GuideService implements IGuideService {
@@ -14,7 +14,7 @@ export class GuideService implements IGuideService {
   async register(userId: string, data: any, fileName?: string) {
     // const user=await this.userRepsitory.findby
     const existing = await this.guideRepository.findByUserId(userId);
-    if (existing) throw new Error("Application already exists");
+    if (existing) throw new Error('Application already exists');
 
     const profileData = {
       userId,

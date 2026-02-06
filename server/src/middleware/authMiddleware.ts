@@ -1,19 +1,18 @@
 // backend/src/middleware/authMiddleware.ts
 import jwt from 'jsonwebtoken';
 import { Response, NextFunction } from 'express';
-import { StatusCode } from "../constants/statusCode.enum.js"; 
+import { StatusCode } from '../constants/statusCode.enum.js'; 
 import UserModel from '../models/user.models.js';
 import { AuthRequest } from '../types/authrequst.js';
 
 export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
-  if(!authHeader||!authHeader.startsWith("Bearer ")){
-    return res.status(StatusCode.UNAUTHORIZED).json({message:"no token provided"})
+  if(!authHeader||!authHeader.startsWith('Bearer ')){
+    return res.status(StatusCode.UNAUTHORIZED).json({message:'no token provided'});
   }
-  const token =  authHeader.split(" ")[1] ;
-console.log("user from token",req.user)
+  const token =  authHeader.split(' ')[1] ;
   if (!token) {
-    return res.status(StatusCode.UNAUTHORIZED).json({ message: "Not authorized, no token" });
+    return res.status(StatusCode.UNAUTHORIZED).json({ message: 'Not authorized, no token' });
   }
 
   try {
@@ -23,21 +22,18 @@ console.log("user from token",req.user)
     };
     
     const user= await UserModel.findById(decoded.id);
-     
-    // if(!user||user.isBlocked){
-    //   return res.status(StatusCode.UNAUTHORIZED).json({message:"user is blocked or no longer exit"})
-    // }
+    
     if(!user){
-      return res.status(StatusCode.UNAUTHORIZED).json({message:"User not found"})
+      return res.status(StatusCode.UNAUTHORIZED).json({message:'User not found'});
     }
     if(user.isBlocked){
-      return res.status(StatusCode.FORBIDDEN).json({messaage:"User blocked"})
+      return res.status(StatusCode.FORBIDDEN).json({messaage:'User blocked'});
     }
     if(!user.isVerified){
-      throw new Error("Please verify your email first")
+      throw new Error('Please verify your email first');
     }
 
-console.log("req.user from authMiddleware server",req.user)
+console.log('req.user from authMiddleware server',req.user);
     req.user = {
      id: user._id.toString() ,
       role: user.role,
@@ -45,7 +41,7 @@ console.log("req.user from authMiddleware server",req.user)
     }; 
     next();
   } catch (error) {
-    res.status(StatusCode.UNAUTHORIZED).json({ message: "Token invalid or expired" });
+    res.status(StatusCode.UNAUTHORIZED).json({ message: 'Token invalid or expired' });
   }
 };
 
@@ -54,6 +50,6 @@ export const isAdmin = (req: any, res: Response, next: NextFunction) => {
   if (req.user && req.user.role === 'admin') {
     next();
   } else {
-    res.status(403).json({ message: "Access denied. Admins only." });
+    res.status(403).json({ message: 'Access denied. Admins only.' });
   }
 };

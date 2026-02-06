@@ -13,19 +13,19 @@ export class UploadService implements IUploadService {
       // status: 'pending' 
     );
     
-    console.log("KYC saved to DB:", newKYC);
+    console.log('KYC saved to DB:', newKYC);
     return newKYC;
   }
 
   async getKYCStatus(userId: string): Promise<any> {
-  const kyc = await this.kycRepo.findLatestKYCByUserId(  userId )
+  const kyc = await this.kycRepo.findLatestKYCByUserId(  userId );
   
   if (!kyc) {
     console.log(`New user detected: ${userId}. No KYC record found.`);
     return { status: 'none',userId }; // Return a default object instead of null
   }
 
-  console.log("KYC found in DB for user:", userId, kyc.status);
+  console.log('KYC found in DB for user:', userId, kyc.status);
   return kyc;
 }
 }

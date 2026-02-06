@@ -9,9 +9,10 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
   const user = authService.getCurrentUser();
   const token = authService.getToken();
-  console.log("user from protected ",user)
+  console.log("user from protected ",user,"token",token)
 
   if (!user || !token) {
+    console.log("from first c- protected route props")
     return <Navigate to="/login" replace />;
   }
 

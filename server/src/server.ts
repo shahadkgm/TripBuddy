@@ -3,11 +3,13 @@ import 'dotenv/config';
 import path from 'path';
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
-import authRoutes from "./routes/auth.routes.js";
+
+import authRoutes from './routes/auth.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
-import guideRoutes from "./routes/guide.routes.js"
-import adminRoutes from "./routes/admin.routes.js"
+import guideRoutes from './routes/guide.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 
 import { connectDB } from './config/db.js'; 
@@ -18,15 +20,20 @@ const PORT = process.env.PORT || 4000;
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // --- Middlewares ---
-app.use(cors());
-app.use(express.json());
+app.use(
+  cors({
+    origin: 'http://localhost:5173', 
+    credentials: true,              
+  })
+);app.use(express.json());
+app.use(cookieParser());
 
 // --- Routes ---
-app.use("/auth", authRoutes);
+app.use('/auth', authRoutes);
 app.use('/api', uploadRoutes);
 app.use('/api/users', UserRoutes);
-app.use("/api/guides",guideRoutes)
-app.use("/api/admin",adminRoutes)
+app.use('/api/guides',guideRoutes);
+app.use('/api/admin',adminRoutes);
 
 
 // --- Base Route ---

@@ -2,14 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import axios from 'axios';
 import { authService } from '../../services/c.authService';
-import { Camera, MapPin, DollarSign, Award, ArrowLeft,Loader2 } from 'lucide-react';
+import { Camera, MapPin, DollarSign, ArrowLeft,Loader2 } from 'lucide-react';
 import { GuideStatusPage } from './GuideStatusPage';
 import {Navigate } from 'react-router-dom'; 
 import api from '../../utils/api';
 
-const API_URL = import.meta.env.VITE_API_URL;
+// const API_URL = import.meta.env.VITE_API_URL;
 
 const SPECIALTIES = [
   { id: 'food', label: 'Food Tours' },

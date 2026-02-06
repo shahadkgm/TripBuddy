@@ -37,7 +37,7 @@ return true
     console.log("result from loginform",result)
     if (result.user.isBlocked) {
       toast.error("Your account has been blocked. Contact support.", { id: loginToast });
-      authService.logout(); // Clear the storage we just set
+      authService.logout(); 
       return; 
     }
 

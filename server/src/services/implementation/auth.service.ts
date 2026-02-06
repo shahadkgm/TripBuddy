@@ -1,23 +1,23 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { IAuthService } from "../interface/IAuthservice.js"; // Fixed path
-import { RegisterUserDTO, LoginDTO } from "../../dto/auth.dto.js";
-import { AuthResponse } from "../../types/authResponse.js";
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { IAuthService } from '../interface/IAuthservice.js'; // Fixed path
+import { RegisterUserDTO, LoginDTO } from '../../dto/auth.dto.js';
+import { AuthResponse } from '../../types/authResponse.js';
 import { OAuth2Client } from 'google-auth-library';
-import { IUserRepository } from "../../repositories/interface/IUserRepository.js";
-import { MailService } from "./mail.service.js";
-import { UserMapper } from "../../utils/userMapper.js";
+import { IUserRepository } from '../../repositories/interface/IUserRepository.js';
+import { MailService } from './mail.service.js';
+import { UserMapper } from '../../utils/userMapper.js';
 
-import crypto from "crypto";
+import crypto from 'crypto';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export class AuthService implements IAuthService {
-  private readonly JWT_SECRET :string
+  private readonly JWT_SECRET :string;
   
   constructor(private userRepo:IUserRepository,private _mailService:MailService){
     if(!process.env.JWT_SECRET){
-      throw new Error("JWT_SECRET IS NOT DEFINE")
+      throw new Error('JWT_SECRET IS NOT DEFINE');
     }
     this.JWT_SECRET=process.env.JWT_SECRET;
   }
@@ -29,7 +29,7 @@ export class AuthService implements IAuthService {
 
 if (existingUser) {
   if (!existingUser.isVerified) {
-    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationToken = crypto.randomBytes(32).toString('hex');
     const expires = Date.now() + 24 * 60 * 60 * 1000;
 
     await this.userRepo.updateVerificationToken(
@@ -39,7 +39,7 @@ if (existingUser) {
     );
 
     const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
-    console.log("resend email from backend authservice",verifyLink)
+    console.log('resend email from backend authservice',verifyLink);
 
     await this._mailService.sendVerificationEmail(
       existingUser.email,
@@ -47,10 +47,10 @@ if (existingUser) {
       verifyLink
     );
 
-    throw new Error("EMAIL_NOT_VERIFIED");
+    throw new Error('EMAIL_NOT_VERIFIED');
   }
 
-  throw new Error("USER_EXISTS");
+  throw new Error('USER_EXISTS');
 }
 
 
@@ -59,12 +59,12 @@ if (existingUser) {
       name,
       email,
       password: hashedPassword,
-      role: data.role || "user",
+      role: data.role || 'user',
       isBlocked: false,
       isVerified:false,
     });
 
-     const verificationToken = crypto.randomBytes(32).toString("hex");
+     const verificationToken = crypto.randomBytes(32).toString('hex');
   const expires = Date.now() + 24 * 60 * 60 * 1000;
   await this.userRepo.updateVerificationToken(
     user._id.toString(),
@@ -72,28 +72,16 @@ if (existingUser) {
     expires
   );
    const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
-   console.log("verification link",verifyLink)
+   console.log('verification link',verifyLink);
    await this._mailService.sendVerificationEmail(
     user.email,
     user.name,
     verifyLink
   );
 
-// const tokens = this.generateTokens({
-//   id: user._id.toString(),
-//   role: user.role
-// });
-
     return {
-message: "Registration successful. Please verify your email.",
-      //  tokens,
-      // user: {
-      //   id: user._id.toString(),
-      //   name: user.name,
-      //   email: user.email,
-      //   role: user.role as "user" | "guide" | "admin",
-      //   isBlocked:user.isBlocked
-      // }
+message: 'Registration successful. Please verify your email.',
+     
       user:UserMapper.toResponseDTO(user)
     };
   }
@@ -103,20 +91,20 @@ message: "Registration successful. Please verify your email.",
     
     const user = await this.userRepo.findByEmail( email );
     if (!user || !user.password) {
-      throw new Error("INVALID_CREDENTIALS");
+      throw new Error('INVALID_CREDENTIALS');
     }
     if(user.isBlocked){
-      throw new Error("User_blocked")
+      throw new Error('User_blocked');
     }
     if (!user.isVerified) {
-  throw new Error("EMAIL_NOT_VERIFIED");
+  throw new Error('EMAIL_NOT_VERIFIED');
 }
     
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw new Error("INVALID_CREDENTIALS");
+    if (!isMatch) throw new Error('INVALID_CREDENTIALS');
     
       if(!user.isVerified){
-        throw new Error("EMAIL_NOT_VERIFIED")
+        throw new Error('EMAIL_NOT_VERIFIED');
       }
 
 const tokens = this.generateTokens({
@@ -124,18 +112,12 @@ const tokens = this.generateTokens({
   role: user.role
 });
 
-console.log("tokens from authservice",tokens)
+console.log('tokens from authservice',tokens);
 
     return {
-      message: "Logged in successfully",
+      message: 'Logged in successfully',
        tokens,
-      // user: {
-      //   id: user._id.toString(),
-      //   name: user.name,
-      //   email: user.email,
-      //   role: user.role as "user" | "guide" | "admin",
-      //   isBlocked: user.isBlocked 
-      // }
+      
       user:UserMapper.toResponseDTO(user)
     };
   }
@@ -154,15 +136,15 @@ console.log("tokens from authservice",tokens)
 
     const payload = ticket.getPayload();
     if (!payload || !payload.email) {
-      throw new Error("INVALID_GOOGLE_TOKEN");
+      throw new Error('INVALID_GOOGLE_TOKEN');
     }
 
-    let user = await this.userRepo.findOrCreateGoogleUser({
+    const user = await this.userRepo.findOrCreateGoogleUser({
        email: payload.email,
-       name:payload.name||"Google user"
+       name:payload.name||'Google user'
       });
       if(user.isBlocked){
-        throw new Error("User blocked")
+        throw new Error('User blocked');
       }
 
    
@@ -173,15 +155,9 @@ const tokens = this.generateTokens({
 });
 
     return {
-      message: "Google login successful",
+      message: 'Google login successful',
        tokens,
-      // user: {
-      //   id: user._id.toString(),
-      //   name: user.name,
-      //   email: user.email,
-      //   role: user.role as "user" | "guide" | "admin",
-      //   isBlocked:false
-      // }
+      
       user:UserMapper.toResponseDTO(user)
     };
   }
@@ -194,7 +170,7 @@ const tokens = this.generateTokens({
         role: user.role
       },
       this.JWT_SECRET,
-      { expiresIn: "15m" }
+      { expiresIn: '15m' }
     ),
     refreshToken: jwt.sign(
       {
@@ -202,18 +178,18 @@ const tokens = this.generateTokens({
         role: user.role
       },
       this.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: '7d' }
     )
   };
 }
 async verifyEmail(token: string): Promise<AuthResponse> {
   const user = await this.userRepo.findByVerificationToken(token);
-  console.log("user from authservice verify",user)
-  if (!user) throw new Error("INVALID_TOKEN_OR_EXPIRED");
+  console.log('user from authservice verify',user);
+  if (!user) throw new Error('INVALID_TOKEN_OR_EXPIRED');
 
   await this.userRepo.verifyUser(user._id.toString());
 
-  return { message: "EMAIL_VERIFIED_SUCCESSFULLY" };
+  return { message: 'EMAIL_VERIFIED_SUCCESSFULLY' };
 }
 
 

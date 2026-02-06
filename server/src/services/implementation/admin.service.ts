@@ -1,6 +1,6 @@
 // backend/src/services/implementation/admin.service.ts
-import { IAdminRepository } from "../../repositories/interface/IAdminRepository.js";
-import { IAdminService } from "../interface/Iadminservice.js";
+import { IAdminRepository } from '../../repositories/interface/IAdminRepository.js';
+import { IAdminService } from '../interface/Iadminservice.js';
 
 export class AdminService implements IAdminService {
   constructor(private adminRepo: IAdminRepository) {}
@@ -12,21 +12,21 @@ export class AdminService implements IAdminService {
   
   async toggleUserBlock(userId: string, blockedStatus: boolean, adminId: string) {
     if (userId === adminId) {
-      throw new Error("You cannot block your own account.");
+      throw new Error('You cannot block your own account.');
     }
-    console.log("from userid in servise admin",userId)
+    console.log('from userid in servise admin',userId);
     const user = await this.adminRepo.findUserById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error('User not found');
     
     if (user.role === 'admin') {
-      throw new Error("Cannot modify status of another admin.");
+      throw new Error('Cannot modify status of another admin.');
     }
     
     return await this.adminRepo.updateUserBlockStatus(userId, blockedStatus);
   }
 
    async removeUser(userId: string, adminId: string) {
-    if (userId === adminId) throw new Error("Cannot delete yourself.");
+    if (userId === adminId) throw new Error('Cannot delete yourself.');
     return await this.adminRepo.deleteUser(userId);
   }
 
@@ -52,10 +52,10 @@ export class AdminService implements IAdminService {
 
   async approveGuide(guideId: string) {
     const updatedProfile = await this.adminRepo.verifyGuide(guideId);
-    if (!updatedProfile) throw new Error("Guide application not found");
+    if (!updatedProfile) throw new Error('Guide application not found');
 
     
-await this.adminRepo.updateUserRole(updatedProfile.userId.toString(),"guide")
+await this.adminRepo.updateUserRole(updatedProfile.userId.toString(),'guide');
 
     return updatedProfile;
   }
@@ -67,7 +67,7 @@ await this.adminRepo.updateUserRole(updatedProfile.userId.toString(),"guide")
   async rejectApplication(guideId: string) {
     const deletedGuide = await this.adminRepo.deleteGuide(guideId);
     if (!deletedGuide) {
-      throw new Error("Guide application not found");
+      throw new Error('Guide application not found');
     }
     return deletedGuide;
   }

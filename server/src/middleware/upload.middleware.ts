@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
     // Log this to see what the server is actually receiving
-    console.log("Incoming file mimetype:", file.mimetype);
+    console.log('Incoming file mimetype:', file.mimetype);
 
     const allowedTypes = /jpeg|jpg|png|gif/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());

@@ -2,5 +2,16 @@
   "dependencies": {
     "nodemailer": "^7.0.12",
     "react-hot-toast": "^2.6.0"
+  },
+  "scripts": {
+  "lint": "eslint './server/**/*.{ts,js}' --fix"
+},
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "eslint": "^9.39.2",
+    "globals": "^17.3.0",
+    "typescript-eslint": "^8.54.0"
   }
 }

@@ -1,6 +1,6 @@
-import { IGuideRepository } from "../interface/IGuideRepository.js";
-import { IGuideProfile } from "../../domain/entities/GuideProfile.js";
-import GuideProfile from "../../models/guide.model.js";
+import { IGuideRepository } from '../interface/IGuideRepository.js';
+import { IGuideProfile } from '../../domain/entities/GuideProfile.js';
+import GuideProfile from '../../models/guide.model.js';
 
 export class GuideRepository implements IGuideRepository {
   async findAll(filters: Record<string, any>): Promise<IGuideProfile[]> {

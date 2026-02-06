@@ -1,5 +1,5 @@
-import { KYC } from "../../models/kyc.model.js";
-import { IKYCRepository } from "../interface/IKycRepository.js";
+import { KYC } from '../../models/kyc.model.js';
+import { IKYCRepository } from '../interface/IKycRepository.js';
 
 
 
@@ -14,7 +14,7 @@ export class KycRepository implements IKYCRepository{
             userId,
             documentType:docType,
             filePath:file.path,
-            status:"pending"
+            status:'pending'
         });
     }
     async  findLatestKYCByUserId(userId:string):Promise<any|null>{

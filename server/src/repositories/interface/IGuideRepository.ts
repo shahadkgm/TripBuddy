@@ -1,6 +1,6 @@
 // server/src/repositories/interface/IGuideRepository.ts";
 
-import { IGuideProfile } from "../../domain/entities/GuideProfile.js";
+import { IGuideProfile } from '../../domain/entities/GuideProfile.js';
 
 export interface IGuideRepository {
   

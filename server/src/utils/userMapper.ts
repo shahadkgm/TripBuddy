@@ -11,7 +11,7 @@ export class UserMapper {
       role: user.role,
       isVerified: user.isVerified,
       isBlocked: user.isBlocked,
-      createdAt: user.createdAt?.toString()??"",
+      createdAt: user.createdAt?.toString()??'',
     };
   }
 }

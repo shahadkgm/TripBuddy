@@ -6,7 +6,7 @@ export interface IUser {
   name: string;
   email: string;
   password?: string;
-  role: "user" | "guide" | "admin";
+  role: 'user' | 'guide' | 'admin';
   passwordResetToken?: string;
   passwordResetExpires?: number | Date;
   isBlocked: boolean; 

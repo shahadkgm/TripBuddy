@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { AdminService } from '../../services/implementation/admin.service.js';
 import { StatusCode } from '../../constants/statusCode.enum.js';
 import { IAdminService } from '../../services/interface/Iadminservice.js';
 import { IAdminController } from '../interfaces/IadminController.js';
@@ -25,9 +24,9 @@ export class AdminController implements IAdminController {
   handleBlockUser = async (req:Request, res: Response) => {
     try {
       const { id } = req.params;
-      console.log("from admin",id)
+      console.log('from admin',id);
       const { blocked } = req.body;
-       console.log("from admin block",blocked )
+       console.log('from admin block',blocked );
 //         if(!req.user?._id){
 // return res.status(StatusCode.UNAUTHORIZED).json({message:"unauthorized from admin cntrl"})
 //         }
@@ -36,7 +35,7 @@ export class AdminController implements IAdminController {
       const updatedUser = await this.adminService.toggleUserBlock(id, blocked, adminId);
       res.status(StatusCode.OK).json(updatedUser);
     } catch (error: any) {
-      console.log("error from admin handleblock ",error)
+      console.log('error from admin handleblock ',error);
       res.status(StatusCode.BAD_REQUEST).json({ message: error.message });
     }
   };
@@ -47,11 +46,11 @@ export class AdminController implements IAdminController {
       const adminId = (req as any).user._id;
 
       await this.adminService.removeUser(id, adminId);
-      res.status(StatusCode.OK).json({ message: "User deleted successfully" });
+      res.status(StatusCode.OK).json({ message: 'User deleted successfully' });
     } catch (error: any) {
       res.status(StatusCode.BAD_REQUEST).json({ message: error.message });
     }
-  }
+  };
 
   //guide
   getPendingGuides = async (req: Request, res: Response) => {
@@ -67,7 +66,7 @@ handleVerifyGuide = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const result = await this.adminService.approveGuide(id);
-    res.status(StatusCode.OK).json({ message: "Guide verified successfully", result });
+    res.status(StatusCode.OK).json({ message: 'Guide verified successfully', result });
   } catch (error: any) {
     res.status(StatusCode.BAD_REQUEST).json({ message: error.message });
   }
@@ -84,11 +83,11 @@ rejectGuide = async (req: Request, res: Response) => {
     await this.adminService.rejectApplication(id); 
     
     res.status(StatusCode.OK).json({ 
-      message: "Guide application rejected successfully" 
+      message: 'Guide application rejected successfully' 
     });
   } catch (error: any) {
     res.status(StatusCode.BAD_REQUEST).json({ 
-      message: error.message || "Failed to reject application" 
+      message: error.message || 'Failed to reject application' 
     });
   }
 };

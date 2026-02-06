@@ -26,8 +26,8 @@ const userSchema = new Schema<IUserDocument>({
     },
     role: {
         type: String,
-        enum: ["user", "guide", "admin"], 
-        default: "user"
+        enum: ['user', 'guide', 'admin'], 
+        default: 'user'
     },
     verificationToken: String,
 verificationTokenExpires: Date,

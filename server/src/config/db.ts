@@ -5,7 +5,7 @@ export const connectDB = async (): Promise<void> => {
     const MONGO_URI = process.env.MONGO_URI;
 
     if (!MONGO_URI) {
-        console.error("FATAL ERROR: MONGO_URI is not defined.");
+        console.error('FATAL ERROR: MONGO_URI is not defined.');
         process.exit(1);
     }
 
