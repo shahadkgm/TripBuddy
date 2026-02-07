@@ -1,4 +1,4 @@
-import type { AuthTokens, AuthUser, LoginDTO, RegisterDTO } from "../types/auth.dto";
+import type {  AuthUser, LoginDTO, RegisterDTO } from "../types/auth.dto";
 import api from "../utils/api";
 
 
@@ -44,19 +44,6 @@ async login(credentials:LoginDTO){
 verifyEmail: async (token: string) => {
 return await api.get(`/auth/verify-email/${token}`);  },
 
-//   async googleLogin(token: string) {
-// const response = await api.post("/auth/google-login", { token });
-//     const { user, tokens }: { user: AuthUser; tokens: AuthTokens } =
-//       response.data;
-
-//     if (tokens?.accessToken && user) {
-//       localStorage.setItem("token", tokens.accessToken);
-//       localStorage.setItem("user", JSON.stringify(user));
-//       window.dispatchEvent(new Event("storage"));
-//     }
-
-//     return response.data;
-//   },
 async googleLogin(token:string){
   const response=await api.post("/auth/google-login",{token});
   const {user,accessToken}=response.data;
