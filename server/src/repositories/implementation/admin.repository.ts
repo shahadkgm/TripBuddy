@@ -2,11 +2,11 @@
 import UserModel from '../../models/user.models.js';
  import GuideProfile from '../../models/guide.model.js';
 import { IUser } from '../../types/user.type.js';
-import { IGuideProfile } from '../../domain/entities/GuideProfile.js';
 import { IAdminRepository } from '../interface/IAdminRepository.js';
+import { Guide } from '../../types/guide.type.js';
+import { BaseRepository } from './base.repository.js';
 
-export class AdminRepository implements IAdminRepository{
-  // backend/src/repositories/admin.repository.ts
+export class AdminRepository  implements IAdminRepository{
 
 async getAllUsers(page: number, limit: number, search: string) {
   page=Math.max(1,page);
@@ -63,28 +63,45 @@ async getAllUsers(page: number, limit: number, search: string) {
   }
 
 //guide
-  async getAllPendingGuides():Promise<IGuideProfile[]> {
-  return await GuideProfile.find()
+  async getAllPendingGuides():Promise<Guide[]> {
+  return await GuideProfile.find({isVerified:false})
     .populate('userId', 'name email role')
     .sort({ createdAt: -1 })
-    .lean();
+    .lean<Guide[]>();
 
 }
-async getAllGuides():Promise<IGuideProfile[]> {
-  return await GuideProfile.find({})
-    .populate('userId', 'name email role isBlocked')
-    .sort({ createdAt: -1 })
-    .lean();
+async getAllGuides(page:number,limit:number,search:string) {
+  const skip=(Math.max(1,page)-1)*limit;
+  const query=search?{
+    $or:[
+      {serviceArea:{$regex:search,$options:'i'}},
+      {bio:{$regex:search,$options:"i"}}
+    ]
+  }:{};
+  const [guides,totalGuides]=await Promise.all([
+    GuideProfile.find(query)
+    .populate('userId','name email role isBlocked')
+    .skip(skip)
+    .limit(limit)
+    .lean<Guide[]>(),
+    GuideProfile.countDocuments(query)
+  ])
+  return {
+    guides,
+    totalPages: Math.ceil(totalGuides / limit),
+    totalGuides,
+    currentPage: page
+  };
 }
-async verifyGuide(guideId: string): Promise<IGuideProfile|null> {
+async verifyGuide(guideId: string): Promise<Guide|null> {
     return await GuideProfile.findByIdAndUpdate(
       guideId, 
       { isVerified: true }, 
       { new: true }
-    ).lean();
+    ).lean<Guide>();
   }
-  async deleteGuide(id: string):Promise<IGuideProfile|null> {
-  return await GuideProfile.findByIdAndDelete(id).lean();
+  async deleteGuide(id: string):Promise<Guide|null> {
+  return await GuideProfile.findByIdAndDelete(id).lean<Guide>();
 }
 
 async updateUserRole(userId:string,role:'user'|'guide'|'admin'):Promise<IUser|null>{

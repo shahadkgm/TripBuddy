@@ -7,16 +7,12 @@ import { GuideService } from '../services/implementation/guide.service.js';
 import { GuideRepository } from '../repositories/implementation/guide.repository.js';
 import { GuideController } from '../controllers/implementation/guide.controller.js';
  import { protect } from '../middleware/authMiddleware.js'; 
-import { MailService } from '../services/implementation/mail.service.js';
-import { UserRepository } from '../repositories/implementation/user.repository.js';
-import { UserService } from '../services/implementation/user.service.js';
 
 const router = Router();
 // const mailrepo=new MailService();
-const userRepo=new UserRepository();
 // const userService=new UserService(userRepo,mailrepo);
 const guideRepo = new GuideRepository();
-const guideService = new GuideService(guideRepo,userRepo);
+const guideService = new GuideService(guideRepo);
 const guideController = new GuideController(guideService);
 
 // --- Multer Configuration ---

@@ -1,9 +1,8 @@
 // middleware/upload.middleware.ts
-import multer from 'multer';
+import multer, { FileFilterCallback } from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-// Define the directory
 const uploadDir = 'uploads/';
 
 // logic to ensure the directory exists
@@ -21,21 +20,24 @@ const storage = multer.diskStorage({
     }
 });
 
-const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
-    // Log this to see what the server is actually receiving
-    console.log('Incoming file mimetype:', file.mimetype);
+const fileFilter: multer.Options['fileFilter'] = (req, file, cb) => {
+  console.log('Incoming file mimetype:', file.mimetype);
 
-    const allowedTypes = /jpeg|jpg|png|gif/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
+  const allowedTypes = /jpeg|jpg|png|gif/;
 
-    if (extname && mimetype) {
-        return cb(null, true);
-    } else {
-        // This is what triggered your error
-        cb(new Error('Error: Only images (jpeg, jpg, png, gif) are allowed!'), false);
-    }
+  const extname = allowedTypes.test(
+    path.extname(file.originalname).toLowerCase()
+  );
+
+  const mimetype = allowedTypes.test(file.mimetype);
+
+  if (extname && mimetype) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only images allowed'));
+  }
 };
+
 
 export const upload = multer({ 
     storage,

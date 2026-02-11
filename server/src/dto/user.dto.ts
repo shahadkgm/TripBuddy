@@ -14,3 +14,9 @@ export interface UserResponseDTO {
   isBlocked: boolean;
   createdAt: string;
 }
+export interface RegisterUserResponseDTO {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}

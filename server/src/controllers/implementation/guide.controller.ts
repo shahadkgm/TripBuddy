@@ -3,12 +3,12 @@ import { Request, Response, NextFunction } from 'express';
 import { IGuideService } from '../../services/interface/IGuideService.js';
 import { StatusCode } from '../../constants/statusCode.enum.js';
 
-export class GuideController {
+export class  GuideController {
   constructor(private readonly _guideService: IGuideService) {}
 
   registerGuide = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = (req as any).user?.id; 
+      const userId = req.user?.id; 
       console.log('userid from register Guide',userId);
 
       if (!userId) {

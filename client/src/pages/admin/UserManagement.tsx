@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { Search, Ban, Trash2, UserCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import api from "../../utils/api";
-import { Pagination } from '../../components/Pagination';
 import { DataTable } from '../../components/DataTable';
+import { Pagination } from '../../components/Pagination';
+import { ConfirmModal } from '../../components/ConfirmModal';
 // import { DataTable } from '../../components/common/DataTable'; // Import the new component
 
 interface UserData {
@@ -21,6 +22,8 @@ export const UserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const limit = 3;
 
   useEffect(() => {
@@ -51,8 +54,21 @@ export const UserManagement = () => {
       toast.error("Action failed");
     }
   };
+  const handleDeleteClick = (userId: string) => {
+    setSelectedUserId(userId);
+    setIsModalOpen(true);
+  };
+  const confirmDelete = async () => {
+    if (!selectedUserId) return;
+    try {
+      await api.delete(`/api/admin/users/${selectedUserId}`);
+      toast.success("User deleted successfully");
+      setUsers(users.filter(u => u._id !== selectedUserId));
+    } catch (error) {
+      toast.error("Deletion failed");
+    }
+  };
 
-  // --- Table Column Configuration ---
   const columns = [
     {
       header: "User",
@@ -92,7 +108,7 @@ export const UserManagement = () => {
       )
     },
     {
-      header: "Actions",
+      header: "Status",
       key: "actions",
       className: "text-right",
       render: (user: UserData) => (
@@ -104,7 +120,22 @@ export const UserManagement = () => {
           >
             {user.isBlocked ? <UserCheck size={18} /> : <Ban size={18} />}
           </button>
-          <button className="p-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100">
+          {/* <button className="p-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100">
+            <Trash2 size={18} />
+          </button> */}
+        </div>
+      )
+    },
+    {
+      header: "Actions",
+      key: "actions",
+      className: "text-right",
+      render: (user: UserData) => (
+        <div className="flex justify-end gap-2">
+          <button 
+            onClick={() => handleDeleteClick(user._id)} 
+            className="p-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-red-50 hover:text-red-600 transition"
+          >
             <Trash2 size={18} />
           </button>
         </div>
@@ -146,6 +177,14 @@ export const UserManagement = () => {
           />
         </div>
       </div>
+      <ConfirmModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete User"
+        message="Are you sure you want to delete this user? This action cannot be undone."
+        confirmText="Yes, Delete"
+      />
     </AdminLayout>
   );
 };

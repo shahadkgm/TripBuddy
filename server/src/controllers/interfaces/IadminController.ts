@@ -1,14 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
+import { RequestHandler } from 'express';
 
 export interface IAdminController {
-  // User Management
-  getAllUsers(req: Request, res: Response, next: NextFunction): Promise<void>;
-  handleBlockUser(req: Request, res: Response, next: NextFunction): Promise<void>;
-  deleteUser(req: Request, res: Response, next: NextFunction): Promise<void>;
+  getAllUsers: RequestHandler;
+  handleBlockUser: RequestHandler;
+  deleteUser: RequestHandler;
 
-  // Guide Management
-  getPendingGuides(req: Request, res: Response, next: NextFunction): Promise<void>;
-  handleVerifyGuide(req: Request, res: Response, next: NextFunction): Promise<void>;
-  getAllGuides(req: Request, res: Response, next: NextFunction): Promise<void>;
-  rejectGuide(req: Request, res: Response, next: NextFunction): Promise<void>;
+  getPendingGuides: RequestHandler;
+  handleVerifyGuide: RequestHandler;
+  getAllGuides: RequestHandler;
+  rejectGuide: RequestHandler;
 }

@@ -4,7 +4,8 @@ import { Loader2 } from 'lucide-react';
 interface Column<T> {
   header: string;
   key: keyof T | string;
-  render?: (item: T) => React.ReactNode;
+  // Change: Added index as a second optional parameter
+  render?: (item: T, index: number) => React.ReactNode; 
   className?: string;
 }
 
@@ -41,7 +42,11 @@ export function DataTable<T>({ columns, data, loading, emptyMessage = "No record
             <tr key={item._id || rowIndex} className="hover:bg-slate-50 transition-colors">
               {columns.map((col, colIndex) => (
                 <td key={colIndex} className="px-6 py-4">
-                  {col.render ? col.render(item) : (item[col.key] as React.ReactNode)}
+                  {/* Change: Pass rowIndex to the render function */}
+                  {col.render 
+                    ? col.render(item, rowIndex) 
+                    : (item[col.key] as React.ReactNode)
+                  }
                 </td>
               ))}
             </tr>

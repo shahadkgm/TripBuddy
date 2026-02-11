@@ -6,8 +6,7 @@ import { UserRepository } from '../repositories/implementation/user.repository.j
 import { MailService } from '../services/implementation/mail.service.js';
 import { validate } from '../middleware/validate.js';
 import { loginValidators, registerValidators } from '../middleware/auth.validator.js';
-import { protect } from '../middleware/authMiddleware.js';
-import { auth } from 'google-auth-library';
+// import { protect } from '../middleware/authMiddleware.js';
 
 const router = Router();
 

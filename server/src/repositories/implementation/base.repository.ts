@@ -1,30 +1,43 @@
-import { Model, Document, FilterQuery, UpdateQuery } from 'mongoose';
+import { Model, Document } from 'mongoose';
 
-export class BaseRepository<T extends Document> {
-  constructor(protected model: Model<T>) {}
+export abstract class BaseRepository<T> {
+  constructor(protected readonly model: Model<any>) {}
+
+  protected map(doc: any): T {
+    if (!doc) return doc;
+
+    const obj = typeof doc.toObject === 'function'
+      ? doc.toObject()
+      : doc;
+
+    if (obj._id) {
+      obj._id = obj._id.toString();
+    }
+
+    return obj as T;
+  }
+
+  protected mapMany(docs: any[]): T[] {
+    return docs.map(doc => this.map(doc));
+  }
 
   async create(data: Partial<T>): Promise<T> {
-    return this.model.create(data);
+    const doc = await this.model.create(data);
+    return this.map(doc);
   }
 
   async findById(id: string): Promise<T | null> {
-    return this.model.findById(id).exec();
+    const doc = await this.model.findById(id);
+    return this.map(doc);
   }
 
-  async findAll(filter: FilterQuery<T> = {}): Promise<T[]> {
-    return this.model.find(filter).exec();
+  async findOne(filter: Record<string, unknown>): Promise<T | null> {
+    const doc = await this.model.findOne(filter);
+    return this.map(doc);
   }
 
-  async update(id: string, data: UpdateQuery<T>): Promise<T | null> {
-    return this.model.findByIdAndUpdate(id, data, { new: true }).exec();
-  }
-
-  async delete(id: string): Promise<boolean> {
-    const res = await this.model.findByIdAndDelete(id);
-    return !!res;
-  }
-
-  async count(filter: FilterQuery<T> = {}): Promise<number> {
-    return this.model.countDocuments(filter);
+  async findAll(filter: Record<string, unknown> = {}): Promise<T[]> {
+    const docs = await this.model.find(filter);
+    return this.mapMany(docs);
   }
 }

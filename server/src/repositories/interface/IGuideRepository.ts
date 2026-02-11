@@ -1,19 +1,16 @@
 // server/src/repositories/interface/IGuideRepository.ts";
 
-import { IGuideProfile } from '../../domain/entities/GuideProfile.js';
+import { Guide, GuideCreate } from "../../types/guide.type.js";
+
 
 export interface IGuideRepository {
   
-  findAll(filters: any): Promise<IGuideProfile[]>;
+  findAll(filters:Record<string,unknown>): Promise<Guide[]>;
 
-  findByUserId(userId: string): Promise<IGuideProfile | null>;
+  findByUserId(userId: string): Promise<Guide | null>;
 
   
-  create(data: Partial<IGuideProfile>): Promise<IGuideProfile>;
+  create(data: GuideCreate): Promise<Guide>;
 }
 
 
-export interface IGuideService {
-  getAllGuides(query: any): Promise<IGuideProfile[]>;
-  checkStatus(userId: string): Promise<{ exists: boolean; isVerified: boolean }>;
-}

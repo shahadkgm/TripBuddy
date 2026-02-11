@@ -1,11 +1,13 @@
 // server/src/services/implementation/upload.service.ts
 import { IUploadService } from '../interface/IUploadService.js';
 import { IKYCRepository } from '../../repositories/interface/IKycRepository.js';
+import { KYCStatusResponseDTO } from '../../dto/kyc.dto.js';
+import { IKYC } from '../../types/kyc.type.js';
 
 export class UploadService implements IUploadService {
   
   constructor(private kycRepo:IKYCRepository){}
-  async saveKYCDocument(file: Express.Multer.File, userId: string, docType: string): Promise<any> {
+  async saveKYCDocument(file: Express.Multer.File, userId: string, docType: string): Promise<IKYC> {
     const newKYC = await this.kycRepo.createKYC(
       file,
        userId,
@@ -17,7 +19,7 @@ export class UploadService implements IUploadService {
     return newKYC;
   }
 
-  async getKYCStatus(userId: string): Promise<any> {
+  async getKYCStatus(userId: string): Promise<KYCStatusResponseDTO> {
   const kyc = await this.kycRepo.findLatestKYCByUserId(  userId );
   
   if (!kyc) {

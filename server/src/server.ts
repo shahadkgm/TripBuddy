@@ -14,6 +14,7 @@ import adminRoutes from './routes/admin.routes.js';
 
 import { connectDB } from './config/db.js'; 
 import UserRoutes from './routes/user.routes.js'; 
+import { errorMiddleware } from './middleware/error.middleware.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -27,6 +28,8 @@ app.use(
   })
 );app.use(express.json());
 app.use(cookieParser());
+app.use(errorMiddleware);
+
 
 // --- Routes ---
 app.use('/auth', authRoutes);

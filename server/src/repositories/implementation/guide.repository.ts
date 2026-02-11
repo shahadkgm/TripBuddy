@@ -1,24 +1,26 @@
 import { IGuideRepository } from '../interface/IGuideRepository.js';
-import { IGuideProfile } from '../../domain/entities/GuideProfile.js';
 import GuideProfile from '../../models/guide.model.js';
+import { Guide } from '../../types/guide.type.js';
+import { BaseRepository } from './base.repository.js';
 
-export class GuideRepository implements IGuideRepository {
-  async findAll(filters: Record<string, any>): Promise<IGuideProfile[]> {
-    return await GuideProfile.find(filters)
+export class GuideRepository
+  extends BaseRepository<Guide>
+  implements IGuideRepository {
+
+  constructor() {
+    super(GuideProfile);
+  }
+
+  async findAll(filters: Record<string, unknown>): Promise<Guide[]> {
+    const docs = await this.model
+      .find(filters)
       .populate('userId', 'name email')
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec() as IGuideProfile[];
+      .sort({ createdAt: -1 });
+
+    return this.mapMany(docs);
   }
 
-  async findByUserId(userId: string): Promise<IGuideProfile | null> {
-    return await GuideProfile.findOne({ userId })
-      .lean()
-      .exec() as IGuideProfile | null;
-  }
-
-  async create(data: Partial<IGuideProfile>): Promise<IGuideProfile> {
-    const saved = await new GuideProfile(data).save();
-    return saved.toObject() as IGuideProfile;
+  async findByUserId(userId: string): Promise<Guide | null> {
+    return this.findOne({ userId });
   }
 }

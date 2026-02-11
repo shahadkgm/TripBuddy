@@ -1,7 +1,7 @@
 // backend/src/repositories/interfaces/IAdminRepository.ts
 
+import { Guide, GuideCreate } from '../../types/guide.type.js';
 import { IUser } from '../../types/user.type.js';
-import { IGuideProfile } from '../../domain/entities/GuideProfile.js';
 
 export interface IAdminRepository {
   // users
@@ -34,11 +34,16 @@ export interface IAdminRepository {
 
 
   // guides
-  getAllPendingGuides(): Promise<IGuideProfile[]>;
+  getAllPendingGuides(): Promise<Guide[]>;
 
-  getAllGuides(): Promise<IGuideProfile[]>;
+  getAllGuides(page:number,limit:number,search:string): Promise<{
+    guides:Guide[],
+    totalPages:number,
+    totalGuides:number,
+    currentPage:number
+  }>;
 
-  verifyGuide(guideId: string): Promise<IGuideProfile | null>;
+  verifyGuide(guideId: string): Promise<Guide | null>;
 
-  deleteGuide(id: string): Promise<IGuideProfile | null>;
+  deleteGuide(id: string): Promise<Guide | null>;
 }

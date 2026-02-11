@@ -4,6 +4,7 @@ import { IUserService } from '../interface/IUserService.js';
 import { IMailService } from '../interface/IMailService.js'; 
 import { RegisterUserDTO } from '../../dto/auth.dto.js';
 import crypto from 'crypto';
+import { RegisterUserResponseDTO } from '../../dto/user.dto.js';
 
 
 
@@ -13,7 +14,7 @@ export class UserService implements IUserService {
     private mailService: IMailService 
   ) {}
 
-  async registerUser(userData: RegisterUserDTO) {
+  async registerUser(userData: RegisterUserDTO):Promise<RegisterUserResponseDTO> {
     const existingUser = await this.userRepository.findByEmail(userData.email);
     if (existingUser) {
       throw new Error('User with this email already exists.');
@@ -26,7 +27,7 @@ export class UserService implements IUserService {
 
       });
     return {
-      id: newUser._id,
+      id: newUser._id.toString(),
       name: newUser.name,
       email: newUser.email,
       role: newUser.role || 'user',
