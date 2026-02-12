@@ -1,20 +1,26 @@
 // backend/src/types/User.ts
-import { Document } from 'mongoose';
 
 export interface IUser {
-  // _id: string;
+  _id: string;
+
   name: string;
   email: string;
   password?: string;
+
   role: 'user' | 'guide' | 'admin';
+
+  isBlocked: boolean;
+  isVerified: boolean;
+
+  verificationToken?: string;
+  verificationTokenExpires?: Date;
+
   passwordResetToken?: string;
-  passwordResetExpires?: number | Date;
-  isBlocked: boolean; 
+  passwordResetExpires?: Date;
+
   createdAt?: Date;
   updatedAt?: Date;
-  isVerified:boolean;
-  verificationToken:string
-verificationTokenExpires:boolean
 }
 
-export interface IUserDocument extends IUser, Document {}
+
+// export interface IUserDocument extends IUser, Document {}

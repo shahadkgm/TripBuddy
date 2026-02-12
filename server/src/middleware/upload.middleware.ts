@@ -1,5 +1,5 @@
 // middleware/upload.middleware.ts
-import multer, { FileFilterCallback } from 'multer';
+import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
@@ -41,6 +41,6 @@ const fileFilter: multer.Options['fileFilter'] = (req, file, cb) => {
 
 export const upload = multer({ 
     storage,
-    fileFilter, // Add the filter here
+    fileFilter, 
     limits: { fileSize: 5 * 1024 * 1024 } 
 });

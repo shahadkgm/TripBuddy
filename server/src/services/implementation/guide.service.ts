@@ -60,6 +60,6 @@ const profileData:GuideCreate={
     }
 
     const guides=await this.guideRepository.findAll(filters);
-    return guides.map(toGuideResponse)
+    return guides.map(toGuideResponse);
   }
 }

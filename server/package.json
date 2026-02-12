@@ -6,7 +6,7 @@
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
     "lint": "eslint .",
-  "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -21,7 +21,8 @@
     "mongoose": "^8.20.3",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.12",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "winston": "^3.19.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

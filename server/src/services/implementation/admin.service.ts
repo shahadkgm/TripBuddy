@@ -4,7 +4,7 @@ import { IAdminService } from '../interface/Iadminservice.js';
 import { AppError } from '../../utils/AppError.js';
 import { StatusCode } from '../../constants/statusCode.enum.js';
 import { IUser } from '../../types/user.type.js';
-import { Guide, GuideCreate } from '../../types/guide.type.js';
+import { Guide } from '../../types/guide.type.js';
 
 export class AdminService implements IAdminService {
   constructor(private adminRepo: IAdminRepository) {}
@@ -29,9 +29,9 @@ export class AdminService implements IAdminService {
 
     const updatedUser=await this.adminRepo.updateUserBlockStatus(userId, blockedStatus);
     if(!updatedUser){
-      throw new AppError(StatusCode.INTERNAL_SERVER_ERROR,'Faild to update user block status')
+      throw new AppError(StatusCode.INTERNAL_SERVER_ERROR,'Faild to update user block status');
     };
-    return updatedUser
+    return updatedUser;
   };
 
   async removeUser(userId: string, adminId: string) {

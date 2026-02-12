@@ -1,43 +1,42 @@
-import { Model, Document } from 'mongoose';
 
-export abstract class BaseRepository<T> {
-  constructor(protected readonly model: Model<any>) {}
+// import mongoose, { Model, Document, FilterQuery, UpdateQuery } from "mongoose";
+// import { IBaseRepository } from "../interface/IBaseRepository.js";
 
-  protected map(doc: any): T {
-    if (!doc) return doc;
 
-    const obj = typeof doc.toObject === 'function'
-      ? doc.toObject()
-      : doc;
+// export class BaseRepository<T extends  Document> implements IBaseRepository<T> {
+//   protected model: Model<T>;
 
-    if (obj._id) {
-      obj._id = obj._id.toString();
-    }
+//   constructor(model: Model<T>) {
+//     this.model = model;
+//   }
 
-    return obj as T;
-  }
+//   async create(data: Partial<T>): Promise<T & Document> {
+//     return await this.model.create(data);
+//   }
 
-  protected mapMany(docs: any[]): T[] {
-    return docs.map(doc => this.map(doc));
-  }
+//   async findById(id: string | mongoose.Types.ObjectId): Promise<T | null> {
+//     return await this.model.findById(id);
+      
+//   }
 
-  async create(data: Partial<T>): Promise<T> {
-    const doc = await this.model.create(data);
-    return this.map(doc);
-  }
+//   async findAll(filter: FilterQuery<T> = {}): Promise<T[]> {
+//     return await this.model.find(filter).sort({createdAt:-1});
+//   }
 
-  async findById(id: string): Promise<T | null> {
-    const doc = await this.model.findById(id);
-    return this.map(doc);
-  }
+//   async findOne(filter: FilterQuery<T> = {}): Promise<T | null> {
+//     return await this.model.findOne(filter);
+//   }
 
-  async findOne(filter: Record<string, unknown>): Promise<T | null> {
-    const doc = await this.model.findOne(filter);
-    return this.map(doc);
-  }
+//   async updateById(id: string | mongoose.Types.ObjectId, update: UpdateQuery<T>): Promise<T | null> {
+//     return await this.model.findByIdAndUpdate(id, update, { new: true });
+//   }
 
-  async findAll(filter: Record<string, unknown> = {}): Promise<T[]> {
-    const docs = await this.model.find(filter);
-    return this.mapMany(docs);
-  }
-}
+//   async deleteById(id: string | mongoose.Types.ObjectId): Promise<void> {
+//     await this.model.findByIdAndDelete(id);
+//   }
+
+//   async deleteByFilter(filter: FilterQuery<T>): Promise<void> {
+//   await this.model.deleteOne(filter);
+// }
+
+// }

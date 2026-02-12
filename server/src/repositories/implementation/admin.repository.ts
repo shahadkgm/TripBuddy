@@ -1,46 +1,51 @@
 // backend/src/repositories/admin.repository.ts
-import UserModel from '../../models/user.models.js';
  import GuideProfile from '../../models/guide.model.js';
 import { IUser } from '../../types/user.type.js';
 import { IAdminRepository } from '../interface/IAdminRepository.js';
 import { Guide } from '../../types/guide.type.js';
-import { BaseRepository } from './base.repository.js';
+import { UserModel } from '../../models/user.models.js';
+import { mapUserFromDb } from '../../utils/userMapper.js';
+// import { BaseRepository } from './base.repository.js';
 
 export class AdminRepository  implements IAdminRepository{
 
 async getAllUsers(page: number, limit: number, search: string) {
-  page=Math.max(1,page);
-  limit=Math.max(1,limit);
+  page = Math.max(1, page);
+  limit = Math.max(1, limit);
   const skip = (page - 1) * limit;
-  
-  const query = search 
-    ? { 
+
+  const query = search
+    ? {
         $or: [
           { name: { $regex: search, $options: 'i' } },
           { email: { $regex: search, $options: 'i' } }
         ]
-      } 
+      }
     : {};
 
-  // Execute count and find in parallel for better performance
   const [users, totalUsers] = await Promise.all([
     UserModel.find(query)
       .select('-password')
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit),
+      .limit(limit)
+      .lean(),   // ✅ important
     UserModel.countDocuments(query)
   ]);
 
-  const totalPages = Math.ceil(totalUsers / limit);
+  const formattedUsers: IUser[] = users.map(u => ({
+    ...u,
+    _id: u._id.toString()
+  }));
 
   return {
-    users,
-    totalPages,
+    users: formattedUsers,
+    totalPages: Math.ceil(totalUsers / limit),
     currentPage: page,
     totalUsers
   };
 }
+
 
   
   async findUserById(id: string): Promise<IUser | null> {
@@ -75,7 +80,7 @@ async getAllGuides(page:number,limit:number,search:string) {
   const query=search?{
     $or:[
       {serviceArea:{$regex:search,$options:'i'}},
-      {bio:{$regex:search,$options:"i"}}
+      {bio:{$regex:search,$options:'i'}}
     ]
   }:{};
   const [guides,totalGuides]=await Promise.all([
@@ -85,7 +90,7 @@ async getAllGuides(page:number,limit:number,search:string) {
     .limit(limit)
     .lean<Guide[]>(),
     GuideProfile.countDocuments(query)
-  ])
+  ]);
   return {
     guides,
     totalPages: Math.ceil(totalGuides / limit),
@@ -105,7 +110,8 @@ async verifyGuide(guideId: string): Promise<Guide|null> {
 }
 
 async updateUserRole(userId:string,role:'user'|'guide'|'admin'):Promise<IUser|null>{
-  return await UserModel.findByIdAndUpdate(userId,{role},{new:true}).lean();
+const user = await UserModel.findByIdAndUpdate(userId, { role }, { new: true }).lean();
+  return user?mapUserFromDb(user):null;
 }
 
 }

@@ -1,26 +1,11 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 
 export interface IAuthController {
-  register(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void>;
-
-  login(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void>;
-
-  googleLogin(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void>;
-  verifyEmail(
-    req:Request,
-    res:Response,
-    next:NextFunction
-  ):Promise<void>
+  register: ControllerFn;
+  login: ControllerFn;
+  googleLogin: ControllerFn;
+  verifyEmail: ControllerFn;
+  refreshToken: ControllerFn;
 }
+
+type ControllerFn = RequestHandler

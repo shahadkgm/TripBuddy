@@ -1,12 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express'; // 1. Added NextFunction
 import { AppError } from '../utils/AppError.js';
-// import { AppError } from '../utils/AppError';
+import { StatusCode } from '../constants/statusCode.enum.js';
 
 export const errorMiddleware = (
   err: unknown,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction // 2. MUST be here, even if unused
 ) => {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
@@ -15,9 +15,10 @@ export const errorMiddleware = (
     });
   }
 
-  console.error(err);
+  // Log the actual error for debugging
+  console.error('Error Caught in Middleware:', err);
 
-  return res.status(500).json({
+  return res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
     success: false,
     message: 'Internal Server Error',
   });

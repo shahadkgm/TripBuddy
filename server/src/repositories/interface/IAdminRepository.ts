@@ -1,6 +1,6 @@
 // backend/src/repositories/interfaces/IAdminRepository.ts
 
-import { Guide, GuideCreate } from '../../types/guide.type.js';
+import { Guide } from '../../types/guide.type.js';
 import { IUser } from '../../types/user.type.js';
 
 export interface IAdminRepository {

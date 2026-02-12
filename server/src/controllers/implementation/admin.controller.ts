@@ -3,7 +3,6 @@ import { StatusCode } from '../../constants/statusCode.enum.js';
 import { IAdminService } from '../../services/interface/Iadminservice.js';
 import { IAdminController } from '../interfaces/IadminController.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
-import strict from 'node:assert/strict';
 
 export class AdminController implements IAdminController {
   constructor(private adminService: IAdminService) {}

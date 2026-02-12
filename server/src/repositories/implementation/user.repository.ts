@@ -1,8 +1,8 @@
 //backend/src/repositories/user.repository.ts
 import { IUserRepository } from '../interface/IUserRepository.js';
-import UserModel from '../../models/user.models.js'; 
 import { IUser } from '../../types/user.type.js';       
 import bcrypt from 'bcryptjs'; // Make sure to install bcryptjs
+import { UserModel } from '../../models/user.models.js';
 
 export class UserRepository  implements IUserRepository  {
   

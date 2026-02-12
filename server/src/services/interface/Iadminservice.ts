@@ -1,7 +1,7 @@
 
 
 import { IUserListResponse } from '../../types/admin.types.js';
-import { Guide, GuideCreate } from '../../types/guide.type.js';
+import { Guide } from '../../types/guide.type.js';
 import { IUser } from '../../types/user.type.js';
 
 //    fetchPendingGuides():Promise<any[]>;

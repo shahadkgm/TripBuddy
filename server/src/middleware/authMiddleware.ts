@@ -2,8 +2,9 @@
 import jwt from 'jsonwebtoken';
 import { Response, NextFunction } from 'express';
 import { StatusCode } from '../constants/statusCode.enum.js'; 
-import UserModel from '../models/user.models.js';
+// import UserModel from '../models/user.models.js';
 import { AuthRequest } from '../types/authrequst.js';
+import { UserModel } from '../models/user.models.js';
 
 export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
@@ -41,12 +42,13 @@ console.log('req.user from authMiddleware server',req.user);
     }; 
     next();
   } catch (error) {
+    console.log(error);
     res.status(StatusCode.UNAUTHORIZED).json({ message: 'Token invalid or expired' });
   }
 };
 
 // Admin only middleware
-export const isAdmin = (req: any, res: Response, next: NextFunction) => {
+export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
   if (req.user && req.user.role === 'admin') {
     next();
   } else {
