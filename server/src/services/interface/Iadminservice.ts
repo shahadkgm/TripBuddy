@@ -1,37 +1,33 @@
 
 
-import { IUserListResponse } from '../../types/admin.types.js';
-import { Guide } from '../../types/guide.type.js';
-import { IUser } from '../../types/user.type.js';
 
-//    fetchPendingGuides():Promise<any[]>;
-//    approveGuide(guideId: string):Promise<any>;
-//    fetchAllGuides():Promise<any[]>
-//    rejectApplication(guideId: string):Promise<any>
 
-// }
-// backend/src/services/interface/Iadminservice.ts
 
+import { DashboardStatsDTO, GuideListDTO, UserListDTO } from '../../dto/admin.dto.js';
+import { AdminGuideResponseDTO } from '../../dto/admin.dto.js';
+import { UserResponseDTO } from '../../dto/user.dto.js';
 export interface IAdminService {
-  // User Management
-  fetchAllUsers(page: number, limit: number, search: string): Promise<IUserListResponse>;
-  toggleUserBlock(userId: string, blockedStatus: boolean, adminId: string): Promise<IUser>;
+  fetchAllUsers(page: number, limit: number, search: string): Promise<UserListDTO>;
+
+  toggleUserBlock(
+    userId: string,
+    blockedStatus: boolean,
+    adminId: string
+  ): Promise<UserResponseDTO>;
+
   removeUser(userId: string, adminId: string): Promise<boolean>;
 
-  // Dashboard
-  getDashboardStats(): Promise<{
-    totalUsers: number;
-    pendingApplications: number;
-  }>;
+  fetchPendingGuides(): Promise<AdminGuideResponseDTO[]>;
 
-  // Guide Management
-  fetchPendingGuides(): Promise<Guide[]>;
-  approveGuide(guideId: string): Promise<Guide>;
-  fetchAllGuides(page:number,limit:number,search:string): Promise<{
-    guides:Guide[],
-    totalPages:number,
-    totalGuides:number,
-    currentPage:number
-  }>;
+  approveGuide(guideId: string): Promise<AdminGuideResponseDTO>;
+
+  fetchAllGuides(
+    page: number,
+    limit: number,
+    search: string
+  ): Promise<GuideListDTO>;
+
   rejectApplication(guideId: string): Promise<boolean>;
+
+  getDashboardStats(): Promise<DashboardStatsDTO>;
 }

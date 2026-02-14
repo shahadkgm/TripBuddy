@@ -2,7 +2,14 @@ import { Types } from 'mongoose';
 
 export interface Guide {
   _id: string|Types.ObjectId;
-  userId: string|Types.ObjectId;
+userId:
+  | string
+  | Types.ObjectId
+  | {
+      _id: string;
+      name: string;
+      email: string;
+    };
   name: string;
   bio: string;
   hourlyRate: number;
@@ -18,6 +25,7 @@ export interface Guide {
 // Ensure GuideCreate matches exactly what the service sends
 export interface GuideCreate {
   userId:  string;
+  name:string;
   bio: string;
   hourlyRate: number;
   serviceArea: string;

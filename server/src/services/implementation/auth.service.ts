@@ -12,9 +12,8 @@ import { AuthResponse } from '../../types/authResponse.js';
 
 import { AppError } from '../../utils/AppError.js';
 import { StatusCode } from '../../constants/statusCode.enum.js';
-import { logger } from '../../utils/logger.js';
 import { IUser } from '../../types/user.type.js';
-// import { logger } from '../../utils/logger.js';
+import { logger } from '../../utils/logger.js';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -36,12 +35,12 @@ export class AuthService implements IAuthService {
   // REGISTER
   // =================================================
   async registerUser(data: RegisterUserDTO): Promise<AuthResponse> {
-    logger.info('Register attempt:', data.email);
+   logger.info('Register attempt:', data.email);
 
     const existingUser = await this.userRepo.findByEmail(data.email);
 
     if (existingUser) {
-      logger.warn('Register failed: user exists', data.email);
+     logger. warn('Register failed: user exists', data.email);
 
       if (!existingUser.isVerified) {
         await this.resendVerification(existingUser);
@@ -74,7 +73,7 @@ export class AuthService implements IAuthService {
   // LOGIN
   // =================================================
   async loginUser(data: LoginDTO): Promise<AuthResponse> {
-    logger.info('Login attempt:', data.email);
+   logger.info('Login attempt:', data.email);
 
     const user = await this.userRepo.findByEmail(data.email);
 
@@ -101,7 +100,7 @@ export class AuthService implements IAuthService {
       role: user.role,
     });
 
-    logger.info('Login success:', user.email);
+   logger.info('Login success:', user.email);
 
     return {
       message: 'Logged in successfully',
@@ -114,7 +113,7 @@ export class AuthService implements IAuthService {
   // GOOGLE LOGIN
   // =================================================
   async googleLogin(token: string): Promise<AuthResponse> {
-    logger.info('Google login attempt');
+   logger. info('Google login attempt');
 
     const ticket = await googleClient.verifyIdToken({
       idToken: token,
@@ -141,7 +140,7 @@ export class AuthService implements IAuthService {
       role: user.role,
     });
 
-    logger.info('Google login success:', payload.email);
+   logger. info('Google login success:', payload.email);
 
     return {
       message: 'Google login successful',
@@ -154,7 +153,7 @@ export class AuthService implements IAuthService {
   // VERIFY EMAIL
   // =================================================
   async verifyEmail(token: string): Promise<AuthResponse> {
-    logger.info('Email verification attempt');
+   logger. info('Email verification attempt');
 
     const user = await this.userRepo.findByVerificationToken(token);
 
@@ -164,7 +163,7 @@ export class AuthService implements IAuthService {
 
     await this.userRepo.verifyUser(user._id.toString());
 
-    logger.info('Email verified:', user.email);
+   logger. info('Email verified:', user.email);
 
     return { message: 'Email verified successfully' };
   }
@@ -191,7 +190,7 @@ export class AuthService implements IAuthService {
 
     const link = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
 
-    logger.info('Sending verification email:', user.email);
+   logger. info('Sending verification email:', user.email);
 
     await this._mailService.sendVerificationEmail(
       user.email,
@@ -202,7 +201,7 @@ export class AuthService implements IAuthService {
 
   private async resendVerification(user: IUser): Promise<never>
  {
-    logger.warn('Resending verification email:', user.email);
+   logger. warn('Resending verification email:', user.email);
 
     await this.sendVerification(user);
 

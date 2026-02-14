@@ -34,6 +34,7 @@ export const GuideRegistrationPage = () => {
         serviceArea: '',
         specialties: [] as string[],
         avatarFile: null as File | null,
+        yearsOfExperience: '', 
     });
 
     useEffect(() => {
@@ -108,6 +109,7 @@ export const GuideRegistrationPage = () => {
             data.append('hourlyRate', formData.hourlyRate);
             data.append('serviceArea', formData.serviceArea);
             data.append('specialties', JSON.stringify(formData.specialties));
+            data.append('yearsOfExperience', formData.yearsOfExperience); 
             if (formData.avatarFile) data.append('avatar', formData.avatarFile);
 
 await api.post(`/api/guides/register`, data, {
@@ -181,7 +183,7 @@ await api.post(`/api/guides/register`, data, {
                   onChange={e => setFormData({...formData, bio: e.target.value})}
                 />
               </div>
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate (USD)</label>
                   <div className="relative">
@@ -202,6 +204,22 @@ await api.post(`/api/guides/register`, data, {
                     />
                   </div>
                 </div>
+                {/* Years of Experience - NEW FIELD */}
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Experience (Years)</label>
+                <div className="relative">
+                    <input 
+                        type="number" 
+                        required 
+                        min="0"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-tb-purple outline-none" 
+                        placeholder="e.g. 5" 
+                        value={formData.yearsOfExperience}
+                        onChange={e => setFormData({...formData, yearsOfExperience: e.target.value})}
+                    />
+                </div>
+            </div>
+
               </div>
             </div>
           </div>

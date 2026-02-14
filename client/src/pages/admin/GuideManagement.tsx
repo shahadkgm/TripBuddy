@@ -9,8 +9,8 @@ import { Pagination } from '../../components/Pagination';
 import { ConfirmModal } from '../../components/ConfirmModal';
 
 interface IGuideApplication {
-  _id: string;
-  userId: {
+  id: string;
+  user: {
     name: string;
     email: string;
   };
@@ -44,6 +44,7 @@ export const GuideManagement = () => {
       const { data } = await api.get('/api/admin/guides', {
         params: { page: currentPage, limit, search: searchTerm }
       });
+      console.log("from g-management",data)
       setGuides(data.guides);
       setTotalPages(data.totalPages);
     } catch (err) {
@@ -99,8 +100,8 @@ export const GuideManagement = () => {
       key: "userId",
       render: (guide: IGuideApplication) => (
         <div className="py-1">
-          <div className="font-bold text-gray-900">{guide.userId?.name || "Unknown"}</div>
-          <div className="text-xs text-gray-500">{guide.userId?.email}</div>
+          <div className="font-bold text-gray-900">{guide.user?.name || "Unknown"}</div>
+          <div className="text-xs text-gray-500">{guide.user?.email}</div>
           <div className="text-[11px] italic text-gray-400 truncate  max-width: 180px" title={guide.bio}>
             "{guide.bio}"
           </div>
@@ -129,7 +130,7 @@ export const GuideManagement = () => {
             ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
             : 'bg-amber-50 text-amber-700 border-amber-200'
         }`}>
-          {guide.isVerified ? 'Verified' : 'Pending'}
+          {guide.user? 'Verified' : 'Pending'}
         </span>
       )
     },
@@ -153,7 +154,7 @@ export const GuideManagement = () => {
         <div className="flex justify-end gap-1">
           {!guide.isVerified && (
             <button 
-              onClick={() => handleApprove(guide._id)} 
+              onClick={() => handleApprove(guide.id)} 
               className="p-1.5 text-green-600 hover:bg-green-100 rounded-lg transition"
               title="Verify Application"
             >
@@ -161,7 +162,7 @@ export const GuideManagement = () => {
             </button>
           )}
           <button 
-            onClick={() => initiateReject(guide._id)} 
+            onClick={() => initiateReject(guide.id)} 
             className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition"
             title="Reject/Remove"
           >

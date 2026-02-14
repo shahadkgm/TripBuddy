@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, RequestHandler } from 'express';
+import {  RequestHandler } from 'express';
 
 export interface IAuthController {
   register: ControllerFn;

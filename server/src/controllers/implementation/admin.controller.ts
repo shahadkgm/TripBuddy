@@ -3,6 +3,7 @@ import { StatusCode } from '../../constants/statusCode.enum.js';
 import { IAdminService } from '../../services/interface/Iadminservice.js';
 import { IAdminController } from '../interfaces/IadminController.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
+import { logger } from '../../utils/logger.js';
 
 export class AdminController implements IAdminController {
   constructor(private adminService: IAdminService) {}
@@ -44,6 +45,8 @@ export class AdminController implements IAdminController {
 
   handleVerifyGuide = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
+    // console.log("id from handlevrify guide admin",id)
+    logger.info(`id from handleverify guide admin${id}`);
 
     const result = await this.adminService.approveGuide(id);
 
@@ -55,6 +58,7 @@ export class AdminController implements IAdminController {
     const limit=Number(req.query.limit)||10;
     const search=String(req.query.search)||'';
     const data= await this.adminService.fetchAllGuides(page,limit,search);
+    logger.debug('from get all guide',data);
 
 
     res.status(StatusCode.OK).json(data);

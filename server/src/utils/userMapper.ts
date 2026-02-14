@@ -1,11 +1,14 @@
 // server/src/utils/userMapper.ts
-import { IUser} from '../types/user.type.js';
+import { IUser } from '../types/user.type.js';
 import { UserResponseDTO } from '../dto/user.dto.js';
+import {  Types } from 'mongoose';
+
 
 export class UserMapper {
   static toResponseDTO(user: IUser): UserResponseDTO {
     return {
-      id: user._id,   
+      // Mapping the MongoDB _id to the DTO id
+      id: user._id.toString(), 
       name: user.name,
       email: user.email,
       role: user.role,
@@ -15,8 +18,12 @@ export class UserMapper {
     };
   }
 }
+type LeanUser = Omit<IUser, '_id'> & {
+  _id: Types.ObjectId;
+};
 
-export const mapUserFromDb = (u: any): IUser => ({
+// Helper to ensure database objects match the IUser interface
+export const mapUserFromDb = (u: LeanUser): IUser => ({
   ...u,
-  _id: u._id.toString()
+  _id: u._id.toString(),
 });

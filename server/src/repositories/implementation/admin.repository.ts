@@ -5,11 +5,13 @@ import { IAdminRepository } from '../interface/IAdminRepository.js';
 import { Guide } from '../../types/guide.type.js';
 import { UserModel } from '../../models/user.models.js';
 import { mapUserFromDb } from '../../utils/userMapper.js';
+import { logger } from '../../utils/logger.js';
 // import { BaseRepository } from './base.repository.js';
 
 export class AdminRepository  implements IAdminRepository{
 
 async getAllUsers(page: number, limit: number, search: string) {
+  
   page = Math.max(1, page);
   limit = Math.max(1, limit);
   const skip = (page - 1) * limit;
@@ -29,15 +31,16 @@ async getAllUsers(page: number, limit: number, search: string) {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .lean(),   // ✅ important
+      .lean(),  
     UserModel.countDocuments(query)
   ]);
+  logger.info('the user gett all in getall user admin');
 
   const formattedUsers: IUser[] = users.map(u => ({
     ...u,
     _id: u._id.toString()
   }));
-
+// logger.debug("from repo",f)
   return {
     users: formattedUsers,
     totalPages: Math.ceil(totalUsers / limit),
@@ -91,6 +94,7 @@ async getAllGuides(page:number,limit:number,search:string) {
     .lean<Guide[]>(),
     GuideProfile.countDocuments(query)
   ]);
+// logger.info(`from a-repo,f-guide ${JSON.stringify(guides)}`)
   return {
     guides,
     totalPages: Math.ceil(totalGuides / limit),
@@ -106,6 +110,7 @@ async verifyGuide(guideId: string): Promise<Guide|null> {
     ).lean<Guide>();
   }
   async deleteGuide(id: string):Promise<Guide|null> {
+    await GuideProfile.deleteMany({userId:id});
   return await GuideProfile.findByIdAndDelete(id).lean<Guide>();
 }
 

@@ -2,7 +2,7 @@
 import { IUserRepository } from '../interface/IUserRepository.js';
 import { IUser } from '../../types/user.type.js';       
 import bcrypt from 'bcryptjs'; // Make sure to install bcryptjs
-import { UserModel } from '../../models/user.models.js';
+import { IUserDb, UserModel } from '../../models/user.models.js';
 
 export class UserRepository  implements IUserRepository  {
   
@@ -83,6 +83,9 @@ async findByResetToken(hashedToken: string) {
       verificationTokenExpires: 1,
     },
   });
+}
+async findUserById(userId:string):Promise<IUserDb|null>{
+    return await UserModel.findById(userId).exec();
 }
     
 }

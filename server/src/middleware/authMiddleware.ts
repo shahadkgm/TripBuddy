@@ -34,7 +34,7 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
       throw new Error('Please verify your email first');
     }
 
-console.log('req.user from authMiddleware server',req.user);
+// console.log('req.user from authMiddleware server',req.user);
     req.user = {
      id: user._id.toString() ,
       role: user.role,

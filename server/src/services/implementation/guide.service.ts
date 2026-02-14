@@ -2,24 +2,34 @@
 
 import { GuideQueryDTO, GuideRegisterDTO, GuideResponseDTO } from '../../dto/guide.dto.js';
 import { IGuideRepository } from '../../repositories/interface/IGuideRepository.js';
+import { IUserRepository } from '../../repositories/interface/IUserRepository.js';
 import { Guide, GuideCreate } from '../../types/guide.type.js';
 import { toGuideResponse } from '../../utils/guide.mapper.js';
+import { logger } from '../../utils/logger.js';
 import { IGuideService } from '../interface/IGuideService.js';
 
 
 export class GuideService implements IGuideService {
 
-  constructor(private guideRepository: IGuideRepository) {}
+  constructor(private guideRepository: IGuideRepository,private userRepository:IUserRepository) {}
 
   
   async register(userId: string, data: GuideRegisterDTO, fileName?: string):Promise<Guide> {
     // const user=await this.userRepsitory.findby
-    
+    logger.info(`Starting guide registration for user: ${userId}`);
     const existing = await this.guideRepository.findByUserId(userId);
-    if (existing) throw new Error('Application already exists');
+    if (existing){
+      logger.warn(`Registration failed: User ${userId} already has an application`);
+     throw new Error('Application already exists'); 
+    } 
+    const user=await this.userRepository.findUserById(userId);
+    if(!user){
+      logger.error(`User not found during guide registration: ${userId}`);
+      console.log('from guide register ',user);
+    }
 const profileData:GuideCreate={
     userId,
-    
+    name:user?.name?user.name:'',
     bio: data.bio,
     hourlyRate: Number(data.hourlyRate),
     serviceArea: data.serviceArea,
@@ -32,6 +42,7 @@ const profileData:GuideCreate={
     isVerified: false,
 
   };
+  logger.info(`Creating guide profile for ${user?.name}`, { yearsOfExperience: profileData.yearsOfExperience });
 
     return await this.guideRepository.create(profileData);
   }

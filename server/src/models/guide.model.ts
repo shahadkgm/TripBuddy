@@ -22,13 +22,14 @@ import mongoose, { Schema, Document } from 'mongoose';
 // This is what Mongoose uses internally
 export interface IGuideDocument extends Document {
   userId: mongoose.Types.ObjectId;
+  name:string;
   bio: string;
   hourlyRate: number;
   serviceArea: string;
   certificateUrl?: string;
   yearsOfExperience: number;
   avatarURL?: string;
-  specialities: string[];
+  specialties: string[];
   isVerified: boolean;
   lastUpdated: Date;
   createdAt: Date;
@@ -37,13 +38,14 @@ export interface IGuideDocument extends Document {
 
 const GuideProfileSchema = new Schema<IGuideDocument>({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+  name: { type: String, required: true }, 
   bio: { type: String, required: true },
   hourlyRate: { type: Number, required: true },
   serviceArea: { type: String, required: true },
   certificateUrl: { type: String },
   yearsOfExperience: { type: Number, default: 0 },
   avatarURL: { type: String },
-  specialities: [{ type: String }],
+  specialties: [{ type: String }],
   isVerified: { type: Boolean, default: false },
   lastUpdated: { type: Date, default: Date.now }
 }, { timestamps: true });
