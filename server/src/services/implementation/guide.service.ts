@@ -29,7 +29,7 @@ export class GuideService implements IGuideService {
       console.log('from guide register ', user);
     }
     const profileData: GuideCreate = {
-      userId: new Types.ObjectId(userId),
+      userId,
       name: user?.name ? user.name : '',
       bio: data.bio,
       hourlyRate: Number(data.hourlyRate),

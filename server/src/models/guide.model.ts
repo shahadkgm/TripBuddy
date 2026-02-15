@@ -17,27 +17,11 @@
 
 // export default mongoose.model<IGuideProfile>('GuideProfile', GuideProfileSchema);
 // backend/src/models/guide.model.ts
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
+import { IGuide } from '../types/guide.type.js';
 
 
-// This is what Mongoose uses internally for the schema
-export interface IGuideDb extends Document {
-  userId: mongoose.Types.ObjectId;
-  name: string;
-  bio: string;
-  hourlyRate: number;
-  serviceArea: string;
-  certificateUrl?: string;
-  yearsOfExperience: number;
-  avatarURL?: string;
-  specialties: string[];
-  isVerified: boolean;
-  lastUpdated: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const GuideProfileSchema = new Schema<IGuideDb>({
+const GuideProfileSchema = new Schema<IGuide>({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
   name: { type: String, required: true },
   bio: { type: String, required: true },
@@ -51,4 +35,4 @@ const GuideProfileSchema = new Schema<IGuideDb>({
   lastUpdated: { type: Date, default: Date.now }
 }, { timestamps: true });
 
-export default mongoose.model<IGuideDb>('GuideProfile', GuideProfileSchema);
+export default mongoose.model<IGuideDocument>('GuideProfile', GuideProfileSchema);

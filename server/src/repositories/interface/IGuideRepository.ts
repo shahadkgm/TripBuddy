@@ -1,16 +1,16 @@
 // server/src/repositories/interface/IGuideRepository.ts";
 
-import { Guide, GuideCreate } from '../../types/guide.type.js';
+import { IGuide } from '../../types/guide.type.js';
 
 
 import { IBaseRepository } from './IBaseRepository.js';
 
-export interface IGuideRepository extends Omit<IBaseRepository<Guide>, 'create'> {
+export interface IGuideRepository extends Omit<IBaseRepository<IGuide>, 'create'> {
 
-  findAll(filters?: Record<string, unknown>): Promise<Guide[]>;
+  findAll(filters?: Record<string, unknown>): Promise<IGuide[]>;
 
-  findByUserId(userId: string): Promise<Guide | null>;
-create(data:GuideCreate):Promise<Guide>
+  findByUserId(userId: string): Promise<IGuide | null>;
+create(data:any):Promise<IGuide> // use data type as dto for creating guide
 
 }
 

@@ -1,28 +1,28 @@
-import { FilterQuery, Model } from 'mongoose';
-import GuideProfile from '../../models/guide.model.js';
-import { Guide, GuideCreate } from '../../types/guide.type.js';
-import { IGuideRepository } from '../interface/IGuideRepository.js';
+import { FilterQuery } from 'mongoose';
 import { BaseRepository } from './base.repository.js';
+import guideModel from '../../models/guide.model.js';
+import { IGuide } from '../../types/guide.type.js';
+import { IGuideRepository } from '../interface/IGuideRepository.js';
 
-export class GuideRepository extends BaseRepository<Guide> implements IGuideRepository {
+export class GuideRepository extends BaseRepository<IGuide> implements IGuideRepository {
 
   constructor() {
-    super(GuideProfile);
+    super(guideModel)
   }
 
-  async findAll(filters: Record<string, unknown> = {}): Promise<Guide[]> {
+  async findAll(filters: Record<string, unknown> = {}): Promise<IGuide[]> {
     return await this.model
-      .find(filters as FilterQuery<Guide>)
+      .find(filters as FilterQuery<IGuide>)
       .populate('userId', 'name email')
       .sort({ createdAt: -1 })
       .exec();
   }
 
-  async findByUserId(userId: string): Promise<Guide | null> {
+  async findByUserId(userId: string): Promise<IGuide | null> {
     return await this.findOne({ userId });
   }
 
-  async create(data: GuideCreate): Promise<Guide> {
+  async create(data: any): Promise<IGuide> { // use dto for creating guide
     return await this.model.create(data);
   }
 

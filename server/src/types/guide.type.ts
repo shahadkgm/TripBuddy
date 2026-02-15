@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 
-export interface Guide {
+export interface IGuide {
   _id: Types.ObjectId;
   userId: Types.ObjectId | {
     _id: Types.ObjectId;
@@ -20,15 +20,4 @@ export interface Guide {
   createdAt: Date;
   updatedAt: Date;
 };
-// Ensure GuideCreate matches exactly what the service sends
-export interface GuideCreate {
-  userId: Types.ObjectId;
-  name: string;
-  bio: string;
-  hourlyRate: number;
-  serviceArea: string;
-  yearsOfExperience: number;
-  specialties: string[];
-  avatarURL?: string;
-  isVerified: boolean;
-}
+
