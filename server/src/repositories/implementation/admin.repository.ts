@@ -1,63 +1,64 @@
 // backend/src/repositories/admin.repository.ts
- import GuideProfile from '../../models/guide.model.js';
+import GuideProfile from '../../models/guide.model.js';
 import { IUser } from '../../types/user.type.js';
 import { IAdminRepository } from '../interface/IAdminRepository.js';
 import { Guide } from '../../types/guide.type.js';
 import { UserModel } from '../../models/user.models.js';
-import { mapUserFromDb } from '../../utils/userMapper.js';
 import { logger } from '../../utils/logger.js';
-// import { BaseRepository } from './base.repository.js';
+import { BaseRepository } from './base.repository.js';
 
-export class AdminRepository  implements IAdminRepository{
+export class AdminRepository extends BaseRepository<IUser> implements IAdminRepository {
 
-async getAllUsers(page: number, limit: number, search: string) {
-  
-  page = Math.max(1, page);
-  limit = Math.max(1, limit);
-  const skip = (page - 1) * limit;
+  constructor(){
+    super(UserModel);
+  }
 
-  const query = search
-    ? {
+
+  async getAllUsers(page: number, limit: number, search: string) {
+
+    page = Math.max(1, page);
+    limit = Math.max(1, limit);
+    const skip = (page - 1) * limit;
+    const query = search
+      ? {
         $or: [
           { name: { $regex: search, $options: 'i' } },
           { email: { $regex: search, $options: 'i' } }
         ]
       }
-    : {};
+      : {};
 
-  const [users, totalUsers] = await Promise.all([
-    UserModel.find(query)
-      .select('-password')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean(),  
-    UserModel.countDocuments(query)
-  ]);
-  logger.info('the user gett all in getall user admin');
+    const [users, totalUsers] = await Promise.all([
+      UserModel.find(query)
+        .select('-password')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      UserModel.countDocuments(query)
+    ]);
+    logger.debug(`users from debug${users}`);
+    logger.info('the user gett all in getall user admin ');
 
-  const formattedUsers: IUser[] = users.map(u => ({
-    ...u,
-    _id: u._id.toString()
-  }));
-// logger.debug("from repo",f)
-  return {
-    users: formattedUsers,
-    totalPages: Math.ceil(totalUsers / limit),
-    currentPage: page,
-    totalUsers
-  };
-}
+    const formattedUsers = users as IUser[];
+    // logger.debug("from repo",f)
+    return {
+      users: formattedUsers,
+      totalPages: Math.ceil(totalUsers / limit),
+      currentPage: page,
+      totalUsers
+    };
+  }
 
 
-  
+
   async findUserById(id: string): Promise<IUser | null> {
     return await UserModel.findById(id).select('-password');
   }
 
-  
+
   async updateUserBlockStatus(id: string, isBlocked: boolean): Promise<IUser | null> {
-    console.log('id',id);
+    console.log('id', id);
     return await UserModel.findByIdAndUpdate(
       id,
       { isBlocked },
@@ -65,58 +66,58 @@ async getAllUsers(page: number, limit: number, search: string) {
     ).select('-password');
   }
   async deleteUser(id: string): Promise<boolean> {
-    console.log('from adminrepo',id);
+    console.log('from adminrepo', id);
     const result = await UserModel.findByIdAndDelete(id);
     return !!result;
   }
 
-//guide
-  async getAllPendingGuides():Promise<Guide[]> {
-  return await GuideProfile.find({isVerified:false})
-    .populate('userId', 'name email role')
-    .sort({ createdAt: -1 })
-    .lean<Guide[]>();
+  //guide
+  async getAllPendingGuides(): Promise<Guide[]> {
+    return await GuideProfile.find({ isVerified: false })
+      .populate('userId', 'name email role')
+      .sort({ createdAt: -1 })
+      .lean<Guide[]>();
 
-}
-async getAllGuides(page:number,limit:number,search:string) {
-  const skip=(Math.max(1,page)-1)*limit;
-  const query=search?{
-    $or:[
-      {serviceArea:{$regex:search,$options:'i'}},
-      {bio:{$regex:search,$options:'i'}}
-    ]
-  }:{};
-  const [guides,totalGuides]=await Promise.all([
-    GuideProfile.find(query)
-    .populate('userId','name email role isBlocked')
-    .skip(skip)
-    .limit(limit)
-    .lean<Guide[]>(),
-    GuideProfile.countDocuments(query)
-  ]);
-// logger.info(`from a-repo,f-guide ${JSON.stringify(guides)}`)
-  return {
-    guides,
-    totalPages: Math.ceil(totalGuides / limit),
-    totalGuides,
-    currentPage: page
-  };
-}
-async verifyGuide(guideId: string): Promise<Guide|null> {
+  }
+  async getAllGuides(page: number, limit: number, search: string) {
+    const skip = (Math.max(1, page) - 1) * limit;
+    const query = search ? {
+      $or: [
+        { serviceArea: { $regex: search, $options: 'i' } },
+        { bio: { $regex: search, $options: 'i' } }
+      ]
+    } : {};
+    const [guides, totalGuides] = await Promise.all([
+      GuideProfile.find(query)
+        .populate('userId', 'name email role isBlocked')
+        .skip(skip)
+        .limit(limit)
+        .lean<Guide[]>(),
+      GuideProfile.countDocuments(query)
+    ]);
+    // logger.info(`from a-repo,f-guide ${JSON.stringify(guides)}`)
+    return {
+      guides,
+      totalPages: Math.ceil(totalGuides / limit),
+      totalGuides,
+      currentPage: page
+    };
+  }
+  async verifyGuide(guideId: string): Promise<Guide | null> {
     return await GuideProfile.findByIdAndUpdate(
-      guideId, 
-      { isVerified: true }, 
+      guideId,
+      { isVerified: true },
       { new: true }
     ).lean<Guide>();
   }
-  async deleteGuide(id: string):Promise<Guide|null> {
-    await GuideProfile.deleteMany({userId:id});
-  return await GuideProfile.findByIdAndDelete(id).lean<Guide>();
-}
+  async deleteGuide(id: string): Promise<Guide | null> {
+    await GuideProfile.deleteMany({ userId: id });
+    return await GuideProfile.findByIdAndDelete(id).lean<Guide>();
+  }
 
-async updateUserRole(userId:string,role:'user'|'guide'|'admin'):Promise<IUser|null>{
-const user = await UserModel.findByIdAndUpdate(userId, { role }, { new: true }).lean();
-  return user?mapUserFromDb(user):null;
-}
+  async updateUserRole(userId: string, role: 'user' | 'guide' | 'admin'): Promise<IUser | null> {
+    const user = await UserModel.findByIdAndUpdate(userId, { role }, { new: true }).lean<IUser>();
+    return user ?? null;
+  }
 
 }

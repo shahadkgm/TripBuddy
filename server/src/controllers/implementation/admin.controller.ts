@@ -14,7 +14,7 @@ export class AdminController implements IAdminController {
     const search = String(req.query.search || '');
 
     const data = await this.adminService.fetchAllUsers(page, limit, search);
-
+// logger.info(`data from admin controller:${data}`)
     res.status(StatusCode.OK).json(data);
   });
 

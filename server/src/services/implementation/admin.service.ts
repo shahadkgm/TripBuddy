@@ -5,9 +5,8 @@ import { AppError } from '../../utils/AppError.js';
 import { StatusCode } from '../../constants/statusCode.enum.js';
 import { UserListDTO, DashboardStatsDTO, GuideListDTO, AdminGuideResponseDTO } from '../../dto/admin.dto.js';
 import { UserResponseDTO } from '../../dto/user.dto.js';
-// import { GuideResponseDTO } from '../../dto/guide.dto.js';
-import { toAdminGuideResponse} from '../../utils/guide.mapper.js'; // Ensure this exists
-import { UserMapper } from '../../utils/userMapper.js'; // Ensure this exists
+import { toAdminGuideResponse} from '../../utils/guide.mapper.js'; 
+import { UserMapper } from '../../utils/userMapper.js';
 import { logger } from '../../utils/logger.js';
 
 export class AdminService implements IAdminService {
@@ -75,8 +74,8 @@ async approveGuide(guideId: string): Promise<AdminGuideResponseDTO> {
 
   const userId =
     typeof profile.userId === 'object'
-      ? (profile.userId as any)._id.toString()
-      : profile.userId.toString();
+      ? (profile.userId )._id.toString()
+      : profile.userId;
 
   await this.adminRepo.updateUserRole(userId, 'guide');
 

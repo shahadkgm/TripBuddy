@@ -1,42 +1,38 @@
+import mongoose, { Model, FilterQuery, UpdateQuery } from 'mongoose';
+import { IBaseRepository } from '../interface/IBaseRepository.js';
 
-// import mongoose, { Model, Document, FilterQuery, UpdateQuery } from "mongoose";
-// import { IBaseRepository } from "../interface/IBaseRepository.js";
+export class BaseRepository<T, C = Partial<T>> implements IBaseRepository<T, C> {
+  protected model: Model<T>;
 
+  constructor(model: Model<T>) {
+    this.model = model;
+  }
 
-// export class BaseRepository<T extends  Document> implements IBaseRepository<T> {
-//   protected model: Model<T>;
+  async create(data: C): Promise<T> {
+    return await this.model.create(data);
+  }
 
-//   constructor(model: Model<T>) {
-//     this.model = model;
-//   }
+  async findById(id: string | mongoose.Types.ObjectId): Promise<T | null> {
+    return await this.model.findById(id).exec();
+  }
 
-//   async create(data: Partial<T>): Promise<T & Document> {
-//     return await this.model.create(data);
-//   }
+  async findOne(filter: FilterQuery<T>): Promise<T | null> {
+    return await this.model.findOne(filter).exec();
+  }
 
-//   async findById(id: string | mongoose.Types.ObjectId): Promise<T | null> {
-//     return await this.model.findById(id);
-      
-//   }
+  async findAll(filter: FilterQuery<T> = {}): Promise<T[]> {
+    return await this.model.find(filter).exec();
+  }
 
-//   async findAll(filter: FilterQuery<T> = {}): Promise<T[]> {
-//     return await this.model.find(filter).sort({createdAt:-1});
-//   }
+  async updateById(id: string | mongoose.Types.ObjectId, update: UpdateQuery<T>): Promise<T | null> {
+    return await this.model.findByIdAndUpdate(id, update, { new: true }).exec();
+  }
 
-//   async findOne(filter: FilterQuery<T> = {}): Promise<T | null> {
-//     return await this.model.findOne(filter);
-//   }
+  async deleteById(id: string | mongoose.Types.ObjectId): Promise<void> {
+    await this.model.findByIdAndDelete(id).exec();
+  }
 
-//   async updateById(id: string | mongoose.Types.ObjectId, update: UpdateQuery<T>): Promise<T | null> {
-//     return await this.model.findByIdAndUpdate(id, update, { new: true });
-//   }
-
-//   async deleteById(id: string | mongoose.Types.ObjectId): Promise<void> {
-//     await this.model.findByIdAndDelete(id);
-//   }
-
-//   async deleteByFilter(filter: FilterQuery<T>): Promise<void> {
-//   await this.model.deleteOne(filter);
-// }
-
-// }
+  async deleteByFilter(filter: FilterQuery<T>): Promise<void> {
+    await this.model.deleteMany(filter).exec();
+  }
+}

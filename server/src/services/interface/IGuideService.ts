@@ -1,5 +1,5 @@
-import { GuideQueryDTO, GuideRegisterDTO, GuideResponseDTO, GuideStatusResponse } from '../../dto/guide.dto.js';
-import { Guide } from '../../types/guide.type.js';
+import { GuideQueryDTO, GuideRegisterDTO, GuideResponseDTO, GuideStatusResponse } from '../../dto/guide.dto';
+import { Guide } from '../../types/guide.type';
 
 // src/services/interfaces/IGuideService.ts
 export interface IGuideService {

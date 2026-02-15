@@ -1,21 +1,20 @@
-import { IUserDb } from '../../models/user.models.js';
 import { IUser } from '../../types/user.type.js';
+import { IBaseRepository } from './IBaseRepository.js';
 
-export interface IUserRepository {
-  create(userData: Partial<IUser>): Promise<IUserDb>;
-  findByEmail(email: string): Promise<IUserDb | null>;
-  findAll(): Promise< IUserDb[]>;
-findUserById(userId: string): Promise<IUserDb | null>;
+export interface IUserRepository extends IBaseRepository<IUser> {
+
+  findByEmail(email: string): Promise<IUser | null>;
+
   // Password reset
   updateResetToken(userId: string, token: string, expires: number): Promise<void>;
-  findByResetToken(hashedToken: string): Promise< IUserDb | null>;
+  findByResetToken(hashedToken: string): Promise<IUser | null>;
   updatePassword(userId: string, newPassword: string): Promise<void>;
 
   // Google auth
   findOrCreateGoogleUser(data: {
     email: string;
     name: string;
-  }): Promise< IUserDb>;
+  }): Promise<IUser>;
 
   // ✅ Email verification
   updateVerificationToken(
@@ -24,7 +23,6 @@ findUserById(userId: string): Promise<IUserDb | null>;
     expires: number
   ): Promise<void>;
 
-  findByVerificationToken(token: string): Promise< IUserDb | null>;
+  findByVerificationToken(token: string): Promise<IUser | null>;
   verifyUser(userId: string): Promise<void>;
-  
 }

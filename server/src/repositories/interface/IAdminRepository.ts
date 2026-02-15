@@ -9,12 +9,16 @@ export interface IAdminRepository {
     page: number,
     limit: number,
     search: string
-  ): Promise<{
+  ): Promise<
+  
+  {
     users: IUser[];
     totalPages: number;
     currentPage: number;
     totalUsers: number;
-  }>;
+    
+  }
+  >;
 
   findUserById(id: string): Promise<IUser | null>;
 
