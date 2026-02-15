@@ -1,95 +1,89 @@
-//backend/src/repositories/user.repository.ts
+
 import { IUserRepository } from '../interface/IUserRepository.js';
-import { IUser } from '../../types/user.type.js';       
-import bcrypt from 'bcryptjs'; // Make sure to install bcryptjs
-import { IUserDb, UserModel } from '../../models/user.models.js';
+import { IUser } from '../../types/user.type.js';
+import bcrypt from 'bcryptjs';
+import { UserModel } from '../../models/user.models.js';
+import { BaseRepository } from './base.repository.js';
+import { UpdateQuery } from 'mongoose';
 
-export class UserRepository  implements IUserRepository  {
-  
-    async create(userData: IUser) {
-        // const newUser = await UserModel.create(userData);
-        // return newUser;
-        return await UserModel.create(userData);
+export class UserRepository extends BaseRepository<IUser> implements IUserRepository {
+
+    constructor() {
+        super(UserModel);
     }
 
-    async findByEmail(email: string) {
-        return await UserModel.findOne({ email: email }).exec();
-    }
-    
-    async findAll() {
-        return await UserModel.find().exec();
-    } 
-    
-    async updateResetToken(userId: string, token: string, expires: number) {
-    await UserModel.findByIdAndUpdate(userId, {
-      passwordResetToken: token,
-      passwordResetExpires: expires
-    });
-  }
-async findByResetToken(hashedToken: string) {
-        return await UserModel.findOne({ 
-            passwordResetToken: hashedToken 
-        }).exec();
+    async findByEmail(email: string): Promise<IUser | null> {
+        return await this.findOne({ email });
     }
 
-    async updatePassword(userId: string, newPassword: string) {
+    async updateResetToken(userId: string, token: string, expires: number): Promise<void> {
+        await this.updateById(userId, {
+            passwordResetToken: token,
+            passwordResetExpires: expires
+        });
+    }
+
+    async findByResetToken(hashedToken: string): Promise<IUser | null> {
+        return await this.findOne({
+            passwordResetToken: hashedToken
+        });
+    }
+
+    async updatePassword(userId: string, newPassword: string): Promise<void> {
         // 1. Hash the new password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-        // 2. Update user and unset/clear reset fields so token can't be used twice
-        await UserModel.findByIdAndUpdate(userId, {
-            password: hashedPassword,
-            $unset: { 
-                passwordResetToken: 1, 
-                passwordResetExpires: 1 
+        // 2. Update user and unset/clear reset fields
+        const update: UpdateQuery<IUser> = {
+            $set: { password: hashedPassword },
+            $unset: {
+                passwordResetToken: 1,
+                passwordResetExpires: 1
             }
-        });
+        };
+        await this.updateById(userId, update);
     }
-    
 
-    async findOrCreateGoogleUser(data:{
-        name:string;
-        email:string
-    }){
-        let user=await UserModel.findOne({email:data.email});
-        if(!user){
-            user=await UserModel.create({
-                name:data.name,
-                email:data.email,
-                role:'user',
-                isVerified:true,
-                isBlocked:false
+    async findOrCreateGoogleUser(data: {
+        name: string;
+        email: string;
+    }): Promise<IUser> {
+        let user = await this.findOne({ email: data.email });
+        if (!user) {
+            user = await this.create({
+                name: data.name,
+                email: data.email,
+                role: 'user',
+                isVerified: true,
+                isBlocked: false
             });
         }
         return user;
     }
-    async updateVerificationToken(userId: string,token: string,expires: number) {
-        
-  await UserModel.findByIdAndUpdate(userId, {
-    verificationToken: token,
-    verificationTokenExpires: expires,
-  });
-}
-    async findByVerificationToken(token:string){
-        return await UserModel.findOne({verificationToken:token,verificationTokenExpires:{$gt:Date.now()}}).exec();
 
+    async updateVerificationToken(userId: string, token: string, expires: number): Promise<void> {
+        await this.updateById(userId, {
+            verificationToken: token,
+            verificationTokenExpires: expires,
+        });
     }
-    async verifyUser(userId: string) {
-  await UserModel.findByIdAndUpdate(userId, {
-    isVerified: true,
-    $unset: {
-      verificationToken: 1,
-      verificationTokenExpires: 1,
-    },
-  });
-}
-async findUserById(userId:string):Promise<IUserDb|null>{
-    return await UserModel.findById(userId).exec();
-}
-    
-}
 
+    async findByVerificationToken(token: string): Promise<IUser | null> {
+        return await this.findOne({
+            verificationToken: token,
+            verificationTokenExpires: { $gt: new Date() } // Date.now() works but new Date() is safer for comparison
+        });
+    }
 
-
-// export default new UserRepository();
+    async verifyUser(userId: string): Promise<void> {
+        const update: UpdateQuery<IUser> = {
+            $set: { isVerified: true },
+            $unset: {
+                verificationToken: 1,
+                verificationTokenExpires: 1,
+            },
+        };
+        await this.updateById(userId, update);
+    }
+}

@@ -46,26 +46,10 @@
 // export default UserModel;
 import { Schema, model, HydratedDocument } from 'mongoose';
 
-export interface IUserDb {
-  name: string;
-  email: string;
-  password?: string;
 
-  role: 'user' | 'guide' | 'admin';
+export type IUserDoc = HydratedDocument<IUser>;
 
-  isBlocked: boolean;
-  isVerified: boolean;
-
-  verificationToken?: string;
-  verificationTokenExpires?: Date;
-
-  passwordResetToken?: string;
-  passwordResetExpires?: Date;
-}
-
-export type IUserDoc = HydratedDocument<IUserDb>;
-
-const userSchema = new Schema<IUserDb>(
+const userSchema = new Schema<IUser>(
   {
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
@@ -90,5 +74,7 @@ const userSchema = new Schema<IUserDb>(
   { timestamps: true }
 );
 
-export const UserModel = model<IUserDb>('User', userSchema);
+import { IUser } from '../types/user.type.js';
+
+export const UserModel = model<IUser>('User', userSchema);
 

@@ -1,5 +1,5 @@
-import { KYCStatusResponseDTO} from '../../dto/kyc.dto.js';
-import { IKYC } from '../../types/kyc.type.js';
+import { KYCStatusResponseDTO} from '../../dto/kyc.dto';
+import { IKYC } from '../../types/kyc.type';
 
 // server/src/controllers/interfaces/IUploadService.ts
 export interface IUploadService {

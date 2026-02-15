@@ -189,6 +189,7 @@ export class AuthService implements IAuthService {
     );
 
     const link = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
+    console.log('link for get',link);
 
    logger. info('Sending verification email:', user.email);
 

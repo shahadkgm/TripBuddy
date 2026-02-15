@@ -1,6 +1,6 @@
-import { RegisterUserDTO } from '../../dto/auth.dto.js';
-import { RegisterUserResponseDTO } from '../../dto/user.dto.js';
-import { IUser } from '../../types/user.type.js';
+import { RegisterUserDTO } from '../../dto/auth.dto';
+import { RegisterUserResponseDTO } from '../../dto/user.dto';
+import { IUser } from '../../types/user.type';
 
 export interface IUserService {
   registerUser(userData: RegisterUserDTO): Promise<RegisterUserResponseDTO>;

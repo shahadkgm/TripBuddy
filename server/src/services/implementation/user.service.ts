@@ -11,7 +11,7 @@ export class UserService implements IUserService {
   constructor(
     private userRepository: IUserRepository,
     private mailService: IMailService
-  ) {}
+  ) { }
 
   async registerUser(
     userData: RegisterUserDTO
