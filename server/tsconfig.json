@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "ignoreDeprecations": "5.0",
     "target": "ESNext",
     "module": "CommonJS",
     "moduleResolution": "node",
@@ -11,16 +12,16 @@
     "emitDecoratorMetadata": true,
     "rootDir": "src",
     "outDir": "dist",
-    "baseUrl": "src",
+    "baseUrl": ".",
     "paths": {
       "@/*": [
-        "*"
+        "src/*"
       ]
     },
     "sourceMap": true,
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo",
-    "noEmitOnError": false,
+    "noEmitOnError": false
   },
   "include": [
     "src"
@@ -28,6 +29,6 @@
   "exclude": [
     "node_modules",
     "dist",
-    ".tsbuildinfo",
+    ".tsbuildinfo"
   ]
 }

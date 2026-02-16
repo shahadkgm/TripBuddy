@@ -1,6 +1,6 @@
 import { IsArray, IsBoolean, IsMongoId, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { Types } from 'mongoose';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 
 export class GuideRegisterDTO {
   @IsString()
@@ -19,6 +19,18 @@ export class GuideRegisterDTO {
   @Min(0)
   yearsOfExperience!: number;
 
+  @Transform(({ value }: { value: any }) => {
+    if (typeof value === 'string') {
+      try {
+        // Try to parse if it's a JSON string like '["hiking", "climbing"]'
+        return JSON.parse(value);
+      } catch {
+        // Otherwise treat as comma-separated or just a single value
+        return value.split(',').map((s: string) => s.trim()).filter((s: string) => s !== '');
+      }
+    }
+    return Array.isArray(value) ? value : [value];
+  })
   @IsArray()
   @IsString({ each: true })
   specialties!: string[];
@@ -73,7 +85,7 @@ export interface GuideResponseDTO {
   bio: string;
   hourlyRate: number;
   serviceArea: string;
-  specialities: string[];
+  specialties: string[];
   avatarURL?: string;
   isVerified: boolean;
 }

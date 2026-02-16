@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import 'dotenv/config';
 
 import path from 'path';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
@@ -19,7 +19,6 @@ import { errorMiddleware } from './middleware/error.middleware';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // --- Middlewares ---
 app.use(
@@ -27,10 +26,15 @@ app.use(
         origin: 'http://localhost:5173',
         credentials: true,
     })
-); app.use(express.json());
+);
+app.use(express.json());
 app.use(cookieParser());
-app.use(errorMiddleware);
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+// --- Base Route ---
+app.get('/', (_req: Request, res: Response) => {
+    res.json({ message: 'Node.js TypeScript Express Server is Running!' });
+});
 
 // --- Routes ---
 app.use('/auth', authRoutes);
@@ -39,11 +43,8 @@ app.use('/api/users', UserRoutes);
 app.use('/api/guides', guideRoutes);
 app.use('/api/admin', adminRoutes);
 
-
-// --- Base Route ---
-app.get('/', (req, res) => {
-    res.send('Node.js TypeScript Express Server is Running!');
-});
+// --- Error Handler (MUST BE LAST) ---
+app.use(errorMiddleware);
 
 // --- Start Server ---
 connectDB()

@@ -3,7 +3,11 @@ import { validate, ValidationError } from 'class-validator';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { StatusCode } from '../constants/statusCode.enum';
 
-export function dtoValidationMiddleware(type: any, skipMissingProperties = false): RequestHandler {
+export function dtoValidationMiddleware<T extends object>(
+    type: new (...args: unknown[]) => T,
+    skipMissingProperties = false
+): RequestHandler {
+
     return (req: Request, res: Response, next: NextFunction) => {
         const dtoObj = plainToInstance(type, req.body);
         validate(dtoObj, { skipMissingProperties }).then((errors: ValidationError[]) => {

@@ -117,6 +117,8 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
 
   async updateUserRole(userId: string, role: 'user' | 'guide' | 'admin'): Promise<IUser | null> {
     const user = await UserModel.findByIdAndUpdate(userId, { role }, { new: true }).lean<IUser>();
+    logger.info(`from updateusermodel ,a-repository ${user}`);
+    logger.debug(`from updateusermodal${user}`);
     return user ?? null;
   }
 

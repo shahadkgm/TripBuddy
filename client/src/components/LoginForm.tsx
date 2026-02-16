@@ -1,6 +1,6 @@
 //client/src/modules/auth/components/LoginForm.tsx
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; 
+import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast'; // Added toast but it have problem i want to recheck this 
 import { authService } from '../services/c.authService';
 import { Button } from './Button';
@@ -10,63 +10,63 @@ export const LoginForm = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const ValidateForm=()=>{
-if(!email.trim()||!password.trim()){
-  toast.error("Email and password are required")
-  return false
-}
-if(!emailRegex.test(email)){
-  toast.error("please enter a valid email address")
-  return false
-}
-if(password.length<6){
-  toast.error("Password must be at least 6 characters")
-  return false;
-}
-return true
-  }
- const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if(!ValidateForm())return;
-  setIsLoading(true);
-  const loginToast = toast.loading("Verifying credentials...");
-
-  try {
-    const result = await authService.login({ email, password });
-    console.log("result from loginform",result)
-    if (result.user.isBlocked) {
-      toast.error("Your account has been blocked. Contact support.", { id: loginToast });
-      authService.logout(); 
-      return; 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const ValidateForm = () => {
+    if (!email.trim() || !password.trim()) {
+      toast.error("Email and password are required")
+      return false
     }
-
-    toast.success("Welcome back!", { id: loginToast });
-console.log("role",result.user.role)
-    // Unified Redirection
-    if (result.user.role === "admin") {
-      console.log("working")
-      // window.location.href="/admin/dashboard"
-      navigate("/admin/dashboard");
-    } else if (result.user.role === "guide") {
-      navigate("/guide-dashboard");
-    } else {
-      navigate("/"); 
+    if (!emailRegex.test(email)) {
+      toast.error("please enter a valid email address")
+      return false
     }
-  } catch (error: any) {
-    const errorMessage = error.response?.data?.message || "Invalid email or password.";
-    toast.error(errorMessage, { id: loginToast });
-  } finally {
-    setIsLoading(false);
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters")
+      return false;
+    }
+    return true
   }
-};
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ValidateForm()) return;
+    setIsLoading(true);
+    const loginToast = toast.loading("Verifying credentials...");
+
+    try {
+      const result = await authService.login({ email, password });
+      console.log("result from loginform", result)
+      if (result.user.isBlocked) {
+        toast.error("Your account has been blocked. Contact support.", { id: loginToast });
+        authService.logout();
+        return;
+      }
+
+      toast.success("Welcome back!", { id: loginToast });
+      console.log("role", result.user.role)
+      // Unified Redirection
+      if (result.user.role === "admin") {
+        console.log("working")
+        // window.location.href="/admin/dashboard"
+        navigate("/admin/dashboard", { replace: true });
+      } else if (result.user.role === "guide") {
+        navigate("/guide-dashboard", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || "Invalid email or password.";
+      toast.error(errorMessage, { id: loginToast });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="w-full max-w-md">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">Email</label>
-          <input 
+          <input
             // type="email" 
             required
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#5537ee] focus:border-[#5537ee] outline-none"
@@ -77,15 +77,15 @@ console.log("role",result.user.role)
         <div>
           <div className="flex justify-between">
             <label className="block text-sm font-medium text-gray-700">Password</label>
-            <Link 
-              to="/forgot-password" 
+            <Link
+              to="/forgot-password"
               className="text-sm font-medium text-[#5537ee] hover:underline"
             >
               Forgot Password?
             </Link>
           </div>
-          <input 
-            type="password" 
+          <input
+            type="password"
             required
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#5537ee] focus:border-[#5537ee] outline-none"
             value={password}

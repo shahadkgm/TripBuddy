@@ -9,7 +9,7 @@ import { ConfirmModal } from '../../components/ConfirmModal';
 // import { DataTable } from '../../components/common/DataTable'; // Import the new component
 
 interface UserData {
-  _id: string;
+  id: string;
   name: string;
   email: string;
   role: 'admin' | 'guide' | 'user';
@@ -49,7 +49,7 @@ export const UserManagement = () => {
     try {
       await api.patch(`/api/admin/users/${userId}/block`, { blocked: !isBlocked });
       toast.success(isBlocked ? "User unblocked" : "User blocked");
-      setUsers(users.map(u => u._id === userId ? { ...u, isBlocked: !isBlocked } : u));
+      setUsers(users.map(u => u.id === userId ? { ...u, isBlocked: !isBlocked } : u));
     } catch (error) {
       toast.error("Action failed");
     }
@@ -63,7 +63,7 @@ export const UserManagement = () => {
     try {
       await api.delete(`/api/admin/users/${selectedUserId}`);
       toast.success("User deleted successfully");
-      setUsers(users.filter(u => u._id !== selectedUserId));
+      setUsers(users.filter(u => u.id !== selectedUserId));
     } catch (error) {
       toast.error("Deletion failed");
     }
@@ -114,7 +114,7 @@ export const UserManagement = () => {
       render: (user: UserData) => (
         <div className="flex justify-end gap-2">
           <button 
-            onClick={() => handleToggleBlock(user._id, user.isBlocked)}
+            onClick={() => handleToggleBlock(user.id, user.isBlocked)}
             className={`p-2 rounded-lg transition ${user.isBlocked ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-red-50 text-red-600 hover:bg-red-100'}`}
             title={user.isBlocked ? "Unblock" : "Block"}
           >
@@ -133,7 +133,7 @@ export const UserManagement = () => {
       render: (user: UserData) => (
         <div className="flex justify-end gap-2">
           <button 
-            onClick={() => handleDeleteClick(user._id)} 
+            onClick={() => handleDeleteClick(user.id)} 
             className="p-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-red-50 hover:text-red-600 transition"
           >
             <Trash2 size={18} />

@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { IAdminRepository } from '../../repositories/interface/IAdminRepository';
 import { AppError } from '../../utils/AppError';
 import { StatusCode } from '../../constants/statusCode.enum';
@@ -71,10 +72,9 @@ export class AdminService implements IAdminService {
       throw new AppError('Guide application not found', StatusCode.NOT_FOUND);
     }
 
-    const userId =
-      typeof profile.userId === 'object'
-        ? (profile.userId)._id.toString()
-        : profile.userId;
+    const userId = profile.userId instanceof Types.ObjectId
+      ? profile.userId.toString()
+      : profile.userId._id.toString();
 
     await this.adminRepo.updateUserRole(userId, 'guide');
 

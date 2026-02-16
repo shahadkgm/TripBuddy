@@ -1,9 +1,15 @@
-import { IUser } from '../types/user.type';
+import { IUser } from './user.type';
 
 declare global {
   namespace Express {
     interface Request {
-      user?: IUser;
+      user?: {
+        id: string;
+        role: string;
+        email: string;
+      };
     }
   }
 }
+
+export { };

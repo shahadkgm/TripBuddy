@@ -1,19 +1,19 @@
 import { AdminGuideResponseDTO } from '../dto/admin.dto';
 import { GuideResponseDTO } from '../dto/guide.dto';
-import { Guide } from '../types/guide.type';
+import { IGuide } from '../types/guide.type';
 
-export const toGuideResponse = (guide: Guide): GuideResponseDTO => ({
-  
+export const toGuideResponse = (guide: IGuide): GuideResponseDTO => ({
+
   id: guide._id.toString(),
   name: guide.name,
   bio: guide.bio,
   hourlyRate: guide.hourlyRate,
   serviceArea: guide.serviceArea,
-  specialities: guide.specialities,
+  specialties: guide.specialties,
   avatarURL: guide.avatarURL,
   isVerified: guide.isVerified
 });
-export const toAdminGuideResponse = (guide: Guide): AdminGuideResponseDTO => {
+export const toAdminGuideResponse = (guide: IGuide): AdminGuideResponseDTO => {
   // Identify the user data from the populated field
   // const userData = typeof guide.userId === 'object' ? guide.userId : null;
 
@@ -25,7 +25,7 @@ export const toAdminGuideResponse = (guide: Guide): AdminGuideResponseDTO => {
       email: guide?.bio || 'N/A',
     },
     // Ensure these match AdminGuideResponseDTO
-    yearsOfExperience:guide.yearsOfExperience,
+    yearsOfExperience: guide.yearsOfExperience,
     status: guide.isVerified ? 'Verified' : 'Pending',
     createdAt: guide.createdAt?.toISOString() || new Date().toISOString(),
   };

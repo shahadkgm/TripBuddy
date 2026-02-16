@@ -1,4 +1,5 @@
 import { CreateGuideDTO, GuideQueryDTO, GuideRegisterDTO, GuideResponseDTO } from '../../dto/guide.dto';
+import { IGuide } from '../../types/guide.type';
 import { IGuideRepository } from '../../repositories/interface/IGuideRepository';
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
 import { toGuideResponse } from '../../utils/guide.mapper';
@@ -11,7 +12,7 @@ export class GuideService implements IGuideService {
   constructor(private guideRepository: IGuideRepository, private userRepository: IUserRepository) { }
 
 
-  async register(userId: string, data: GuideRegisterDTO, fileName?: string): Promise<any> {
+  async register(userId: string, data: GuideRegisterDTO, fileName?: string): Promise<IGuide> {
     // const user=await this.userRepsitory.findby
     logger.info(`Starting guide registration for user: ${userId}`);
     const existing = await this.guideRepository.findOne({ userId });
@@ -31,10 +32,7 @@ export class GuideService implements IGuideService {
       hourlyRate: Number(data.hourlyRate),
       serviceArea: data.serviceArea,
       yearsOfExperience: Number(data.yearsOfExperience) || 0,
-      specialties:
-        typeof data.specialties === 'string'
-          ? JSON.parse(data.specialties)
-          : data.specialties,
+      specialties: data.specialties,
       avatarURL: fileName ? `/uploads/guides/${fileName}` : '',
       isVerified: false,
     };

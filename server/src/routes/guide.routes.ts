@@ -10,6 +10,7 @@ import { GuideController } from '../controllers/implementation/guide.controller'
 import { UserRepository } from '../repositories/implementation/user.repository';
 import { dtoValidationMiddleware } from '../middleware/dtoValidation';
 import { GuideRegisterDTO } from '../dto/guide.dto';
+import { protect } from '../middleware/authMiddleware';
 
 const router = Router();
 const userRepo = new UserRepository();
@@ -31,6 +32,7 @@ const upload = multer({ storage });
 
 router.post(
   '/register',
+  protect,
   upload.single('avatar'),
   dtoValidationMiddleware(GuideRegisterDTO),
   guideController.registerGuide

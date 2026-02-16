@@ -19,14 +19,14 @@ const userController = new UserController(userService);
 router.post(
     '/forgot-password',
     dtoValidationMiddleware(ForgotPasswordDTO),
-    userController.forgotPassword.bind(userController)
+    userController.forgotPassword
 );
 
-router.get('/', userController.getUsers.bind(userController));
+router.get('/', userController.getUsers);
 
 router.post(
     '/reset-password/:token',
     dtoValidationMiddleware(ResetPasswordDTO),
-    userController.resetPassword.bind(userController)
+    userController.resetPassword
 );
 export default router;

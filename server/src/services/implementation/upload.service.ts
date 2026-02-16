@@ -3,6 +3,7 @@ import { IUploadService } from '../interface/IUploadService';
 import { IKYCRepository } from '../../repositories/interface/IKycRepository';
 import { KYCStatusResponseDTO } from '../../dto/kyc.dto';
 import { IKYC } from '../../types/kyc.type';
+import { logger } from '@/utils/logger';
 
 export class UploadService implements IUploadService {
   
@@ -26,8 +27,8 @@ export class UploadService implements IUploadService {
     console.log(`New user detected: ${userId}. No KYC record found.`);
     return { status: 'none',userId }; // Return a default object instead of null
   }
-
-  console.log('KYC found in DB for user:', userId, kyc.status);
+logger.info(`KYC found in DB for user ${userId},${kyc.status}`);
+  // console.log('KYC found in DB for user:', userId, kyc.status);
   return kyc;
 }
 }

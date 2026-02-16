@@ -21,7 +21,7 @@ export class AdminController implements IAdminController {
   handleBlockUser = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const { blocked } = req.body;
-    const adminId = req.user?._id?.toString() || '';
+    const adminId = req.user?.id?.toString() || '';
 
     const updatedUser = await this.adminService.toggleUserBlock(id, blocked, adminId);
 
@@ -30,7 +30,7 @@ export class AdminController implements IAdminController {
 
   deleteUser = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const adminId = req.user?._id?.toString() || '';
+    const adminId = req.user?.id?.toString() || '';
 
     await this.adminService.removeUser(id, adminId);
 

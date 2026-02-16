@@ -39,16 +39,13 @@ export class UploadController {
     try {
       const { userId } = req.params;
 
-      // 1. Validate Input First
       if (!userId) {
         res.status(StatusCode.BAD_REQUEST).json({ message: 'User ID is required' });
         return;
       }
 
-      // 2. Single Service Call
       const kyc = await this._uploadService.getKYCStatus(userId);
 
-      // 3. Handle Null Result (New User Case)
       if (!kyc) {
         res.status(StatusCode.OK).json({ 
           status: 'none', 
