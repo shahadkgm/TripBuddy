@@ -1,15 +1,16 @@
 // backend/src/controllers/guide.controller.ts
 import { Request, Response, NextFunction } from 'express';
-import { IGuideService } from '../../services/interface/IGuideService.js';
-import { StatusCode } from '../../constants/statusCode.enum.js';
+import { IGuideService } from '../../services/interface/IGuideService';
+import { StatusCode } from '../../constants/statusCode.enum';
+import { AuthRequest } from '../../types/authrequst';
 
-export class  GuideController {
-  constructor(private readonly _guideService: IGuideService) {}
+export class GuideController {
+  constructor(private readonly _guideService: IGuideService) { }
 
-  registerGuide = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  registerGuide = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = req.user?.id; 
-      console.log('userid from register Guide',userId);
+      const userId = req.user?.id;
+      console.log('userid from register Guide', userId);
 
       if (!userId) {
         res.status(StatusCode.UNAUTHORIZED).json({ message: 'User not authenticated' });
@@ -22,20 +23,20 @@ export class  GuideController {
         req.file?.filename
       );
 
-      res.status(StatusCode.CREATED).json({ 
-        message: 'Application submitted successfully', 
-        profile 
+      res.status(StatusCode.CREATED).json({
+        message: 'Application submitted successfully',
+        profile
       });
     } catch (error) {
       console.log(error);
-      next(error); 
+      next(error);
     }
   };
 
   getGuideStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { userId } = req.params;
-      console.log('userId from getguidestatus ',userId);
+      console.log('userId from getguidestatus ', userId);
       const status = await this._guideService.getStatus(userId);
       res.status(StatusCode.OK).json(status);
     } catch (error) {

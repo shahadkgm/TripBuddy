@@ -3,9 +3,9 @@
 
 
 
-import { DashboardStatsDTO, GuideListDTO, UserListDTO } from '../../dto/admin.dto.js';
-import { AdminGuideResponseDTO } from '../../dto/admin.dto.js';
-import { UserResponseDTO } from '../../dto/user.dto.js';
+import { DashboardStatsDTO, GuideListDTO, UserListDTO } from '../../dto/admin.dto';
+import { AdminGuideResponseDTO } from '../../dto/admin.dto';
+import { UserResponseDTO } from '../../dto/user.dto';
 export interface IAdminService {
   fetchAllUsers(page: number, limit: number, search: string): Promise<UserListDTO>;
 

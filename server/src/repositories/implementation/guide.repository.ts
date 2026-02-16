@@ -1,13 +1,14 @@
 import { FilterQuery } from 'mongoose';
-import { BaseRepository } from './base.repository.js';
-import guideModel from '../../models/guide.model.js';
-import { IGuide } from '../../types/guide.type.js';
-import { IGuideRepository } from '../interface/IGuideRepository.js';
+import { CreateGuideDTO } from '../../dto/guide.dto';
+import guideModel from '../../models/guide.model';
+import { BaseRepository } from './base.repository';
+import { IGuideRepository } from '../interface/IGuideRepository';
+import { IGuide } from '../../types/guide.type';
 
-export class GuideRepository extends BaseRepository<IGuide> implements IGuideRepository {
+export class GuideRepository extends BaseRepository<IGuide, CreateGuideDTO> implements IGuideRepository {
 
   constructor() {
-    super(guideModel)
+    super(guideModel);
   }
 
   async findAll(filters: Record<string, unknown> = {}): Promise<IGuide[]> {
@@ -17,14 +18,5 @@ export class GuideRepository extends BaseRepository<IGuide> implements IGuideRep
       .sort({ createdAt: -1 })
       .exec();
   }
-
-  async findByUserId(userId: string): Promise<IGuide | null> {
-    return await this.findOne({ userId });
-  }
-
-  async create(data: any): Promise<IGuide> { // use dto for creating guide
-    return await this.model.create(data);
-  }
-
 
 }

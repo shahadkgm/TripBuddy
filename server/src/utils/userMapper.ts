@@ -1,6 +1,6 @@
 // server/src/utils/userMapper.ts
-import { IUser } from '../types/user.type.js';
-import { UserResponseDTO } from '../dto/user.dto.js';
+import { IUser } from '../types/user.type';
+import { UserResponseDTO } from '../dto/user.dto';
 
 
 export class UserMapper {

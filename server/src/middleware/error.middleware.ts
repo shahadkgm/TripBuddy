@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'; // 1. Added NextFunction
-import { AppError } from '../utils/AppError.js';
-import { StatusCode } from '../constants/statusCode.enum.js';
+import { AppError } from '../utils/AppError';
+import { StatusCode } from '../constants/statusCode.enum';
 
 export const errorMiddleware = (
   err: unknown,

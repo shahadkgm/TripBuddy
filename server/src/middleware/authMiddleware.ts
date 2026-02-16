@@ -1,10 +1,10 @@
 // backend/src/middleware/authMiddleware.ts
 import jwt from 'jsonwebtoken';
 import { Response, NextFunction } from 'express';
-import { StatusCode } from '../constants/statusCode.enum.js'; 
-// import UserModel from '../models/user.models.js';
-import { AuthRequest } from '../types/authrequst.js';
-import { UserModel } from '../models/user.models.js';
+import { StatusCode } from '../constants/statusCode.enum'; 
+// import UserModel from '../models/user.models';
+import { AuthRequest } from '../types/authrequst';
+import { UserModel } from '../models/user.models';
 
 export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;

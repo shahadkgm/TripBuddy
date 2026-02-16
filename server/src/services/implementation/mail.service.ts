@@ -1,6 +1,6 @@
 // backend/src/services/mail.service.ts
 import nodemailer, { Transporter } from 'nodemailer';
-import { IMailService } from '../interface/IMailService.js';
+import { IMailService } from '../interface/IMailService';
 
 export class MailService implements IMailService {
   private transporter:Transporter;

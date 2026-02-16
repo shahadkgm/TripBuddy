@@ -3,17 +3,17 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { OAuth2Client } from 'google-auth-library';
 
-import { IAuthService } from '../interface/IAuthservice.js';
-import { IUserRepository } from '../../repositories/interface/IUserRepository.js';
-import { MailService } from './mail.service.js';
-import { UserMapper } from '../../utils/userMapper.js';
-import { RegisterUserDTO, LoginDTO } from '../../dto/auth.dto.js';
-import { AuthResponse } from '../../types/authResponse.js';
+import { IAuthService } from '../interface/IAuthservice';
+import { IUserRepository } from '../../repositories/interface/IUserRepository';
+import { MailService } from './mail.service';
+import { UserMapper } from '../../utils/userMapper';
+import { RegisterUserDTO, LoginDTO } from '../../dto/auth.dto';
+import { AuthResponse } from '../../types/authResponse';
 
-import { AppError } from '../../utils/AppError.js';
-import { StatusCode } from '../../constants/statusCode.enum.js';
-import { IUser } from '../../types/user.type.js';
-import { logger } from '../../utils/logger.js';
+import { AppError } from '../../utils/AppError';
+import { StatusCode } from '../../constants/statusCode.enum';
+import { IUser } from '../../types/user.type';
+import { logger } from '../../utils/logger';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 

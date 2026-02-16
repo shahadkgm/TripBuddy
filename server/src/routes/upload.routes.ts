@@ -1,9 +1,9 @@
 // server/src/routes/upload.routes.ts
 import { Router } from 'express';
-import { upload } from '../middleware/upload.middleware.js';
-import { UploadController } from '../controllers/implementation/upload.controller.js';
-import { UploadService } from '../services/implementation/upload.service.js';
-import { KycRepository } from '../repositories/implementation/Kyc.repository.js';
+import { upload } from '../middleware/upload.middleware';
+import { UploadController } from '../controllers/implementation/upload.controller';
+import { UploadService } from '../services/implementation/upload.service';
+import { KycRepository } from '../repositories/implementation/Kyc.repository';
 
 const router = Router();
 const  kycRepository=new KycRepository();

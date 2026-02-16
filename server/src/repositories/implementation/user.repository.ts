@@ -1,12 +1,13 @@
 
-import { IUserRepository } from '../interface/IUserRepository.js';
-import { IUser } from '../../types/user.type.js';
+import { IUserRepository } from '../interface/IUserRepository';
+import { IUser } from '../../types/user.type';
 import bcrypt from 'bcryptjs';
-import { UserModel } from '../../models/user.models.js';
-import { BaseRepository } from './base.repository.js';
+import { UserModel } from '../../models/user.models';
+import { BaseRepository } from './base.repository';
 import { UpdateQuery } from 'mongoose';
+import { CreateUserDTO, GoogleUserDTO } from '../../dto/user.dto';
 
-export class UserRepository extends BaseRepository<IUser> implements IUserRepository {
+export class UserRepository extends BaseRepository<IUser, CreateUserDTO> implements IUserRepository {
 
     constructor() {
         super(UserModel);
@@ -45,10 +46,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
         await this.updateById(userId, update);
     }
 
-    async findOrCreateGoogleUser(data: {
-        name: string;
-        email: string;
-    }): Promise<IUser> {
+    async findOrCreateGoogleUser(data: GoogleUserDTO): Promise<IUser> {
         let user = await this.findOne({ email: data.email });
         if (!user) {
             user = await this.create({

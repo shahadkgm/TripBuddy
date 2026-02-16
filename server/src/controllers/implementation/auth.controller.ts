@@ -1,12 +1,12 @@
 // server/src/controllers/implementation/auth.controller.ts
 
 import { Request, Response } from 'express';
-import { StatusCode } from '../../constants/statusCode.enum.js';
-import { IAuthController } from '../interfaces/IAuthController.js';
-import { IAuthService } from '../../services/interface/IAuthservice.js';
-import { asyncHandler } from '../../utils/asyncHandler.js';
+import { StatusCode } from '../../constants/statusCode.enum';
+import { IAuthController } from '../interfaces/IAuthController';
+import { IAuthService } from '../../services/interface/IAuthservice';
+import { asyncHandler } from '../../utils/asyncHandler';
 import jwt from 'jsonwebtoken';
-import { AppError } from '../../utils/AppError.js';
+import { AppError } from '../../utils/AppError';
 
 interface UserPayload extends jwt.JwtPayload {
   id: string;

@@ -1,4 +1,4 @@
-import { KYCStatus } from '../types/kyc.type.js';
+import { KYCStatus } from '../types/kyc.type';
 
 export interface SaveKYCResponseDTO {
   id: string;

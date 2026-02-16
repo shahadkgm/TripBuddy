@@ -1,6 +1,6 @@
-import { KYC } from '../../models/kyc.model.js';
-import { IKYC } from '../../types/kyc.type.js';
-import { IKYCRepository } from '../interface/IKycRepository.js';
+import { KYC } from '../../models/kyc.model';
+import { IKYC } from '../../types/kyc.type';
+import { IKYCRepository } from '../interface/IKycRepository';
 
 
 export class KycRepository implements IKYCRepository {

@@ -1,7 +1,8 @@
-import { IUser } from '../../types/user.type.js';
-import { IBaseRepository } from './IBaseRepository.js';
+import { IUser } from '../../types/user.type';
+import { IBaseRepository } from './IBaseRepository';
+import { CreateUserDTO, GoogleUserDTO } from '../../dto/user.dto';
 
-export interface IUserRepository extends IBaseRepository<IUser> {
+export interface IUserRepository extends IBaseRepository<IUser, CreateUserDTO> {
 
   findByEmail(email: string): Promise<IUser | null>;
 
@@ -11,10 +12,7 @@ export interface IUserRepository extends IBaseRepository<IUser> {
   updatePassword(userId: string, newPassword: string): Promise<void>;
 
   // Google auth
-  findOrCreateGoogleUser(data: {
-    email: string;
-    name: string;
-  }): Promise<IUser>;
+  findOrCreateGoogleUser(data: GoogleUserDTO): Promise<IUser>;
 
   // ✅ Email verification
   updateVerificationToken(

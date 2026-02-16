@@ -1,6 +1,6 @@
 // backend/src/types/Admin.ts
 
-import { IUser } from './user.type.js';
+import { IUser } from './user.type';
 
 export interface IUserListResponse {
   users: IUser[];

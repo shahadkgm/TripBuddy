@@ -1,8 +1,8 @@
 // server/src/services/implementation/upload.service.ts
-import { IUploadService } from '../interface/IUploadService.js';
-import { IKYCRepository } from '../../repositories/interface/IKycRepository.js';
-import { KYCStatusResponseDTO } from '../../dto/kyc.dto.js';
-import { IKYC } from '../../types/kyc.type.js';
+import { IUploadService } from '../interface/IUploadService';
+import { IKYCRepository } from '../../repositories/interface/IKycRepository';
+import { KYCStatusResponseDTO } from '../../dto/kyc.dto';
+import { IKYC } from '../../types/kyc.type';
 
 export class UploadService implements IUploadService {
   

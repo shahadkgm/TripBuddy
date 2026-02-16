@@ -1,6 +1,6 @@
 // // backend/src/models/user.model.ts
 // import { Schema, model } from 'mongoose';
-// import { IUserDocument } from '../types/user.type.js';
+// import { IUserDocument } from '../types/user.type';
 
 // const userSchema = new Schema<IUserDocument>({
 //     name: {
@@ -74,7 +74,7 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-import { IUser } from '../types/user.type.js';
+import { IUser } from '../types/user.type';
 
 export const UserModel = model<IUser>('User', userSchema);
 

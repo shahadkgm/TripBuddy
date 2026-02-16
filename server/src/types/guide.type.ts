@@ -20,4 +20,3 @@ export interface IGuide {
   createdAt: Date;
   updatedAt: Date;
 };
-

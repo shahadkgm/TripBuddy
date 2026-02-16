@@ -1,8 +1,8 @@
 import express from 'express';
-import { AdminRepository } from '../repositories/implementation/admin.repository.js';
-import { AdminService } from '../services/implementation/admin.service.js';
-import { AdminController } from '../controllers/implementation/admin.controller.js';
-import { isAdmin, protect } from '../middleware/authMiddleware.js';
+import { AdminRepository } from '../repositories/implementation/admin.repository';
+import { AdminService } from '../services/implementation/admin.service';
+import { AdminController } from '../controllers/implementation/admin.controller';
+import { isAdmin, protect } from '../middleware/authMiddleware';
 
 const router = express.Router();
 

@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { StatusCode } from '../../constants/statusCode.enum.js';
-import { IAdminService } from '../../services/interface/Iadminservice.js';
-import { IAdminController } from '../interfaces/IadminController.js';
-import { asyncHandler } from '../../utils/asyncHandler.js';
-import { logger } from '../../utils/logger.js';
+import { StatusCode } from '../../constants/statusCode.enum';
+import { IAdminService } from '../../services/interface/Iadminservice';
+import { IAdminController } from '../interfaces/IadminController';
+import { asyncHandler } from '../../utils/asyncHandler';
+import { logger } from '../../utils/logger';
 
 export class AdminController implements IAdminController {
-  constructor(private adminService: IAdminService) {}
+  constructor(private adminService: IAdminService) { }
 
   getAllUsers = asyncHandler(async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
@@ -14,14 +14,14 @@ export class AdminController implements IAdminController {
     const search = String(req.query.search || '');
 
     const data = await this.adminService.fetchAllUsers(page, limit, search);
-// logger.info(`data from admin controller:${data}`)
+    // logger.info(`data from admin controller:${data}`)
     res.status(StatusCode.OK).json(data);
   });
 
   handleBlockUser = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const { blocked } = req.body;
-    const adminId = req.user?._id;
+    const adminId = req.user?._id?.toString() || '';
 
     const updatedUser = await this.adminService.toggleUserBlock(id, blocked, adminId);
 
@@ -30,7 +30,7 @@ export class AdminController implements IAdminController {
 
   deleteUser = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const adminId = req.user?._id;
+    const adminId = req.user?._id?.toString() || '';
 
     await this.adminService.removeUser(id, adminId);
 
@@ -54,11 +54,11 @@ export class AdminController implements IAdminController {
   });
 
   getAllGuides = asyncHandler(async (req: Request, res: Response) => {
-    const page=Number(req.query.page)||1;
-    const limit=Number(req.query.limit)||10;
-    const search=String(req.query.search)||'';
-    const data= await this.adminService.fetchAllGuides(page,limit,search);
-    logger.debug('from get all guide',data);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search = String(req.query.search) || '';
+    const data = await this.adminService.fetchAllGuides(page, limit, search);
+    logger.debug('from get all guide', data);
 
 
     res.status(StatusCode.OK).json(data);

@@ -1,12 +1,13 @@
-import GuideProfile from '../../models/guide.model.js';
-import { IUser } from '../../types/user.type.js';
-import { IAdminRepository } from '../interface/IAdminRepository.js';
-import { UserModel } from '../../models/user.models.js';
-import { logger } from '../../utils/logger.js';
-import { BaseRepository } from './base.repository.js';
-import { IGuide } from '../../types/guide.type.js';
+import GuideProfile from '../../models/guide.model';
+import { IUser } from '../../types/user.type';
+import { CreateUserDTO } from '../../dto/user.dto';
+import { IAdminRepository } from '../interface/IAdminRepository';
+import { UserModel } from '../../models/user.models';
+import { logger } from '../../utils/logger';
+import { BaseRepository } from './base.repository';
+import { IGuide } from '../../types/guide.type';
 
-export class AdminRepository extends BaseRepository<IUser> implements IAdminRepository {
+export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implements IAdminRepository {
 
   constructor() {
     super(UserModel);

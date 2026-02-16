@@ -1,14 +1,14 @@
-import mongoose, { Model,  FilterQuery, UpdateQuery } from 'mongoose';
-import { IBaseRepository } from '../interface/IBaseRepository.js';
+import mongoose, { Model, FilterQuery, UpdateQuery } from 'mongoose';
+import { IBaseRepository } from '../interface/IBaseRepository';
 
-export class BaseRepository<T> implements IBaseRepository<T> {
+export class BaseRepository<T, DTO> implements IBaseRepository<T, DTO> {
   protected model: Model<T>;
 
   constructor(model: Model<T>) {
     this.model = model;
   }
 
-  async create(data: Partial<T>): Promise<T> {
+  async create(data: DTO): Promise<T> {
     return await this.model.create(data);
   }
 

@@ -1,4 +1,4 @@
-import { UserResponseDTO } from './user.dto.js';
+import { UserResponseDTO } from './user.dto';
 
 export interface UserListDTO {
   users: UserResponseDTO[];
@@ -8,14 +8,14 @@ export interface UserListDTO {
 
 export interface AdminGuideResponseDTO {
   id: string;
-user: {
-  id: string;
-  name: string;
-  email: string;
-};
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
   status: string;
   createdAt: string;
-  yearsOfExperience:number;
+  yearsOfExperience: number;
 }
 
 export interface GuideListDTO {

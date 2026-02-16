@@ -1,10 +1,10 @@
-import { IUserRepository } from '../../repositories/interface/IUserRepository.js';
-import { IUserService } from '../interface/IUserService.js';
-import { IMailService } from '../interface/IMailService.js';
-import { RegisterUserDTO } from '../../dto/auth.dto.js';
-import { RegisterUserResponseDTO } from '../../dto/user.dto.js';
-import { AppError } from '../../utils/AppError.js';
-import { StatusCode } from '../../constants/statusCode.enum.js';
+import { IUserRepository } from '../../repositories/interface/IUserRepository';
+import { IUserService } from '../interface/IUserService';
+import { IMailService } from '../interface/IMailService';
+import { RegisterUserDTO } from '../../dto/auth.dto';
+import { RegisterUserResponseDTO } from '../../dto/user.dto';
+import { AppError } from '../../utils/AppError';
+import { StatusCode } from '../../constants/statusCode.enum';
 import crypto from 'crypto';
 
 export class UserService implements IUserService {

@@ -1,7 +1,7 @@
 // server/src/controllers/implementation/upload.controller.ts
 import { Request, Response, NextFunction } from 'express';
-import { IUploadService } from '../../services/interface/IUploadService.js';
-import { StatusCode } from '../../constants/statusCode.enum.js';
+import { IUploadService } from '../../services/interface/IUploadService';
+import { StatusCode } from '../../constants/statusCode.enum';
 
 export class UploadController {
   constructor(private readonly _uploadService: IUploadService) {}

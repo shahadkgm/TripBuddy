@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import 'dotenv/config';
 
 import path from 'path';
@@ -6,15 +7,15 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 
-import authRoutes from './routes/auth.routes.js';
-import uploadRoutes from './routes/upload.routes.js';
-import guideRoutes from './routes/guide.routes.js';
-import adminRoutes from './routes/admin.routes.js';
+import authRoutes from './routes/auth.routes';
+import uploadRoutes from './routes/upload.routes';
+import guideRoutes from './routes/guide.routes';
+import adminRoutes from './routes/admin.routes';
 
 
-import { connectDB } from './config/db.js'; 
-import UserRoutes from './routes/user.routes.js'; 
-import { errorMiddleware } from './middleware/error.middleware.js';
+import { connectDB } from './config/db';
+import UserRoutes from './routes/user.routes';
+import { errorMiddleware } from './middleware/error.middleware';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -22,11 +23,11 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // --- Middlewares ---
 app.use(
-  cors({
-    origin: 'http://localhost:5173', 
-    credentials: true,              
-  })
-);app.use(express.json());
+    cors({
+        origin: 'http://localhost:5173',
+        credentials: true,
+    })
+); app.use(express.json());
 app.use(cookieParser());
 app.use(errorMiddleware);
 
@@ -35,8 +36,8 @@ app.use(errorMiddleware);
 app.use('/auth', authRoutes);
 app.use('/api', uploadRoutes);
 app.use('/api/users', UserRoutes);
-app.use('/api/guides',guideRoutes);
-app.use('/api/admin',adminRoutes);
+app.use('/api/guides', guideRoutes);
+app.use('/api/admin', adminRoutes);
 
 
 // --- Base Route ---

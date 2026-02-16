@@ -1,7 +1,7 @@
 // backend/src/repositories/interfaces/IAdminRepository.ts
 
-import { Guide } from '../../types/guide.type.js';
-import { IUser } from '../../types/user.type.js';
+import { IGuide } from '../../types/guide.type';
+import { IUser } from '../../types/user.type';
 
 export interface IAdminRepository {
   // users
@@ -10,14 +10,14 @@ export interface IAdminRepository {
     limit: number,
     search: string
   ): Promise<
-  
-  {
-    users: IUser[];
-    totalPages: number;
-    currentPage: number;
-    totalUsers: number;
-    
-  }
+
+    {
+      users: IUser[];
+      totalPages: number;
+      currentPage: number;
+      totalUsers: number;
+
+    }
   >;
 
   findUserById(id: string): Promise<IUser | null>;
@@ -28,26 +28,26 @@ export interface IAdminRepository {
   ): Promise<IUser | null>;
 
   deleteUser(id: string): Promise<boolean>;
- 
-    updateUserRole(
-      userId:string,
-      role:'user'|'guide'|'admin'
-    ):Promise<IUser|null>;
+
+  updateUserRole(
+    userId: string,
+    role: 'user' | 'guide' | 'admin'
+  ): Promise<IUser | null>;
 
 
 
 
   // guides
-  getAllPendingGuides(): Promise<Guide[]>;
+  getAllPendingGuides(): Promise<IGuide[]>;
 
-  getAllGuides(page:number,limit:number,search:string): Promise<{
-    guides:Guide[],
-    totalPages:number,
-    totalGuides:number,
-    currentPage:number
+  getAllGuides(page: number, limit: number, search: string): Promise<{
+    guides: IGuide[],
+    totalPages: number,
+    totalGuides: number,
+    currentPage: number
   }>;
 
-  verifyGuide(guideId: string): Promise<Guide | null>;
+  verifyGuide(guideId: string): Promise<IGuide | null>;
 
-  deleteGuide(id: string): Promise<Guide | null>;
+  deleteGuide(id: string): Promise<IGuide | null>;
 }

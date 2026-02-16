@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { StatusCode } from '../../constants/statusCode.enum.js';
-import { IUserService } from '../../services/interface/IUserService.js';
-import { ForgotPasswordDTO } from '../../dto/user.dto.js';
-import { asyncHandler } from '../../utils/asyncHandler.js';
+import { StatusCode } from '../../constants/statusCode.enum';
+import { IUserService } from '../../services/interface/IUserService';
+import { ForgotPasswordDTO } from '../../dto/user.dto';
+import { asyncHandler } from '../../utils/asyncHandler';
 
 export class UserController {
   constructor(private userService: IUserService) {}

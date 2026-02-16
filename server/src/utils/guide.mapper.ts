@@ -1,6 +1,6 @@
-import { AdminGuideResponseDTO } from '../dto/admin.dto.js';
-import { GuideResponseDTO } from '../dto/guide.dto.js';
-import { Guide } from '../types/guide.type.js';
+import { AdminGuideResponseDTO } from '../dto/admin.dto';
+import { GuideResponseDTO } from '../dto/guide.dto';
+import { Guide } from '../types/guide.type';
 
 export const toGuideResponse = (guide: Guide): GuideResponseDTO => ({
   

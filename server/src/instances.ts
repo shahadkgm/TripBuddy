@@ -1,18 +1,18 @@
 // backend/src/instances.ts
-// import { GuideRepository } from './repositeries/guide.repository.js';
+// import { GuideRepository } from './repositeries/guide.repository';
 
 
 
 
-// import { GuideRepository } from './repositories/implementation/guide.repository.js';
-// import { GuideService } from './services/implementation/guide.service.js';
+// import { GuideRepository } from './repositories/implementation/guide.repository';
+// import { GuideService } from './services/implementation/guide.service';
 
 
 
 
-//  import { AdminRepository } from './repositories/admin.repository.js';
+//  import { AdminRepository } from './repositories/admin.repository';
 // import { AdminService } from './services/admin.service.ts';
-// import { AdminController } from './controllers/admin.controller.js';
+// import { AdminController } from './controllers/admin.controller';
 
 
 // const guideRepository = new GuideRepository();

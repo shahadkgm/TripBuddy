@@ -3,19 +3,20 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 
-import { GuideService } from '../services/implementation/guide.service.js';
-import { GuideRepository } from '../repositories/implementation/guide.repository.js';
-import { GuideController } from '../controllers/implementation/guide.controller.js';
- import { protect } from '../middleware/authMiddleware.js'; 
+import { GuideService } from '../services/implementation/guide.service';
+import { GuideRepository } from '../repositories/implementation/guide.repository';
+import { GuideController } from '../controllers/implementation/guide.controller';
 
-import { UserRepository } from '../repositories/implementation/user.repository.js';
+import { UserRepository } from '../repositories/implementation/user.repository';
+import { dtoValidationMiddleware } from '../middleware/dtoValidation';
+import { GuideRegisterDTO } from '../dto/guide.dto';
 
 const router = Router();
-const userRepo=new UserRepository();
+const userRepo = new UserRepository();
 // const mailrepo=new MailService();
 // const userService=new UserService(userRepo,mailrepo);
 const guideRepo = new GuideRepository();
-const guideService = new GuideService(guideRepo,userRepo);
+const guideService = new GuideService(guideRepo, userRepo);
 const guideController = new GuideController(guideService);
 
 // --- Multer Configuration ---
@@ -29,9 +30,9 @@ const upload = multer({ storage });
 
 
 router.post(
-  '/register', 
-   protect, 
-  upload.single('avatar'), 
+  '/register',
+  upload.single('avatar'),
+  dtoValidationMiddleware(GuideRegisterDTO),
   guideController.registerGuide
 );
 

@@ -1,5 +1,5 @@
-import { RegisterUserDTO, LoginDTO } from '../../dto/auth.dto.js';
-import { AuthResponse } from '../../types/authResponse.js';
+import { RegisterUserDTO, LoginDTO } from '../../dto/auth.dto';
+import { AuthResponse } from '../../types/authResponse';
 
 export interface IAuthService {
   registerUser(data: RegisterUserDTO): Promise<AuthResponse>;
