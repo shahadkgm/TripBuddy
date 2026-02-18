@@ -10,16 +10,16 @@ export const AdminDashboard = () => {
         {/* total Users */}
         <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-[#5537ee] hover:shadow-xl transition duration-300">
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Total Users</p>
-          <h2 className="text-4xl font-extrabold text-[#1e293b]">1,240</h2>
+          <h2 className="text-4xl font-extrabold text-[#1e293b]">12</h2>
           <span className="text-xs text-[#5537ee] font-medium mt-1 inline-block">↑ 12% Last Month</span>
         </div>
 
         {/* active trips */}
-        <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-[#10b981] hover:shadow-xl transition duration-300">
+        {/* <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-[#10b981] hover:shadow-xl transition duration-300">
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Active Trips</p>
           <h2 className="text-4xl font-extrabold text-[#1e293b]">300</h2>
           <span className="text-xs text-[#10b981] font-medium mt-1 inline-block">↑ 5% Weekly</span>
-        </div>
+        </div> */}
 
         {/* Pending Verifications  */}
         <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-yellow-500 hover:shadow-xl transition duration-300">
