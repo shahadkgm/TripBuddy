@@ -1,8 +1,6 @@
 // backend/src/routes/guide.routes.ts
 import { Router } from 'express';
-import multer from 'multer';
-import path from 'path';
-
+import { upload } from '../middleware/upload.middleware';
 import { GuideService } from '../services/implementation/guide.service';
 import { GuideRepository } from '../repositories/implementation/guide.repository';
 import { GuideController } from '../controllers/implementation/guide.controller';
@@ -20,14 +18,6 @@ const guideRepo = new GuideRepository();
 const guideService = new GuideService(guideRepo, userRepo);
 const guideController = new GuideController(guideService);
 
-// --- Multer Configuration ---
-const storage = multer.diskStorage({
-  destination: 'uploads/guides/',
-  filename: (req, file, cb) => {
-    cb(null, `guide-${Date.now()}${path.extname(file.originalname)}`);
-  }
-});
-const upload = multer({ storage });
 
 
 router.post(

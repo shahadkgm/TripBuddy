@@ -4,6 +4,8 @@ import { IGuideService } from '../../services/interface/IGuideService';
 import { StatusCode } from '../../constants/statusCode.enum';
 import { logger } from '@/utils/logger';
 import { AuthRequest } from '../../types/authRequest';
+import { S3File } from '../../types/multer-s3'; 
+
 
 export class GuideController {
   constructor(private readonly _guideService: IGuideService) { }
@@ -18,10 +20,10 @@ export class GuideController {
         return;
       }
 
-      const profile = await this._guideService.register( 
+      const profile = await this._guideService.register(
         userId,
         req.body,
-        req.file?.filename
+        (req.file as unknown as S3File)?.location
       );
 
       res.status(StatusCode.CREATED).json({

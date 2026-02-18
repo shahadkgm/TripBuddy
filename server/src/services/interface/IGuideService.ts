@@ -2,7 +2,7 @@ import { GuideQueryDTO, GuideRegisterDTO, GuideResponseDTO, GuideStatusResponse 
 import { IGuide } from '../../types/guide.type';
 
 export interface IGuideService {
-  register(userId: string, data: GuideRegisterDTO, file?: string): Promise<IGuide>;
+  register(userId: string, data: GuideRegisterDTO, avatarURL?: string): Promise<IGuide>;
   getStatus(userId: string): Promise<GuideStatusResponse>;
   getAllVerifiedGuides(query: GuideQueryDTO): Promise<GuideResponseDTO[]>;
 }

@@ -12,7 +12,7 @@ export class GuideService implements IGuideService {
   constructor(private guideRepository: IGuideRepository, private userRepository: IUserRepository) { }
 
 
-  async register(userId: string, data: GuideRegisterDTO, fileName?: string): Promise<IGuide> {
+  async register(userId: string, data: GuideRegisterDTO, avatarURL?: string): Promise<IGuide> {
     // const user=await this.userRepsitory.findby
     logger.info(`Starting guide registration for user: ${userId}`);
     const existing = await this.guideRepository.findOne({ userId });
@@ -33,7 +33,7 @@ export class GuideService implements IGuideService {
       serviceArea: data.serviceArea,
       yearsOfExperience: Number(data.yearsOfExperience) || 0,
       specialties: data.specialties,
-      avatarURL: fileName ? `/uploads/guides/${fileName}` : '',
+      avatarURL: avatarURL || '',
       isVerified: false,
     };
 

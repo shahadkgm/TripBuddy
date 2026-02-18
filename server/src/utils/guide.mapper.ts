@@ -1,4 +1,3 @@
-import { userInfo } from 'os';
 import { AdminGuideResponseDTO } from '../dto/admin.dto';
 import { GuideResponseDTO } from '../dto/guide.dto';
 import { IGuide } from '../types/guide.type';
@@ -24,7 +23,7 @@ export const toAdminGuideResponse = (guide: IGuide): AdminGuideResponseDTO => {
       id: guide?._id.toString() || guide.userId.toString(),
       name: guide?.name || 'Unknown',
       email: guide?.bio || 'N/A',
-     role:"guide"
+     role:'guide'
     },
     // Ensure these match AdminGuideResponseDTO
     yearsOfExperience: guide.yearsOfExperience,
