@@ -33,7 +33,8 @@ export class AuthController implements IAuthController {
 
     res.cookie('refreshToken', result.tokens?.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false,
+      // process.env.NODE_ENV === 'production',
       sameSite: 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -45,7 +46,6 @@ export class AuthController implements IAuthController {
     });
   });
 
-  // ✅ GOOGLE LOGIN
   googleLogin = asyncHandler(async (req: Request, res: Response) => {
     const { token } = req.body;
 
@@ -69,7 +69,6 @@ export class AuthController implements IAuthController {
     });
   });
 
-  // ✅ VERIFY EMAIL
   verifyEmail = asyncHandler(async (req: Request, res: Response) => {
     const { token } = req.params;
 
@@ -78,7 +77,6 @@ export class AuthController implements IAuthController {
     res.status(StatusCode.OK).json(result);
   });
 
-  // ✅ REFRESH TOKEN
   refreshToken = asyncHandler(async (req: Request, res: Response) => {
     const token = req.cookies.refreshToken;
 

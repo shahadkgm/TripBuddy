@@ -6,13 +6,14 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true // ✅ VERY IMPORTANT for refresh cookies
+  withCredentials: true //4 cookie
 });
 
 
 // ==========================
 // REQUEST → attach access token
 // ==========================
+
 api.interceptors.request.use(
   (config) => {
     const token = authService.getToken();
@@ -27,7 +28,7 @@ api.interceptors.request.use(
 
 
 // ==========================
-// RESPONSE → refresh logic
+// RESPONSE --> refresh logic
 // ==========================
 api.interceptors.response.use(
   (response) => response,
@@ -35,7 +36,7 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // 🔥 access expired → try refresh
+    //  access expired --> try refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -60,7 +61,7 @@ api.interceptors.response.use(
       }
     }
 
-    // 🔥 blocked user
+    //  blocked user
     if (
       error.response?.status === 403 &&
       error.response.data?.message === "User blocked"
