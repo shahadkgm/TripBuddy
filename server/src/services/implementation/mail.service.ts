@@ -3,13 +3,13 @@ import nodemailer, { Transporter } from 'nodemailer';
 import { IMailService } from '../interface/IMailService';
 
 export class MailService implements IMailService {
-  private transporter:Transporter;
+  private _transporter: Transporter;
 
   constructor() {
-    if(!process.env.EMAIL_USER||!process.env.EMAIL_PASS){
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
       throw new Error('Email credentials are not configurd');
     }
-    if(!process.env.FRONTEND_URL){
+    if (!process.env.FRONTEND_URL) {
       throw new Error('FRONTEND_URL is not configured');
     }
     console.log(
@@ -17,7 +17,7 @@ export class MailService implements IMailService {
       process.env.EMAIL_USER
     );
 
-    this.transporter = nodemailer.createTransport({
+    this._transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
@@ -29,7 +29,7 @@ export class MailService implements IMailService {
   async sendResetEmail(email: string, token: string): Promise<void> {
     try {
       const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${token}`;
-      console.log('this is the reset link forgett password',resetUrl);
+      console.log('this is the reset link forgett password', resetUrl);
 
       const mailOptions = {
         from: `"Trip Planner Support" <${process.env.EMAIL_USER}>`,
@@ -46,7 +46,7 @@ export class MailService implements IMailService {
         `,
       };
 
-      await this.transporter.sendMail(mailOptions);
+      await this._transporter.sendMail(mailOptions);
 
       console.log('Password reset email sent to:', email);
 
@@ -56,15 +56,15 @@ export class MailService implements IMailService {
     }
   }
   async sendVerificationEmail(
-  email: string,
-  name: string,
-  verificationLink: string
-): Promise<void> {
-  const mailOptions = {
-    from: `"Trip Buddy" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: 'Verify Your Email Address',
-    html: `
+    email: string,
+    name: string,
+    verificationLink: string
+  ): Promise<void> {
+    const mailOptions = {
+      from: `"Trip Buddy" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Verify Your Email Address',
+      html: `
       <div style="font-family: sans-serif; padding: 20px;">
         <h2>Welcome, ${name} 👋</h2>
         <p>Please verify your email to activate your account.</p>
@@ -77,10 +77,10 @@ export class MailService implements IMailService {
         </p>
       </div>
     `,
-  };
+    };
 
-  await this.transporter.sendMail(mailOptions);
-}
+    await this._transporter.sendMail(mailOptions);
+  }
 
 
 }

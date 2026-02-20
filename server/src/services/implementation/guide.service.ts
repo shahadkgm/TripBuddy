@@ -9,18 +9,21 @@ import { IGuideService } from '../interface/IGuideService';
 
 export class GuideService implements IGuideService {
 
-  constructor(private guideRepository: IGuideRepository, private userRepository: IUserRepository) { }
+  constructor(
+    private readonly _guideRepository: IGuideRepository,
+    private readonly _userRepository: IUserRepository
+  ) { }
 
 
   async register(userId: string, data: GuideRegisterDTO, avatarURL?: string): Promise<IGuide> {
-    // const user=await this.userRepsitory.findby
+    // const user=await this._userRepsitory.findby
     logger.info(`Starting guide registration for user: ${userId}`);
-    const existing = await this.guideRepository.findOne({ userId });
+    const existing = await this._guideRepository.findOne({ userId });
     if (existing) {
       logger.warn(`Registration failed: User ${userId} already has an application`);
       throw new Error('Application already exists');
     }
-    const user = await this.userRepository.findById(userId);
+    const user = await this._userRepository.findById(userId);
     if (!user) {
       logger.error(`User not found during guide registration: ${userId}`);
       console.log('from guide register ', user);
@@ -39,12 +42,12 @@ export class GuideService implements IGuideService {
 
     logger.info(`Creating guide profile for ${user?.name}`, { yearsOfExperience: profileData.yearsOfExperience });
 
-    return await this.guideRepository.create(profileData);
+    return await this._guideRepository.create(profileData);
   }
 
 
   async getStatus(userId: string) {
-    const profile = await this.guideRepository.findOne({ userId });
+    const profile = await this._guideRepository.findOne({ userId });
     if (!profile) return { exists: false };
 
     return {
@@ -65,7 +68,7 @@ export class GuideService implements IGuideService {
       filters.hourlyRate = { $lte: Number(query.maxPrice) };
     }
 
-    const guides = await this.guideRepository.findAll(filters);
+    const guides = await this._guideRepository.findAll(filters);
     return guides.map(toGuideResponse);
   }
 }

@@ -6,14 +6,14 @@ import { asyncHandler } from '../../utils/asyncHandler';
 import { logger } from '../../utils/logger';
 
 export class AdminController implements IAdminController {
-  constructor(private adminService: IAdminService) { }
+  constructor(private readonly _adminService: IAdminService) { }
 
   getAllUsers = asyncHandler(async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const search = String(req.query.search || '');
 
-    const data = await this.adminService.fetchAllUsers(page, limit, search);
+    const data = await this._adminService.fetchAllUsers(page, limit, search);
     // logger.info(`data from admin controller:${data}`)
     res.status(StatusCode.OK).json(data);
   });
@@ -23,7 +23,7 @@ export class AdminController implements IAdminController {
     const { blocked } = req.body;
     const adminId = req.user?.id?.toString() || '';
 
-    const updatedUser = await this.adminService.toggleUserBlock(id, blocked, adminId);
+    const updatedUser = await this._adminService.toggleUserBlock(id, blocked, adminId);
 
     res.status(StatusCode.OK).json(updatedUser);
   });
@@ -32,13 +32,13 @@ export class AdminController implements IAdminController {
     const { id } = req.params;
     const adminId = req.user?.id?.toString() || '';
 
-    await this.adminService.removeUser(id, adminId);
+    await this._adminService.removeUser(id, adminId);
 
     res.status(StatusCode.OK).json({ message: 'User deleted successfully' });
   });
 
   getPendingGuides = asyncHandler(async (req: Request, res: Response) => {
-    const guides = await this.adminService.fetchPendingGuides();
+    const guides = await this._adminService.fetchPendingGuides();
 
     res.status(StatusCode.OK).json(guides);
   });
@@ -48,7 +48,7 @@ export class AdminController implements IAdminController {
     // console.log("id from handlevrify guide admin",id)
     logger.info(`id from handleverify guide admin${id}`);
 
-    const result = await this.adminService.approveGuide(id);
+    const result = await this._adminService.approveGuide(id);
 
     res.status(StatusCode.OK).json(result);
   });
@@ -57,7 +57,7 @@ export class AdminController implements IAdminController {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const search = String(req.query.search) || '';
-    const data = await this.adminService.fetchAllGuides(page, limit, search);
+    const data = await this._adminService.fetchAllGuides(page, limit, search);
     logger.debug('from get all guide', data);
 
 
@@ -67,7 +67,7 @@ export class AdminController implements IAdminController {
   rejectGuide = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    await this.adminService.rejectApplication(id);
+    await this._adminService.rejectApplication(id);
 
     res.status(StatusCode.OK).json({
       message: 'Guide application rejected successfully',

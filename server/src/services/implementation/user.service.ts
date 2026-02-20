@@ -9,14 +9,14 @@ import crypto from 'crypto';
 
 export class UserService implements IUserService {
   constructor(
-    private userRepository: IUserRepository,
-    private mailService: IMailService
+    private readonly _userRepository: IUserRepository,
+    private readonly _mailService: IMailService
   ) { }
 
   async registerUser(
     userData: RegisterUserDTO
   ): Promise<RegisterUserResponseDTO> {
-    const existingUser = await this.userRepository.findByEmail(userData.email);
+    const existingUser = await this._userRepository.findByEmail(userData.email);
 
     if (existingUser) {
       throw new AppError(
@@ -25,7 +25,7 @@ export class UserService implements IUserService {
       );
     }
 
-    const newUser = await this.userRepository.create({
+    const newUser = await this._userRepository.create({
       ...userData,
       role: userData.role || 'user',
       isBlocked: false,
@@ -40,11 +40,11 @@ export class UserService implements IUserService {
   }
 
   async getAllUsers() {
-    return this.userRepository.findAll();
+    return this._userRepository.findAll();
   }
 
   async forgotPassword(email: string): Promise<{ message: string }> {
-    const user = await this.userRepository.findByEmail(email);
+    const user = await this._userRepository.findByEmail(email);
 
     if (!user) {
       throw new AppError('User not found', StatusCode.NOT_FOUND);
@@ -58,13 +58,13 @@ export class UserService implements IUserService {
 
     const expires = Date.now() + 3600000;
 
-    await this.userRepository.updateResetToken(
+    await this._userRepository.updateResetToken(
       user._id.toString(),
       hashedToken,
       expires
     );
 
-    await this.mailService.sendResetEmail(user.email, resetToken);
+    await this._mailService.sendResetEmail(user.email, resetToken);
 
     return { message: 'Reset link sent to email' };
   }
@@ -78,7 +78,7 @@ export class UserService implements IUserService {
       .update(token)
       .digest('hex');
 
-    const user = await this.userRepository.findByResetToken(hashedToken);
+    const user = await this._userRepository.findByResetToken(hashedToken);
 
     if (
       !user ||
@@ -91,7 +91,7 @@ export class UserService implements IUserService {
       );
     }
 
-    await this.userRepository.updatePassword(user._id.toString(), newPassword);
+    await this._userRepository.updatePassword(user._id.toString(), newPassword);
 
     return { message: 'Password updated successfully' };
   }
