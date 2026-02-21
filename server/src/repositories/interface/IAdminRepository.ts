@@ -50,4 +50,5 @@ export interface IAdminRepository {
   verifyGuide(guideId: string): Promise<IGuide | null>;
 
   deleteGuide(id: string): Promise<IGuide | null>;
+  countVerifiedGuides(): Promise<number>;
 }

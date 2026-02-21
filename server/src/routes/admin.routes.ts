@@ -3,6 +3,7 @@ import { AdminRepository } from '../repositories/implementation/admin.repository
 import { AdminService } from '../services/implementation/admin.service';
 import { AdminController } from '../controllers/implementation/admin.controller';
 import { isAdmin, protect } from '../middleware/authMiddleware';
+import { API_ROUTES } from '../constants/routes.constants';
 
 const router = express.Router();
 
@@ -14,13 +15,15 @@ const adminController = new AdminController(adminService);
 // Routes
 router.use(protect, isAdmin);
 
-router.get('/users', adminController.getAllUsers);
-router.patch('/users/:id/block', adminController.handleBlockUser);
-router.delete('/users/:id', adminController.deleteUser);
+router.get(API_ROUTES.ADMIN.USERS, adminController.getAllUsers);
+router.patch(API_ROUTES.ADMIN.USER_BLOCK, adminController.handleBlockUser);
+router.delete(API_ROUTES.ADMIN.USER_DELETE, adminController.deleteUser);
 //guide
-router.get('/guides/pending', adminController.getPendingGuides);
-router.patch('/guides/:id/verify', adminController.handleVerifyGuide);
-router.get('/guides', adminController.getAllGuides);
-router.delete('/guides/:id', protect, isAdmin, adminController.rejectGuide);
+router.get(API_ROUTES.ADMIN.GUIDES_PENDING, adminController.getPendingGuides);
+router.patch(API_ROUTES.ADMIN.GUIDE_VERIFY, adminController.handleVerifyGuide);
+router.get(API_ROUTES.ADMIN.GUIDES_ALL, adminController.getAllGuides);
+router.delete(API_ROUTES.ADMIN.GUIDE_REJECT, protect, isAdmin, adminController.rejectGuide);
+
+router.get(API_ROUTES.ADMIN.STATS, adminController.getDashboardStats);
 
 export default router;

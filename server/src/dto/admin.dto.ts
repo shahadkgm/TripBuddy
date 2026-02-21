@@ -29,5 +29,6 @@ export interface GuideListDTO {
 
 export interface DashboardStatsDTO {
   totalUsers: number;
+  totalGuides: number;
   pendingApplications: number;
 }

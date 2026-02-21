@@ -6,6 +6,7 @@ import { UserController } from '../controllers/implementation/user.controller';
 import { MailService } from '../services/implementation/mail.service';
 import { dtoValidationMiddleware } from '../middleware/dtoValidation';
 import { ForgotPasswordDTO, ResetPasswordDTO } from '../dto/user.dto';
+import { API_ROUTES } from '../constants/routes.constants';
 
 const router = Router();
 
@@ -17,15 +18,15 @@ const userController = new UserController(userService);
 
 // router.post('/register', userController.registerUser.bind(userController));
 router.post(
-    '/forgot-password',
+    API_ROUTES.USER.FORGOT_PASSWORD,
     dtoValidationMiddleware(ForgotPasswordDTO),
     userController.forgotPassword
 );
 
-router.get('/', userController.getUsers);
+router.get(API_ROUTES.USER.GET_ALL, userController.getUsers);
 
 router.post(
-    '/reset-password/:token',
+    API_ROUTES.USER.RESET_PASSWORD,
     dtoValidationMiddleware(ResetPasswordDTO),
     userController.resetPassword
 );

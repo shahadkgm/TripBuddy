@@ -23,7 +23,7 @@ export const toAdminGuideResponse = (guide: IGuide): AdminGuideResponseDTO => {
       id: guide?._id.toString() || guide.userId.toString(),
       name: guide?.name || 'Unknown',
       email: guide?.bio || 'N/A',
-     role:'guide'
+      role: 'guide'
     },
     // Ensure these match AdminGuideResponseDTO
     yearsOfExperience: guide.yearsOfExperience,

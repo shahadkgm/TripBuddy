@@ -6,6 +6,7 @@ import { UserRepository } from '../repositories/implementation/user.repository';
 import { MailService } from '../services/implementation/mail.service';
 import { dtoValidationMiddleware } from '../middleware/dtoValidation';
 import { RegisterUserDTO, LoginDTO } from '../dto/auth.dto';
+import { API_ROUTES } from '../constants/routes.constants';
 
 const router = Router();
 
@@ -16,18 +17,18 @@ const authService = new AuthService(userRepo, mailService);
 const authController = new AuthController(authService);
 
 router.post(
-    '/register',
+    API_ROUTES.AUTH.REGISTER,
     dtoValidationMiddleware(RegisterUserDTO),
     authController.register
 );
 
 router.post(
-    '/login',
+    API_ROUTES.AUTH.LOGIN,
     dtoValidationMiddleware(LoginDTO),
     authController.login
 );
-router.get('/verify-email/:token', authController.verifyEmail);
-router.post('/refresh', authController.refreshToken);
-router.post('/google-login', authController.googleLogin);
+router.get(API_ROUTES.AUTH.VERIFY_EMAIL, authController.verifyEmail);
+router.post(API_ROUTES.AUTH.REFRESH, authController.refreshToken);
+router.post(API_ROUTES.AUTH.GOOGLE_LOGIN, authController.googleLogin);
 
 export default router;

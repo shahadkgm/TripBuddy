@@ -9,6 +9,7 @@ import { UserRepository } from '../repositories/implementation/user.repository';
 import { dtoValidationMiddleware } from '../middleware/dtoValidation';
 import { GuideRegisterDTO } from '../dto/guide.dto';
 import { protect } from '../middleware/authMiddleware';
+import { API_ROUTES } from '../constants/routes.constants';
 
 const router = Router();
 const userRepo = new UserRepository();
@@ -21,15 +22,15 @@ const guideController = new GuideController(guideService);
 
 
 router.post(
-  '/register',
+  API_ROUTES.GUIDE.REGISTER,
   protect,
   upload.single('avatar'),
   dtoValidationMiddleware(GuideRegisterDTO),
   guideController.registerGuide
 );
 
-router.get('/status/:userId', guideController.getGuideStatus);
+router.get(API_ROUTES.GUIDE.STATUS, guideController.getGuideStatus);
 
-router.get('/all', guideController.getAllGuides);
+router.get(API_ROUTES.GUIDE.GET_ALL, guideController.getAllGuides);
 
 export default router;

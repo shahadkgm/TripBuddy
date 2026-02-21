@@ -10,17 +10,33 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
   const handleResetRequest = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!email.trim()) {
+      setError("Email is required");
+      return;
+    }
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
     setIsLoading(true);
     const resetToast = toast.loading("Sending verification email...");
 
     try {
       await axios.post(`${API_URL}/api/users/forgot-password`, { email });
-      
+
       toast.success("Verification email sent! Check your inbox.", { id: resetToast });
       setTimeout(() => navigate('/login'), 3000);
     } catch (error: any) {
@@ -35,25 +51,31 @@ export const ForgotPasswordPage = () => {
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-lg">
         <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Reset Password</h2>
         <p className="text-gray-500 text-center mb-8">Enter your email and we'll send you a verification link.</p>
-        
+
         <form onSubmit={handleResetRequest} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-            <input 
-              type="email" 
-              required
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5537ee] outline-none"
+            <input
+              type="email"
+              className={`w-full px-4 py-3 rounded-xl border ${error ? 'border-red-500' : 'border-gray-200'
+                } focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
               placeholder="name@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (error) setError('');
+              }}
             />
+            {error && (
+              <p className="mt-1 text-xs text-red-500 font-medium">{error}</p>
+            )}
           </div>
           <Button type="submit" className="w-full py-3" disabled={isLoading}>
             {isLoading ? "Sending..." : "Send Verification"}
           </Button>
           <div className="text-center">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => navigate('/login')}
               className="text-sm text-gray-500 hover:text-[#5537ee]"
             >

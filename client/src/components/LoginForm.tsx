@@ -8,27 +8,39 @@ import { Button } from './Button';
 export const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const ValidateForm = () => {
-    if (!email.trim() || !password.trim()) {
-      toast.error("Email and password are required")
-      return false
+
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { email: '', password: '' };
+
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+      isValid = false;
+    } else if (!emailRegex.test(email)) {
+      newErrors.email = "Please enter a valid email address";
+      isValid = false;
     }
-    if (!emailRegex.test(email)) {
-      toast.error("please enter a valid email address")
-      return false
+
+    if (!password.trim()) {
+      newErrors.password = "Password is required";
+      isValid = false;
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+      isValid = false;
     }
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters")
-      return false;
-    }
-    return true
-  }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!ValidateForm()) return;
+    if (!validateForm()) return;
     setIsLoading(true);
     const loginToast = toast.loading("Verifying credentials...");
 
@@ -42,11 +54,7 @@ export const LoginForm = () => {
       }
 
       toast.success("Welcome back!", { id: loginToast });
-      console.log("role", result.user.role)
-      // Unified Redirection
       if (result.user.role === "admin") {
-        console.log("working")
-        // window.location.href="/admin/dashboard"
         navigate("/admin/dashboard", { replace: true });
       } else if (result.user.role === "guide") {
         navigate("/guide-dashboard", { replace: true });
@@ -63,16 +71,22 @@ export const LoginForm = () => {
 
   return (
     <div className="w-full max-w-md">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         <div>
           <label className="block text-sm font-medium text-gray-700">Email</label>
           <input
-            // type="email" 
-            required
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#5537ee] focus:border-[#5537ee] outline-none"
+            type="email"
+            className={`mt-1 block w-full px-3 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'
+              } rounded-md shadow-sm focus:ring-[#5537ee] focus:border-[#5537ee] outline-none transition-colors`}
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (errors.email) setErrors({ ...errors, email: '' });
+            }}
           />
+          {errors.email && (
+            <p className="mt-1 text-xs text-red-500 font-medium">{errors.email}</p>
+          )}
         </div>
         <div>
           <div className="flex justify-between">
@@ -86,11 +100,17 @@ export const LoginForm = () => {
           </div>
           <input
             type="password"
-            required
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#5537ee] focus:border-[#5537ee] outline-none"
+            className={`mt-1 block w-full px-3 py-2 border ${errors.password ? 'border-red-500' : 'border-gray-300'
+              } rounded-md shadow-sm focus:ring-[#5537ee] focus:border-[#5537ee] outline-none transition-colors`}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (errors.password) setErrors({ ...errors, password: '' });
+            }}
           />
+          {errors.password && (
+            <p className="mt-1 text-xs text-red-500 font-medium">{errors.password}</p>
+          )}
         </div>
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? "Signing in..." : "Login"}

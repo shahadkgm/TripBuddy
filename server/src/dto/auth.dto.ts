@@ -2,14 +2,16 @@ import { IsString, IsEmail, IsOptional, IsEnum, IsBoolean, MinLength, IsNotEmpty
 
 export class RegisterUserDTO {
   @IsString()
+  @IsNotEmpty({ message: 'Name is required' })
   name!: string;
 
-  @IsEmail()
+  @IsEmail({}, { message: 'Please enter a valid email address' })
+  @IsNotEmpty({ message: 'Email is required' })
   email!: string;
 
   @IsString()
-  @MinLength(6)
-  @IsNotEmpty()
+  @MinLength(6, { message: 'Password must be at least 6 characters' })
+  @IsNotEmpty({ message: 'Password is required' })
   password!: string;
 
   @IsOptional()

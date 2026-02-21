@@ -122,4 +122,9 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
     return user ?? null;
   }
 
+  async countVerifiedGuides(): Promise<number> {
+    logger.info(`from countverifiedGuide`)
+    return await UserModel.countDocuments({ role: 'guide' });
+  }
+
 }

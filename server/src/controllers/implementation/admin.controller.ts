@@ -73,4 +73,10 @@ export class AdminController implements IAdminController {
       message: 'Guide application rejected successfully',
     });
   });
+
+  getDashboardStats = asyncHandler(async (req: Request, res: Response) => {
+    logger.info("call come from admin dashboard ,controller")
+    const stats = await this._adminService.getDashboardStats();
+    res.status(StatusCode.OK).json(stats);
+  });
 }

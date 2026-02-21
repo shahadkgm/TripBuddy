@@ -103,11 +103,23 @@ export class AdminService implements IAdminService {
   }
 
   async getDashboardStats(): Promise<DashboardStatsDTO> {
+    console.log("from get dashboard stats")
     const userStats = await this.adminRepo.getAllUsers(1, 1, '');
+    logger.info(`from gerdashboard userstats: ${userStats}`)
+    const verifiedGuidesCount = await this.adminRepo.countVerifiedGuides();
+        logger.info(`from gerdashboard  guide count:${verifiedGuidesCount}`)
+
     const pending = await this.adminRepo.getAllPendingGuides();
+
+    console.log('Dashboard Stats Debug:', {
+      totalUsers: userStats.totalUsers,
+      totalGuides: verifiedGuidesCount,
+      pendingApplications: pending.length
+    });
 
     return {
       totalUsers: userStats.totalUsers,
+      totalGuides: verifiedGuidesCount,
       pendingApplications: pending.length,
     };
   }

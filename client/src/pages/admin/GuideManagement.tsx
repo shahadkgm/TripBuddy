@@ -1,4 +1,4 @@
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { CheckCircle, XCircle, Eye } from 'lucide-react';
@@ -44,7 +44,7 @@ export const GuideManagement = () => {
       const { data } = await api.get('/api/admin/guides', {
         params: { page: currentPage, limit, search: searchTerm }
       });
-      console.log("from g-management",data)
+      console.log("from g-management", data)
       setGuides(data.guides);
       setTotalPages(data.totalPages);
     } catch (err) {
@@ -125,12 +125,11 @@ export const GuideManagement = () => {
       header: "Status",
       key: "isVerified",
       render: (guide: IGuideApplication) => (
-        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${
-          guide.isVerified 
-            ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${guide.isVerified
+            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
             : 'bg-amber-50 text-amber-700 border-amber-200'
-        }`}>
-          {guide.user? 'Verified' : 'Pending'}
+          }`}>
+          {guide.user ? 'Verified' : 'Pending'}
         </span>
       )
     },
@@ -138,11 +137,11 @@ export const GuideManagement = () => {
       header: "Documents",
       key: "certificateUrl",
       render: (guide: IGuideApplication) => (
-        <button 
+        <button
           onClick={() => setSelectedDoc(guide.certificateUrl || null)}
           className="flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-2 py-1 rounded transition-colors"
         >
-          <Eye size={14} /> View Doc
+          <Eye size={14} /> oc
         </button>
       )
     },
@@ -153,16 +152,16 @@ export const GuideManagement = () => {
       render: (guide: IGuideApplication) => (
         <div className="flex justify-end gap-1">
           {!guide.isVerified && (
-            <button 
-              onClick={() => handleApprove(guide.id)} 
+            <button
+              onClick={() => handleApprove(guide.id)}
               className="p-1.5 text-green-600 hover:bg-green-100 rounded-lg transition"
               title="Verify Application"
             >
               <CheckCircle size={18} />
             </button>
           )}
-          <button 
-            onClick={() => initiateReject(guide.id)} 
+          <button
+            onClick={() => initiateReject(guide.id)}
             className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition"
             title="Reject/Remove"
           >
@@ -181,29 +180,29 @@ export const GuideManagement = () => {
             <h2 className="text-2xl font-bold text-gray-800">Guide Directory</h2>
             <p className="text-sm text-gray-500">Manage and verify guide applications</p>
           </div>
-          <SearchBar 
-            placeholder="Search by name, email or area..." 
+          <SearchBar
+            placeholder="Search by name, email or area..."
             onSearch={(val) => {
               setSearchTerm(val);
               setCurrentPage(1);
-            }} 
+            }}
             className="max-w-xs"
           />
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <DataTable
-            columns={columns} 
-            data={guides} 
-            loading={loading} 
+            columns={columns}
+            data={guides}
+            loading={loading}
             emptyMessage="No guides found."
           />
-          
+
           <div className="p-4 border-t bg-gray-50/30">
             <Pagination
-              currentPage={currentPage} 
-              totalPages={totalPages} 
-              onPageChange={(page) => setCurrentPage(page)} 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
             />
           </div>
         </div>
@@ -212,15 +211,15 @@ export const GuideManagement = () => {
         {selectedDoc && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
             <div className="bg-white rounded-2xl max-w-3xl w-full p-4 relative shadow-2xl">
-              <button 
+              <button
                 onClick={() => setSelectedDoc(null)}
                 className="absolute -top-12 right-0 text-white flex items-center gap-2 hover:text-gray-300 transition-colors"
               >
                 <XCircle size={24} /> <span className="font-medium text-sm">Close Preview</span>
               </button>
-              <img 
-                src={selectedDoc} 
-                alt="Guide Certificate" 
+              <img
+                src={selectedDoc}
+                alt="Guide Certificate"
                 className="w-full h-auto max-h-[80vh] object-contain rounded-xl"
               />
             </div>

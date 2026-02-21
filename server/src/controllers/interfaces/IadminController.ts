@@ -9,4 +9,5 @@ export interface IAdminController {
   handleVerifyGuide: RequestHandler;
   getAllGuides: RequestHandler;
   rejectGuide: RequestHandler;
+  getDashboardStats: RequestHandler;
 }
