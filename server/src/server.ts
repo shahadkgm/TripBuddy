@@ -11,6 +11,7 @@ import authRoutes from './routes/auth.routes';
 import uploadRoutes from './routes/upload.routes';
 import guideRoutes from './routes/guide.routes';
 import adminRoutes from './routes/admin.routes';
+import tripRoutes from './routes/trip.routes';
 
 
 import { connectDB } from './config/db';
@@ -42,6 +43,7 @@ app.use('/api', uploadRoutes);
 app.use('/api/users', UserRoutes);
 app.use('/api/guides', guideRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/plantrips', tripRoutes);
 
 // --- Error Handler (MUST BE LAST) ---
 app.use(errorMiddleware);

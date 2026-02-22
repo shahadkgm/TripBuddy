@@ -43,4 +43,11 @@ export const API_ROUTES = {
         STATUS: '/status/:userId',
         GET_ALL: '/all',
     },
+
+    TRIP: {
+        BASE: '/api/plantrips',
+        CREATE: '/',
+        GET_BY_USER: '/user/:userId',
+        GET_BY_ID: '/:id',
+    },
 };

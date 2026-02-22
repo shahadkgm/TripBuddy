@@ -12,6 +12,7 @@ import DashboardPage from "../pages/user/DashboardPage";
 import KYCStatusPage from "../pages/user/KYCStatusPage";
 import KYCPage from "../pages/user/KYCPage";
 import { GuideRegistrationPage } from "../pages/user/GuideRegistrationPage";
+import CreateTripPage from "../pages/user/CreateTripPage";
 
 import { AdminDashboard } from "../pages/admin/AdminDashboard";
 import { UserManagement } from "../pages/admin/UserManagement";
@@ -36,6 +37,7 @@ export default function AppRoutes() {
         <Route path="/kyc-status" element={<KYCStatusPage />} />
         <Route path="/kyc-verification" element={<KYCPage />} />
         <Route path="/join-guide" element={<GuideRegistrationPage />} />
+        <Route path="/create-trip" element={<CreateTripPage />} />
       </Route>
 
       {/* Admin */}
