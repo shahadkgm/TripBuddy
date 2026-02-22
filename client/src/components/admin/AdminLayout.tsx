@@ -29,7 +29,7 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="bg-gray-100 min-h-screen flex">
       {/* 📌 SIDEBAR */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-[260px] bg-[#111827] text-white p-6 shadow-2xl transition-transform duration-300
+        fixed inset-y-0 left-0 z-50 w-65 bg-[#111827] text-white p-6 shadow-2xl transition-transform duration-300
         lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex items-center justify-between mb-8">

@@ -51,7 +51,7 @@ export const AdminDashboard = () => {
               <Users className="text-[#5537ee] w-6 h-6" />
             </div>
           </div>
-          <span className="text-xs text-[#5537ee] font-medium mt-4 inline-block flex items-center gap-1">
+          <span className="text-xs text-[#5537ee] font-medium mt-4 inline-block  items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-[#5537ee]"></span>
             Community
           </span>
@@ -72,7 +72,7 @@ export const AdminDashboard = () => {
               <UserCheck className="text-emerald-600 w-6 h-6" />
             </div>
           </div>
-          <span className="text-xs text-emerald-600 font-medium mt-4 inline-block flex items-center gap-1">
+          <span className="text-xs text-emerald-600 font-medium mt-4 inline-block  items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
             Experts
           </span>
@@ -93,7 +93,7 @@ export const AdminDashboard = () => {
               <Clock className="text-yellow-600 w-6 h-6" />
             </div>
           </div>
-          <span className="text-xs text-yellow-600 font-medium mt-4 inline-block flex items-center gap-1">
+          <span className="text-xs text-yellow-600 font-medium mt-4 inline-block  items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
             Review Required
           </span>
@@ -107,7 +107,7 @@ export const AdminDashboard = () => {
         </div>
       </div>
 
-      <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 min-h-[300px] flex items-center justify-center">
+      <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 min-h-75 flex items-center justify-center">
         <div className="text-center">
           <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
             {isLoading ? (

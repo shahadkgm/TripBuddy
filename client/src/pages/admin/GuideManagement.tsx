@@ -251,7 +251,7 @@ export const GuideManagement = () => {
                 </button>
               </div>
 
-              <div className="flex flex-col md:flex-row flex-1 overflow-hidden min-h-[500px]">
+              <div className="flex flex-col md:flex-row flex-1 overflow-hidden min-h-125">
                 {/* Image/Profile Side */}
                 <div className="flex-1 bg-[#1e293b] p-6 flex flex-col items-center justify-center relative group overflow-y-auto">
                   {viewingGuide.avatarURL ? (
@@ -259,7 +259,7 @@ export const GuideManagement = () => {
                       <img
                         src={viewingGuide.avatarURL}
                         alt="Profile"
-                        className="max-w-full max-h-[100%] rounded-2xl shadow-2xl transition-all duration-500 group-hover:scale-[1.01] border-4 border-white/10"
+                        className="max-w-full max-h-full rounded-2xl shadow-2xl transition-all duration-500 group-hover:scale-[1.01] border-4 border-white/10"
                       />
                       <div className="absolute top-4 left-4 bg-[#5537ee] text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg">
                         PROFILE PHOTO
@@ -274,7 +274,7 @@ export const GuideManagement = () => {
                 </div>
 
                 {/* Info Side */}
-                <div className="w-full md:w-[450px] p-8 bg-white border-l border-gray-100 flex flex-col justify-between overflow-y-auto">
+                <div className="w-full md:w-112.5 p-8 bg-white border-l border-gray-100 flex flex-col justify-between overflow-y-auto">
                   <div className="space-y-8">
                     <div className="flex justify-between items-start">
                       <div>
