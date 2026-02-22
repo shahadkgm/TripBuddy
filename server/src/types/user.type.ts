@@ -23,6 +23,16 @@ export interface IUser {
 
   createdAt?: Date;
   updatedAt?: Date;
+
+  avatarURL?: string;
+  bio?: string;
+  hourlyRate?: number;
+  serviceArea?: string;
+  yearsOfExperience?: number;
+  kyc?: {
+    status: string;
+    filePath: string;
+  };
 }
 
 

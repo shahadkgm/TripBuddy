@@ -52,6 +52,13 @@ export interface UserResponseDTO {
   isVerified: boolean;
   isBlocked: boolean;
   createdAt: string;
+  avatarURL?: string;
+  bio?: string;
+  hourlyRate?: number;
+  serviceArea?: string;
+  yearsOfExperience?: number;
+  kycStatus?: string;
+  kycDocument?: string;
 }
 
 export interface RegisterUserResponseDTO {

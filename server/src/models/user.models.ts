@@ -67,7 +67,11 @@ const userSchema = new Schema<IUser>(
     verificationTokenExpires: Date,
 
     isVerified: { type: Boolean, default: false },
-
+    avatarURL: { type: String },
+    bio: { type: String },
+    hourlyRate: { type: Number },
+    serviceArea: { type: String },
+    yearsOfExperience: { type: Number },
     passwordResetToken: String,
     passwordResetExpires: Date,
   },

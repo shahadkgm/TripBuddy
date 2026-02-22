@@ -19,10 +19,10 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={20} /> },
     { name: 'Manage Users', path: "/admin/users", icon: <Users size={20} /> },
     { name: 'Manage Guides', path: "/admin/guides", icon: <ShieldCheck size={20} /> },
-    { name: 'Manage Trips', path: '/admin/trips', icon: <Map size={20} /> },
-    { name: 'Groups & Chat', path: '/admin/chats', icon: <MessageSquare size={20} /> },
-    { name: 'Posts', path: '/admin/posts', icon: <Image size={20} /> },
-    { name: 'Settings', path: '/admin/settings', icon: <Settings size={20} /> },
+    { name: 'Manage Trips', path: '#', icon: <Map size={20} /> },
+    { name: 'Groups & Chat', path: '#', icon: <MessageSquare size={20} /> },
+    { name: 'Posts', path: '#', icon: <Image size={20} /> },
+    { name: 'Settings', path: '#', icon: <Settings size={20} /> },
   ];
 
   return (

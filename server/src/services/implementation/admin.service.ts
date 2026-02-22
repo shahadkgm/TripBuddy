@@ -84,11 +84,11 @@ export class AdminService implements IAdminService {
 
   async fetchAllGuides(page = 1, limit = 10, search = ''): Promise<GuideListDTO> {
     const data = await this.adminRepo.getAllGuides(page, limit, search);
-    console.log('data from admin service', data);
-    // logger.debug("data from adminservice ,f-allguide",data)
+    const mappedGuides = data.guides.map(toAdminGuideResponse);
+    console.log('Mapped guides in service:', mappedGuides[0]);
     return {
       ...data,
-      guides: data.guides.map(toAdminGuideResponse)
+      guides: mappedGuides
     };
   }
 
@@ -107,7 +107,7 @@ export class AdminService implements IAdminService {
     const userStats = await this.adminRepo.getAllUsers(1, 1, '');
     logger.info(`from gerdashboard userstats: ${userStats}`)
     const verifiedGuidesCount = await this.adminRepo.countVerifiedGuides();
-        logger.info(`from gerdashboard  guide count:${verifiedGuidesCount}`)
+    logger.info(`from gerdashboard  guide count:${verifiedGuidesCount}`)
 
     const pending = await this.adminRepo.getAllPendingGuides();
 

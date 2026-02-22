@@ -14,7 +14,14 @@ export interface AdminGuideResponseDTO {
     email: string;
     role: string;
   };
+  bio: string;
+  hourlyRate: number;
+  serviceArea: string;
+  specialties: string[];
+  avatarURL?: string;
+  certificateUrl?: string;
   status: string;
+  isVerified: boolean;
   createdAt: string;
   yearsOfExperience: number;
 }

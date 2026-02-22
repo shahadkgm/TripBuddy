@@ -1,3 +1,4 @@
+import { PipelineStage } from 'mongoose';
 import GuideProfile from '../../models/guide.model';
 import { IUser } from '../../types/user.type';
 import { CreateUserDTO } from '../../dto/user.dto';
@@ -81,21 +82,69 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
   }
   async getAllGuides(page: number, limit: number, search: string) {
     const skip = (Math.max(1, page) - 1) * limit;
-    const query = search ? {
-      $or: [
-        { serviceArea: { $regex: search, $options: 'i' } },
-        { bio: { $regex: search, $options: 'i' } }
-      ]
-    } : {};
-    const [guides, totalGuides] = await Promise.all([
-      GuideProfile.find(query)
-        .populate('userId', 'name email role isBlocked')
-        .skip(skip)
-        .limit(limit)
-        .lean<IGuide[]>(),
-      GuideProfile.countDocuments(query)
+
+    const pipeline: PipelineStage[] = [
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      { $unwind: '$user' }
+    ];
+
+    if (search) {
+      pipeline.push({
+        $match: {
+          $or: [
+            { name: { $regex: search, $options: 'i' } },
+            { serviceArea: { $regex: search, $options: 'i' } },
+            { bio: { $regex: search, $options: 'i' } },
+            { specialties: { $regex: search, $options: 'i' } },
+            { 'user.email': { $regex: search, $options: 'i' } },
+            { 'user.name': { $regex: search, $options: 'i' } }
+          ]
+        }
+      });
+    }
+
+    console.log(`Search Request - Term: "${search}", Skip: ${skip}, Limit: ${limit}`);
+
+    const [guides, totalResults] = await Promise.all([
+      GuideProfile.aggregate([
+        ...pipeline,
+        { $sort: { createdAt: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+        {
+          $project: {
+            _id: 1,
+            userId: '$user',
+            name: 1,
+            bio: 1,
+            hourlyRate: 1,
+            serviceArea: 1,
+            certificateUrl: 1,
+            yearsOfExperience: 1,
+            avatarURL: 1,
+            specialties: 1,
+            isVerified: 1,
+            createdAt: 1,
+            updatedAt: 1
+          }
+        }
+      ]),
+      GuideProfile.aggregate([
+        ...pipeline,
+        { $count: 'count' }
+      ])
     ]);
-    // logger.info(`from a-repo,f-guide ${JSON.stringify(guides)}`)
+
+    const totalGuides = totalResults.length > 0 ? totalResults[0].count : 0;
+    console.log(`Search Results - Found: ${totalGuides} total, Current Page: ${guides.length}`);
+
     return {
       guides,
       totalPages: Math.ceil(totalGuides / limit),

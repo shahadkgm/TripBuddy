@@ -14,7 +14,7 @@ export class AdminController implements IAdminController {
     const search = String(req.query.search || '');
 
     const data = await this._adminService.fetchAllUsers(page, limit, search);
-    // logger.info(`data from admin controller:${data}`)
+    logger.info(`data from admin controller:${data}`)
     res.status(StatusCode.OK).json(data);
   });
 
@@ -56,7 +56,7 @@ export class AdminController implements IAdminController {
   getAllGuides = asyncHandler(async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
-    const search = String(req.query.search) || '';
+    const search = String(req.query.search || '');
     const data = await this._adminService.fetchAllGuides(page, limit, search);
     logger.debug('from get all guide', data);
 
