@@ -14,6 +14,7 @@ import KYCPage from "../pages/user/KYCPage";
 import { GuideRegistrationPage } from "../pages/user/GuideRegistrationPage";
 import CreateTripPage from "../pages/user/CreateTripPage";
 import FindTravelers from "../pages/user/FindTravelers";
+import ConnectionRequestsPage from "../pages/user/ConnectionRequestsPage";
 
 import { AdminDashboard } from "../pages/admin/AdminDashboard";
 import { UserManagement } from "../pages/admin/UserManagement";
@@ -40,6 +41,7 @@ export default function AppRoutes() {
         <Route path="/join-guide" element={<GuideRegistrationPage />} />
         <Route path="/create-trip" element={<CreateTripPage />} />
         <Route path="/find-travelers" element={<FindTravelers />} />
+        <Route path="/connection-requests" element={<ConnectionRequestsPage />} />
       </Route>
 
       {/* Admin */}

@@ -51,4 +51,13 @@ export const API_ROUTES = {
         GET_BY_ID: '/:id',
         GET_ALL: '/all',
     },
+
+    CONNECTION: {
+        BASE: '/api/connections',
+        SEND: '/request',
+        ACCEPT: '/accept/:requestId',
+        REJECT: '/reject/:requestId',
+        PENDING: '/pending',
+        STATUS: '/status',
+    },
 };
