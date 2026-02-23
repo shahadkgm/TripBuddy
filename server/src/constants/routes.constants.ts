@@ -49,5 +49,6 @@ export const API_ROUTES = {
         CREATE: '/',
         GET_BY_USER: '/user/:userId',
         GET_BY_ID: '/:id',
+        GET_ALL: '/all',
     },
 };

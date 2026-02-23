@@ -22,3 +22,9 @@ export interface ITrip {
 }
 
 export type ITripDocument = ITrip & Document;
+
+export interface ITripFilters {
+    destination?: string;
+    transport?: string;
+    interest?: string;
+}

@@ -28,6 +28,11 @@ router.get(
 );
 
 router.get(
+    API_ROUTES.TRIP.GET_ALL,
+    tripController.getAllTrips
+);
+
+router.get(
     API_ROUTES.TRIP.GET_BY_ID,
     tripController.getTripById
 );

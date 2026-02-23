@@ -1,11 +1,11 @@
-import { ITripDocument } from '../../types/trip.type';
+import { ITripDocument, ITripFilters } from '../../types/trip.type';
 import { CreateTripDTO } from '../../dto/trip.dto';
 import { ITripRepository } from '../../repositories/interface/ITripRepository';
 import { ITripService } from '../interface/ITripService';
 import { logger } from '@/utils/logger';
 
 export class TripService implements ITripService {
-    
+
     private _tripRepository: ITripRepository;
 
     constructor(tripRepository: ITripRepository) {
@@ -13,7 +13,7 @@ export class TripService implements ITripService {
     }
 
     async createTrip(data: CreateTripDTO): Promise<ITripDocument> {
-        logger.info(`reached in create Trip${data}`)
+        logger.info('Creating new trip in service in t-s', { data });
         return await this._tripRepository.create(data);
     }
 
@@ -23,5 +23,10 @@ export class TripService implements ITripService {
 
     async getTripById(tripId: string): Promise<ITripDocument | null> {
         return await this._tripRepository.findById(tripId);
+    }
+
+    async getAllTrips(filters: ITripFilters, page: number, limit: number): Promise<{ trips: ITripDocument[], total: number }> {
+        logger.info('Fetching all trips with filters in t-s', { filters, page, limit });
+        return await this._tripRepository.findAllTrips(filters, page, limit);
     }
 }

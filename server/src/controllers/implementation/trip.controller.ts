@@ -10,7 +10,7 @@ export class TripController {
 
     createTrip = asyncHandler(async (req: Request<{}, {}, CreateTripDTO>, res: Response) => {
         const tripData = req.body;
-        logger.info(`reached in controller tripData:${tripData} `)
+        logger.info('Trip creation request received', { tripData });
         const newTrip = await this._tripService.createTrip(tripData);
         res.status(StatusCode.CREATED).json(newTrip);
     });
@@ -28,5 +28,21 @@ export class TripController {
             return res.status(StatusCode.NOT_FOUND).json({ message: 'Trip not found' });
         }
         res.status(StatusCode.OK).json(trip);
+    });
+
+    getAllTrips = asyncHandler(async (req: Request, res: Response) => {
+        const { destination, transport, interest, page, limit } = req.query;
+
+        const filters = {
+            destination: destination as string,
+            transport: transport as string,
+            interest: interest as string
+        };
+
+        const pageNum = parseInt(page as string) || 1;
+        const limitNum = parseInt(limit as string) || 10;
+
+        const result = await this._tripService.getAllTrips(filters, pageNum, limitNum);
+        res.status(StatusCode.OK).json(result);
     });
 }

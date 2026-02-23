@@ -19,7 +19,7 @@ const DASHBOARD_FEATURES = [
     desc: "Connect with others on similar travel paths.", 
     icon: <Users className="w-5 h-5 text-blue-600" />, 
     color: "bg-blue-50",
-    path: "/dashboard"
+    path: "/find-travelers"
   },
   { 
     title: "Chat with Travelers", 

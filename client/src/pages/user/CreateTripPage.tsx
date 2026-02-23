@@ -153,7 +153,7 @@ const CreateTripPage = () => {
                 </div>
             )}
 
-            <div className="max-w-4xl mx-auto bg-white rounded-[2rem] shadow-xl overflow-hidden relative border border-slate-100">
+            <div className="max-w-4xl mx-auto bg-white rounded-4xl shadow-xl overflow-hidden relative border border-slate-100">
                 <button
                     onClick={() => navigate('/dashboard')}
                     type="button"
