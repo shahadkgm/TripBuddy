@@ -60,4 +60,11 @@ export const API_ROUTES = {
         PENDING: '/pending',
         STATUS: '/status',
     },
+
+    EXPENSE: {
+        BASE: '/api/expenses',
+        ADD: '/',
+        GET_BY_TRIP: '/trip/:tripId',
+        DELETE: '/:expenseId',
+    },
 };
