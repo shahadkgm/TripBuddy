@@ -108,20 +108,20 @@ const CreateTripPage = () => {
             }));
 
             const response = await api.post('/api/plantrips', {
-  userId,
-  title: formData.title,
-  destination: formData.destination,
-  startDate: formData.startDate,
-  endDate: formData.endDate,
-  budget: formData.budget,
-  description: formData.notes,
-  preferences: {
-    travelers: Number(formData.travelers),
-    accommodation: formData.accommodation,
-    transport: formData.transport,
-    interests: formData.interests
-  }
-});
+                userId,
+                title: formData.title,
+                destination: formData.destination,
+                startDate: formData.startDate,
+                endDate: formData.endDate,
+                budget: formData.budget,
+                description: formData.notes,
+                preferences: {
+                    travelers: Number(formData.travelers),
+                    accommodation: formData.accommodation,
+                    transport: formData.transport,
+                    interests: formData.interests
+                }
+            });
 
             if (response.status === 201) {
                 setShowSuccess(true);

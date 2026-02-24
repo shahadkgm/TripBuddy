@@ -1,8 +1,9 @@
 //import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FooterCTA } from '../../components/FooterCTA';
 import {
   Calendar, Users, MessageSquare, Wallet,
-  Users2, Image, MapPin, LifeBuoy,
+  Users2, Image, MapPin, LifeBuoy, CloudSun,
   UserCircle, Search, UserCheck, X
 } from 'lucide-react';
 
@@ -62,6 +63,13 @@ const DASHBOARD_FEATURES = [
     icon: <MapPin className="w-5 h-5 text-orange-600" />,
     color: "bg-orange-50",
     path: "/nearby"
+  },
+  {
+    title: "Weather Forecast",
+    desc: "Check the forecast for your next destination.",
+    icon: <CloudSun className="w-5 h-5 text-indigo-600" />,
+    color: "bg-indigo-50",
+    path: "/weather"
   },
   {
     title: "Travel Assistance",
@@ -136,17 +144,7 @@ const DashboardPage = () => {
           ))}
         </div>
 
-        <div className="flex flex-col items-center gap-4 border-t pt-8">
-          <button
-            onClick={() => navigate('/create-trip')}
-            className="w-full md:w-auto px-16 py-4 bg-[#10b981] text-white rounded-2xl font-extrabold text-lg shadow-xl shadow-green-200 hover:bg-green-600 hover:-translate-y-1 transition-all active:scale-95"
-          >
-            Start Planning Now
-          </button>
-          <p className="text-[11px] text-gray-400 font-semibold tracking-wide uppercase">
-            Make every moment of your journey count
-          </p>
-        </div>
+        <FooterCTA />
       </div>
     </div>
   );

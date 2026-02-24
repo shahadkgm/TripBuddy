@@ -16,6 +16,7 @@ import CreateTripPage from "../pages/user/CreateTripPage";
 import FindTravelers from "../pages/user/FindTravelers";
 import ConnectionRequestsPage from "../pages/user/ConnectionRequestsPage";
 import ExpenseSplitPage from "../pages/user/ExpenseSplitPage";
+import WeatherPage from "../pages/user/WeatherPage";
 
 import { AdminDashboard } from "../pages/admin/AdminDashboard";
 import { UserManagement } from "../pages/admin/UserManagement";
@@ -44,6 +45,7 @@ export default function AppRoutes() {
         <Route path="/find-travelers" element={<FindTravelers />} />
         <Route path="/connection-requests" element={<ConnectionRequestsPage />} />
         <Route path="/expenses" element={<ExpenseSplitPage />} />
+        <Route path="/weather" element={<WeatherPage />} />
       </Route>
 
       {/* Admin */}
