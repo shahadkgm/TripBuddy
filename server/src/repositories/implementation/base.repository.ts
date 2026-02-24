@@ -1,7 +1,7 @@
 import mongoose, { Model, FilterQuery, UpdateQuery } from 'mongoose';
 import { IBaseRepository } from '../interface/IBaseRepository';
 
-export class BaseRepository<T, DTO> implements IBaseRepository<T, DTO> {
+export abstract class BaseRepository<T, DTO> implements IBaseRepository<T, DTO> {
   protected _model: Model<T>;
 
   constructor(model: Model<T>) {

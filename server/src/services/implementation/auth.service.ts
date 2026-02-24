@@ -35,18 +35,18 @@ export class AuthService implements IAuthService {
   // REGISTER
   // =================================================
   async registerUser(data: RegisterUserDTO): Promise<AuthResponse> {
-   logger.info('Register attempt:', data.email);
+    logger.info('Register attempt:', data.email);
 
     const existingUser = await this.userRepo.findByEmail(data.email);
 
     if (existingUser) {
-     logger. warn('Register failed: user exists', data.email);
+      logger.warn('Register failed: user exists', data.email);
 
       if (!existingUser.isVerified) {
         await this.resendVerification(existingUser);
       }
 
-      throw new AppError( 'User already exists',StatusCode.CONFLICT);
+      throw new AppError('User already exists', StatusCode.CONFLICT);
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -73,26 +73,26 @@ export class AuthService implements IAuthService {
   // LOGIN
   // =================================================
   async loginUser(data: LoginDTO): Promise<AuthResponse> {
-   logger.info('Login attempt:', data.email);
+    logger.info('Login attempt:', data.email);
 
     const user = await this.userRepo.findByEmail(data.email);
 
     if (!user || !user.password) {
-      throw new AppError( 'Invalid credentials',StatusCode.UNAUTHORIZED);
+      throw new AppError('Invalid credentials', StatusCode.UNAUTHORIZED);
     }
 
     if (user.isBlocked) {
-      throw new AppError( 'User is blocked',StatusCode.FORBIDDEN);
+      throw new AppError('User is blocked', StatusCode.FORBIDDEN);
     }
 
     if (!user.isVerified) {
-      throw new AppError( 'Please verify your email',StatusCode.FORBIDDEN);
+      throw new AppError('Please verify your email', StatusCode.FORBIDDEN);
     }
 
     const match = await bcrypt.compare(data.password, user.password);
 
     if (!match) {
-      throw new AppError('Invalid credentials',StatusCode.UNAUTHORIZED );
+      throw new AppError('Invalid credentials', StatusCode.UNAUTHORIZED);
     }
 
     const tokens = this.generateTokens({
@@ -100,7 +100,7 @@ export class AuthService implements IAuthService {
       role: user.role,
     });
 
-   logger.info('Login success:', user.email);
+    logger.info('Login success:', user.email);
 
     return {
       message: 'Logged in successfully',
@@ -113,7 +113,7 @@ export class AuthService implements IAuthService {
   // GOOGLE LOGIN
   // =================================================
   async googleLogin(token: string): Promise<AuthResponse> {
-   logger. info('Google login attempt');
+    logger.info('Google login attempt');
 
     const ticket = await googleClient.verifyIdToken({
       idToken: token,
@@ -123,7 +123,7 @@ export class AuthService implements IAuthService {
     const payload = ticket.getPayload();
 
     if (!payload?.email) {
-      throw new AppError('Invalid Google token',StatusCode.UNAUTHORIZED);
+      throw new AppError('Invalid Google token', StatusCode.UNAUTHORIZED);
     }
 
     const user = await this.userRepo.findOrCreateGoogleUser({
@@ -132,7 +132,7 @@ export class AuthService implements IAuthService {
     });
 
     if (user.isBlocked) {
-      throw new AppError( 'User is blocked',StatusCode.FORBIDDEN);
+      throw new AppError('User is blocked', StatusCode.FORBIDDEN);
     }
 
     const tokens = this.generateTokens({
@@ -140,7 +140,7 @@ export class AuthService implements IAuthService {
       role: user.role,
     });
 
-   logger. info('Google login success:', payload.email);
+    logger.info('Google login success:', payload.email);
 
     return {
       message: 'Google login successful',
@@ -153,17 +153,17 @@ export class AuthService implements IAuthService {
   // VERIFY EMAIL
   // =================================================
   async verifyEmail(token: string): Promise<AuthResponse> {
-   logger. info('Email verification attempt');
+    logger.info('Email verification attempt');
 
     const user = await this.userRepo.findByVerificationToken(token);
 
     if (!user) {
-      throw new AppError( 'Invalid or expired token',StatusCode.BAD_REQUEST);
+      throw new AppError('Invalid or expired token', StatusCode.BAD_REQUEST);
     }
 
     await this.userRepo.verifyUser(user._id.toString());
 
-   logger. info('Email verified:', user.email);
+    logger.info('Email verified:', user.email);
 
     return { message: 'Email verified successfully' };
   }
@@ -172,9 +172,17 @@ export class AuthService implements IAuthService {
   // HELPERS
   // =================================================
   private generateTokens(user: { id: string; role: string }) {
+    const accessTokenOptions: jwt.SignOptions = {
+      expiresIn: (process.env.ACCESS_TOKEN_EXPIRE as jwt.SignOptions['expiresIn']) || '15m'
+    };
+
+    const refreshTokenOptions: jwt.SignOptions = {
+      expiresIn: (process.env.REFRESH_TOKEN_EXPIRE as jwt.SignOptions['expiresIn']) || '7d'
+    };
+
     return {
-      accessToken: jwt.sign(user, this.JWT_SECRET, { expiresIn: '15m' }),
-      refreshToken: jwt.sign(user, this.JWT_SECRET, { expiresIn: '7d' }),
+      accessToken: jwt.sign(user, this.JWT_SECRET as jwt.Secret, accessTokenOptions),
+      refreshToken: jwt.sign(user, this.JWT_SECRET as jwt.Secret, refreshTokenOptions),
     };
   }
 
@@ -189,9 +197,9 @@ export class AuthService implements IAuthService {
     );
 
     const link = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
-    console.log('link for get',link);
+    console.log('link for get', link);
 
-   logger. info('Sending verification email:', user.email);
+    logger.info('Sending verification email:', user.email);
 
     await this._mailService.sendVerificationEmail(
       user.email,
@@ -200,12 +208,11 @@ export class AuthService implements IAuthService {
     );
   }
 
-  private async resendVerification(user: IUser): Promise<never>
- {
-   logger. warn('Resending verification email:', user.email);
+  private async resendVerification(user: IUser): Promise<never> {
+    logger.warn('Resending verification email:', user.email);
 
     await this.sendVerification(user);
 
-    throw new AppError('Verification email resent',StatusCode.OK );
+    throw new AppError('Verification email resent', StatusCode.OK);
   }
 }

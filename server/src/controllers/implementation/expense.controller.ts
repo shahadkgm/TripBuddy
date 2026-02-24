@@ -1,25 +1,28 @@
 import { Request, Response } from 'express';
 import { IExpenseService } from '../../services/interface/IExpenseService';
-import { StatusCode } from '../../constants/statusCode.enum';
 import { asyncHandler } from '../../utils/asyncHandler';
+import { BaseController } from './base.controller';
 
-export class ExpenseController {
-    constructor(private _expenseService: IExpenseService) { }
+export class ExpenseController extends BaseController {
+    constructor(private _expenseService: IExpenseService) {
+        super();
+    }
 
     addExpense = asyncHandler(async (req: Request, res: Response) => {
         const expense = await this._expenseService.addExpense(req.body);
-        res.status(StatusCode.CREATED).json(expense);
+        this.sendCreated(res, expense, 'Expense added successfully');
     });
 
     getTripExpenses = asyncHandler(async (req: Request, res: Response) => {
         const { tripId } = req.params;
         const expenses = await this._expenseService.getTripExpenses(tripId);
-        res.status(StatusCode.OK).json(expenses);
+        this.sendSuccess(res, expenses, 'Expenses fetched successfully');
     });
 
     deleteExpense = asyncHandler(async (req: Request, res: Response) => {
         const { expenseId } = req.params;
         await this._expenseService.deleteExpense(expenseId);
-        res.status(StatusCode.OK).json({ message: 'Expense deleted successfully' });
+        this.sendSuccess(res, null, 'Expense deleted successfully');
     });
 }
+

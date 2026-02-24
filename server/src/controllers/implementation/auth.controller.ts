@@ -14,7 +14,7 @@ interface UserPayload extends jwt.JwtPayload {
 }
 
 export class AuthController implements IAuthController {
-  constructor(private readonly _authService: IAuthService) {}
+  constructor(private readonly _authService: IAuthService) { }
 
   register = asyncHandler(async (req: Request, res: Response) => {
     const result = await this._authService.registerUser(req.body);
@@ -26,7 +26,7 @@ export class AuthController implements IAuthController {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      throw new AppError( 'All fields are required',StatusCode.BAD_REQUEST);
+      throw new AppError('All fields are required', StatusCode.BAD_REQUEST);
     }
 
     const result = await this._authService.loginUser({ email, password });
@@ -36,7 +36,7 @@ export class AuthController implements IAuthController {
       secure: false,
       // process.env.NODE_ENV === 'production',
       sameSite: 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000,
     });
 
     res.status(StatusCode.OK).json({
@@ -50,7 +50,7 @@ export class AuthController implements IAuthController {
     const { token } = req.body;
 
     if (!token) {
-      throw new AppError( 'Google token is required',StatusCode.BAD_REQUEST);
+      throw new AppError('Google token is required', StatusCode.BAD_REQUEST);
     }
 
     const result = await this._authService.googleLogin(token);
@@ -59,7 +59,7 @@ export class AuthController implements IAuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000,
     });
 
     res.status(StatusCode.OK).json({
@@ -81,7 +81,7 @@ export class AuthController implements IAuthController {
     const token = req.cookies.refreshToken;
 
     if (!token) {
-      throw new AppError('No refresh token found',StatusCode.UNAUTHORIZED );
+      throw new AppError('No refresh token found', StatusCode.UNAUTHORIZED);
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as UserPayload;
@@ -89,7 +89,7 @@ export class AuthController implements IAuthController {
     const newAccessToken = jwt.sign(
       { id: decoded.id, role: decoded.role },
       process.env.JWT_SECRET!,
-      { expiresIn: '15m' }
+      { expiresIn: (process.env.ACCESS_TOKEN_EXPIRE as jwt.SignOptions['expiresIn']) || '15m' }
     );
 
     res.status(StatusCode.OK).json({ accessToken: newAccessToken });
