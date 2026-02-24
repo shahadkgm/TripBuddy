@@ -11,23 +11,23 @@ const KYCStatusPage = () => {
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-  const fetchKYCDetails = async () => {
-    const userId = user?.id; // The ID from your log
-    if (userId) {
-      try {
-        console.log("userId",userId)
-        const res = await axios.get(`${API_URL}/api/kyc-status/${userId}`);
-        setKycData(res.data);
-        console.log(res.data)
-      } catch (err) {
-        console.error("Error fetching KYC details:", err);
-      } finally {
-        setLoading(false);
+    const fetchKYCDetails = async () => {
+      const userId = user?.id; // The ID from your log
+      if (userId) {
+        try {
+          console.log("userId", userId)
+          const res = await axios.get(`${API_URL}/api/kyc-status/${userId}`);
+          setKycData(res.data);
+          console.log(res.data)
+        } catch (err) {
+          console.error("Error fetching KYC details:", err);
+        } finally {
+          setLoading(false);
+        }
       }
-    }
-  };
-  fetchKYCDetails();
-}, [user?.id]);
+    };
+    fetchKYCDetails();
+  }, [user?.id]);
 
   if (loading) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
 
@@ -71,7 +71,7 @@ const KYCStatusPage = () => {
         </div>
 
         {kycData?.status === 'rejected' && (
-          <button 
+          <button
             onClick={() => navigate('/kyc-verification')}
             className="w-full mt-8 py-3 bg-[#5537ee] text-white rounded-xl font-semibold hover:shadow-lg transition"
           >
@@ -79,7 +79,7 @@ const KYCStatusPage = () => {
           </button>
         )}
 
-        <button 
+        <button
           onClick={() => navigate('/')}
           className="w-full mt-4 py-3 text-gray-500 text-sm font-medium"
         >

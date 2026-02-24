@@ -10,7 +10,7 @@ export const GuideStatusPage = () => {
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
           <h1 className="font-bold text-xl text-slate-800">Guide Application Status</h1>
-          <button 
+          <button
             onClick={() => navigate('/dashboard')}
             className="flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
           >
@@ -28,7 +28,7 @@ export const GuideStatusPage = () => {
           <h1 className="text-3xl font-extrabold text-slate-900 mb-3">
             Application Received!
           </h1>
-          
+
           <p className="text-sm font-bold text-amber-600 uppercase tracking-widest mb-6 py-1.5 px-4 inline-block rounded-full bg-amber-50 border border-amber-200">
             Status: Pending Review
           </p>

@@ -3,6 +3,7 @@ import multer from 'multer';
 import multerS3 from 'multer-s3';
 import { s3 } from '../config/s3';
 import path from 'path';
+import { logger } from '@/utils/logger';
 
 const s3Storage = multerS3({
   s3: s3,
@@ -19,27 +20,27 @@ const s3Storage = multerS3({
 });
 
 const fileFilter: multer.Options['fileFilter'] = (req, file, cb) => {
-  console.log('Incoming file mimetype:', file.mimetype);
+  const allowedExtensions = ['.jpeg', '.jpg', '.png', '.gif', '.webp'];
+  const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
 
-  const allowedTypes = /jpeg|jpg|png|gif/;
+  const extension = path.extname(file.originalname).toLowerCase();
+  const mimetype = file.mimetype;
 
-  const extname = allowedTypes.test(
-    path.extname(file.originalname).toLowerCase()
-  );
+  const isExtensionValid = allowedExtensions.includes(extension);
+  const isMimeTypeValid = allowedMimeTypes.includes(mimetype);
 
-  const mimetype = allowedTypes.test(file.mimetype);
+  logger.info(`File upload check: originalname="${file.originalname}", mimetype="${mimetype}", extension="${extension}", isExtensionValid=${isExtensionValid}, isMimeTypeValid=${isMimeTypeValid}`);
 
-  if (extname && mimetype) {
+  if (isExtensionValid && isMimeTypeValid) {
     cb(null, true);
   } else {
-    cb(new Error('Only images allowed'));
+    logger.error(`File upload rejected: originalname="${file.originalname}", mimetype="${mimetype}", extension="${extension}"`);
+    cb(new Error(`Only images (${allowedExtensions.join(', ')}) are allowed!`));
   }
 };
-
 
 export const upload = multer({
   storage: s3Storage,
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }
 });
-

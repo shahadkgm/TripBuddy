@@ -74,7 +74,7 @@ const FindTravelers = () => {
 
                 <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 mb-8 grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                        <label className="block text-sm font-semibold text-slate-700 mb-2  items-center gap-2">
                             <MapPin className="w-4 h-4 text-indigo-500" /> Destination
                         </label>
                         <input
@@ -104,7 +104,7 @@ const FindTravelers = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                        <label className="block text-sm font-semibold text-slate-700 mb-2 items-center gap-2">
                             <Tag className="w-4 h-4 text-indigo-500" /> Interests
                         </label>
                         <select
