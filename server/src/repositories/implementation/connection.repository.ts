@@ -1,5 +1,5 @@
 import { ConnectionModel } from '../../models/connection.model';
-import { IConnectionDocument, IConnection } from '../../types/connection.type';
+import { IConnectionDocument } from '../../types/connection.type';
 import { BaseRepository } from './base.repository';
 import { IConnectionRepository } from '../interface/IConnectionRepository';
 import { CreateConnectionDTO } from '../../dto/connection.dto';

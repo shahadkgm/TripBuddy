@@ -55,6 +55,7 @@ export class CreateTripDTO {
             try {
                 return JSON.parse(value);
             } catch (e) {
+                console.log(e);
                 return value;
             }
         }

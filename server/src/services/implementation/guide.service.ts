@@ -47,6 +47,7 @@ export class GuideService implements IGuideService {
 
 
   async getStatus(userId: string) {
+    logger.info(`Checking guide status for user: ${userId}`);
     const profile = await this._guideRepository.findOne({ userId });
     if (!profile) return { exists: false };
 
@@ -58,6 +59,7 @@ export class GuideService implements IGuideService {
 
 
   async getAllVerifiedGuides(query: GuideQueryDTO): Promise<GuideResponseDTO[]> {
+    logger.info(`Fetching all verified guides with filters: ${JSON.stringify(query)}`);
     const filters: Record<string, unknown> = { isVerified: true };
 
     if (query.destination) {
@@ -69,6 +71,7 @@ export class GuideService implements IGuideService {
     }
 
     const guides = await this._guideRepository.findAll(filters);
+    logger.info(`Found ${guides.length} verified guides`);
     return guides.map(toGuideResponse);
   }
 }

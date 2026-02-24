@@ -1,4 +1,3 @@
-import { Model } from 'mongoose';
 import { ITripDocument, ITripFilters } from '../../types/trip.type';
 import { TripModel } from '../../models/trip.model';
 import { CreateTripDTO } from '../../dto/trip.dto';

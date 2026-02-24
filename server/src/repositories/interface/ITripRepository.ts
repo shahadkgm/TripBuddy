@@ -1,4 +1,4 @@
-import { ITrip, ITripDocument, ITripFilters } from '../../types/trip.type';
+import {  ITripDocument, ITripFilters } from '../../types/trip.type';
 import { IBaseRepository } from './IBaseRepository';
 import { CreateTripDTO } from '../../dto/trip.dto';
 

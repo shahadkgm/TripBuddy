@@ -9,26 +9,26 @@ export class UploadService implements IUploadService {
 
   constructor(private readonly _kycRepo: IKYCRepository) { }
   async saveKYCDocument(file: Express.Multer.File, userId: string, docType: string): Promise<IKYC> {
+    logger.info(`Processing KYC document for user: ${userId}, type: ${docType}`);
     const newKYC = await this._kycRepo.createKYC(
       file,
       userId,
       docType,
-      // status: 'pending' 
     );
 
-    console.log('KYC saved to DB:', newKYC);
+    logger.info(`KYC document saved to database for user: ${userId}`);
     return newKYC;
   }
 
   async getKYCStatus(userId: string): Promise<KYCStatusResponseDTO> {
+    logger.info(`Fetching KYC status for user: ${userId}`);
     const kyc = await this._kycRepo.findLatestKYCByUserId(userId);
 
     if (!kyc) {
-      console.log(`New user detected: ${userId}. No KYC record found.`);
-      return { status: 'none', userId }; // Return a default object instead of null
+      logger.info(`No KYC record found for user: ${userId}`);
+      return { status: 'none', userId };
     }
-    logger.info(`KYC found in DB for user ${userId},${kyc.status}`);
-    // console.log('KYC found in DB for user:', userId, kyc.status);
+    logger.info(`KYC status for user ${userId}: ${kyc.status}`);
     return kyc;
   }
 }

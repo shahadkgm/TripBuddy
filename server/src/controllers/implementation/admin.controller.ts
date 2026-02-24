@@ -14,7 +14,7 @@ export class AdminController implements IAdminController {
     const search = String(req.query.search || '');
 
     const data = await this._adminService.fetchAllUsers(page, limit, search);
-    logger.info(`data from admin controller:${data}`)
+    logger.info(`data from admin controller:${data}`);
     res.status(StatusCode.OK).json(data);
   });
 
@@ -75,7 +75,7 @@ export class AdminController implements IAdminController {
   });
 
   getDashboardStats = asyncHandler(async (req: Request, res: Response) => {
-    logger.info("call come from admin dashboard ,controller")
+    logger.info('call come from admin dashboard ,controller');
     const stats = await this._adminService.getDashboardStats();
     res.status(StatusCode.OK).json(stats);
   });
