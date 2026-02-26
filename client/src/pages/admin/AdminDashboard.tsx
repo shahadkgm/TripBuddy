@@ -19,8 +19,8 @@ export const AdminDashboard = () => {
       try {
         setIsLoading(true);
         const { data } = await api.get('/api/admin/stats');
-        console.log("from dashboard",data)
-        setStats(data);
+        console.log("from dashboard", data)
+        setStats(data.data);
       } catch (error) {
         console.error("Error fetching stats:", error);
         toast.error("Failed to load dashboard statistics");

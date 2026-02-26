@@ -5,29 +5,34 @@ import { CreateTripDTO } from '../../dto/trip.dto';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { logger } from '@/utils/logger';
 
-export class TripController {
-    constructor(private readonly _tripService: ITripService) { }
+import { BaseController } from './base.controller';
+
+export class TripController extends BaseController {
+    constructor(private readonly _tripService: ITripService) {
+        super();
+    }
 
     createTrip = asyncHandler(async (req: Request<{}, {}, CreateTripDTO>, res: Response) => {
         const tripData = req.body;
         logger.info('Trip creation request received', { tripData });
         const newTrip = await this._tripService.createTrip(tripData);
-        res.status(StatusCode.CREATED).json(newTrip);
+        this.sendCreated(res, newTrip, 'Trip created successfully');
     });
 
     getUserTrips = asyncHandler(async (req: Request, res: Response) => {
         const { userId } = req.params;
         const trips = await this._tripService.getUserTrips(userId);
-        res.status(StatusCode.OK).json(trips);
+        this.sendSuccess(res, trips, 'User trips fetched successfully');
     });
 
     getTripById = asyncHandler(async (req: Request, res: Response) => {
         const { id } = req.params;
         const trip = await this._tripService.getTripById(id);
         if (!trip) {
-            return res.status(StatusCode.NOT_FOUND).json({ message: 'Trip not found' });
+            this.sendNotFound(res, 'Trip not found');
+            return;
         }
-        res.status(StatusCode.OK).json(trip);
+        this.sendSuccess(res, trip, 'Trip fetched successfully');
     });
 
     getAllTrips = asyncHandler(async (req: Request, res: Response) => {
@@ -43,6 +48,6 @@ export class TripController {
         const limitNum = parseInt(limit as string) || 10;
 
         const result = await this._tripService.getAllTrips(filters, pageNum, limitNum);
-        res.status(StatusCode.OK).json(result);
+        this.sendSuccess(res, result, 'All trips fetched successfully');
     });
 }

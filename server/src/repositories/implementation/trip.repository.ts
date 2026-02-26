@@ -16,34 +16,34 @@ export class TripRepository extends BaseRepository<ITripDocument, CreateTripDTO>
     }
 
     async findAllTrips(filters: ITripFilters, page: number, limit: number): Promise<{ trips: ITripDocument[], total: number }> {
-        const query: FilterQuery<ITripDocument> = {};
-        logger.info(`Reaching findAllTrips in repository, searching for in t-c: ${filters.destination || 'any destination'}`);
-        if (filters.destination) {
-            query.destination = { $regex: filters.destination, $options: 'i' };
-        }
-
-        if (filters.transport) {
-            query['preferences.transport'] = filters.transport;
-        }
-
-        if (filters.interest) {
-            query['preferences.interests'] = filters.interest;
-        }
-
         const skip = (page - 1) * limit;
+        const query: FilterQuery<ITripDocument> = {};
 
-        const [trips, total] = await Promise.all([
-            this._model.find(query)
-                .populate('userId', 'name email avatarURL role') // Populate user details
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit),
-            this._model.countDocuments(query)
+        if (filters.destination) query.destination = { $regex: filters.destination, $options: 'i' };
+        if (filters.transport) query['preferences.transport'] = filters.transport;
+        if (filters.interest) query['preferences.interests'] = filters.interest;
+
+        const [result] = await this._model.aggregate([
+            { $match: query },
+            { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'userDetails' } },
+            { $unwind: '$userDetails' },
+            {
+                $facet: {
+                    metadata: [{ $count: 'total' }],
+                    data: [
+                        { $sort: { createdAt: -1 } },
+                        { $skip: skip },
+                        { $limit: limit },
+                        { $addFields: { userId: '$userDetails' } },
+                        { $project: { userDetails: 0, 'userId.password': 0 } }
+                    ]
+                }
+            }
         ]);
 
-        // Filter out trips where the user no longer exists (populated as null)
-        const validTrips = trips.filter(trip => trip.userId !== null);
-
-        return { trips: validTrips, total };
+        return {
+            trips: result.data,
+            total: result.metadata[0]?.total || 0
+        };
     }
 }

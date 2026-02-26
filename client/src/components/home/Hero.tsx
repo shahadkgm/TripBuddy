@@ -23,7 +23,7 @@ export const Hero = () => {
       try {
         const res = await axios.get(`${API_URL}/api/kyc-status/${userId}`);
         console.log("KYC Response in Hero:", res.data);
-        setKycStatus(res.data.status);
+        setKycStatus(res.data.data.status);
       } catch (err) {
         console.error("KYC fetch error:", err);
         setKycStatus("none");

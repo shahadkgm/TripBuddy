@@ -1,4 +1,4 @@
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Ban, Trash2, UserCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { AdminLayout } from '../../components/admin/AdminLayout';
@@ -36,8 +36,8 @@ export const UserManagement = () => {
       const { data } = await api.get('/api/admin/users', {
         params: { page: currentPage, limit, search: searchTerm }
       });
-      setUsers(data.users);
-      setTotalPages(data.totalPages);
+      setUsers(data.data.users);
+      setTotalPages(data.data.totalPages);
     } catch (error) {
       toast.error("Failed to load users");
     } finally {
@@ -89,10 +89,9 @@ export const UserManagement = () => {
       header: "Role",
       key: "role",
       render: (user: UserData) => (
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-          user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 
-          user.role === 'guide' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
-        }`}>
+        <span className={`px-3 py-1 rounded-full text-xs font-medium ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' :
+            user.role === 'guide' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
+          }`}>
           {user.role}
         </span>
       )
@@ -113,7 +112,7 @@ export const UserManagement = () => {
       className: "text-right",
       render: (user: UserData) => (
         <div className="flex justify-end gap-2">
-          <button 
+          <button
             onClick={() => handleToggleBlock(user.id, user.isBlocked)}
             className={`p-2 rounded-lg transition ${user.isBlocked ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-red-50 text-red-600 hover:bg-red-100'}`}
             title={user.isBlocked ? "Unblock" : "Block"}
@@ -132,8 +131,8 @@ export const UserManagement = () => {
       className: "text-right",
       render: (user: UserData) => (
         <div className="flex justify-end gap-2">
-          <button 
-            onClick={() => handleDeleteClick(user.id)} 
+          <button
+            onClick={() => handleDeleteClick(user.id)}
             className="p-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-red-50 hover:text-red-600 transition"
           >
             <Trash2 size={18} />
@@ -151,9 +150,9 @@ export const UserManagement = () => {
           <h2 className="text-xl font-bold text-gray-800">User Directory</h2>
           <div className="relative flex-1 sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input 
-              type="text" 
-              placeholder="Search users..." 
+            <input
+              type="text"
+              placeholder="Search users..."
               className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-[#5537ee]"
               onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             />
@@ -161,23 +160,23 @@ export const UserManagement = () => {
         </div>
 
         {/* Reusable Data Table */}
-        <DataTable 
-          columns={columns} 
-          data={users} 
-          loading={loading} 
+        <DataTable
+          columns={columns}
+          data={users}
+          loading={loading}
           emptyMessage="No users found."
         />
 
         {/* Footer with Pagination */}
         <div className="p-4 border-t">
           <Pagination
-            currentPage={currentPage} 
-            totalPages={totalPages} 
-            onPageChange={(page) => setCurrentPage(page)} 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
           />
         </div>
       </div>
-      <ConfirmModal 
+      <ConfirmModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={confirmDelete}

@@ -19,7 +19,7 @@ export const Navbar = () => {
         try {
           const res = await axios.get(`${API_URL}/api/kyc-status/${userId}`);
           if (isMounted) {
-            setKycStatus(res.data.status || 'none');
+            setKycStatus(res.data.data?.status || 'none');
           }
         } catch (err) {
           if (isMounted) setKycStatus("none");

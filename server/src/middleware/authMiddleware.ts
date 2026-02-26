@@ -25,16 +25,18 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
     const user = await UserModel.findById(decoded.id);
 
     if (!user) {
+      console.log('Rejecting auth: User not found in DB for ID', decoded.id);
       return res.status(StatusCode.UNAUTHORIZED).json({ message: 'User not found' });
     }
     if (user.isBlocked) {
-      return res.status(StatusCode.FORBIDDEN).json({ messaage: 'User blocked' });
+      console.log('Rejecting auth: User blocked', user.email);
+      return res.status(StatusCode.FORBIDDEN).json({ message: 'User blocked' });
     }
     if (!user.isVerified) {
-      throw new Error('Please verify your email first');
+      console.log('Rejecting auth: User not verified', user.email);
+      return res.status(StatusCode.FORBIDDEN).json({ message: 'Please verify your email first' });
     }
 
-    // console.log('req.user from authMiddleware server',req.user);
     req.user = {
       id: user._id.toString(),
       role: user.role,
@@ -42,7 +44,7 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
     };
     next();
   } catch (error) {
-    console.log(error);
+    console.error('Auth middleware token verification failed:', error);
     res.status(StatusCode.UNAUTHORIZED).json({ message: 'Token invalid or expired' });
   }
 };

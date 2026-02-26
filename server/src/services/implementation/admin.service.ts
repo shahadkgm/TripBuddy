@@ -8,9 +8,13 @@ import { toAdminGuideResponse } from '../../utils/guide.mapper';
 import { UserMapper } from '../../utils/userMapper';
 import { logger } from '../../utils/logger';
 import { IAdminService } from '../interface/Iadminservice';
+import { IKYCRepository } from '../../repositories/interface/IKycRepository';
 
 export class AdminService implements IAdminService {
-  constructor(private adminRepo: IAdminRepository) { }
+  constructor(
+    private adminRepo: IAdminRepository,
+    private kycRepo: IKYCRepository
+  ) { }
 
   async fetchAllUsers(page = 1, limit = 10, search = ''): Promise<UserListDTO> {
     const result = await this.adminRepo.getAllUsers(page, limit, search);
@@ -78,6 +82,10 @@ export class AdminService implements IAdminService {
 
     await this.adminRepo.updateUserRole(userId, 'guide');
 
+    // Automatically approve KYC when guide is verified
+    await this.kycRepo.updateStatus(userId, 'approved');
+    logger.info(`KYC status auto-approved for user: ${userId}`);
+
     return toAdminGuideResponse(profile);
   }
 
@@ -99,6 +107,15 @@ export class AdminService implements IAdminService {
       throw new AppError('Guide application not found', StatusCode.NOT_FOUND);
     }
 
+    return true;
+  }
+
+  async approveKYC(userId: string, status: string): Promise<boolean> {
+    const result = await this.kycRepo.updateStatus(userId, status);
+    if (!result) {
+      throw new AppError('KYC record not found', StatusCode.NOT_FOUND);
+    }
+    logger.info(`KYC status updated manually for user: ${userId} to ${status}`);
     return true;
   }
 

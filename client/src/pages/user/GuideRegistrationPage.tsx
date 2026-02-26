@@ -53,8 +53,8 @@ export const GuideRegistrationPage = () => {
       }
       try {
         const res = await api.get(`/api/guides/status/${user.id}`);
-        if (res.data.exists) {
-          setAppStatus(res.data.isVerified ? 'verified' : 'pending');
+        if (res.data.data.exists) {
+          setAppStatus(res.data.data.isVerified ? 'verified' : 'pending');
         } else {
           setAppStatus('none');
         }

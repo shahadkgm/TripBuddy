@@ -13,13 +13,16 @@ interface UserPayload extends jwt.JwtPayload {
   role: string;
 }
 
-export class AuthController implements IAuthController {
-  constructor(private readonly _authService: IAuthService) { }
+import { BaseController } from './base.controller';
+
+export class AuthController extends BaseController implements IAuthController {
+  constructor(private readonly _authService: IAuthService) {
+    super();
+  }
 
   register = asyncHandler(async (req: Request, res: Response) => {
     const result = await this._authService.registerUser(req.body);
-
-    res.status(StatusCode.CREATED).json(result);
+    this.sendCreated(res, result, 'Registration successful');
   });
 
   login = asyncHandler(async (req: Request, res: Response) => {
@@ -34,16 +37,14 @@ export class AuthController implements IAuthController {
     res.cookie('refreshToken', result.tokens?.refreshToken, {
       httpOnly: true,
       secure: false,
-      // process.env.NODE_ENV === 'production',
       sameSite: 'none',
       maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.status(StatusCode.OK).json({
-      message: result.message,
+    this.sendSuccess(res, {
       accessToken: result.tokens?.accessToken,
       user: result.user,
-    });
+    }, result.message);
   });
 
   googleLogin = asyncHandler(async (req: Request, res: Response) => {
@@ -62,19 +63,16 @@ export class AuthController implements IAuthController {
       maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.status(StatusCode.OK).json({
-      message: result.message,
+    this.sendSuccess(res, {
       accessToken: result.tokens?.accessToken,
       user: result.user,
-    });
+    }, result.message);
   });
 
   verifyEmail = asyncHandler(async (req: Request, res: Response) => {
     const { token } = req.params;
-
     const result = await this._authService.verifyEmail(token);
-
-    res.status(StatusCode.OK).json(result);
+    this.sendSuccess(res, result, 'Email verified successfully');
   });
 
   refreshToken = asyncHandler(async (req: Request, res: Response) => {
@@ -92,6 +90,6 @@ export class AuthController implements IAuthController {
       { expiresIn: (process.env.ACCESS_TOKEN_EXPIRE as jwt.SignOptions['expiresIn']) || '15m' }
     );
 
-    res.status(StatusCode.OK).json({ accessToken: newAccessToken });
+    this.sendSuccess(res, { accessToken: newAccessToken }, 'Token refreshed successfully');
   });
 }

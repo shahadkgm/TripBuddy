@@ -8,12 +8,12 @@ import api from "../utils/api";
 export const authService = {
   async register(userData: RegisterDTO) {
     const response = await api.post("/auth/register", userData)
-    const { user, token } = response.data;
-    if (token && user) {
-      this.setToken(token);
+    const { user, accessToken } = response.data.data;
+    if (accessToken && user) {
+      this.setToken(accessToken);
       localStorage.setItem("user", JSON.stringify(user))
     }
-    return response.data
+    return response.data.data;
   },
 
   //   async login(credentials: LoginDTO) {
@@ -32,13 +32,13 @@ export const authService = {
   //   },
   async login(credentials: LoginDTO) {
     const response = await api.post("/auth/login", credentials);
-    const { user, accessToken } = response.data;
+    const { user, accessToken } = response.data.data;
     if (accessToken && user) {
       this.setToken(accessToken);
       localStorage.setItem("user", JSON.stringify(user));
       window.dispatchEvent(new Event("storage"))
     }
-    return response.data
+    return response.data.data;
   },
 
   verifyEmail: async (token: string) => {
@@ -47,13 +47,13 @@ export const authService = {
 
   async googleLogin(token: string) {
     const response = await api.post("/auth/google-login", { token });
-    const { user, accessToken } = response.data;
+    const { user, accessToken } = response.data.data;
     if (accessToken && user) {
       this.setToken(accessToken);
       localStorage.setItem("user", JSON.stringify(user));
       window.dispatchEvent(new Event("storage"));
     }
-    return response.data
+    return response.data.data;
   },
 
   logout() {

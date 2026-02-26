@@ -42,19 +42,23 @@ api.interceptors.response.use(
 
       try {
         const res = await axios.post(
-          `${import.meta.env.VITE_API_URL}/auth/refresh`, 
+          `${import.meta.env.VITE_API_URL}/auth/refresh`,
           {},
           { withCredentials: true }
         );
 
-        const newAccessToken = res.data.accessToken;
+        const newAccessToken = res.data.data.accessToken;
 
         authService.setToken(newAccessToken);
 
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        // Ensure headers exist and attach the new token
+        // if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        // }
 
-        return api(originalRequest); 
+        return api(originalRequest);
       } catch (refreshError) {
+        console.error('Refresh token failed:', refreshError);
         localStorage.clear();
         window.location.replace("/login");
         return Promise.reject(refreshError);

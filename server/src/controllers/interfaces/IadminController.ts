@@ -9,5 +9,6 @@ export interface IAdminController {
   handleVerifyGuide: RequestHandler;
   getAllGuides: RequestHandler;
   rejectGuide: RequestHandler;
+  handleApproveKYC: RequestHandler;
   getDashboardStats: RequestHandler;
 }

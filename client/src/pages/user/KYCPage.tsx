@@ -24,7 +24,8 @@ const KYCPage = () => {
       if (userId) {
         try {
           const res = await axios.get(`${API_URL}/api/kyc-status/${userId}`);
-          if (res.data.status === 'pending' || res.data.status === 'approved') {
+          const status = res.data.data?.status;
+          if (status === 'pending' || status === 'approved') {
             navigate('/kyc-status');
           }
         } catch (err) {

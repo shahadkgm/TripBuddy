@@ -4,44 +4,51 @@ import { StatusCode } from '../../constants/statusCode.enum';
 import { AuthRequest } from '../../types/authRequest';
 import { asyncHandler } from '../../utils/asyncHandler';
 
-export class ConnectionController {
-    constructor(private _connectionService: IConnectionService) { }
+import { BaseController } from './base.controller';
+
+export class ConnectionController extends BaseController {
+    constructor(private _connectionService: IConnectionService) {
+        super();
+    }
 
     sendRequest = asyncHandler(async (req: AuthRequest, res: Response) => {
         const senderId = req.user?.id;
         const { receiverId, tripId } = req.body;
 
         if (!senderId) {
-            return res.status(StatusCode.UNAUTHORIZED).json({ message: 'User not authenticated' });
+            this.sendError(res, 'User not authenticated', StatusCode.UNAUTHORIZED);
+            return;
         }
 
         if (senderId === receiverId) {
-            return res.status(StatusCode.BAD_REQUEST).json({ message: 'You cannot connect with yourself' });
+            this.sendBadRequest(res, 'You cannot connect with yourself');
+            return;
         }
 
         const request = await this._connectionService.sendRequest(senderId, receiverId, tripId);
-        res.status(StatusCode.CREATED).json(request);
+        this.sendCreated(res, request, 'Connection request sent successfully');
     });
 
     acceptRequest = asyncHandler(async (req: Request, res: Response) => {
         const { requestId } = req.params;
         const updated = await this._connectionService.acceptRequest(requestId);
-        res.status(StatusCode.OK).json(updated);
+        this.sendSuccess(res, updated, 'Connection request accepted');
     });
 
     rejectRequest = asyncHandler(async (req: Request, res: Response) => {
         const { requestId } = req.params;
         const updated = await this._connectionService.rejectRequest(requestId);
-        res.status(StatusCode.OK).json(updated);
+        this.sendSuccess(res, updated, 'Connection request rejected');
     });
 
     getPendingRequests = asyncHandler(async (req: AuthRequest, res: Response) => {
         const userId = req.user?.id;
         if (!userId) {
-            return res.status(StatusCode.UNAUTHORIZED).json({ message: 'User not authenticated' });
+            this.sendError(res, 'User not authenticated', StatusCode.UNAUTHORIZED);
+            return;
         }
         const requests = await this._connectionService.getPendingRequests(userId);
-        res.status(StatusCode.OK).json(requests);
+        this.sendSuccess(res, requests, 'Pending requests fetched successfully');
     });
 
     getConnectionStatus = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -49,7 +56,8 @@ export class ConnectionController {
         const { receiverId, tripId } = req.query;
 
         if (!senderId) {
-            return res.status(StatusCode.UNAUTHORIZED).json({ message: 'User not authenticated' });
+            this.sendError(res, 'User not authenticated', StatusCode.UNAUTHORIZED);
+            return;
         }
 
         const status = await this._connectionService.getConnectionStatus(
@@ -57,6 +65,6 @@ export class ConnectionController {
             receiverId as string,
             tripId as string
         );
-        res.status(StatusCode.OK).json({ status });
+        this.sendSuccess(res, { status }, 'Connection status fetched successfully');
     });
 }

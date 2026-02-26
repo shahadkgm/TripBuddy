@@ -5,8 +5,12 @@ import { IAdminController } from '../interfaces/IadminController';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { logger } from '../../utils/logger';
 
-export class AdminController implements IAdminController {
-  constructor(private readonly _adminService: IAdminService) { }
+import { BaseController } from './base.controller';
+
+export class AdminController extends BaseController implements IAdminController {
+  constructor(private readonly _adminService: IAdminService) {
+    super();
+  }
 
   getAllUsers = asyncHandler(async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
@@ -15,7 +19,7 @@ export class AdminController implements IAdminController {
 
     const data = await this._adminService.fetchAllUsers(page, limit, search);
     logger.info(`data from admin controller:${data}`);
-    res.status(StatusCode.OK).json(data);
+    this.sendSuccess(res, data, 'Users fetched successfully');
   });
 
   handleBlockUser = asyncHandler(async (req: Request, res: Response) => {
@@ -25,7 +29,7 @@ export class AdminController implements IAdminController {
 
     const updatedUser = await this._adminService.toggleUserBlock(id, blocked, adminId);
 
-    res.status(StatusCode.OK).json(updatedUser);
+    this.sendSuccess(res, updatedUser, `User ${blocked ? 'blocked' : 'unblocked'} successfully`);
   });
 
   deleteUser = asyncHandler(async (req: Request, res: Response) => {
@@ -34,23 +38,22 @@ export class AdminController implements IAdminController {
 
     await this._adminService.removeUser(id, adminId);
 
-    res.status(StatusCode.OK).json({ message: 'User deleted successfully' });
+    this.sendSuccess(res, null, 'User deleted successfully');
   });
 
   getPendingGuides = asyncHandler(async (req: Request, res: Response) => {
     const guides = await this._adminService.fetchPendingGuides();
 
-    res.status(StatusCode.OK).json(guides);
+    this.sendSuccess(res, guides, 'Pending guides fetched successfully');
   });
 
   handleVerifyGuide = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    // console.log("id from handlevrify guide admin",id)
     logger.info(`id from handleverify guide admin${id}`);
 
     const result = await this._adminService.approveGuide(id);
 
-    res.status(StatusCode.OK).json(result);
+    this.sendSuccess(res, result, 'Guide verified successfully');
   });
 
   getAllGuides = asyncHandler(async (req: Request, res: Response) => {
@@ -60,8 +63,7 @@ export class AdminController implements IAdminController {
     const data = await this._adminService.fetchAllGuides(page, limit, search);
     logger.debug('from get all guide', data);
 
-
-    res.status(StatusCode.OK).json(data);
+    this.sendSuccess(res, data, 'Guides fetched successfully');
   });
 
   rejectGuide = asyncHandler(async (req: Request, res: Response) => {
@@ -69,14 +71,21 @@ export class AdminController implements IAdminController {
 
     await this._adminService.rejectApplication(id);
 
-    res.status(StatusCode.OK).json({
-      message: 'Guide application rejected successfully',
-    });
+    this.sendSuccess(res, null, 'Guide application rejected successfully');
+  });
+
+  handleApproveKYC = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    await this._adminService.approveKYC(id, status);
+
+    this.sendSuccess(res, null, `KYC status updated to ${status} successfully`);
   });
 
   getDashboardStats = asyncHandler(async (req: Request, res: Response) => {
     logger.info('call come from admin dashboard ,controller');
     const stats = await this._adminService.getDashboardStats();
-    res.status(StatusCode.OK).json(stats);
+    this.sendSuccess(res, stats, 'Dashboard stats fetched successfully');
   });
 }

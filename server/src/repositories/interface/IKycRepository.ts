@@ -9,4 +9,5 @@ export interface IKYCRepository {
   ): Promise<IKYC>;
 
   findLatestKYCByUserId(userId: string): Promise<IKYC | null>;
+  updateStatus(userId: string, status: string): Promise<IKYC | null>;
 }

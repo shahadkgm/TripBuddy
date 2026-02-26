@@ -13,12 +13,12 @@ export interface IExpense {
 export const expenseService = {
     async addExpense(data: { tripId: string; title: string; amount: number; paidBy: string }) {
         const response = await api.post("/api/expenses", data);
-        return response.data;
+        return response.data.data;
     },
 
     async getTripExpenses(tripId: string): Promise<IExpense[]> {
         const response = await api.get(`/api/expenses/trip/${tripId}`);
-        return response.data;
+        return response.data.data;
     },
 
     async deleteExpense(expenseId: string) {

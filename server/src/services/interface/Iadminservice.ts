@@ -28,6 +28,6 @@ export interface IAdminService {
   ): Promise<GuideListDTO>;
 
   rejectApplication(guideId: string): Promise<boolean>;
-
+  approveKYC(userId: string, status: string): Promise<boolean>;
   getDashboardStats(): Promise<DashboardStatsDTO>;
 }

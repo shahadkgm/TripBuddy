@@ -62,8 +62,8 @@ export const GuideManagement = () => {
         params: { page: currentPage, limit, search: debouncedTerm }
       });
       console.log("from g-management", data.guides);
-      setGuides(data.guides);
-      setTotalPages(data.totalPages);
+      setGuides(data.data.guides);
+      setTotalPages(data.data.totalPages);
     } catch (err) {
       toast.error("Failed to load applications");
     } finally {

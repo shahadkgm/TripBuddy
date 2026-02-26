@@ -17,8 +17,8 @@ const KYCStatusPage = () => {
         try {
           console.log("userId", userId)
           const res = await axios.get(`${API_URL}/api/kyc-status/${userId}`);
-          setKycData(res.data);
-          console.log(res.data)
+          setKycData(res.data.data);
+          console.log("KYC Data from API:", res.data.data);
         } catch (err) {
           console.error("Error fetching KYC details:", err);
         } finally {

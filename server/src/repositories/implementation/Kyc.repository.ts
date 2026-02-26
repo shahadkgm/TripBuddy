@@ -33,4 +33,12 @@ export class KycRepository implements IKYCRepository {
       .sort({ uploadedAt: -1 })
       .lean<IKYC>();
   }
+
+  async updateStatus(userId: string, status: string): Promise<IKYC | null> {
+    return KYC.findOneAndUpdate(
+      { userId },
+      { status },
+      { new: true, sort: { uploadedAt: -1 } }
+    ).lean<IKYC>();
+  }
 }

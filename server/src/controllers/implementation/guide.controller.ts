@@ -8,15 +8,20 @@ import { S3File } from '../../types/multer-s3';
 import { asyncHandler } from '../../utils/asyncHandler';
 
 
-export class GuideController {
-  constructor(private readonly _guideService: IGuideService) { }
+import { BaseController } from './base.controller';
+
+
+export class GuideController extends BaseController {
+  constructor(private readonly _guideService: IGuideService) {
+    super();
+  }
 
   registerGuide = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
     const userId = req.user?.id;
     logger.info(`from registerGuide in g-controlleruserId: ${userId}`);
 
     if (!userId) {
-      res.status(StatusCode.UNAUTHORIZED).json({ message: 'User not authenticated' });
+      this.sendError(res, 'User not authenticated', StatusCode.UNAUTHORIZED);
       return;
     }
 
@@ -26,21 +31,18 @@ export class GuideController {
       (req.file as unknown as S3File)?.location
     );
 
-    res.status(StatusCode.CREATED).json({
-      message: 'Application submitted successfully',
-      profile
-    });
+    this.sendCreated(res, profile, 'Application submitted successfully');
   });
 
   getGuideStatus = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { userId } = req.params;
     logger.info(`userId from getguidestatus ${userId}`);
     const status = await this._guideService.getStatus(userId);
-    res.status(StatusCode.OK).json(status);
+    this.sendSuccess(res, status, 'Guide status fetched successfully');
   });
 
   getAllGuides = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const guides = await this._guideService.getAllVerifiedGuides(req.query);
-    res.status(StatusCode.OK).json(guides);
+    this.sendSuccess(res, guides, 'Guides fetched successfully');
   });
 }
