@@ -52,7 +52,7 @@ const KYCStatusPage = () => {
           <div className="text-xl font-bold">{styles.label}</div>
           <p className="text-sm mt-2 opacity-80">
             {kycData?.status === 'pending' && "We are reviewing your document. This usually takes 24 hours."}
-            {kycData?.status === 'approved' && "Your account is fully verified. Enjoy all features!"}
+            {kycData?.status === 'approved' && "Congratulations! You are now a verified Guide. Please login again to access your Guide Dashboard."}
             {kycData?.status === 'rejected' && "We couldn't verify your document. Please try again."}
           </p>
         </div>
@@ -79,9 +79,18 @@ const KYCStatusPage = () => {
           </button>
         )}
 
+        {kycData?.status === 'approved' && (
+          <button
+            onClick={() => authService.logout()}
+            className="w-full mt-8 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 hover:shadow-lg transition flex items-center justify-center gap-2"
+          >
+            Go to Login
+          </button>
+        )}
+
         <button
           onClick={() => navigate('/')}
-          className="w-full mt-4 py-3 text-gray-500 text-sm font-medium"
+          className="w-full mt-4 py-3 text-gray-400 text-sm font-medium hover:text-gray-600"
         >
           Back to Home
         </button>

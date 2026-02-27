@@ -54,6 +54,25 @@ const FindTravelers = () => {
         loadTrips();
     };
 
+    const handleClearFilters = () => {
+        const defaultFilters = {
+            destination: '',
+            transport: 'Any',
+            interest: 'Any'
+        };
+        setFilters(defaultFilters);
+        setPage(1);
+        setLoading(true);
+        tripService.getAllTrips({ page: 1, limit }).then((response) => {
+            setTrips(response.trips);
+            setTotalPages(Math.ceil(response.total / limit));
+        }).catch(error => {
+            console.error("Error fetching trips:", error);
+        }).finally(() => {
+            setLoading(false);
+        });
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 p-6">
             <div className="max-w-7xl mx-auto">
@@ -72,9 +91,9 @@ const FindTravelers = () => {
                     <p className="text-slate-500 mt-2 text-lg">Connect with people heading to your next destination</p>
                 </header>
 
-                <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 mb-8 grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
-                    <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-2  items-center gap-2">
+                <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 mb-8 flex flex-col md:flex-row gap-6 items-end">
+                    <div className="flex-1 w-full">
+                        <label className="block text-sm font-semibold text-slate-700 mb-2 items-center gap-2">
                             <MapPin className="w-4 h-4 text-indigo-500" /> Destination
                         </label>
                         <input
@@ -86,7 +105,7 @@ const FindTravelers = () => {
                         />
                     </div>
 
-                    <div>
+                    <div className="flex-1 w-full">
                         <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
                             <Plane className="w-4 h-4 text-indigo-500" /> Travel Mode
                         </label>
@@ -103,7 +122,7 @@ const FindTravelers = () => {
                         </select>
                     </div>
 
-                    <div>
+                    <div className="flex-1 w-full">
                         <label className="block text-sm font-semibold text-slate-700 mb-2 items-center gap-2">
                             <Tag className="w-4 h-4 text-indigo-500" /> Interests
                         </label>
@@ -118,13 +137,21 @@ const FindTravelers = () => {
                         </select>
                     </div>
 
-                    <button
-                        onClick={handleApplyFilters}
-                        className="bg-emerald-500 text-white py-4 rounded-xl font-bold hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2"
-                    >
-                        <Search className="w-5 h-5" />
-                        Apply Filters
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                        <button
+                            onClick={handleClearFilters}
+                            className="flex-1 px-6 py-4 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
+                        >
+                            Clear
+                        </button>
+                        <button
+                            onClick={handleApplyFilters}
+                            className="flex-1 px-8 py-4 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 whitespace-nowrap"
+                        >
+                            <Search className="w-5 h-5" />
+                            Apply
+                        </button>
+                    </div>
                 </div>
 
                 {loading ? (

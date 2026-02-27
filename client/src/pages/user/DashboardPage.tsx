@@ -1,4 +1,4 @@
-//import React from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FooterCTA } from '../../components/FooterCTA';
 import {
@@ -103,6 +103,13 @@ const DASHBOARD_FEATURES = [
 
 const DashboardPage = () => {
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  useEffect(() => {
+    if (user.role === 'guide') {
+      navigate('/guide-dashboard', { replace: true });
+    }
+  }, [user.role, navigate]);
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 md:p-8">

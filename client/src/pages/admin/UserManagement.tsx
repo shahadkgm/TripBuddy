@@ -96,6 +96,9 @@ export const UserManagement = () => {
       setUsers(users.filter(u => u.id !== selectedUserId));
     } catch (error) {
       toast.error("Deletion failed");
+    } finally {
+      setIsModalOpen(false);
+      setSelectedUserId(null);
     }
   };
 
