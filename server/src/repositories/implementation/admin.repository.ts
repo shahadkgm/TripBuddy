@@ -16,11 +16,10 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
 
 
   async getAllUsers(page: number, limit: number, search: string) {
-
     page = Math.max(1, page);
     limit = Math.max(1, limit);
     const skip = (page - 1) * limit;
-    const query = search
+    const query= search
       ? {
         $or: [
           { name: { $regex: search, $options: 'i' } },
@@ -30,21 +29,42 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
       : {};
 
     const [users, totalUsers] = await Promise.all([
-      UserModel.find(query)
-        .select('-password')
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
+      UserModel.aggregate([
+        { $match: query },
+        { $sort: { createdAt: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+        {
+          $lookup: {
+            from: 'kycs',
+            let: { userIdStr: { $toString: '$_id' } },
+            pipeline: [
+              { $match: { $expr: { $eq: ['$userId', '$$userIdStr'] } } },
+              { $sort: { uploadedAt: -1 } },
+              { $limit: 1 }
+            ],
+            as: 'kycData'
+          }
+        },
+        {
+          $addFields: {
+            kyc: { $arrayElemAt: ['$kycData', 0] }
+          }
+        },
+        {
+          $project: {
+            password: 0,
+            kycData: 0
+          }
+        }
+      ]),
       UserModel.countDocuments(query)
     ]);
-    logger.debug(`users from debug${users}`);
-    logger.info('the user gett all in getall user admin ');
 
-    const formattedUsers = users as IUser[];
-    // logger.debug("from repo",f)
+    logger.info('Fetched all users with KYC data in admin repository');
+
     return {
-      users: formattedUsers,
+      users: users as IUser[],
       totalPages: Math.ceil(totalUsers / limit),
       currentPage: page,
       totalUsers
