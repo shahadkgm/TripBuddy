@@ -1,14 +1,14 @@
 import { PipelineStage } from 'mongoose';
-import GuideProfile from '../../models/guide.model';
-import { IUser } from '../../types/user.type';
-import { CreateUserDTO } from '../../dto/user.dto';
+import GuideProfile from '../../../models/guide.model';
+import { IUser } from '../../../types/user.type';
+import { CreateUserDTO } from '../../../dto/user.dto';
 import { IAdminRepository } from '../interface/IAdminRepository';
-import { UserModel } from '../../models/user.models';
-import { KYC } from '../../models/kyc.model';
-import { TripModel } from '../../models/trip.model';
-import { logger } from '../../utils/logger';
+import { UserModel } from '../../../models/user.models';
+import { KYC } from '../../../models/kyc.model';
+import { TripModel } from '../../../models/trip.model';
+import { logger } from '../../../utils/logger';
 import { BaseRepository } from './base.repository';
-import { IGuide } from '../../types/guide.type';
+import { IGuide } from '../../../types/guide.type';
 
 export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implements IAdminRepository {
 

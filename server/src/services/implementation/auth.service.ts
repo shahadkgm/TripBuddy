@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import { OAuth2Client } from 'google-auth-library';
 
 import { IAuthService } from '../interface/IAuthservice';
-import { IUserRepository } from '../../repositories/interface/IUserRepository';
+import { IUserRepository } from '../../domain/repositories/interface/IUserRepository';
 import { MailService } from './mail.service';
 import { UserMapper } from '../../utils/userMapper';
 import { RegisterUserDTO, LoginDTO } from '../../dto/auth.dto';

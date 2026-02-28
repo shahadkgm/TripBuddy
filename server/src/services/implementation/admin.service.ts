@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { IAdminRepository } from '../../repositories/interface/IAdminRepository';
+import { IAdminRepository } from '../../domain/repositories/interface/IAdminRepository';
 import { AppError } from '../../utils/AppError';
 import { StatusCode } from '../../constants/statusCode.enum';
 import { UserListDTO, DashboardStatsDTO, GuideListDTO, AdminGuideResponseDTO } from '../../dto/admin.dto';
@@ -8,7 +8,7 @@ import { toAdminGuideResponse } from '../../utils/guide.mapper';
 import { UserMapper } from '../../utils/userMapper';
 import { logger } from '../../utils/logger';
 import { IAdminService } from '../interface/Iadminservice';
-import { IKYCRepository } from '../../repositories/interface/IKycRepository';
+import { IKYCRepository } from '../../domain/repositories/interface/IKycRepository';
 
 export class AdminService implements IAdminService {
   constructor(

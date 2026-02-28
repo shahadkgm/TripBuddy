@@ -21,6 +21,8 @@ export interface AuthUser {
   email: string;
   role: "user" | "admin" | "guide";
   isBlocked?: boolean;
+  bio?: string;
+  avatarURL?: string;
 }
 
 export interface AuthTokens {

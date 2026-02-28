@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { authService } from '../../services/c.authService';
+import api from '../../utils/api';
 import { Button } from '../../components/Button';
 import toast from 'react-hot-toast';
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 const KYCPage = () => {
   const [docType, setDocType] = useState('national_id');
@@ -13,7 +11,6 @@ const KYCPage = () => {
   const [error, setError] = useState('');
   const [progress, setProgress] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [checking, setChecking] = useState(true);
   const navigate = useNavigate();
   const user = authService.getCurrentUser();
@@ -23,7 +20,7 @@ const KYCPage = () => {
       const userId = user?.id;
       if (userId) {
         try {
-          const res = await axios.get(`${API_URL}/api/kyc-status/${userId}`);
+          const res = await api.get(`/api/kyc-status/${userId}`);
           const status = res.data.data?.status;
           if (status === 'pending' || status === 'approved') {
             navigate('/kyc-status');
@@ -60,15 +57,20 @@ const KYCPage = () => {
       return;
     }
 
+    console.log("Submitting KYC:", { userId, documentType: docType, fileName: file.name });
+
     setIsSubmitting(true);
     const formData = new FormData();
-    formData.append('image', file);
     formData.append('userId', userId);
     formData.append('documentType', docType);
+    formData.append('image', file);
 
     try {
-      const response = await axios.post(`${API_URL}/api/upload`, formData, {
-        onUploadProgress: (progressEvent) => {
+      const response = await api.post(`/api/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (progressEvent: any) => {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / (progressEvent.total || 1)
           );
@@ -97,18 +99,10 @@ const KYCPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
-        {!showSuccessAlert ? (
-          <>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Verify your identity</h2>
-            <p className="text-gray-500 mb-8 text-sm">
-              Please upload a clear photo of your government-issued ID to unlock all features.
-            </p>
-          </>
-        ) : (
-          <div className="bg-green-50 text-green-700 p-4 rounded-xl mb-8 text-center animate-bounce">
-            ✅ Verification Submitted Successfully!
-          </div>
-        )}
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Verify your identity</h2>
+        <p className="text-gray-500 mb-8 text-sm">
+          Please upload a clear photo of your government-issued ID to unlock all features.
+        </p>
 
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           <div>

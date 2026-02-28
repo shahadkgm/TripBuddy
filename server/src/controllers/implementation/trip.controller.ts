@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { StatusCode } from '../../constants/statusCode.enum';
 import { ITripService } from '../../services/interface/ITripService';
 import { CreateTripDTO } from '../../dto/trip.dto';
 import { asyncHandler } from '../../utils/asyncHandler';

@@ -1,6 +1,6 @@
 import { ITripDocument, ITripFilters } from '../../types/trip.type';
 import { CreateTripDTO } from '../../dto/trip.dto';
-import { ITripRepository } from '../../repositories/interface/ITripRepository';
+import { ITripRepository } from '../../domain/repositories/interface/ITripRepository';
 import { ITripService } from '../interface/ITripService';
 import { logger } from '@/utils/logger';
 

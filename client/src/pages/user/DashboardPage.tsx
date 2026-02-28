@@ -4,7 +4,7 @@ import { FooterCTA } from '../../components/FooterCTA';
 import {
   Calendar, Users, MessageSquare, Wallet,
   Users2, Image, MapPin, LifeBuoy, CloudSun,
-  UserCircle, Search, UserCheck, X
+  Search, UserCheck, X
 } from 'lucide-react';
 
 const DASHBOARD_FEATURES = [
@@ -22,13 +22,13 @@ const DASHBOARD_FEATURES = [
     color: "bg-blue-50",
     path: "/find-travelers"
   },
-  {
-    title: "Connection Requests",
-    desc: "Manage people who want to travel with you.",
-    icon: <UserCheck className="w-5 h-5 text-emerald-600" />,
-    color: "bg-emerald-50",
-    path: "/connection-requests"
-  },
+  // {
+  //   title: "Connection Requests",
+  //   desc: "Manage people who want to travel with you.",
+  //   icon: <UserCheck className="w-5 h-5 text-emerald-600" />,
+  //   color: "bg-emerald-50",
+  //   path: "/connection-requests"
+  // },
   {
     title: "Chat with Travelers",
     desc: "Coordinate plans instantly with messaging.",
@@ -79,19 +79,13 @@ const DASHBOARD_FEATURES = [
     path: "/support"
   },
   {
-    title: "Profile",
-    desc: "View and edit your profile",
-    icon: <UserCircle className="w-5 h-5 text-violet-600" />,
-    color: "bg-violet-50",
-    path: "/profile"
-  },
-  {
     title: "Find Local Experts",
     desc: "Connect with local guides",
     icon: <Search className="w-5 h-5 text-amber-600" />,
     color: "bg-amber-50",
     path: "/dashboard"
   },
+
   {
     title: "Join as a guide",
     desc: "Start earning by guiding",

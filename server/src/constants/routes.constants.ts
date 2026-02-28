@@ -17,6 +17,7 @@ export const API_ROUTES = {
         GET_ALL: '/',
         FORGOT_PASSWORD: '/forgot-password',
         RESET_PASSWORD: '/reset-password/:token',
+        EDIT_PROFILE: '/edit-profile/:id'
     },
 
     ADMIN: {
@@ -34,6 +35,7 @@ export const API_ROUTES = {
     UPLOAD: {
         BASE: '/api',
         FILE_UPLOAD: '/upload',
+        PROFILE_PHOTO: '/profile-photo',
         KYC_STATUS: '/kyc-status/:userId',
     },
 

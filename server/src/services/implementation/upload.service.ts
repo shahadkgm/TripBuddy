@@ -1,6 +1,6 @@
 // server/src/services/implementation/upload.service.ts
 import { IUploadService } from '../interface/IUploadService';
-import { IKYCRepository } from '../../repositories/interface/IKycRepository';
+import { IKYCRepository } from '../../domain/repositories/interface/IKycRepository';
 import { KYCStatusResponseDTO } from '../../dto/kyc.dto';
 import { IKYC } from '../../types/kyc.type';
 import { logger } from '@/utils/logger';

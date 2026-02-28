@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { TripRepository } from '../repositories/implementation/trip.repository';
+import { TripRepository } from '../domain/repositories/implementation/trip.repository';
 import { TripService } from '../services/implementation/trip.service';
 import { TripController } from '../controllers/implementation/trip.controller';
 import { dtoValidationMiddleware } from '../middleware/dtoValidation';

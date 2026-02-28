@@ -2,10 +2,10 @@
 import { Router } from 'express';
 import { upload } from '../middleware/upload.middleware';
 import { GuideService } from '../services/implementation/guide.service';
-import { GuideRepository } from '../repositories/implementation/guide.repository';
+import { GuideRepository } from '../domain/repositories/implementation/guide.repository';
 import { GuideController } from '../controllers/implementation/guide.controller';
 
-import { UserRepository } from '../repositories/implementation/user.repository';
+import { UserRepository } from '../domain/repositories/implementation/user.repository';
 import { dtoValidationMiddleware } from '../middleware/dtoValidation';
 import { GuideRegisterDTO } from '../dto/guide.dto';
 import { protect } from '../middleware/authMiddleware';

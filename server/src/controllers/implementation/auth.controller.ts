@@ -36,9 +36,9 @@ export class AuthController extends BaseController implements IAuthController {
 
     res.cookie('refreshToken', result.tokens?.refreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'none',
-      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE)
     });
 
     this.sendSuccess(res, {
@@ -59,8 +59,8 @@ export class AuthController extends BaseController implements IAuthController {
     res.cookie('refreshToken', result.tokens?.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000,
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE) 
     });
 
     this.sendSuccess(res, {

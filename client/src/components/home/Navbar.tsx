@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/c.authService";
-import axios from "axios";
+import api from "../../utils/api";
+import { User } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL;
 
 export const Navbar = () => {
+
   const navigate = useNavigate();
   const user = authService.getCurrentUser();
   const [kycStatus, setKycStatus] = useState<string>('loading');
@@ -17,7 +18,7 @@ export const Navbar = () => {
       const userId = user?.id;
       if (userId) {
         try {
-          const res = await axios.get(`${API_URL}/api/kyc-status/${userId}`);
+          const res = await api.get(`/api/kyc-status/${userId}`);
           if (isMounted) {
             setKycStatus(res.data.data?.status || 'none');
           }
@@ -76,13 +77,22 @@ export const Navbar = () => {
               </>
             )}
 
-            <span className="text-gray-600 text-sm font-medium">
-              Welcome, <span className="text-[#5537ee]">{user.name}</span>
-            </span>
+            <div
+              onClick={() => navigate("/profile")}
+              className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-3 py-2 rounded-xl transition group"
+            >
+              <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-100 transition">
+                <User className="w-4 h-4" />
+              </div>
+              <span className="text-gray-600 text-sm font-medium">
+                Welcome, <span className="text-indigo-600 font-bold">{user.name}</span>
+              </span>
+            </div>
 
-            <button onClick={handleLogout} className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-red-600 transition">
+            <button onClick={handleLogout} className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1">
               Logout
             </button>
+
           </div>
         ) : (
           <div className="flex gap-4">

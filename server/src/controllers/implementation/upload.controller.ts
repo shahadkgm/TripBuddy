@@ -48,4 +48,15 @@ export class UploadController extends BaseController {
 
     this.sendSuccess(res, kyc, 'KYC status fetched successfully');
   });
+
+  handleProfilePhotoUpload = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    if (!req.file) {
+      this.sendBadRequest(res, 'No file uploaded');
+      return;
+    }
+    // multer-s3 adds 'location' to req.file, we cast it to access it safely
+    const s3File = req.file as Express.Multer.File & { location: string };
+    const imageUrl = s3File.location;
+    this.sendCreated(res, { imageUrl }, 'Profile photo uploaded successfully');
+  });
 }

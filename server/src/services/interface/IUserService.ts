@@ -7,4 +7,5 @@ export interface IUserService {
   getAllUsers(): Promise<IUser[]>;
   forgotPassword(email: string): Promise<{ message: string }>;
   resetPassword(token: string, newPassword: string): Promise<{ message: string }>;
+  updateUser(userId: string, updateData: Partial<IUser>): Promise<IUser>;
 }

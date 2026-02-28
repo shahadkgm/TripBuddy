@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import { authService } from '../../services/c.authService';
 
 const KYCStatusPage = () => {
@@ -8,7 +8,6 @@ const KYCStatusPage = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const user = authService.getCurrentUser();
-  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchKYCDetails = async () => {
@@ -16,7 +15,7 @@ const KYCStatusPage = () => {
       if (userId) {
         try {
           console.log("userId", userId)
-          const res = await axios.get(`${API_URL}/api/kyc-status/${userId}`);
+          const res = await api.get(`/api/kyc-status/${userId}`);
           setKycData(res.data.data);
           console.log("KYC Data from API:", res.data.data);
         } catch (err) {
@@ -78,7 +77,7 @@ const KYCStatusPage = () => {
             Try Again
           </button>
         )}
-
+{/* 
         {kycData?.status === 'approved' && (
           <button
             onClick={() => authService.logout()}
@@ -86,7 +85,7 @@ const KYCStatusPage = () => {
           >
             Go to Login
           </button>
-        )}
+        )} */}
 
         <button
           onClick={() => navigate('/')}

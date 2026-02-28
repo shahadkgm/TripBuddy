@@ -35,9 +35,13 @@ api.interceptors.response.use(
 
   async (error) => {
     const originalRequest = error.config;
+    const isAuthRoute =
+      originalRequest.url?.includes('/auth/login') ||
+      originalRequest.url?.includes('/auth/register') ||
+      originalRequest.url?.includes('/auth/refresh');
 
-    //  access expired --> try refresh
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    //  access expired --> try refresh (but NOT for login/register/refresh)
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthRoute) {
       originalRequest._retry = true;
 
       try {
@@ -52,9 +56,7 @@ api.interceptors.response.use(
         authService.setToken(newAccessToken);
 
         // Ensure headers exist and attach the new token
-        // if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        // }
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
         return api(originalRequest);
       } catch (refreshError) {

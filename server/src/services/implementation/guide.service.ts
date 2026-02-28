@@ -1,7 +1,7 @@
 import { CreateGuideDTO, GuideQueryDTO, GuideRegisterDTO, GuideResponseDTO } from '../../dto/guide.dto';
 import { IGuide } from '../../types/guide.type';
-import { IGuideRepository } from '../../repositories/interface/IGuideRepository';
-import { IUserRepository } from '../../repositories/interface/IUserRepository';
+import { IGuideRepository } from '../../domain/repositories/interface/IGuideRepository';
+import { IUserRepository } from '../../domain/repositories/interface/IUserRepository';
 import { toGuideResponse } from '../../utils/guide.mapper';
 import { logger } from '../../utils/logger';
 import { IGuideService } from '../interface/IGuideService';

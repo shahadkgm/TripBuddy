@@ -1,6 +1,6 @@
-import { IUser } from '../../types/user.type';
+import { IUser } from '../../../types/user.type';
 import { IBaseRepository } from './IBaseRepository';
-import { CreateUserDTO, GoogleUserDTO } from '../../dto/user.dto';
+import { CreateUserDTO, GoogleUserDTO } from '../../../dto/user.dto';
 
 export interface IUserRepository extends IBaseRepository<IUser, CreateUserDTO> {
 

@@ -1,11 +1,11 @@
 
 import { IUserRepository } from '../interface/IUserRepository';
-import { IUser } from '../../types/user.type';
+import { IUser } from '../../../types/user.type';
 import bcrypt from 'bcryptjs';
-import { UserModel } from '../../models/user.models';
+import { UserModel } from '../../../models/user.models';
 import { BaseRepository } from './base.repository';
 import { UpdateQuery } from 'mongoose';
-import { CreateUserDTO, GoogleUserDTO } from '../../dto/user.dto';
+import { CreateUserDTO, GoogleUserDTO } from '../../../dto/user.dto';
 
 export class UserRepository extends BaseRepository<IUser, CreateUserDTO> implements IUserRepository {
 
