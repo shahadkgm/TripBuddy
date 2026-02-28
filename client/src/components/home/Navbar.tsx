@@ -81,8 +81,12 @@ export const Navbar = () => {
               onClick={() => navigate("/profile")}
               className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-3 py-2 rounded-xl transition group"
             >
-              <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-100 transition">
-                <User className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-100 transition overflow-hidden">
+                {user.avatarURL ? (
+                  <img src={user.avatarURL} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-4 h-4" />
+                )}
               </div>
               <span className="text-gray-600 text-sm font-medium">
                 Welcome, <span className="text-indigo-600 font-bold">{user.name}</span>
