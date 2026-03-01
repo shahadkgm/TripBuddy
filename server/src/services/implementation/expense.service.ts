@@ -1,4 +1,4 @@
-import { IExpenseRepository } from '../../domain/repositories/interface/IExpenseRepository';
+import { IExpenseRepository } from '../../repositories/interface/IExpenseRepository';
 import { IExpenseService } from '../interface/IExpenseService';
 import { IExpenseDocument } from '../../types/expense.type';
 import { CreateExpenseDTO } from '../../dto/expense.dto';

@@ -1,6 +1,6 @@
 import { S3File } from '@/types/multer-s3';
-import { KYC } from '../../../models/kyc.model';
-import { IKYC } from '../../../types/kyc.type';
+import { KYC } from '../../models/kyc.model';
+import { IKYC } from '../../types/kyc.type';
 import { IKYCRepository } from '../interface/IKycRepository';
 
 

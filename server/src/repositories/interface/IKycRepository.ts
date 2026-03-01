@@ -1,5 +1,5 @@
 import { Express } from 'express';
-import { IKYC } from '../../../types/kyc.type';
+import { IKYC } from '../../types/kyc.type';
 
 export interface IKYCRepository {
   createKYC(

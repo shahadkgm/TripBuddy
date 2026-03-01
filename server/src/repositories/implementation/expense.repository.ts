@@ -1,8 +1,8 @@
-import { ExpenseModel } from '../../../models/expense.model';
-import { IExpenseDocument } from '../../../types/expense.type';
+import { ExpenseModel } from '../../models/expense.model';
+import { IExpenseDocument } from '../../types/expense.type';
 import { BaseRepository } from './base.repository';
 import { IExpenseRepository } from '../interface/IExpenseRepository';
-import { CreateExpenseDTO } from '../../../dto/expense.dto';
+import { CreateExpenseDTO } from '../../dto/expense.dto';
 
 export class ExpenseRepository extends BaseRepository<IExpenseDocument, CreateExpenseDTO> implements IExpenseRepository {
     constructor() {

@@ -91,6 +91,14 @@ const ProfilePage = () => {
             <main className="grow py-12 px-4">
                 <div className="max-w-7xl mx-auto">
 
+                    <button
+                        onClick={() => navigate('/')}
+                        className="group flex items-center gap-2 px-4 py-2 bg-white text-slate-500 hover:text-indigo-600 rounded-full font-bold text-sm shadow-sm border border-slate-100 transition-all hover:-translate-x-1 mb-6"
+                    >
+                        <ArrowLeft size={16} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                        Back to Home
+                    </button>
+
                     {/* 1. Identity Section (The Blob Style) */}
                     <section className="relative py-12 bg-[#f0f9ff] mb-10 rounded-[2rem_0_2rem_0] overflow-hidden border border-blue-100 shadow-sm">
                         {/* Decorative Circles from Home Page */}
@@ -239,20 +247,31 @@ const ProfilePage = () => {
                             ) : trips.length > 0 ? (
                                 <div className="grid gap-4 sm:grid-cols-2">
                                     {trips.map((trip) => (
-                                        <div key={trip._id} onClick={() => navigate(`/trip/${trip._id}`)} className="flex items-center justify-between p-5 bg-slate-50 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:bg-white hover:shadow-md transition-all cursor-pointer group">
+                                        <div key={trip._id} onClick={() => navigate(`/trip/${trip._id}`)} className="flex items-center justify-between p-5 bg-slate-50 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:bg-white hover:shadow-md transition-all cursor-pointer group relative">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
                                                     <MapPin size={22} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <h4 className="font-bold text-slate-800 text-sm truncate">{trip.title}</h4>
+                                                    <h4 className="font-bold text-slate-800 text-sm truncate pr-8">{trip.title}</h4>
                                                     <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest truncate">{trip.destination}</p>
                                                 </div>
                                             </div>
-                                            <div className="shrink-0">
+
+                                            <div className="flex flex-col items-end gap-2">
                                                 <span className={`text-[9px] font-black uppercase tracking-tight px-1.5 py-0.5 rounded ${trip.status === 'completed' ? 'bg-green-100 text-green-600' : 'bg-indigo-100 text-indigo-600'}`}>
                                                     {trip.status}
                                                 </span>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        navigate(`/edit-trip/${trip._id}`);
+                                                    }}
+                                                    className="p-2 bg-white text-slate-400 hover:text-indigo-600 rounded-lg shadow-sm border border-slate-100 transition-colors opacity-0 group-hover:opacity-100"
+                                                    title="Edit Trip"
+                                                >
+                                                    <Edit3 size={14} />
+                                                </button>
                                             </div>
                                         </div>
                                     ))}

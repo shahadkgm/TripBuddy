@@ -1,7 +1,7 @@
 import express from 'express';
-import { AdminRepository } from '../domain/repositories/implementation/admin.repository';
+import { AdminRepository } from '../repositories/implementation/admin.repository';
 import { AdminService } from '../services/implementation/admin.service';
-import { KycRepository } from '../domain/repositories/implementation/Kyc.repository';
+import { KycRepository } from '../repositories/implementation/Kyc.repository';
 import { AdminController } from '../controllers/implementation/admin.controller';
 import { isAdmin, protect } from '../middleware/authMiddleware';
 import { API_ROUTES } from '../constants/routes.constants';

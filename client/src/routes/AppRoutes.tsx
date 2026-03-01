@@ -45,6 +45,7 @@ export default function AppRoutes() {
         <Route path="/kyc-verification" element={<KYCPage />} />
         <Route path="/join-guide" element={<GuideRegistrationPage />} />
         <Route path="/create-trip" element={<CreateTripPage />} />
+        <Route path="/edit-trip/:id" element={<CreateTripPage />} />
         <Route path="/find-travelers" element={<FindTravelers />} />
         <Route path="/connection-requests" element={<ConnectionRequestsPage />} />
         <Route path="/expenses" element={<ExpenseSplitPage />} />

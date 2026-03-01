@@ -1,6 +1,6 @@
 // src/routes/user.routes.ts
 import { Router } from 'express';
-import { UserRepository } from '../domain/repositories/implementation/user.repository';
+import { UserRepository } from '../repositories/implementation/user.repository';
 import { UserService } from '../services/implementation/user.service';
 import { UserController } from '../controllers/implementation/user.controller';
 import { MailService } from '../services/implementation/mail.service';

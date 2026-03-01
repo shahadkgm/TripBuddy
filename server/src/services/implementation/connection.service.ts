@@ -1,4 +1,4 @@
-import { IConnectionRepository } from '../../domain/repositories/interface/IConnectionRepository';
+import { IConnectionRepository } from '../../repositories/interface/IConnectionRepository';
 import { IConnectionService } from '../interface/IConnectionService';
 import { IConnectionDocument } from '../../types/connection.type';
 import { logger } from '@/utils/logger';

@@ -2,7 +2,7 @@
 import { Router } from 'express';
 import { AuthController } from '../controllers/implementation/auth.controller';
 import { AuthService } from '../services/implementation/auth.service';
-import { UserRepository } from '../domain/repositories/implementation/user.repository';
+import { UserRepository } from '../repositories/implementation/user.repository';
 import { MailService } from '../services/implementation/mail.service';
 import { dtoValidationMiddleware } from '../middleware/dtoValidation';
 import { RegisterUserDTO, LoginDTO } from '../dto/auth.dto';

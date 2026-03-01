@@ -1,5 +1,5 @@
-import { CreateGuideDTO } from '../../../dto/guide.dto';
-import { IGuide } from '../../../types/guide.type';
+import { CreateGuideDTO } from '../../dto/guide.dto';
+import { IGuide } from '../../types/guide.type';
 
 import { IBaseRepository } from './IBaseRepository';
 

@@ -1,4 +1,4 @@
-import { IUserRepository } from '../../domain/repositories/interface/IUserRepository';
+import { IUserRepository } from '../../repositories/interface/IUserRepository';
 import { IUserService } from '../interface/IUserService';
 import { IMailService } from '../interface/IMailService';
 import { RegisterUserDTO } from '../../dto/auth.dto';

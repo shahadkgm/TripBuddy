@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { TripRepository } from '../domain/repositories/implementation/trip.repository';
+import { TripRepository } from '../repositories/implementation/trip.repository';
 import { TripService } from '../services/implementation/trip.service';
 import { TripController } from '../controllers/implementation/trip.controller';
 import { dtoValidationMiddleware } from '../middleware/dtoValidation';
@@ -39,6 +39,12 @@ router.get(
 router.get(
     API_ROUTES.TRIP.GET_BY_ID,
     tripController.getTripById
+);
+
+router.patch(
+    API_ROUTES.TRIP.GET_BY_ID,
+    upload.none(),
+    tripController.updateTrip
 );
 
 export default router;

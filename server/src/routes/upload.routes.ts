@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { upload } from '../middleware/upload.middleware';
 import { UploadController } from '../controllers/implementation/upload.controller';
 import { UploadService } from '../services/implementation/upload.service';
-import { KycRepository } from '../domain/repositories/implementation/Kyc.repository';
+import { KycRepository } from '../repositories/implementation/Kyc.repository';
 import { API_ROUTES } from '../constants/routes.constants';
 
 import { protect } from '../middleware/authMiddleware';

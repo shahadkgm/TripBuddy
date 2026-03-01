@@ -6,4 +6,5 @@ export interface ITripService {
     getUserTrips(userId: string): Promise<ITripDocument[]>;
     getTripById(tripId: string): Promise<ITripDocument | null>;
     getAllTrips(filters: ITripFilters, page: number, limit: number): Promise<{ trips: ITripDocument[], total: number }>;
+    updateTrip(id: string, data: Partial<CreateTripDTO>): Promise<ITripDocument | null>;
 }

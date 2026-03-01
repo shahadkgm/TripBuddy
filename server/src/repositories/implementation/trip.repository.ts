@@ -1,6 +1,6 @@
-import { ITripDocument, ITripFilters } from '../../../types/trip.type';
-import { TripModel } from '../../../models/trip.model';
-import { CreateTripDTO } from '../../../dto/trip.dto';
+import { ITripDocument, ITripFilters } from '../../types/trip.type';
+import { TripModel } from '../../models/trip.model';
+import { CreateTripDTO } from '../../dto/trip.dto';
 import { BaseRepository } from './base.repository';
 import { ITripRepository } from '../interface/ITripRepository';
 import { FilterQuery } from 'mongoose';

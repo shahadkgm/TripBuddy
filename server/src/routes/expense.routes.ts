@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { ExpenseRepository } from '../domain/repositories/implementation/expense.repository';
+import { ExpenseRepository } from '../repositories/implementation/expense.repository';
 import { ExpenseService } from '../services/implementation/expense.service';
 import { ExpenseController } from '../controllers/implementation/expense.controller';
 import { protect } from '../middleware/authMiddleware';

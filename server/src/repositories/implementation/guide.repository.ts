@@ -1,9 +1,9 @@
 import { FilterQuery } from 'mongoose';
-import { CreateGuideDTO } from '../../../dto/guide.dto';
-import guideModel from '../../../models/guide.model';
+import { CreateGuideDTO } from '../../dto/guide.dto';
+import guideModel from '../../models/guide.model';
 import { BaseRepository } from './base.repository';
 import { IGuideRepository } from '../interface/IGuideRepository';
-import { IGuide } from '../../../types/guide.type';
+import { IGuide } from '../../types/guide.type';
 
 export class GuideRepository extends BaseRepository<IGuide, CreateGuideDTO> implements IGuideRepository {
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { ConnectionRepository } from '../domain/repositories/implementation/connection.repository';
+import { ConnectionRepository } from '../repositories/implementation/connection.repository';
 import { ConnectionService } from '../services/implementation/connection.service';
 import { ConnectionController } from '../controllers/implementation/connection.controller';
 import { protect } from '../middleware/authMiddleware';

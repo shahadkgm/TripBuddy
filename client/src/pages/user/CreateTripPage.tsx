@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
     MapPin, Calendar, User, DollarSign,
-    Briefcase, Hotel, Plane, CheckCircle, FileText, X
+    Briefcase, Hotel, Plane, CheckCircle, FileText, X, Loader2
 } from 'lucide-react';
 import api from '../../utils/api';
 import { authService } from '../../services/c.authService';
+import { tripService } from '../../services/trip.service';
 
 const INTERESTS = [
     "Beaches", "Adventure Sports", "Shopping", "City Tours",
@@ -15,6 +16,8 @@ const INTERESTS = [
 
 const CreateTripPage = () => {
     const navigate = useNavigate();
+    const { id } = useParams();
+    const isEditing = !!id;
     const user = authService.getCurrentUser();
 
     const [formData, setFormData] = useState({
@@ -30,9 +33,40 @@ const CreateTripPage = () => {
         interests: [] as string[],
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoadingData, setIsLoadingData] = useState(isEditing);
     const [showSuccess, setShowSuccess] = useState(false);
     // Error state 
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        if (isEditing && id) {
+            const fetchTrip = async () => {
+                try {
+                    setIsLoadingData(true);
+                    const trip = await tripService.getTripById(id);
+                    setFormData({
+                        title: trip.title,
+                        destination: trip.destination,
+                        travelers: trip.preferences?.travelers || 1,
+                        startDate: new Date(trip.startDate).toISOString().split('T')[0],
+                        endDate: new Date(trip.endDate).toISOString().split('T')[0],
+                        accommodation: trip.preferences?.accommodation || 'hotel',
+                        budget: String(trip.budget || ''),
+                        transport: trip.preferences?.transport || 'flight',
+                        notes: trip.description || '',
+                        interests: trip.preferences?.interests || [],
+                    });
+                } catch (error) {
+                    console.error("Failed to fetch trip", error);
+                    toast.error("Failed to load trip details");
+                    navigate('/profile');
+                } finally {
+                    setIsLoadingData(false);
+                }
+            };
+            fetchTrip();
+        }
+    }, [id, isEditing, navigate]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -60,7 +94,7 @@ const CreateTripPage = () => {
         if (!formData.destination) newErrors.destination = "Destination is required";
 
         if (!start) newErrors.startDate = "Start date is required";
-        else if (start < today) newErrors.startDate = "Start date cannot be in the past";
+        else if (!isEditing && start < today) newErrors.startDate = "Start date cannot be in the past";
 
         if (!end) newErrors.endDate = "End date is required";
         else if (start && end < start) newErrors.endDate = "End date cannot be before start date";
@@ -92,28 +126,13 @@ const CreateTripPage = () => {
 
         setIsSubmitting(true);
         try {
-            const data = new FormData();
-            data.append('userId', userId);
-            data.append('title', formData.title);
-            data.append('destination', formData.destination);
-            data.append('startDate', formData.startDate);
-            data.append('endDate', formData.endDate);
-            data.append('budget', formData.budget);
-            data.append('description', formData.notes);
-            data.append('preferences', JSON.stringify({
-                travelers: Number(formData.travelers),
-                accommodation: formData.accommodation,
-                transport: formData.transport,
-                interests: formData.interests
-            }));
-
-            const response = await api.post('/api/plantrips', {
+            const body: any = {
                 userId,
                 title: formData.title,
                 destination: formData.destination,
                 startDate: formData.startDate,
                 endDate: formData.endDate,
-                budget: formData.budget,
+                budget: Number(formData.budget),
                 description: formData.notes,
                 preferences: {
                     travelers: Number(formData.travelers),
@@ -121,22 +140,40 @@ const CreateTripPage = () => {
                     transport: formData.transport,
                     interests: formData.interests
                 }
-            });
+            };
 
-            if (response.status === 201) {
-                setShowSuccess(true);
-                setTimeout(() => {
-                    navigate('/dashboard');
-                }, 2000);
+            if (isEditing && id) {
+                await tripService.updateTrip(id, body);
+                toast.success("Trip updated successfully!");
+                navigate('/profile');
+            } else {
+                const response = await api.post('/api/plantrips', body);
+                if (response.status === 201) {
+                    setShowSuccess(true);
+                    setTimeout(() => {
+                        navigate('/profile');
+                    }, 2000);
+                }
             }
         } catch (error: any) {
-            console.error("Failed to create trip full error:", error.response?.data || error);
-            const message = error.response?.data?.message || "Failed to create trip. Please try again.";
+            console.error("Failed to process trip:", error.response?.data || error);
+            const message = error.response?.data?.message || `Failed to ${isEditing ? 'update' : 'create'} trip. Please try again.`;
             toast.error(message);
         } finally {
             setIsSubmitting(false);
         }
     };
+
+    if (isLoadingData) {
+        return (
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+                    <p className="text-slate-500 font-bold animate-pulse">Loading Trip Details...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -147,7 +184,7 @@ const CreateTripPage = () => {
                         <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
                             <CheckCircle className="w-12 h-12" />
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Trip Created!</h2>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Trip {isEditing ? 'Updated' : 'Created'}!</h2>
                         <p className="text-gray-500">Your adventure to {formData.destination} has been saved successfully.</p>
                     </div>
                 </div>
@@ -155,17 +192,21 @@ const CreateTripPage = () => {
 
             <div className="max-w-4xl mx-auto bg-white rounded-4xl shadow-xl overflow-hidden relative border border-slate-100">
                 <button
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => navigate('/profile')}
                     type="button"
-                    className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
+                    className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full z-10"
                 >
                     <X className="w-6 h-6" />
                 </button>
 
                 <div className="py-10 px-8 md:px-12">
                     <div className="mb-10 text-center">
-                        <h1 className="text-4xl font-extrabold text-indigo-700 mb-3 tracking-tight">Plan Your New Adventure</h1>
-                        <p className="text-slate-500 text-lg max-w-xl mx-auto">Fill out the details to create your itinerary.</p>
+                        <h1 className="text-4xl font-extrabold text-indigo-700 mb-3 tracking-tight">
+                            {isEditing ? 'Modify Your Adventure' : 'Plan Your New Adventure'}
+                        </h1>
+                        <p className="text-slate-500 text-lg max-w-xl mx-auto">
+                            {isEditing ? 'Update the details of your upcoming journey.' : 'Fill out the details to create your itinerary.'}
+                        </p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-10">

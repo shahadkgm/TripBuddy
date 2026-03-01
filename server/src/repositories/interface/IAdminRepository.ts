@@ -1,7 +1,7 @@
 // backend/src/repositories/interfaces/IAdminRepository.ts
 
-import { IGuide } from '../../../types/guide.type';
-import { IUser } from '../../../types/user.type';
+import { IGuide } from '../../types/guide.type';
+import { IUser } from '../../types/user.type';
 
 export interface IAdminRepository {
   // users
