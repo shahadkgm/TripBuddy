@@ -19,6 +19,7 @@ import ExpenseSplitPage from "../pages/user/ExpenseSplitPage";
 import WeatherPage from "../pages/user/WeatherPage";
 
 import ProfilePage from "../pages/user/ProfilePage";
+import GalleryPage from "../pages/user/GalleryPage";
 
 import { AdminDashboard } from "../pages/admin/AdminDashboard";
 import { UserManagement } from "../pages/admin/UserManagement";
@@ -50,6 +51,7 @@ export default function AppRoutes() {
         <Route path="/connection-requests" element={<ConnectionRequestsPage />} />
         <Route path="/expenses" element={<ExpenseSplitPage />} />
         <Route path="/weather" element={<WeatherPage />} />
+        <Route path="/gallery" element={<GalleryPage />} />
       </Route>
 
 

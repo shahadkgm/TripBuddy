@@ -14,6 +14,7 @@ import adminRoutes from './routes/admin.routes';
 import tripRoutes from './routes/trip.routes';
 import connectionRoutes from './routes/connection.routes';
 import expenseRoutes from './routes/expense.routes';
+import galleryRoutes from './routes/gallery.routes';
 
 
 import { connectDB } from './config/db';
@@ -48,6 +49,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/plantrips', tripRoutes);
 app.use('/api/connections', connectionRoutes);
 app.use('/api/expenses', expenseRoutes);
+app.use('/api/gallery', galleryRoutes);
 
 // --- Error Handler (MUST BE LAST) ---
 app.use(errorMiddleware);

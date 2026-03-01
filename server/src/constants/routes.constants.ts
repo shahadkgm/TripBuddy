@@ -69,4 +69,11 @@ export const API_ROUTES = {
         GET_BY_TRIP: '/trip/:tripId',
         DELETE: '/:expenseId',
     },
+
+    GALLERY: {
+        BASE: '/api/gallery',
+        UPLOAD: '/upload',
+        CREATE: '/post',
+        GET_ALL: '/all'
+    }
 };
