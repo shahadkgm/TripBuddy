@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FooterCTA } from '../../components/FooterCTA';
 import {
   Calendar, Users, MessageSquare, Wallet,
-  Users2, Image, MapPin, LifeBuoy, CloudSun,
+  Users2, Image, MapPin, LifeBuoy,
   Search, UserCheck, X
 } from 'lucide-react';
 
@@ -63,13 +63,6 @@ const DASHBOARD_FEATURES = [
     icon: <MapPin className="w-5 h-5 text-orange-600" />,
     color: "bg-orange-50",
     path: "/nearby"
-  },
-  {
-    title: "Weather Forecast",
-    desc: "Check the forecast for your next destination.",
-    icon: <CloudSun className="w-5 h-5 text-indigo-600" />,
-    color: "bg-indigo-50",
-    path: "/weather"
   },
   {
     title: "Travel Assistance",
