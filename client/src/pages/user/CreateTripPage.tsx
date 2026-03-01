@@ -3,8 +3,9 @@ import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
     MapPin, Calendar, User, DollarSign,
-    Briefcase, Hotel, Plane, CheckCircle, FileText, X, Loader2
+    Briefcase, Hotel, Plane, CheckCircle, FileText, X, Loader2, CloudSun
 } from 'lucide-react';
+
 import api from '../../utils/api';
 import { authService } from '../../services/c.authService';
 import { tripService } from '../../services/trip.service';
@@ -229,7 +230,17 @@ const CreateTripPage = () => {
                                     {errors.title && <span className="text-red-500 text-xs mt-1 font-medium">{errors.title}</span>}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Destination</label>
+                                    <div className="flex justify-between items-baseline mb-2">
+                                        <label className="block text-sm font-semibold text-slate-700">Destination</label>
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/weather')}
+                                            className="group flex items-center gap-1.5 px-3 py-1 bg-white text-slate-500 rounded-lg text-[10px] font-bold border border-slate-200 shadow-sm transition-all hover:bg-slate-50 hover:text-indigo-600 active:scale-95"
+                                        >
+                                            <CloudSun size={12} className="text-indigo-500 group-hover:rotate-12 transition-transform" />
+                                            want to know about weather click here
+                                        </button>
+                                    </div>
                                     <div className="relative">
                                         <MapPin className="absolute left-4 top-4 w-5 h-5 text-slate-400" />
                                         <input
