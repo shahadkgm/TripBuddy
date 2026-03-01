@@ -152,7 +152,7 @@ const CreateTripPage = () => {
                 if (response.status === 201) {
                     setShowSuccess(true);
                     setTimeout(() => {
-                        navigate('/profile');
+                        navigate('/dashboard');
                     }, 2000);
                 }
             }
@@ -193,7 +193,7 @@ const CreateTripPage = () => {
 
             <div className="max-w-4xl mx-auto bg-white rounded-4xl shadow-xl overflow-hidden relative border border-slate-100">
                 <button
-                    onClick={() => navigate('/profile')}
+                    onClick={() => navigate(isEditing ? '/profile' : '/dashboard')}
                     type="button"
                     className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full z-10"
                 >
@@ -385,7 +385,7 @@ const CreateTripPage = () => {
                         <div className="flex flex-col-reverse md:flex-row items-center justify-end gap-4 pt-8 border-t border-slate-100">
                             <button
                                 type="button"
-                                onClick={() => navigate('/dashboard')}
+                                onClick={() => navigate(isEditing ? '/profile' : '/dashboard')}
                                 className="w-full md:w-auto px-10 py-4 text-slate-500 font-bold rounded-2xl hover:bg-slate-100 transition-all"
                             >
                                 Cancel
