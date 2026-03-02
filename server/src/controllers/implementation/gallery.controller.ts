@@ -45,4 +45,23 @@ export class GalleryController extends BaseController {
         const posts = await this.galleryService.getAllPosts();
         this.sendSuccess(res, posts);
     });
+
+    getUserGallery = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const targetUserId = req.params.userId;
+        const currentUserId = req.user?.id;
+
+        if (!currentUserId) {
+            return this.sendUnauthorized(res, "Authentication required");
+        }
+
+        try {
+            const posts = await this.galleryService.getUserGallery(targetUserId, currentUserId);
+            this.sendSuccess(res, posts);
+        } catch (error: unknown) {
+            if (error instanceof Error && error.message.includes('Unauthorized')) {
+                return this.sendForbidden(res, error.message);
+            }
+            throw error;
+        }
+    });
 }

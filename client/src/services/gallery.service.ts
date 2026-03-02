@@ -32,5 +32,9 @@ export const galleryService = {
     async getAllPosts() {
         const response = await api.get('/api/gallery/all');
         return response.data;
+    },
+    async getUserPosts(userId: string) {
+        const response = await api.get(`/api/gallery/user/${userId}`);
+        return response.data;
     }
 };

@@ -30,4 +30,12 @@ export abstract class BaseController {
     protected sendNotFound(res: Response, message: string = 'Resource Not Found') {
         return this.sendError(res, message, StatusCode.NOT_FOUND);
     }
+
+    protected sendUnauthorized(res: Response, message: string = 'Unauthorized') {
+        return this.sendError(res, message, StatusCode.UNAUTHORIZED);
+    }
+
+    protected sendForbidden(res: Response, message: string = 'Forbidden') {
+        return this.sendError(res, message, StatusCode.FORBIDDEN);
+    }
 }

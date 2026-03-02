@@ -52,6 +52,7 @@ export default function AppRoutes() {
         <Route path="/expenses" element={<ExpenseSplitPage />} />
         <Route path="/weather" element={<WeatherPage />} />
         <Route path="/gallery" element={<GalleryPage />} />
+        <Route path="/gallery/:userId" element={<GalleryPage />} />
       </Route>
 
 

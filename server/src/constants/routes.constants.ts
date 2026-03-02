@@ -74,6 +74,7 @@ export const API_ROUTES = {
         BASE: '/api/gallery',
         UPLOAD: '/upload',
         CREATE: '/post',
-        GET_ALL: '/all'
+        GET_ALL: '/all',
+        GET_USER_GALLERY: '/user/:userId'
     }
 };

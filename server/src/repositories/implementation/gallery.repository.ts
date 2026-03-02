@@ -10,4 +10,8 @@ export class GalleryRepository implements IGalleryRepository {
     async findAll(): Promise<IGalleryPost[]> {
         return await GalleryPost.find().populate('user', 'name avatar').sort({ createdAt: -1 });
     }
+
+    async findByUser(userId: string): Promise<IGalleryPost[]> {
+        return await GalleryPost.find({ user: userId }).populate('user', 'name avatar').sort({ createdAt: -1 });
+    }
 }

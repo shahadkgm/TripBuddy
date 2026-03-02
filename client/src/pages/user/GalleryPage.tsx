@@ -1,19 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
     Plus, Camera, X, Image as ImageIcon,
     ArrowLeft, Loader2, User, MapPin,
-    Clock, Heart, Share2
+    Clock, Heart, Share2, Shield
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
 import { galleryService, type GalleryPost } from '../../services/gallery.service';
 import toast from 'react-hot-toast';
 
 const GalleryPage = () => {
+    const { userId } = useParams<{ userId?: string }>();
     const navigate = useNavigate();
-    const user = authService.getCurrentUser();
+    const currentUser = authService.getCurrentUser();
+
+    // Is this the current user's OWN gallery?
+    const isOwnGallery = !userId || userId === currentUser?.id;
+
     const [posts, setPosts] = useState<GalleryPost[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadData, setUploadData] = useState({
@@ -25,15 +31,26 @@ const GalleryPage = () => {
 
     useEffect(() => {
         fetchPosts();
-    }, []);
+    }, [userId]);
 
     const fetchPosts = async () => {
         try {
             setLoading(true);
-            const res = await galleryService.getAllPosts();
+            setError(null);
+
+            let res;
+            if (isOwnGallery) {
+                // Fetch current user's gallery
+                res = await galleryService.getUserPosts(currentUser?.id || '');
+            } else {
+                // Fetch target user's gallery
+                res = await galleryService.getUserPosts(userId!);
+            }
             setPosts(res.data);
-        } catch (error) {
-            toast.error("Failed to load gallery");
+        } catch (error: any) {
+            const message = error.response?.data?.message || "Failed to load gallery";
+            setError(message);
+            toast.error(message);
         } finally {
             setLoading(false);
         }
@@ -87,7 +104,7 @@ const GalleryPage = () => {
         return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
     };
 
-    if (!user) {
+    if (!currentUser) {
         navigate('/login');
         return null;
     }
@@ -99,20 +116,31 @@ const GalleryPage = () => {
                 <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
                     <div className="flex items-center gap-4">
                         <button
-                            onClick={() => navigate('/dashboard')}
+                            onClick={() => navigate(-1)}
                             className="p-2 hover:bg-slate-50 rounded-full text-slate-400 hover:text-indigo-600 transition-colors"
                         >
                             <ArrowLeft size={20} />
                         </button>
-                        <h1 className="text-2xl font-black text-slate-900 tracking-tighter">Trip Gallery</h1>
+                        <div>
+                            <h1 className="text-2xl font-black text-slate-900 tracking-tighter">
+                                {isOwnGallery ? 'My Gallery' : `${posts[0]?.user.name || 'User'}'s Gallery`}
+                            </h1>
+                            {!isOwnGallery && (
+                                <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-500 uppercase tracking-widest">
+                                    <Shield size={10} /> Connected Traveler
+                                </div>
+                            )}
+                        </div>
                     </div>
 
-                    <button
-                        onClick={() => setShowUploadModal(true)}
-                        className="bg-indigo-600 text-white p-3 rounded-full shadow-lg shadow-indigo-200 hover:bg-slate-900 hover:scale-110 active:scale-95 transition-all"
-                    >
-                        <Plus size={24} />
-                    </button>
+                    {isOwnGallery && (
+                        <button
+                            onClick={() => setShowUploadModal(true)}
+                            className="bg-indigo-600 text-white p-3 rounded-full shadow-lg shadow-indigo-200 hover:bg-slate-900 hover:scale-110 active:scale-95 transition-all"
+                        >
+                            <Plus size={24} />
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -121,6 +149,20 @@ const GalleryPage = () => {
                     <div className="flex flex-col items-center justify-center py-40 gap-4">
                         <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
                         <p className="text-slate-400 font-bold animate-pulse uppercase tracking-widest text-xs">Fetching memories...</p>
+                    </div>
+                ) : error ? (
+                    <div className="text-center py-40 flex flex-col items-center gap-6">
+                        <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mb-4">
+                            <X size={40} />
+                        </div>
+                        <h2 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">Access Denied</h2>
+                        <p className="text-slate-500 font-medium max-w-sm mx-auto">{error}</p>
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="mt-4 px-8 py-3 bg-slate-900 text-white rounded-full font-bold uppercase tracking-widest text-xs hover:bg-indigo-600 transition-all"
+                        >
+                            Go Back
+                        </button>
                     </div>
                 ) : posts.length > 0 ? (
                     <div className="space-y-12">

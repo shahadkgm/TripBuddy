@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Calendar, DollarSign, UserCheck, UserPlus, Clock } from 'lucide-react';
+import { MapPin, Calendar, DollarSign, UserCheck, UserPlus, Clock, Image as ImageIcon } from 'lucide-react';
 import type { ITrip } from '../interface/ITripdetails';
 import { connectionService } from '../services/connection.service';
 import { authService } from '../services/c.authService';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   trip: ITrip;
 }
 
 export const TravelerCard: React.FC<Props> = ({ trip }) => {
+  const navigate = useNavigate();
   const [status, setStatus] = useState<'none' | 'pending' | 'accepted' | 'incoming_pending' | 'loading'>('loading');
   const currentUser = authService.getCurrentUser();
   const isOwnTrip = currentUser?.id === trip.userId?._id;
@@ -67,10 +69,19 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
         );
       case 'accepted':
         return (
-          <button className="mt-5 w-full bg-emerald-500 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-100">
-            <UserCheck className="w-5 h-5" />
-            Connected
-          </button>
+          <div className="mt-5 space-y-3">
+            <button className="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-100 cursor-default">
+              <UserCheck className="w-5 h-5" />
+              Connected
+            </button>
+            <button
+              onClick={() => navigate(`/gallery/${trip.userId._id}`)}
+              className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
+            >
+              <ImageIcon className="w-5 h-5" />
+              View Gallery
+            </button>
+          </div>
         );
       case 'pending':
         return (
@@ -102,7 +113,11 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
   return (
     <div className="p-6 border border-gray-100 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 bg-white group">
       <div className="flex items-center space-x-4 mb-6">
-        <div className="relative">
+        <div
+          className={`relative ${status === 'accepted' ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
+          onClick={() => status === 'accepted' && navigate(`/gallery/${trip.userId?._id}`)}
+          title={status === 'accepted' ? "View Gallery" : ""}
+        >
           <img
             src={trip.userId?.avatarURL || `https://i.pravatar.cc/150?u=${trip.userId?._id || 'unknown'}`}
             className="w-16 h-16 rounded-2xl border-2 border-indigo-50 object-cover shadow-sm group-hover:border-indigo-500 transition-colors"
@@ -114,8 +129,13 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
             </div>
           )}
         </div>
-        <div>
-          <h3 className="text-xl font-bold text-slate-800 leading-tight">{trip.userId?.name || 'Unknown Traveler'}</h3>
+        <div
+          className={`${status === 'accepted' ? 'cursor-pointer' : ''}`}
+          onClick={() => status === 'accepted' && navigate(`/gallery/${trip.userId?._id}`)}
+        >
+          <h3 className="text-xl font-bold text-slate-800 leading-tight hover:text-indigo-600 transition-colors">
+            {trip.userId?.name || 'Unknown Traveler'}
+          </h3>
           <p className="text-slate-400 text-sm font-medium mt-0.5">Planning: {trip.title}</p>
         </div>
       </div>
