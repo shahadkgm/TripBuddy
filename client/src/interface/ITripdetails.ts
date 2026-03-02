@@ -7,6 +7,7 @@ export interface ITrip {
         avatarURL?: string;
         avatar?: string; // Standardize this
         role: string;
+        bio?: string;
     };
     title: string;
     destination: string;
