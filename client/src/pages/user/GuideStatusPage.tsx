@@ -41,9 +41,9 @@ export const GuideStatusPage = () => {
             <p className="text-sm text-gray-500 mb-6">
               We aim to complete the review process within <span className="font-bold text-gray-700">48 hours</span>. You will receive an email notification once your status changes.
             </p>
-            <button className="flex items-center justify-center mx-auto px-8 py-3 bg-[#5537ee] text-white text-lg font-bold rounded-xl shadow-lg hover:bg-opacity-90 transition duration-300">
+            {/* <button className="flex items-center justify-center mx-auto px-8 py-3 bg-[#5537ee] text-white text-lg font-bold rounded-xl shadow-lg hover:bg-opacity-90 transition duration-300">
               <FileText className="w-5 h-5 mr-2" /> View Application Details
-            </button>
+            </button> */}
           </div>
         </div>
       </main>

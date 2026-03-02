@@ -20,7 +20,7 @@ const s3Storage = multerS3({
 });
 
 const fileFilter: multer.Options['fileFilter'] = (req, file, cb) => {
-  const allowedExtensions = ['.jpeg', '.jpg', '.png', '.gif', '.webp'];
+  const allowedExtensions = ['.jpeg', '.jpg', '.png', '.gif', '.webp', '.jfif'];
   const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
 
   const extension = path.extname(file.originalname).toLowerCase();

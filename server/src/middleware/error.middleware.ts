@@ -15,6 +15,14 @@ export const errorMiddleware = (
     });
   }
 
+  // Handle standard Error instances (like from Multer)
+  if (err instanceof Error) {
+    return res.status(StatusCode.BAD_REQUEST).json({
+      success: false,
+      message: err.message,
+    });
+  }
+
   // Log the actual error for debugging
   console.error('Error Caught in Middleware:', err);
 
