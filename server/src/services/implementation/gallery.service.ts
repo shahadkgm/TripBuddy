@@ -1,6 +1,6 @@
 import { IGalleryPost } from '../../models/galleryPost.model';
 import { IGalleryRepository } from '../../repositories/IGallery.repository';
-import { IGalleryService } from '../IGallery.service';
+import { IGalleryService } from '../interface/IGallery.service';
 import { IConnectionRepository } from '../../repositories/interface/IConnectionRepository';
 import { Types } from 'mongoose';
 

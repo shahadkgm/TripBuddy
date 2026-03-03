@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { authService } from '../../services/c.authService';
-import { Camera, MapPin, DollarSign, ArrowLeft, Loader2 } from 'lucide-react';
+import { Camera, MapPin, IndianRupee, ArrowLeft, Loader2 } from 'lucide-react';
 import { GuideStatusPage } from './GuideStatusPage';
 import { Navigate } from 'react-router-dom';
 import api from '../../utils/api';
@@ -258,11 +258,11 @@ export const GuideRegistrationPage = () => {
               </div>
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate (USD)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate (INR)</label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                    <IndianRupee className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                     <input type="number" className={`w-full pl-10 pr-4 py-3 border ${errors.hourlyRate ? 'border-red-500' : 'border-gray-200'
-                      } rounded-xl`} placeholder="45"
+                      } rounded-xl`} placeholder="500"
                       value={formData.hourlyRate}
                       onChange={e => {
                         setFormData({ ...formData, hourlyRate: e.target.value });

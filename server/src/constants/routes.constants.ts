@@ -61,6 +61,7 @@ export const API_ROUTES = {
         REJECT: '/reject/:requestId',
         PENDING: '/pending',
         STATUS: '/status',
+        MEMBERS: '/members/:tripId',
     },
 
     EXPENSE: {

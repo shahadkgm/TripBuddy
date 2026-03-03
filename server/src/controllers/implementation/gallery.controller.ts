@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IGalleryService } from '../../services/IGallery.service';
+import { IGalleryService } from '../../services/interface/IGallery.service';
 import { AuthRequest } from '../../types/authRequest';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { BaseController } from './base.controller';

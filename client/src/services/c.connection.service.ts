@@ -24,5 +24,10 @@ export const connectionService = {
     async rejectRequest(requestId: string) {
         const response = await api.patch(`/api/connections/reject/${requestId}`);
         return response.data.data;
+    },
+
+    async getTripMembers(tripId: string) {
+        const response = await api.get(`/api/connections/members/${tripId}`);
+        return response.data.data;
     }
 };

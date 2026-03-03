@@ -3,7 +3,7 @@ import {
   User,
   Star,
   Clock,
-  DollarSign,
+  IndianRupee,
   Calendar,
   MessageSquare,
   LogOut
@@ -17,7 +17,7 @@ import toast from "react-hot-toast";
 
 export const GuideDashboard = () => {
   const user = authService.getCurrentUser();
-  const navigate=useNavigate()
+  const navigate = useNavigate()
   const [stats] = useState({
     totalBookings: 0,
     rating: 5.0,
@@ -40,7 +40,7 @@ export const GuideDashboard = () => {
         {/* Top Bar */}
         <header className="bg-white px-6 py-4 border-b flex justify-between items-center sticky top-0 z-10">
           <h2 className="font-bold text-lg">Dashboard</h2>
-          
+
           <div className="flex items-center gap-6">
             {/* User Info */}
             <div className="flex items-center gap-3">
@@ -51,7 +51,7 @@ export const GuideDashboard = () => {
             </div>
 
             {/* Logout Button */}
-            <button 
+            <button
               onClick={handleLogout}
               className="flex items-center gap-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors border-l pl-6"
             >
@@ -75,7 +75,7 @@ export const GuideDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
             <StatCard icon={<Calendar className="text-blue-600" />} label="Bookings" value={stats.totalBookings} />
             <StatCard icon={<Star className="text-amber-500" />} label="Rating" value={stats.rating} />
-            <StatCard icon={<DollarSign className="text-emerald-600" />} label="Earnings" value={`$${stats.earned}`} />
+            <StatCard icon={<IndianRupee className="text-emerald-600" />} label="Earnings" value={`₹${stats.earned}`} />
             <StatCard icon={<Clock className="text-purple-600" />} label="Status" value={stats.status} />
           </div>
 

@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import {
-  MapPin, Calendar, DollarSign, UserCheck,
+  MapPin, Calendar, IndianRupee, UserCheck,
   UserPlus, Clock,
   X, Shield, Info, Camera
 } from 'lucide-react';
 import type { ITrip } from '../interface/ITripdetails';
-import { connectionService } from '../services/connection.service';
+import { connectionService } from '../services/c.connection.service';
 import { authService } from '../services/c.authService';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
-import type { GalleryPost } from '../services/gallery.service';
-import { galleryService } from '../services/gallery.service';
+import type { GalleryPost } from '../services/c.gallery.service';
+import { galleryService } from '../services/c.gallery.service';
 
 interface Props {
   trip: ITrip;
@@ -185,9 +185,9 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
 
         <div className="flex items-center gap-3">
           <div className="p-2 bg-white rounded-lg shadow-sm">
-            <DollarSign className="w-4 h-4 text-indigo-500" />
+            <IndianRupee className="w-4 h-4 text-indigo-500" />
           </div>
-          <span className="text-slate-600 text-sm font-bold">Budget: ${trip.budget}</span>
+          <span className="text-slate-600 text-sm font-bold">Budget: ₹{trip.budget}</span>
         </div>
       </div>
 
@@ -254,10 +254,10 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
                       </div>
                     </div>
                     <div className="bg-white p-3 rounded-2xl shadow-sm flex items-center gap-3">
-                      <DollarSign size={16} className="text-emerald-500" />
+                      <IndianRupee size={16} className="text-emerald-500" />
                       <div className="text-left">
                         <span className="block text-[8px] text-slate-400 font-black uppercase">Budget</span>
-                        <span className="text-sm font-bold text-slate-800">${trip.budget}</span>
+                        <span className="text-sm font-bold text-slate-800">₹{trip.budget}</span>
                       </div>
                     </div>
                   </div>

@@ -6,7 +6,7 @@ import {
     Clock, Heart, Share2, Shield
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
-import { galleryService, type GalleryPost } from '../../services/gallery.service';
+import { galleryService, type GalleryPost } from '../../services/c.gallery.service';
 import toast from 'react-hot-toast';
 
 const GalleryPage = () => {

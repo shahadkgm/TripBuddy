@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { Trash2, Plus, User, Receipt, Calculator, ChevronLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { expenseService } from '../../services/expense.service';
-import type { IExpense } from '../../services/expense.service';
-import { tripService } from '../../services/trip.service';
+import { expenseService } from '../../services/c.expense.service';
+import type { IExpense } from '../../services/c.expense.service';
+import { tripService } from '../../services/c.trip.service';
 import { authService } from '../../services/c.authService';
+import { connectionService } from '../../services/c.connection.service';
 import type { ITrip } from '../../interface/ITripdetails';
 
 export const ExpenseSplitPage = () => {
@@ -13,6 +14,7 @@ export const ExpenseSplitPage = () => {
     const [trips, setTrips] = useState<ITrip[]>([]);
     const [selectedTripId, setSelectedTripId] = useState<string>('');
     const [expenses, setExpenses] = useState<IExpense[]>([]);
+    const [tripMembers, setTripMembers] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [newExpense, setNewExpense] = useState({
         title: '',
@@ -43,8 +45,21 @@ export const ExpenseSplitPage = () => {
     useEffect(() => {
         if (selectedTripId) {
             loadExpenses();
+            loadTripMembers();
         }
     }, [selectedTripId]);
+
+    const loadTripMembers = async () => {
+        try {
+            const members = await connectionService.getTripMembers(selectedTripId);
+            setTripMembers(members);
+            if (members.length > 0) {
+                setNewExpense(prev => ({ ...prev, paidBy: members[0].name }));
+            }
+        } catch (error) {
+            console.error("Failed to load trip members", error);
+        }
+    };
 
     const loadExpenses = async () => {
         try {
@@ -152,18 +167,21 @@ export const ExpenseSplitPage = () => {
                         />
                         <input
                             type="number"
-                            placeholder="Amount ($)"
+                            placeholder="Amount (₹)"
                             className="p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-indigo-500 focus:bg-white transition-all outline-none"
                             value={newExpense.amount}
                             onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
                         />
-                        <input
-                            type="text"
-                            placeholder="Paid By (Name)"
-                            className="p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-indigo-500 focus:bg-white transition-all outline-none"
+                        <select
+                            className="p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-indigo-500 focus:bg-white transition-all outline-none text-slate-600 appearance-none font-medium"
                             value={newExpense.paidBy}
                             onChange={(e) => setNewExpense({ ...newExpense, paidBy: e.target.value })}
-                        />
+                        >
+                            <option value="" disabled>Paid By</option>
+                            {tripMembers.map(member => (
+                                <option key={member._id} value={member.name}>{member.name}</option>
+                            ))}
+                        </select>
                         <button
                             onClick={handleAddExpense}
                             className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 active:scale-95"
@@ -213,7 +231,7 @@ export const ExpenseSplitPage = () => {
                                                     </p>
                                                 </td>
                                                 <td className="px-8 py-6">
-                                                    <span className="font-black text-indigo-600 text-lg">${exp.amount}</span>
+                                                    <span className="font-black text-indigo-600 text-lg">₹{exp.amount}</span>
                                                 </td>
                                                 <td className="px-8 py-6">
                                                     <span className="bg-indigo-50 text-indigo-700 px-4 py-1.5 rounded-xl text-xs font-bold border border-indigo-100">
@@ -261,7 +279,7 @@ export const ExpenseSplitPage = () => {
                                         </div>
                                         <div className="text-right">
                                             <span className="text-indigo-200 text-[10px] font-bold uppercase tracking-wider">Receives</span>
-                                            <p className="font-black text-2xl tracking-tighter">${total}</p>
+                                            <p className="font-black text-2xl tracking-tighter">₹{total}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -277,7 +295,7 @@ export const ExpenseSplitPage = () => {
                                 <div className="mt-10 pt-8 border-t border-white/10 flex justify-between items-center">
                                     <span className="font-bold opacity-60">Total Group Spend:</span>
                                     <span className="text-3xl font-black tracking-tighter">
-                                        ${expenses.reduce((acc, curr) => acc + curr.amount, 0)}
+                                        ₹{expenses.reduce((acc, curr) => acc + curr.amount, 0)}
                                     </span>
                                 </div>
                             )}

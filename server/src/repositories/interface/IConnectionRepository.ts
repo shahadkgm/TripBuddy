@@ -6,4 +6,5 @@ export interface IConnectionRepository extends IBaseRepository<IConnectionDocume
     findByUsers(senderId: string, receiverId: string, tripId?: string): Promise<IConnectionDocument | null>;
     getUserConnections(userId: string): Promise<IConnectionDocument[]>;
     getPendingRequests(userId: string): Promise<IConnectionDocument[]>;
+    getTripConnections(tripId: string): Promise<IConnectionDocument[]>;
 }

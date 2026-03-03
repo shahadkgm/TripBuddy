@@ -5,8 +5,8 @@ import {
     Wind, Droplets, Thermometer, Loader2, MapPin
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { weatherService } from '../../services/weather.service';
-import type { WeatherData } from '../../services/weather.service';
+import { weatherService } from '../../services/c.weather.service';
+import type { WeatherData } from '../../services/c.weather.service';
 import toast from 'react-hot-toast';
 
 export const WeatherPage = () => {

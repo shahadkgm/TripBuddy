@@ -67,4 +67,10 @@ export class ConnectionController extends BaseController {
         );
         this.sendSuccess(res, { status }, 'Connection status fetched successfully');
     });
+
+    getTripMembers = asyncHandler(async (req: Request, res: Response) => {
+        const { tripId } = req.params;
+        const members = await this._connectionService.getTripMembers(tripId);
+        this.sendSuccess(res, members, 'Trip members fetched successfully');
+    });
 }

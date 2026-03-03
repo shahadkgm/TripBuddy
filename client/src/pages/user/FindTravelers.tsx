@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { tripService } from '../../services/trip.service';
+import { tripService } from '../../services/c.trip.service';
 import { TravelerCard } from '../../components/TravelerCard';
 import type { ITrip } from '../../interface/ITripdetails';
 import { useNavigate } from 'react-router-dom';

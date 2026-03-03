@@ -6,8 +6,8 @@ import {
     Loader2, Edit3, Globe, Compass, Image as ImageIcon
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
-import { connectionService } from '../../services/connection.service';
-import { tripService } from '../../services/trip.service';
+import { connectionService } from '../../services/c.connection.service';
+import { tripService } from '../../services/c.trip.service';
 import api from '../../utils/api';
 import { useEffect, useState, useRef } from 'react';
 import type { ITrip } from '../../interface/ITripdetails';

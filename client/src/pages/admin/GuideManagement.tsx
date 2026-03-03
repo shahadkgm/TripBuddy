@@ -134,7 +134,7 @@ export const GuideManagement = () => {
           <div className="text-xs text-gray-500 truncate  max-width: 120px;">
             {guide.serviceArea}
           </div>
-          <div className="text-xs font-bold text-emerald-600">${guide.hourlyRate}/hr</div>
+          <div className="text-xs font-bold text-emerald-600">₹{guide.hourlyRate}/hr</div>
         </div>
       )
     },
@@ -309,7 +309,7 @@ export const GuideManagement = () => {
                       </div>
                       <div>
                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Hourly Rate</label>
-                        <p className="text-sm font-bold text-emerald-600">${viewingGuide.hourlyRate || 0}/hr</p>
+                        <p className="text-sm font-bold text-emerald-600">₹{viewingGuide.hourlyRate || 0}/hr</p>
                       </div>
                       <div className="col-span-2">
                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Service Area</label>

@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-    MapPin, Calendar, User, DollarSign,
+    MapPin, Calendar, User, IndianRupee,
     Briefcase, Hotel, Plane, CheckCircle, FileText, X, Loader2, CloudSun
 } from 'lucide-react';
 
 import api from '../../utils/api';
 import { authService } from '../../services/c.authService';
-import { tripService } from '../../services/trip.service';
+import { tripService } from '../../services/c.trip.service';
 
 const INTERESTS = [
     "Beaches", "Adventure Sports", "Shopping", "City Tours",
@@ -329,9 +329,9 @@ const CreateTripPage = () => {
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Estimated Budget ($)</label>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Estimated Budget (₹)</label>
                                     <div className="relative">
-                                        <DollarSign className="absolute left-4 top-4 w-5 h-5 text-slate-400" />
+                                        <IndianRupee className="absolute left-4 top-4 w-5 h-5 text-slate-400" />
                                         <input
                                             type="number"
                                             name="budget"
