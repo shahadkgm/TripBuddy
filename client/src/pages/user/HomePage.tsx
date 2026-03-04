@@ -1,8 +1,25 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { authService } from "../../services/c.authService";
 import { FeatureGrid } from "../../components/home/FeatureGrid";
 import { Navbar } from "../../components/home/Navbar";
 import { MainFooter } from "../../components/MainFooter";
 
 export default function HomePage() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+    if (user) {
+      if (user.role === "admin") {
+        navigate("/admin/dashboard", { replace: true });
+      } else if (user.role === "guide") {
+        navigate("/guide-dashboard", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
+    }
+  }, [navigate]);
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Navbar />

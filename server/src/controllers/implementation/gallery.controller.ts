@@ -12,7 +12,7 @@ export class GalleryController extends BaseController {
 
     uploadImage = asyncHandler(async (req: Request, res: Response) => {
         if (!req.file) {
-            return this.sendBadRequest(res, "No file uploaded");
+            return this.sendBadRequest(res, 'No file uploaded');
         }
         const s3File = req.file as Express.Multer.File & { location: string };
         this.sendSuccess(res, { imageUrl: s3File.location });
@@ -20,15 +20,15 @@ export class GalleryController extends BaseController {
 
     createPost = asyncHandler(async (req: AuthRequest, res: Response) => {
         const userId = req.user?.id;
-        logger.info(`userId from p-c ${userId}`)
+        logger.info(`userId from p-c ${userId}`);
         const { image, caption, tripName } = req.body;
 
         if (!image) {
-            return this.sendBadRequest(res, "Image is required");
+            return this.sendBadRequest(res, 'Image is required');
         }
 
         if (!userId) {
-            return this.sendBadRequest(res, "User authentication failed");
+            return this.sendBadRequest(res, 'User authentication failed');
         }
 
         const post = await this.galleryService.createPost({
@@ -51,7 +51,7 @@ export class GalleryController extends BaseController {
         const currentUserId = req.user?.id;
 
         if (!currentUserId) {
-            return this.sendUnauthorized(res, "Authentication required");
+            return this.sendUnauthorized(res, 'Authentication required');
         }
 
         try {

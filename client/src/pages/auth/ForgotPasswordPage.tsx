@@ -1,18 +1,22 @@
 // frontend/src/modules/auth/pages/ForgotPasswordPage.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-// import { Button } from '../utils/Button';
-import axios from 'axios';
 import { Button } from '../../components/Button';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import api from '../../utils/api';
+import { authService } from '../../services/c.authService';
 
 export const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (authService.getCurrentUser()) {
+      navigate('/', { replace: true });
+    }
+  }, [navigate]);
 
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -35,7 +39,7 @@ export const ForgotPasswordPage = () => {
     const resetToast = toast.loading("Sending verification email...");
 
     try {
-      await axios.post(`${API_URL}/api/users/forgot-password`, { email });
+      await api.post('/api/users/forgot-password', { email });
 
       toast.success("Verification email sent! Check your inbox.", { id: resetToast });
       setTimeout(() => navigate('/login'), 3000);

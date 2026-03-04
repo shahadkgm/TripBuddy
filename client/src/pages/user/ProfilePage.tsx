@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     User, Mail, MapPin, Camera,
     Shield, LogOut,
-    ArrowLeft, Home, UserCheck, Plane,
+    ArrowLeft, UserCheck, Plane,
     Loader2, Edit3, Globe, Compass, Image as ImageIcon
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
@@ -147,7 +147,7 @@ const ProfilePage = () => {
                                             <textarea
                                                 value={editData.bio}
                                                 onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-                                                className="w-full px-4 py-2.5 bg-white border border-blue-100 rounded-xl text-sm font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all min-h-[90px] resize-none shadow-sm"
+                                                className="w-full px-4 py-2.5 bg-white border border-blue-100 rounded-xl text-sm font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all min-h-22.5 resize-none shadow-sm"
                                                 placeholder="Tell travelers about yourself..."
                                             />
                                         </div>
@@ -250,6 +250,7 @@ const ProfilePage = () => {
                                 </button>
                             </div>
                         </div>
+                        <div> <button onClick={()=>navigate("/tripDeatail")}>view details</button></div>
 
                         {/* Itinerary Card */}
                         <div className="lg:col-span-2 bg-white p-8 rounded-xl shadow-lg border border-slate-100">

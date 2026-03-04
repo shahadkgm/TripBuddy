@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import api from '../../utils/api';
 import { Button } from '../../components/Button';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { authService } from '../../services/c.authService';
 
 export const ResetPasswordPage = () => {
   const { token } = useParams();
@@ -14,6 +13,12 @@ export const ResetPasswordPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({ password: '', confirmPassword: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (authService.getCurrentUser()) {
+      navigate('/', { replace: true });
+    }
+  }, [navigate]);
 
   const validateForm = () => {
     let isValid = true;
@@ -47,7 +52,7 @@ export const ResetPasswordPage = () => {
     const loadToast = toast.loading("Updating password...");
 
     try {
-      await axios.post(`${API_URL}/api/users/reset-password/${token}`, { password });
+      await api.post(`/api/users/reset-password/${token}`, { password });
 
       toast.success("Password reset successful! Redirecting to login...", { id: loadToast });
       setTimeout(() => navigate('/login'), 3000);

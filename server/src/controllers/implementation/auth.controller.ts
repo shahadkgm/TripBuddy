@@ -60,7 +60,7 @@ export class AuthController extends BaseController implements IAuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE) 
+      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE)
     });
 
     this.sendSuccess(res, {

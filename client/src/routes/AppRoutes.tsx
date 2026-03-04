@@ -26,6 +26,7 @@ import { UserManagement } from "../pages/admin/UserManagement";
 import { GuideManagement } from "../pages/admin/GuideManagement";
 
 import { GuideDashboard } from "../pages/guide/GuideDashboard";
+// import TripDetailsPage from "../pages/user/TripDetails";
 
 export default function AppRoutes() {
   return (
@@ -53,6 +54,9 @@ export default function AppRoutes() {
         <Route path="/weather" element={<WeatherPage />} />
         <Route path="/gallery" element={<GalleryPage />} />
         <Route path="/gallery/:userId" element={<GalleryPage />} />
+         {/* <Route path="/tripDeatail" element={<TripDetailsPage />} /> */}
+
+
       </Route>
 
 

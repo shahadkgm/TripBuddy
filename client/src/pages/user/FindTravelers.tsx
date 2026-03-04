@@ -106,7 +106,7 @@ const FindTravelers = () => {
                     </div>
 
                     <div className="flex-1 w-full">
-                        <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                        <label className=" text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
                             <Plane className="w-4 h-4 text-indigo-500" /> Travel Mode
                         </label>
                         <select

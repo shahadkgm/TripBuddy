@@ -212,13 +212,13 @@ const GalleryPage = () => {
 
                                 {/* Post Image */}
                                 <div className="p-6 pt-4">
-                                    <div className="aspect-[16/9] w-full rounded-[2rem] overflow-hidden relative bg-slate-100 shadow-inner">
+                                    <div className="aspect-video w-full rounded-4xl overflow-hidden relative bg-slate-100 shadow-inner">
                                         <img
                                             src={post.image}
                                             alt={post.caption || "Trip photo"}
                                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none p-8 flex items-end">
+                                        <div className="absolute inset-0 bg-linear-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none p-8 flex items-end">
                                             <p className="text-white text-xs font-bold uppercase tracking-widest opacity-80">Capture your moment</p>
                                         </div>
                                     </div>
@@ -276,7 +276,7 @@ const GalleryPage = () => {
                             {/* Image Upload Area */}
                             <div
                                 onClick={() => !isUploading && fileInputRef.current?.click()}
-                                className={`aspect-[16/9] w-full rounded-[2.5rem] border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden relative shadow-inner
+                                className={`aspect-video w-full rounded-[2.5rem] border-2 border-dashed transition-all flex flex-col items-center justify-center cursor-pointer overflow-hidden relative shadow-inner
                                     ${uploadData.image ? 'border-indigo-500 bg-indigo-50/10' : 'border-slate-200 bg-slate-50 hover:border-indigo-400 hover:bg-slate-100'}`}
                             >
                                 {uploadData.image ? (
@@ -295,7 +295,7 @@ const GalleryPage = () => {
                                             </div>
                                         ) : (
                                             <>
-                                                <div className="bg-white p-5 rounded-[2rem] shadow-lg border border-slate-100 text-indigo-500 mb-4 group-hover:rotate-12 transition-transform">
+                                                <div className="bg-white p-5 rounded-4xl shadow-lg border border-slate-100 text-indigo-500 mb-4 group-hover:rotate-12 transition-transform">
                                                     <Camera size={38} />
                                                 </div>
                                                 <p className="font-black text-slate-800 tracking-tight text-xl">Upload Memory</p>
@@ -332,7 +332,7 @@ const GalleryPage = () => {
                                     <textarea
                                         placeholder="Write a small note about this memory..."
                                         rows={3}
-                                        className="w-full px-6 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] outline-none focus:ring-4 focus:ring-indigo-500/10 focus:bg-white focus:border-indigo-500 transition-all font-bold text-slate-700 resize-none shadow-sm"
+                                        className="w-full px-6 py-5 bg-slate-50 border border-slate-100  outline-none focus:ring-4 focus:ring-indigo-500/10 focus:bg-white focus:border-indigo-500 transition-all font-bold text-slate-700 resize-none shadow-sm"
                                         value={uploadData.caption}
                                         onChange={(e) => setUploadData(prev => ({ ...prev, caption: e.target.value }))}
                                     />
@@ -342,7 +342,7 @@ const GalleryPage = () => {
                             <button
                                 type="submit"
                                 disabled={isUploading || !uploadData.image}
-                                className="w-full py-6 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-[0.3em] text-[10px] shadow-2xl shadow-indigo-200/50 hover:bg-indigo-600 transition-all disabled:opacity-30 active:scale-95 group"
+                                className="w-full py-6 bg-slate-900 text-white rounded-4xl font-black uppercase tracking-[0.3em] text-[10px] shadow-2xl shadow-indigo-200/50 hover:bg-indigo-600 transition-all disabled:opacity-30 active:scale-95 group"
                             >
                                 {isUploading ? "Posting Story..." : (
                                     <span className="flex items-center justify-center gap-2">

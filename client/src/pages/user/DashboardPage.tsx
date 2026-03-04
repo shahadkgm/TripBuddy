@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FooterCTA } from '../../components/FooterCTA';
+import { authService } from '../../services/c.authService';
 import {
   Calendar, Users, MessageSquare, Wallet,
   Users2, Image, MapPin, LifeBuoy,
@@ -90,13 +91,15 @@ const DASHBOARD_FEATURES = [
 
 const DashboardPage = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const user = authService.getCurrentUser();
 
   useEffect(() => {
-    if (user.role === 'guide') {
+    if (user?.role === 'guide') {
       navigate('/guide-dashboard', { replace: true });
+    } else if (user?.role === 'admin') {
+      navigate('/admin/dashboard', { replace: true });
     }
-  }, [user.role, navigate]);
+  }, [user?.role, navigate]);
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 md:p-8">

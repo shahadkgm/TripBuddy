@@ -287,7 +287,7 @@ export const UserManagement = () => {
                   selectedKYCUser.kycDocument.endsWith('.pdf') ? (
                     <iframe
                       src={selectedKYCUser.kycDocument}
-                      className="w-full h-[500px] border-0 rounded-lg shadow-sm"
+                      className="w-full h-125 border-0 rounded-lg shadow-sm"
                     />
                   ) : (
                     <img
@@ -300,7 +300,7 @@ export const UserManagement = () => {
                   selectedKYCUser.kycDocument.endsWith('.pdf') ? (
                     <iframe
                       src={`${api.defaults.baseURL}/${selectedKYCUser.kycDocument}`}
-                      className="w-full h-[500px] border-0 rounded-lg shadow-sm"
+                      className="w-full h-125 border-0 rounded-lg shadow-sm"
                     />
                   ) : (
                     <img

@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, Users, Map, MessageSquare, 
-  Image, Settings, Menu, X, ShieldCheck ,LogOut
+import { Link, useLocation } from 'react-router-dom';
+import { authService } from '../../services/c.authService';
+import {
+  LayoutDashboard, Users, Map, MessageSquare,
+  Image, Settings, Menu, X, ShieldCheck, LogOut
 } from 'lucide-react';
 export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
-  const navigate=useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
 
-  const handleLogout=()=>{
-    localStorage.removeItem("token");
-    localStorage.removeItem("user")
-    navigate("/login",{replace:true})
+  const handleLogout = () => {
+    authService.logout();
   }
 
   const menuItems = [
@@ -46,11 +44,10 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center space-x-3 p-3 rounded-xl transition duration-200 ${
-                location.pathname === item.path 
-                ? 'bg-[#5537ee] text-white shadow-md' 
+              className={`flex items-center space-x-3 p-3 rounded-xl transition duration-200 ${location.pathname === item.path
+                ? 'bg-[#5537ee] text-white shadow-md'
                 : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-              }`}
+                }`}
             >
               {item.icon}
               <span className="font-medium">{item.name}</span>
@@ -70,18 +67,18 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             <h1 className="text-xl lg:text-2xl font-bold text-[#1e293b]">Dashboard Overview</h1>
           </div>
           <div className="flex items-center gap-4">
-  <div className="hidden sm:block text-sm text-gray-500 bg-[#f0f9ff] py-1.5 px-4 rounded-full">
-    Admin: <span className="font-semibold text-[#5537ee]">Shahad</span> | Role: <span className="font-medium">Super Admin</span>
-  </div>
+            <div className="hidden sm:block text-sm text-gray-500 bg-[#f0f9ff] py-1.5 px-4 rounded-full">
+              Admin: <span className="font-semibold text-[#5537ee]">Shahad</span> | Role: <span className="font-medium">Super Admin</span>
+            </div>
 
-  <button
-    onClick={handleLogout}
-    className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-xl hover:bg-red-100 transition font-medium"
-  >
-    <LogOut size={18} />
-    Logout
-  </button>
-</div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-xl hover:bg-red-100 transition font-medium"
+            >
+              <LogOut size={18} />
+              Logout
+            </button>
+          </div>
 
         </header>
 
