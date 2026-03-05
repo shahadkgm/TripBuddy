@@ -16,7 +16,7 @@ const TripDetails = () => {
     const location = useLocation();
 
     // Get the return path from location state, default to /find-travelers
-    const from = (location.state )?.from || '/find-travelers';
+    const from = (location.state)?.from || '/find-travelers';
 
     const [trip, setTrip] = useState<ITrip | null>(null);
     const [loading, setLoading] = useState(true);

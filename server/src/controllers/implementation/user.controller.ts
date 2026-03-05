@@ -43,4 +43,15 @@ export class UserController extends BaseController {
     this.sendSuccess(res, updatedUser, 'Profile updated successfully');
   });
 
+  changePassword = asyncHandler(async (req: Request, res: Response) => {
+    const authReq = req as AuthRequest;
+    const userId = authReq.user?.id;
+    if (!userId) {
+      throw new AppError('User not authenticated', StatusCode.UNAUTHORIZED);
+    }
+    const { oldPassword, newPassword } = req.body;
+    const result = await this._userService.changePassword(userId, oldPassword, newPassword);
+    this.sendSuccess(res, result, 'Password changed successfully');
+  });
+
 }

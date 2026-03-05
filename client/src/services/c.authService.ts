@@ -1,51 +1,33 @@
-import type { AuthUser, LoginDTO, RegisterDTO } from "../types/auth.dto";
+import type { AuthUser, LoginDTO, RegisterDTO, UpdateProfileDTO, ChangePasswordDTO, AuthResponse } from "../types/auth.dto";
 import api from "../utils/api";
 
-
-
-// const API_URL = "http://localhost:4000/api";
-
 export const authService = {
-  async register(userData: RegisterDTO) {
-    const response = await api.post("/auth/register", userData)
+  async register(userData: RegisterDTO): Promise<AuthResponse> {
+    const response = await api.post("/auth/register", userData);
     const { user, accessToken } = response.data.data;
     if (accessToken && user) {
       this.setToken(accessToken);
-      localStorage.setItem("user", JSON.stringify(user))
+      localStorage.setItem("user", JSON.stringify(user));
     }
     return response.data.data;
   },
 
-  //   async login(credentials: LoginDTO) {
-  // const response = await api.post("/auth/login", credentials);
-  //     const { user, accessToken}=response.data;
-  //       console.log("from frontend tokens",accessToken)
-
-  //     if (accessToken&& user) {
-  //       localStorage.setItem("access token", accessToken);
-  //         //  localStorage.setItem("refresh token", tokens.refreshToken); 
-  //       localStorage.setItem("user", JSON.stringify(user));
-  //       window.dispatchEvent(new Event("storage"));
-  //     }
-
-  //     return response.data;
-  //   },
-  async login(credentials: LoginDTO) {
+  async login(credentials: LoginDTO): Promise<AuthResponse> {
     const response = await api.post("/auth/login", credentials);
     const { user, accessToken } = response.data.data;
     if (accessToken && user) {
       this.setToken(accessToken);
       localStorage.setItem("user", JSON.stringify(user));
-      window.dispatchEvent(new Event("storage"))
+      window.dispatchEvent(new Event("storage"));
     }
     return response.data.data;
   },
 
-  verifyEmail: async (token: string) => {
+  async verifyEmail(token: string) {
     return await api.get(`/auth/verify-email/${token}`);
   },
 
-  async googleLogin(token: string) {
+  async googleLogin(token: string): Promise<AuthResponse> {
     const response = await api.post("/auth/google-login", { token });
     const { user, accessToken } = response.data.data;
     if (accessToken && user) {
@@ -58,7 +40,6 @@ export const authService = {
 
   logout() {
     localStorage.removeItem("user");
-    console.log("token from logout", localStorage.getItem("accessToken"))
     localStorage.removeItem("accessToken");
     window.location.replace("/login");
   },
@@ -82,11 +63,12 @@ export const authService = {
     const token = localStorage.getItem("accessToken");
     return token ? token.replace(/^"|"$/g, "") : null;
   },
+
   setToken(token: string) {
     localStorage.setItem("accessToken", token);
   },
 
-  async updateProfile(userId: string, updateData: any) {
+  async updateProfile(userId: string, updateData: UpdateProfileDTO): Promise<AuthUser> {
     const response = await api.patch(`/api/users/edit-profile/${userId}`, updateData);
     const updatedUser = response.data.data;
 
@@ -97,5 +79,10 @@ export const authService = {
       window.dispatchEvent(new Event("storage"));
     }
     return updatedUser;
+  },
+
+  async changePassword(userId: string, data: ChangePasswordDTO) {
+    const response = await api.post(`/api/users/edit-password/${userId}`, data);
+    return response.data;
   }
 };

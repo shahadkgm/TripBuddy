@@ -7,6 +7,7 @@ import { IUser } from '../../types/user.type';
 import { AppError } from '../../utils/AppError';
 import { StatusCode } from '../../constants/statusCode.enum';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
 export class UserService implements IUserService {
   constructor(
@@ -117,5 +118,20 @@ export class UserService implements IUserService {
     }
 
     return updatedUser;
+  }
+
+  async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<{ message: string }> {
+    const user = await this._userRepository.findById(userId);
+    if (!user || !user.password) {
+      throw new AppError('User not found', StatusCode.NOT_FOUND);
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      throw new AppError('Current password is incorrect', StatusCode.BAD_REQUEST);
+    }
+
+    await this._userRepository.updatePassword(userId, newPassword);
+    return { message: 'Password changed successfully' };
   }
 }

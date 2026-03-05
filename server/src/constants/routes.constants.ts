@@ -17,7 +17,8 @@ export const API_ROUTES = {
         GET_ALL: '/',
         FORGOT_PASSWORD: '/forgot-password',
         RESET_PASSWORD: '/reset-password/:token',
-        EDIT_PROFILE: '/edit-profile/:id'
+        EDIT_PROFILE: '/edit-profile/:id',
+        CHANGE_PASSWORD:'/edit-password/:id'
     },
 
     ADMIN: {

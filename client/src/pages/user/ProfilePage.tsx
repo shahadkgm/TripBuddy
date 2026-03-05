@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom';
+import type { ConnectionRequest } from '../../types/auth.dto';
 import {
     User, Mail, MapPin, Camera,
     Shield, LogOut,
     ArrowLeft, UserCheck, Plane,
     Loader2, Edit3, Globe, Compass, Image as ImageIcon,
-    Users, Receipt, ChevronDown, ChevronUp, Check, X
+    Users, Receipt, ChevronDown, ChevronUp, Check, X, Lock
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
 import { connectionService } from '../../services/c.connection.service';
@@ -14,13 +15,14 @@ import { useEffect, useState, useRef } from 'react';
 import type { ITrip } from '../../interface/ITripdetails';
 import { Navbar } from "../../components/home/Navbar";
 import { MainFooter } from "../../components/MainFooter";
+import toast from 'react-hot-toast';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
     const user = authService.getCurrentUser();
 
     const [kycStatus, setKycStatus] = useState<string>('loading');
-    const [requests, setRequests] = useState<any[]>([]);
+    const [requests, setRequests] = useState<ConnectionRequest[]>([]);
     const [trips, setTrips] = useState<ITrip[]>([]);
     const [tripsLoading, setTripsLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
@@ -28,6 +30,9 @@ const ProfilePage = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [expandedTripId, setExpandedTripId] = useState<string | null>(null);
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const [passwordData, setPasswordData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -63,6 +68,7 @@ const ProfilePage = () => {
         try {
             setIsSaving(true);
             await authService.updateProfile(user.id, editData);
+            toast.success("edited succesfully")
             setIsEditing(false);
         } catch (error) {
             alert("Failed to update profile.");
@@ -89,7 +95,6 @@ const ProfilePage = () => {
     const handleAcceptRequest = async (requestId: string) => {
         try {
             await connectionService.acceptRequest(requestId);
-            // Refresh data
             const [reqData, tripData] = await Promise.all([
                 connectionService.getPendingRequests(),
                 tripService.getUserTrips(user.id!)
@@ -111,6 +116,33 @@ const ProfilePage = () => {
         }
     };
 
+    const handlePasswordChange = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            toast.error("Passwords do not match");
+            return;
+        }
+        if (passwordData.newPassword.length < 6) {
+            toast.error("Password must be at least 6 characters");
+            return;
+        }
+        try {
+            setIsChangingPassword(true);
+            await authService.changePassword(user.id!, {
+                oldPassword: passwordData.oldPassword,
+                newPassword: passwordData.newPassword
+            });
+            toast.success("Password changed successfully");
+            setIsPasswordModalOpen(false);
+            setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+        } catch (err: unknown) {
+            const error = err as { response?: { data?: { message?: string } } };
+            toast.error(error.response?.data?.message || "Failed to change password");
+        } finally {
+            setIsChangingPassword(false);
+        }
+    };
+
     return (
         <div className="min-h-screen flex flex-col bg-slate-50">
             <Navbar />
@@ -126,14 +158,12 @@ const ProfilePage = () => {
                         Back to Home
                     </button>
 
-                    {/* 1. Identity Section (The Blob Style) */}
+                    {/* 1. Identity Section */}
                     <section className="relative py-12 bg-[#f0f9ff] mb-10 rounded-[2rem_0_2rem_0] overflow-hidden border border-blue-100 shadow-sm">
-                        {/* Decorative Circles from Home Page */}
                         <div className="absolute -top-12 -left-12 w-40 h-40 bg-white/40 rounded-full"></div>
                         <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-indigo-200/20 rounded-full"></div>
 
                         <div className="relative z-10 px-8 flex flex-col md:flex-row items-center md:items-start gap-8">
-                            {/* Avatar Component */}
                             <div className="relative shrink-0">
                                 <input type="file" className="hidden" ref={fileInputRef} onChange={handlePhotoChange} accept="image/*" />
                                 <div className="w-40 h-40 rounded-[2rem_0_2rem_0] bg-white p-2 shadow-xl border border-blue-50 relative group">
@@ -155,7 +185,6 @@ const ProfilePage = () => {
                                 </div>
                             </div>
 
-                            {/* Info & Editing */}
                             <div className="flex-1 text-center md:text-left pt-4">
                                 {isEditing ? (
                                     <div className="space-y-4 w-full max-w-md">
@@ -187,7 +216,6 @@ const ProfilePage = () => {
                                                 {user.role}
                                             </span>
                                         </div>
-
                                         <div className="space-y-4 max-w-2xl">
                                             <div className="flex flex-wrap justify-center md:justify-start gap-4 text-slate-500 text-sm font-medium">
                                                 <span className="flex items-center gap-2"><Mail size={16} /> {user.email}</span>
@@ -205,20 +233,10 @@ const ProfilePage = () => {
                             <div className="flex flex-col gap-3 shrink-0">
                                 {isEditing ? (
                                     <>
-                                        <button
-                                            onClick={handleSave}
-                                            disabled={isSaving}
-                                            className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
-                                        >
+                                        <button onClick={handleSave} disabled={isSaving} className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50">
                                             {isSaving ? <Loader2 className="animate-spin" size={18} /> : <span>Update Profile</span>}
                                         </button>
-                                        <button
-                                            onClick={() => {
-                                                setIsEditing(false);
-                                                setEditData({ name: user.name, bio: user.bio || '' });
-                                            }}
-                                            className="px-8 py-3 bg-white text-slate-400 rounded-xl font-bold hover:bg-slate-50 transition-all border border-slate-100"
-                                        >
+                                        <button onClick={() => { setIsEditing(false); setEditData({ name: user.name, bio: user.bio || '' }); }} className="px-8 py-3 bg-white text-slate-400 rounded-xl font-bold hover:bg-slate-50 transition-all border border-slate-100">
                                             Cancel
                                         </button>
                                     </>
@@ -236,9 +254,7 @@ const ProfilePage = () => {
                         </div>
                     </section>
 
-                    {/* 2. Content Grid (FeatureGrid Style) */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
                         {/* Status Card */}
                         <div className="bg-white p-8 rounded-xl shadow-lg border border-slate-100">
                             <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
@@ -257,6 +273,15 @@ const ProfilePage = () => {
                                         <span className="bg-white px-2 py-0.5 rounded shadow-sm">View</span>
                                     </button>
                                 )}
+                                <button
+                                    onClick={() => setIsPasswordModalOpen(true)}
+                                    className="w-full flex items-center justify-between p-4 bg-white text-slate-700 rounded-xl font-bold text-xs ring-1 ring-slate-100 hover:bg-slate-50 transition-all border border-slate-50"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Lock size={14} className="text-slate-400" /> Change Password
+                                    </div>
+                                    <span className="text-slate-300">→</span>
+                                </button>
                             </div>
                         </div>
 
@@ -266,21 +291,26 @@ const ProfilePage = () => {
                                 <ImageIcon size={20} className="text-indigo-500" /> Memory Gallery
                             </h3>
                             <div className="space-y-4">
-                                <p className="text-sm text-slate-500 font-medium">
-                                    Showcase your personal travel memories. Only you and your connected travelers can see this.
-                                </p>
-                                <button
-                                    onClick={() => navigate('/gallery')}
-                                    className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200 flex items-center justify-center gap-2"
-                                >
+                                <p className="text-sm text-slate-500 font-medium">Showcase your personal travel memories. Only you and your connected travelers can see this.</p>
+                                <button onClick={() => navigate('/gallery')} className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200 flex items-center justify-center gap-2">
                                     <ImageIcon size={16} /> Open Gallery
                                 </button>
                             </div>
                         </div>
-                        <div> <button onClick={() => navigate("/tripDeatail")}>view details</button></div>
 
                         {/* Itinerary Card */}
-                        <div className="lg:col-span-2 bg-white p-8 rounded-xl shadow-lg border border-slate-100">
+                        <div className="lg:col-span-1 bg-white p-8 rounded-xl shadow-lg border border-slate-100">
+                            <div className="mt-2 text-center flex flex-col items-center">
+                                <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mb-4">
+                                    <Plane size={24} className="text-indigo-500" />
+                                </div>
+                                <h3 className="font-bold text-slate-800 mb-2">Detailed Travel Desk</h3>
+                                <p className="text-xs text-slate-400 mb-6">Manage all your upcoming and past adventures in one place.</p>
+                                <button onClick={() => navigate("/tripDeatail")} className="w-full py-3 bg-white text-indigo-600 border border-indigo-100 rounded-xl font-bold text-xs hover:bg-indigo-50 transition-all shadow-sm">View Trip Insights</button>
+                            </div>
+                        </div>
+
+                        <div className="lg:col-span-3 bg-white p-8 rounded-xl shadow-lg border border-slate-100">
                             <div className="flex justify-between items-center mb-8">
                                 <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
                                     <Plane size={20} className="text-indigo-500" /> My Trips
@@ -295,13 +325,9 @@ const ProfilePage = () => {
                                     {trips.map((trip) => {
                                         const tripRequests = requests.filter(req => req.tripId?._id === trip._id);
                                         const isExpanded = expandedTripId === trip._id;
-
                                         return (
                                             <div key={trip._id} className="bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden transition-all hover:border-indigo-200">
-                                                <div
-                                                    onClick={() => setExpandedTripId(isExpanded ? null : trip._id)}
-                                                    className="flex items-center justify-between p-5 cursor-pointer group"
-                                                >
+                                                <div onClick={() => setExpandedTripId(isExpanded ? null : trip._id)} className="flex items-center justify-between p-5 cursor-pointer group">
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
                                                             <MapPin size={22} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
@@ -311,7 +337,6 @@ const ProfilePage = () => {
                                                             <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest truncate">{trip.destination}</p>
                                                         </div>
                                                     </div>
-
                                                     <div className="flex items-center gap-4">
                                                         <div className="hidden sm:flex flex-col items-end gap-2 text-right">
                                                             <span className={`text-[9px] font-black uppercase tracking-tight px-1.5 py-0.5 rounded ${trip.status === 'completed' ? 'bg-green-100 text-green-600' : 'bg-indigo-100 text-indigo-600'}`}>
@@ -327,27 +352,16 @@ const ProfilePage = () => {
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center gap-2">
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    navigate(`/edit-trip/${trip._id}`);
-                                                                }}
-                                                                className="p-2 bg-white text-slate-400 hover:text-indigo-600 rounded-lg shadow-sm border border-slate-100 transition-colors"
-                                                                title="Edit Trip"
-                                                            >
+                                                            <button onClick={(e) => { e.stopPropagation(); navigate(`/edit-trip/${trip._id}`); }} className="p-2 bg-white text-slate-400 hover:text-indigo-600 rounded-lg shadow-sm border border-slate-100 transition-colors" title="Edit Trip">
                                                                 <Edit3 size={14} />
                                                             </button>
                                                             {isExpanded ? <ChevronUp size={20} className="text-slate-400" /> : <ChevronDown size={20} className="text-slate-400" />}
                                                         </div>
                                                     </div>
                                                 </div>
-
-                                                {/* Expanded Details */}
                                                 {isExpanded && (
                                                     <div className="px-5 pb-5 pt-2 border-t border-slate-100 bg-white/50 animate-in slide-in-from-top-2 duration-300">
                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-
-                                                            {/* Members Section */}
                                                             <div>
                                                                 <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-2">
                                                                     <Users size={12} /> Trip Members ({trip.members?.length || 0})
@@ -365,25 +379,15 @@ const ProfilePage = () => {
                                                                     )}
                                                                 </div>
                                                             </div>
-
-                                                            {/* Actions Section */}
                                                             <div className="flex flex-col gap-3 justify-center">
-                                                                <button
-                                                                    onClick={() => navigate('/expenses', { state: { tripId: trip._id, from: '/profile' } })}
-                                                                    className="flex items-center justify-center gap-2 w-full py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-xs shadow-md shadow-indigo-100 hover:bg-indigo-700 transition-all"
-                                                                >
+                                                                <button onClick={() => navigate('/expenses', { state: { tripId: trip._id, from: '/profile' } })} className="flex items-center justify-center gap-2 w-full py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-xs shadow-md shadow-indigo-100 hover:bg-indigo-700 transition-all">
                                                                     <Receipt size={14} /> Expense Split
                                                                 </button>
-                                                                <button
-                                                                    onClick={() => navigate(`/trip-details/${trip._id}`, { state: { from: '/profile' } })}
-                                                                    className="flex items-center justify-center gap-2 w-full py-2.5 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all"
-                                                                >
+                                                                <button onClick={() => navigate(`/trip-details/${trip._id}`, { state: { from: '/profile' } })} className="flex items-center justify-center gap-2 w-full py-2.5 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all">
                                                                     <Globe size={14} /> Full Trip Details
                                                                 </button>
                                                             </div>
                                                         </div>
-
-                                                        {/* Requests for this trip */}
                                                         {tripRequests.length > 0 && (
                                                             <div className="mt-6 pt-6 border-t border-slate-100">
                                                                 <h5 className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-3 flex items-center gap-2">
@@ -400,16 +404,10 @@ const ProfilePage = () => {
                                                                                 </div>
                                                                             </div>
                                                                             <div className="flex items-center gap-2">
-                                                                                <button
-                                                                                    onClick={() => handleAcceptRequest(req._id)}
-                                                                                    className="p-1.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors shadow-sm shadow-emerald-100"
-                                                                                >
+                                                                                <button onClick={() => handleAcceptRequest(req._id)} className="p-1.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors shadow-sm shadow-emerald-100">
                                                                                     <Check size={14} />
                                                                                 </button>
-                                                                                <button
-                                                                                    onClick={() => handleRejectRequest(req._id)}
-                                                                                    className="p-1.5 bg-white text-slate-400 border border-slate-200 rounded-lg hover:bg-rose-50 hover:text-rose-500 transition-colors shadow-sm"
-                                                                                >
+                                                                                <button onClick={() => handleRejectRequest(req._id)} className="p-1.5 bg-white text-slate-400 border border-slate-200 rounded-lg hover:bg-rose-50 hover:text-rose-500 transition-colors shadow-sm">
                                                                                     <X size={14} />
                                                                                 </button>
                                                                             </div>
@@ -438,6 +436,78 @@ const ProfilePage = () => {
             </main>
 
             <MainFooter />
+
+            {/* Password Change Modal */}
+            {isPasswordModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => !isChangingPassword && setIsPasswordModalOpen(false)}></div>
+                    <div className="relative bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200 overflow-hidden">
+                        <div className="p-6">
+                            <h3 className="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+                                <Shield size={20} className="text-indigo-500" /> Change Your Password
+                            </h3>
+                            <p className="text-xs text-slate-400 font-medium mb-6 uppercase tracking-widest">Provide your current and new password below</p>
+
+                            <form onSubmit={handlePasswordChange} className="space-y-4">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Current Password</label>
+                                    <input
+                                        type="password"
+                                        required
+                                        value={passwordData.oldPassword}
+                                        onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
+                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
+                                        placeholder="••••••••"
+                                    />
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">New Password</label>
+                                    <input
+                                        type="password"
+                                        required
+                                        minLength={6}
+                                        value={passwordData.newPassword}
+                                        onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
+                                        placeholder="Min. 6 characters"
+                                    />
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Confirm New Password</label>
+                                    <input
+                                        type="password"
+                                        required
+                                        value={passwordData.confirmPassword}
+                                        onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
+                                        placeholder="••••••••"
+                                    />
+                                </div>
+
+                                <div className="flex gap-3 pt-4">
+                                    <button
+                                        type="button"
+                                        disabled={isChangingPassword}
+                                        onClick={() => setIsPasswordModalOpen(false)}
+                                        className="flex-1 py-3 px-4 bg-slate-50 text-slate-400 rounded-xl font-bold hover:bg-slate-100 transition-all disabled:opacity-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isChangingPassword}
+                                        className="flex-[2] py-3 px-4 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+                                    >
+                                        {isChangingPassword ? <Loader2 className="animate-spin" size={18} /> : <span>Change Password</span>}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
