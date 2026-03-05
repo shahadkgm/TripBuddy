@@ -12,11 +12,16 @@ export class TripRepository extends BaseRepository<ITripDocument, CreateTripDTO>
     }
 
     async findByUserId(userId: string): Promise<ITripDocument[]> {
-        return await this._model.find({ userId: userId }).sort({ createdAt: -1 });
+        return await this._model.find({ userId: userId })
+            .populate('members', 'name email avatarURL')
+            .sort({ createdAt: -1 });
     }
 
     override async findById(id: string | mongoose.Types.ObjectId): Promise<ITripDocument | null> {
-        return await this._model.findById(id).populate('userId', 'name email avatarURL').exec();
+        return await this._model.findById(id)
+            .populate('userId', 'name email avatarURL')
+            .populate('members', 'name email avatarURL')
+            .exec();
     }
 
     async findAllTrips(filters: ITripFilters, page: number, limit: number): Promise<{ trips: ITripDocument[], total: number }> {
@@ -49,5 +54,13 @@ export class TripRepository extends BaseRepository<ITripDocument, CreateTripDTO>
             trips: result.data,
             total: result.metadata[0]?.total || 0
         };
+    }
+
+    async addMember(tripId: string, userId: string): Promise<ITripDocument | null> {
+        return await this._model.findByIdAndUpdate(
+            tripId,
+            { $addToSet: { members: userId } },
+            { new: true }
+        );
     }
 }

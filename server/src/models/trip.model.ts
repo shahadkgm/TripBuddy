@@ -44,6 +44,12 @@ const tripSchema = new Schema<ITripDocument>(
             enum: ['planned', 'ongoing', 'completed', 'cancelled'],
             default: 'planned',
         },
+        members: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: 'User',
+            },
+        ],
     },
     {
         timestamps: true,

@@ -87,8 +87,8 @@ const FindTravelers = () => {
                 </button>
 
                 <header className="mb-10 text-center">
-                    <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Find Travel Buddies</h1>
-                    <p className="text-slate-500 mt-2 text-lg">Connect with people heading to your next destination</p>
+                    <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Find Your Next Trip</h1>
+                    <p className="text-slate-500 mt-2 text-lg">Explore journeys shared by fellow travelers and join them</p>
                 </header>
 
                 <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 mb-8 flex flex-col md:flex-row gap-6 items-end">

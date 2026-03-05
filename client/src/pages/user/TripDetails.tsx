@@ -1,167 +1,245 @@
-// import React from "react";
-// import { useNavigate } from "react-router-dom";
-// import {
-//   MapPin,
-//   Calendar,
-//   IndianRupee,
-//   Plane,
-//   Hotel,
-//   User,
-//   FileText,
-//   ArrowLeft
-// } from "lucide-react";
+import { memo, useEffect, useState } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import {
+    Waves, Sparkles, UserCheck, Clock, UserPlus,
+    User
+} from 'lucide-react';
+import { tripService } from '../../services/c.trip.service';
+import { connectionService } from '../../services/c.connection.service';
+import { authService } from '../../services/c.authService';
+import type { ITrip } from '../../interface/ITripdetails';
+import toast from 'react-hot-toast';
 
-// const TripDetailsPage = () => {
-//   const navigate = useNavigate();
+const TripDetails = () => {
+    const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const location = useLocation();
 
-//   // 🔥 Dummy Trip Data
-//   const trip = {
-//     title: "Summer Escape 2026",
-//     destination: "Goa, India",
-//     startDate: "2026-05-10",
-//     endDate: "2026-05-15",
-//     budget: 25000,
-//     description: "Beach relaxation, water sports and amazing seafood.",
-//     preferences: {
-//       travelers: 4,
-//       accommodation: "Hotel",
-//       transport: "Flight",
-//       interests: ["Beaches", "Adventure Sports", "Food & Dining"]
-//     }
-//   };
+    // Get the return path from location state, default to /find-travelers
+    const from = (location.state )?.from || '/find-travelers';
 
-//   // 🔥 Dummy Members
-//   const members = [
-//     { name: "Shahad", role: "Trip Organizer" },
-//     { name: "Ameen", role: "Member" },
-//     { name: "Fathima", role: "Member" },
-//     { name: "Rahul", role: "Member" }
-//   ];
+    const [trip, setTrip] = useState<ITrip | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [status, setStatus] = useState<'none' | 'pending' | 'accepted' | 'incoming_pending' | 'loading'>('loading');
 
-//   return (
-//     <div className="min-h-screen bg-slate-50 py-10 px-6">
-//       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+    const currentUser = authService.getCurrentUser();
 
-//         {/* LEFT SIDE - Trip Details */}
-//         <div className="lg:col-span-2 bg-white rounded-3xl shadow-lg p-8 border border-slate-100">
+    useEffect(() => {
+        const loadTripData = async () => {
+            if (!id) return;
+            try {
+                const data = await tripService.getTripById(id);
+                setTrip(data);
 
-//           <button
-//             onClick={() => navigate("/dashboard")}
-//             className="flex items-center gap-2 text-slate-500 mb-6 hover:text-indigo-600"
-//           >
-//             <ArrowLeft size={18} /> Back
-//           </button>
+                if (currentUser?.id && data.userId._id !== currentUser.id) {
+                    const resStatus = await connectionService.getStatus(data.userId._id, data._id);
+                    setStatus(resStatus);
+                } else {
+                    setStatus('none');
+                }
+            } catch (error) {
+                console.error("Error loading trip details:", error);
+                toast.error("Failed to load trip details");
+            } finally {
+                setLoading(false);
+            }
+        };
 
-//           <h1 className="text-4xl font-bold text-indigo-700 mb-6">
-//             {trip.title}
-//           </h1>
+        loadTripData();
+    }, [id, currentUser?.id]);
 
-//           {/* Destination */}
-//           <div className="flex items-center gap-3 text-slate-600 mb-4">
-//             <MapPin className="text-indigo-500" />
-//             <span className="text-lg font-semibold">{trip.destination}</span>
-//           </div>
+    const handleSendRequest = async () => {
+        if (!currentUser?.id) {
+            toast.error("Please login to send request");
+            navigate('/login');
+            return;
+        }
+        if (!trip) return;
 
-//           {/* Dates */}
-//           <div className="flex items-center gap-3 text-slate-600 mb-4">
-//             <Calendar className="text-indigo-500" />
-//             <span>
-//               {trip.startDate} → {trip.endDate}
-//             </span>
-//           </div>
+        try {
+            setStatus('loading');
+            await connectionService.sendRequest(trip.userId._id, trip._id);
+            setStatus('pending');
+            toast.success("Connection request sent!");
+        } catch (error) {
+            toast.error("Failed to send request");
+            setStatus('none');
+        }
+    };
 
-//           {/* Budget */}
-//           <div className="flex items-center gap-3 text-slate-600 mb-4">
-//             <IndianRupee className="text-indigo-500" />
-//             <span>₹ {trip.budget}</span>
-//           </div>
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+            </div>
+        );
+    }
 
-//           {/* Preferences Grid */}
-//           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+    if (!trip) {
+        return (
+            <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6">
+                <h2 className="text-2xl font-bold text-slate-800 mb-4">Trip not found</h2>
+                <button onClick={() => navigate(from)} className="text-indigo-600 font-bold hover:underline">
+                    Back
+                </button>
+            </div>
+        );
+    }
 
-//             <div className="bg-slate-50 p-6 rounded-2xl">
-//               <div className="flex items-center gap-2 mb-2">
-//                 <User className="text-indigo-500" />
-//                 <span className="font-semibold">Travelers</span>
-//               </div>
-//               <p>{trip.preferences.travelers}</p>
-//             </div>
+    const isOwnTrip = currentUser?.id === trip.userId._id;
 
-//             <div className="bg-slate-50 p-6 rounded-2xl">
-//               <div className="flex items-center gap-2 mb-2">
-//                 <Plane className="text-indigo-500" />
-//                 <span className="font-semibold">Transport</span>
-//               </div>
-//               <p>{trip.preferences.transport}</p>
-//             </div>
+    return (
+        <div className="min-h-screen bg-slate-50 font-sans">
+            {/* Container */}
+            <div className="max-w-4xl mx-auto bg-white min-h-screen shadow-xl border-x border-slate-100 flex flex-col p-8 md:p-12">
 
-//             <div className="bg-slate-50 p-6 rounded-2xl">
-//               <div className="flex items-center gap-2 mb-2">
-//                 <Hotel className="text-indigo-500" />
-//                 <span className="font-semibold">Accommodation</span>
-//               </div>
-//               <p>{trip.preferences.accommodation}</p>
-//             </div>
+                {/* Header Section */}
+                <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-indigo-600 p-2 rounded-lg">
+                            <Waves className="text-white w-6 h-6" />
+                        </div>
+                        <span className="text-2xl font-black text-slate-900 tracking-tight">Trip Buddy</span>
+                    </div>
+                    <button
+                        onClick={() => navigate(from)}
+                        className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition flex items-center gap-2 shadow-lg shadow-indigo-100"
+                    >
+                        back
+                    </button>
+                </div>
 
-//           </div>
+                {/* User Info Section */}
+                <div className="flex flex-col md:flex-row gap-8 mb-10">
+                    <div className="relative shrink-0">
+                        <img
+                            src={trip.userId.avatarURL || `https://i.pravatar.cc/300?u=${trip.userId._id}`}
+                            className="w-32 h-32 md:w-40 md:h-40 rounded-[2.5rem] object-cover border-4 border-indigo-50 shadow-md"
+                            alt={trip.userId.name}
+                        />
+                    </div>
+                    <div className="flex flex-col justify-center">
+                        <h1 className="text-3xl font-black text-slate-900 mb-2">{trip.userId.name}</h1>
+                        <p className="text-slate-500 font-bold mb-4">Age: 23</p>
+                        <div className="space-y-2">
+                            <p className="text-slate-700 font-bold flex items-center gap-2 text-lg">
+                                <span className="text-indigo-600 font-black">Destination:</span>
+                                {trip.destination}
+                                <span className="text-slate-400 font-medium">({new Date(trip.startDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} - {new Date(trip.endDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })})</span>
+                            </p>
+                        </div>
 
-//           {/* Interests */}
-//           <div className="mt-8">
-//             <h3 className="text-xl font-bold mb-4">Interests</h3>
-//             <div className="flex flex-wrap gap-3">
-//               {trip.preferences.interests.map((interest) => (
-//                 <span
-//                   key={interest}
-//                   className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full text-sm font-semibold"
-//                 >
-//                   {interest}
-//                 </span>
-//               ))}
-//             </div>
-//           </div>
+                        <div className="flex flex-wrap gap-2 mt-6">
+                            {trip.preferences.interests.map(interest => (
+                                <span key={interest} className="px-4 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-xs font-black uppercase tracking-widest border border-indigo-100">
+                                    {interest}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                </div>
 
-//           {/* Notes */}
-//           <div className="mt-8">
-//             <div className="flex items-center gap-2 mb-3">
-//               <FileText className="text-indigo-500" />
-//               <h3 className="text-xl font-bold">Notes</h3>
-//             </div>
-//             <p className="text-slate-600">{trip.description}</p>
-//           </div>
-//         </div>
+                {/* Travel Preferences Section */}
+                <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm mb-auto">
+                    <h2 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
+                        <Sparkles className="text-indigo-500 w-5 h-5" /> Travel Preferences
+                    </h2>
 
-//         {/* RIGHT SIDE - Trip Members Column */}
-//         <div className="bg-white rounded-3xl shadow-lg p-8 border border-slate-100">
-//           <h2 className="text-2xl font-bold text-indigo-700 mb-6">
-//             Trip Members
-//           </h2>
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between group">
+                            <div className="flex flex-col">
+                                <span className="text-sm font-black text-slate-900">Budget</span>
+                                <p className="text-slate-500 font-medium mt-1">₹ {trip.budget} </p>
+                            </div>
+                        </div>
 
-//           <div className="space-y-4">
-//             {members.map((member, index) => (
-//               <div
-//                 key={index}
-//                 className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl"
-//               >
-//                 <div>
-//                   <p className="font-semibold text-slate-800">
-//                     {member.name}
-//                   </p>
-//                   <p className="text-sm text-slate-500">
-//                     {member.role}
-//                   </p>
-//                 </div>
+                        <div className="flex items-center justify-between group">
+                            <div className="flex flex-col">
+                                <span className="text-sm font-black text-slate-900">Transport</span>
+                                <p className="text-slate-500 font-medium mt-1 uppercase tracking-wider">{trip.preferences.transport}</p>
+                            </div>
+                        </div>
 
-//                 <div className="w-10 h-10 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold">
-//                   {member.name.charAt(0)}
-//                 </div>
-//               </div>
-//             ))}
-//           </div>
-//         </div>
+                        <div className="flex items-center justify-between group">
+                            <div className="flex flex-col">
+                                <span className="text-sm font-black text-slate-900">discription</span>
+                                <p className="text-slate-500 font-medium mt-1">{trip.description}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-2">
+                                <User size={12} /> Trip Members ({trip.members?.length || 0})
+                            </h5>
+                            <div className="flex flex-wrap gap-2">
+                                {trip.members && trip.members.length > 0 ? (
+                                    trip.members.map(member => (
+                                        <div key={member._id} className="flex items-center gap-2 bg-white p-1.5 rounded-full border border-slate-100 shadow-sm pr-3">
+                                            <img src={member.avatarURL || `https://ui-avatars.com/api/?name=${member.name}`} alt="" className="w-6 h-6 rounded-full object-cover" />
+                                            <span className="text-xs font-bold text-slate-700">{member.name}</span>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-xs text-slate-400 italic">No members yet</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-//       </div>
-//     </div>
-//   );
-// };
+                {/* Action Button Section */}
+                <div className="mt-12">
+                    {isOwnTrip ? (
+                        <button
+                            disabled
+                            className="w-full py-5 bg-slate-100 text-slate-400 rounded-2xl font-black uppercase tracking-[0.2em] cursor-not-allowed"
+                        >
+                            This is your trip
+                        </button>
+                    ) : status === 'accepted' ? (
+                        <div className="space-y-4">
+                            <button
+                                disabled
+                                className="w-full py-5 bg-emerald-500 text-white rounded-2xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-lg shadow-emerald-100"
+                            >
+                                <UserCheck className="w-6 h-6" />
+                                Connected
+                            </button>
+                            <p className="text-center text-slate-400 text-sm font-medium italic">You are already travel buddies for this trip!</p>
+                        </div>
+                    ) : status === 'pending' ? (
+                        <button
+                            disabled
+                            className="w-full py-5 bg-amber-50 text-amber-600 border-2 border-amber-200 rounded-2xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3"
+                        >
+                            <Clock className="w-6 h-6" />
+                            Request Sent
+                        </button>
+                    ) : status === 'incoming_pending' ? (
+                        <button
+                            onClick={() => navigate('/connection-requests')}
+                            className="w-full py-5 bg-indigo-100 text-indigo-700 rounded-2xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-indigo-200 transition shadow-lg shadow-indigo-50"
+                        >
+                            <UserPlus className="w-6 h-6" />
+                            View Incoming Request
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handleSendRequest}
+                            disabled={status === 'loading'}
+                            className="w-full py-5 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] transition-all transform active:scale-95 shadow-xl shadow-blue-200 flex items-center justify-center gap-3 overflow-hidden"
+                        >
+                            {status === 'loading' ? (
+                                <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            ) : (
+                                "Send request"
+                            )}
+                        </button>
+                    )}
+                </div>
 
-// export default TripDetailsPage;
+            </div>
+        </div>
+    );
+};
+
+export default TripDetails;

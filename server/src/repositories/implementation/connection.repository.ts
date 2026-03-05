@@ -27,7 +27,9 @@ export class ConnectionRepository extends BaseRepository<IConnectionDocument, Cr
         return await this._model.find({
             receiverId: userId,
             status: 'pending'
-        }).populate('senderId', 'name email avatarURL');
+        })
+            .populate('senderId', 'name email avatarURL')
+            .populate('tripId', 'title destination');
     }
 
     async getTripConnections(tripId: string): Promise<IConnectionDocument[]> {

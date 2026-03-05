@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { FooterCTA } from '../../components/FooterCTA';
 import { authService } from '../../services/c.authService';
 import {
-  Calendar, Users, MessageSquare, Wallet,
-  Users2, Image, MapPin, LifeBuoy,
+  Calendar, Users, MessageSquare, 
+  Users2, MapPin, 
   Search, UserCheck, X
 } from 'lucide-react';
 
@@ -17,8 +17,8 @@ const DASHBOARD_FEATURES = [
     path: "/create-trip"
   },
   {
-    title: "Find Travelers",
-    desc: "Connect with others on similar travel paths.",
+    title: "Find Trips",
+    desc: "Explore and join upcoming journeys.",
     icon: <Users className="w-5 h-5 text-blue-600" />,
     color: "bg-blue-50",
     path: "/find-travelers"
@@ -37,13 +37,13 @@ const DASHBOARD_FEATURES = [
     color: "bg-purple-50",
     path: "/chat"
   },
-  {
-    title: "Add Group Expenses",
-    desc: "Track who paid what for shared costs.",
-    icon: <Wallet className="w-5 h-5 text-emerald-600" />,
-    color: "bg-emerald-50",
-    path: "/expenses"
-  },
+  // {
+  //   title: "Add Group Expenses",
+  //   desc: "Track who paid what for shared costs.",
+  //   icon: <Wallet className="w-5 h-5 text-emerald-600" />,
+  //   color: "bg-emerald-50",
+  //   path: "/expenses"
+  // },
   {
     title: "Groups",
     desc: "Manage your trip groups",
@@ -51,13 +51,13 @@ const DASHBOARD_FEATURES = [
     color: "bg-pink-50",
     path: "/groups"
   },
-  {
-    title: "TRIP GALLERY",
-    desc: "View and share trip photos",
-    icon: <Image className="w-5 h-5 text-blue-600" />,
-    color: "bg-blue-50",
-    path: "/gallery"
-  },
+  // {
+  //   title: "TRIP GALLERY",
+  //   desc: "View and share trip photos",
+  //   icon: <Image className="w-5 h-5 text-blue-600" />,
+  //   color: "bg-blue-50",
+  //   path: "/gallery"
+  // },
   {
     title: "NearByPlace",
     desc: "Explore local spots around you",
@@ -65,13 +65,13 @@ const DASHBOARD_FEATURES = [
     color: "bg-orange-50",
     path: "/nearby"
   },
-  {
-    title: "Travel Assistance",
-    desc: "Get 24/7 help on the go",
-    icon: <LifeBuoy className="w-5 h-5 text-cyan-600" />,
-    color: "bg-cyan-50",
-    path: "/support"
-  },
+  // {
+  //   title: "Travel Assistance",
+  //   desc: "Get 24/7 help on the go",
+  //   icon: <LifeBuoy className="w-5 h-5 text-cyan-600" />,
+  //   color: "bg-cyan-50",
+  //   path: "/support"
+  // },
   {
     title: "Find Local Experts",
     desc: "Connect with local guides",

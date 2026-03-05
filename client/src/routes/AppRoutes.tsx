@@ -14,6 +14,7 @@ import KYCPage from "../pages/user/KYCPage";
 import { GuideRegistrationPage } from "../pages/user/GuideRegistrationPage";
 import CreateTripPage from "../pages/user/CreateTripPage";
 import FindTravelers from "../pages/user/FindTravelers";
+import TripDetails from "../pages/user/TripDetails";
 import ConnectionRequestsPage from "../pages/user/ConnectionRequestsPage";
 import ExpenseSplitPage from "../pages/user/ExpenseSplitPage";
 import WeatherPage from "../pages/user/WeatherPage";
@@ -26,7 +27,6 @@ import { UserManagement } from "../pages/admin/UserManagement";
 import { GuideManagement } from "../pages/admin/GuideManagement";
 
 import { GuideDashboard } from "../pages/guide/GuideDashboard";
-// import TripDetailsPage from "../pages/user/TripDetails";
 
 export default function AppRoutes() {
   return (
@@ -49,14 +49,12 @@ export default function AppRoutes() {
         <Route path="/create-trip" element={<CreateTripPage />} />
         <Route path="/edit-trip/:id" element={<CreateTripPage />} />
         <Route path="/find-travelers" element={<FindTravelers />} />
+        <Route path="/trip-details/:id" element={<TripDetails />} />
         <Route path="/connection-requests" element={<ConnectionRequestsPage />} />
         <Route path="/expenses" element={<ExpenseSplitPage />} />
         <Route path="/weather" element={<WeatherPage />} />
         <Route path="/gallery" element={<GalleryPage />} />
         <Route path="/gallery/:userId" element={<GalleryPage />} />
-         {/* <Route path="/tripDeatail" element={<TripDetailsPage />} /> */}
-
-
       </Route>
 
 

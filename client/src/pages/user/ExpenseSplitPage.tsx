@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Trash2, Plus, User, Receipt, Calculator, ChevronLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { expenseService } from '../../services/c.expense.service';
 import type { IExpense } from '../../services/c.expense.service';
 import { tripService } from '../../services/c.trip.service';
@@ -11,8 +11,12 @@ import type { ITrip } from '../../interface/ITripdetails';
 
 export const ExpenseSplitPage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const stateTripId = (location.state )?.tripId;
+    const from = (location.state)?.from || '/dashboard';
+
     const [trips, setTrips] = useState<ITrip[]>([]);
-    const [selectedTripId, setSelectedTripId] = useState<string>('');
+    const [selectedTripId, setSelectedTripId] = useState<string>(stateTripId || '');
     const [expenses, setExpenses] = useState<IExpense[]>([]);
     const [tripMembers, setTripMembers] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -34,7 +38,11 @@ export const ExpenseSplitPage = () => {
         try {
             const data = await tripService.getUserTrips(currentUser.id);
             setTrips(data);
-            if (data.length > 0) {
+
+            // If we have a stateTripId, prioritize it. Otherwise, pick the first one from the list.
+            if (stateTripId) {
+                setSelectedTripId(stateTripId);
+            } else if (data.length > 0 && !selectedTripId) {
                 setSelectedTripId(data[0]._id);
             }
         } catch (error) {
@@ -121,24 +129,32 @@ export const ExpenseSplitPage = () => {
                 {/* Navigation and Trip Selector */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <button
-                        onClick={() => navigate('/dashboard')}
+                        onClick={() => navigate(from)}
                         className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-all font-medium"
                     >
                         <ChevronLeft className="w-5 h-5" />
-                        Back to Dashboard
+                        Back
                     </button>
 
                     <div className="w-full md:w-auto flex items-center gap-3">
-                        <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">Select Trip:</label>
-                        <select
-                            className="bg-white border border-slate-200 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-slate-700 shadow-sm"
-                            value={selectedTripId}
-                            onChange={(e) => setSelectedTripId(e.target.value)}
-                        >
-                            {trips.map(trip => (
-                                <option key={trip._id} value={trip._id}>{trip.title}</option>
-                            ))}
-                        </select>
+                        <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">
+                            {stateTripId ? 'Trip:' : 'Select Trip:'}
+                        </label>
+                        {stateTripId ? (
+                            <div className="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2 font-bold text-indigo-700 shadow-sm">
+                                {trips.find(t => t._id === stateTripId)?.title || 'Loading...'}
+                            </div>
+                        ) : (
+                            <select
+                                className="bg-white border border-slate-200 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-slate-700 shadow-sm"
+                                value={selectedTripId}
+                                onChange={(e) => setSelectedTripId(e.target.value)}
+                            >
+                                {trips.map(trip => (
+                                    <option key={trip._id} value={trip._id}>{trip.title}</option>
+                                ))}
+                            </select>
+                        )}
                     </div>
                 </div>
 

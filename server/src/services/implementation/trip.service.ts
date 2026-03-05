@@ -14,7 +14,11 @@ export class TripService implements ITripService {
 
     async createTrip(data: CreateTripDTO): Promise<ITripDocument> {
         logger.info('Creating new trip in service in t-s', { data });
-        return await this._tripRepository.create(data);
+        const tripData: CreateTripDTO = {
+            ...data,
+            members: [data.userId]
+        };
+        return await this._tripRepository.create(tripData);
     }
 
     async getUserTrips(userId: string): Promise<ITripDocument[]> {

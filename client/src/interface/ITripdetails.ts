@@ -22,6 +22,12 @@ export interface ITrip {
         interests: string[];
     };
     status: string;
+    members?: {
+        _id: string;
+        name: string;
+        email: string;
+        avatarURL?: string;
+    }[];
     createdAt: string;
     updatedAt: string;
 }

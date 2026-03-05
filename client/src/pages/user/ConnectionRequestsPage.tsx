@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { connectionService } from '../../services/c.connection.service';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, UserCheck, UserX, Clock, MessageSquare } from 'lucide-react';
+import { ChevronLeft, UserCheck, UserX, Clock, MessageSquare, Plane } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const ConnectionRequestsPage = () => {
@@ -108,10 +108,21 @@ const ConnectionRequestsPage = () => {
                                     />
                                     <div>
                                         <h3 className="text-lg font-bold text-slate-800">{request.senderId.name}</h3>
-                                        <p className="text-slate-400 text-sm flex items-center gap-1">
-                                            <Clock className="w-3 h-3" />
-                                            Received {new Date(request.createdAt).toLocaleDateString()}
-                                        </p>
+                                        <div className="flex flex-col gap-0.5">
+                                            {request.tripId ? (
+                                                <p className="text-indigo-600 text-xs font-bold flex items-center gap-1">
+                                                    <Plane size={12} /> Trip: {request.tripId.title} ({request.tripId.destination})
+                                                </p>
+                                            ) : (
+                                                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                                                    General connection
+                                                </p>
+                                            )}
+                                            <p className="text-slate-400 text-sm flex items-center gap-1">
+                                                <Clock className="w-3 h-3" />
+                                                Received {new Date(request.createdAt).toLocaleDateString()}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
 

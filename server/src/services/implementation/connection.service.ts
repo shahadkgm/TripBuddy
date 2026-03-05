@@ -1,4 +1,4 @@
-import { IConnectionRepository } from '../../repositories/interface/IConnectionRepository';
+ import { IConnectionRepository } from '../../repositories/interface/IConnectionRepository';
 import { ITripRepository } from '../../repositories/interface/ITripRepository';
 import { IConnectionService } from '../interface/IConnectionService';
 import { IConnectionDocument } from '../../types/connection.type';
@@ -30,6 +30,11 @@ export class ConnectionService implements IConnectionService {
 
     async acceptRequest(requestId: string): Promise<IConnectionDocument | null> {
         logger.info(`Accepting connection request: ${requestId}`);
+        const connection = await this._connectionRepository.findById(requestId);
+        if (connection && connection.tripId) {
+            // Add sender to trip members
+            await this._tripRepository.addMember(connection.tripId.toString(), connection.senderId.toString());
+        }
         return await this._connectionRepository.updateById(requestId, { status: 'accepted' });
     }
 

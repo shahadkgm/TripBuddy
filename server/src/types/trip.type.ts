@@ -17,6 +17,7 @@ export interface ITrip {
     description?: string;
     preferences: ITripPreferences;
     status: 'planned' | 'ongoing' | 'completed' | 'cancelled';
+    members: Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
 }

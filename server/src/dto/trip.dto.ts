@@ -64,4 +64,8 @@ export class CreateTripDTO {
     @ValidateNested()
     @Type(() => TripPreferencesDTO)
     preferences!: TripPreferencesDTO;
+
+    @IsOptional()
+    @IsArray()
+    members?: string[];
 }
