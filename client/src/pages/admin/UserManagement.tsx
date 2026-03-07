@@ -173,7 +173,11 @@ export const UserManagement = () => {
       render: (user: UserData) => (
         user.kycStatus !== 'none' ? (
           <button
-            onClick={() => { setSelectedKYCUser(user); setIsKYCModalOpen(true); }}
+            onClick={() => {
+              setSelectedKYCUser(user);
+              setRejectionReason(user.kycRejectionReason || '');
+              setIsKYCModalOpen(true);
+            }}
             className="flex items-center gap-1.5 text-xs font-medium text-[#5537ee] hover:underline"
           >
             <FileText size={14} />
@@ -326,19 +330,17 @@ export const UserManagement = () => {
             </div>
 
             <div className="p-6 bg-white border-t space-y-4">
-              {selectedKYCUser.kycStatus !== 'approved' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Rejection Reason (Required for rejection)
-                  </label>
-                  <textarea
-                    value={rejectionReason}
-                    onChange={(e) => setRejectionReason(e.target.value)}
-                    placeholder="Provide a reason for rejection..."
-                    className="w-full px-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 min-h-20"
-                  />
-                </div>
-              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Status Reason / Notes (Required for rejection)
+                </label>
+                <textarea
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  placeholder="Provide a reason or internal note..."
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-[#5537ee] min-h-20"
+                />
+              </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => handleVerifyKYC(selectedKYCUser.id, 'rejected')}
