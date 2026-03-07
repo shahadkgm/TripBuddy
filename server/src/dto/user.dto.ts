@@ -59,6 +59,7 @@ export interface UserResponseDTO {
   yearsOfExperience?: number;
   kycStatus?: string;
   kycDocument?: string;
+  kycRejectionReason?: string | null;
 }
 
 export interface RegisterUserResponseDTO {

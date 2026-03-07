@@ -6,5 +6,6 @@ export interface IKYC {
   documentType: string;
   filePath: string;
   status: KYCStatus;
+  rejectionReason?: string | null;
   uploadedAt: Date;
 }

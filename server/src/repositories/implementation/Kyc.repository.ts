@@ -1,6 +1,6 @@
 import { S3File } from '@/types/multer-s3';
 import { KYC } from '../../models/kyc.model';
-import { IKYC } from '../../types/kyc.type';
+import { IKYC, KYCStatus } from '../../types/kyc.type';
 import { IKYCRepository } from '../interface/IKycRepository';
 
 
@@ -34,10 +34,14 @@ export class KycRepository implements IKYCRepository {
       .lean<IKYC>();
   }
 
-  async updateStatus(userId: string, status: string): Promise<IKYC | null> {
+  async updateStatus(userId: string, status: KYCStatus, reason?: string): Promise<IKYC | null> {
+    const update: { status: KYCStatus; rejectionReason?: string } = { status };
+    if (reason) {
+      update.rejectionReason = reason;
+    }
     return KYC.findOneAndUpdate(
       { userId },
-      { status },
+      update,
       { new: true, sort: { uploadedAt: -1 } }
     ).lean<IKYC>();
   }

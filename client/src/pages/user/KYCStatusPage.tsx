@@ -16,8 +16,8 @@ const KYCStatusPage = () => {
         try {
           console.log("userId", userId)
           const res = await api.get(`/api/kyc-status/${userId}`);
-          setKycData(res.data.data);
           console.log("KYC Data from API:", res.data.data);
+          setKycData(res.data.data);
         } catch (err) {
           console.error("Error fetching KYC details:", err);
         } finally {
@@ -49,11 +49,21 @@ const KYCStatusPage = () => {
         <div className={`${styles.bg} ${styles.text} rounded-2xl p-6 text-center mb-8 border border-opacity-20`}>
           <div className="text-4xl mb-2">{styles.icon}</div>
           <div className="text-xl font-bold">{styles.label}</div>
-          <p className="text-sm mt-2 opacity-80">
-            {kycData?.status === 'pending' && "We are reviewing your document. This usually takes 24 hours."}
-            {kycData?.status === 'approved' && "Congratulations! You are now a verified Guide. Please login again to access your Guide Dashboard."}
-            {kycData?.status === 'rejected' && "We couldn't verify your document. Please try again."}
-          </p>
+          <div className="text-sm mt-2 opacity-80">
+            {kycData?.status === 'pending' && <p>We are reviewing your document. This usually takes 24 hours.</p>}
+            {kycData?.status === 'approved' && <p>Congratulations! You are now a verified Guide. Please login again to access your Guide Dashboard.</p>}
+            {kycData?.status === 'rejected' && (
+              <div className="space-y-2">
+                <p>We couldn't verify your document.</p>
+                {kycData?.rejectionReason && (
+                  <div className="mt-2 p-2 bg-red-200/50 rounded-lg font-medium border border-red-300 text-left">
+                    <span className="font-bold">Reason:</span> {kycData.rejectionReason}
+                  </div>
+                )}
+                <p className="mt-2">Please try again after addressing the reason above.</p>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="space-y-4 text-left border-t pt-6">
@@ -77,7 +87,7 @@ const KYCStatusPage = () => {
             Try Again
           </button>
         )}
-{/* 
+        {/* 
         {kycData?.status === 'approved' && (
           <button
             onClick={() => authService.logout()}

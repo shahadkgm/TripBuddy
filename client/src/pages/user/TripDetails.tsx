@@ -2,7 +2,8 @@ import { memo, useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
     Waves, Sparkles, UserCheck, Clock, UserPlus,
-    User
+    User,
+    MapPin
 } from 'lucide-react';
 import { tripService } from '../../services/c.trip.service';
 import { connectionService } from '../../services/c.connection.service';
@@ -15,7 +16,6 @@ const TripDetails = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Get the return path from location state, default to /find-travelers
     const from = (location.state)?.from || '/find-travelers';
 
     const [trip, setTrip] = useState<ITrip | null>(null);
@@ -97,7 +97,7 @@ const TripDetails = () => {
                 <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
                     <div className="flex items-center gap-3">
                         <div className="bg-indigo-600 p-2 rounded-lg">
-                            <Waves className="text-white w-6 h-6" />
+                            <MapPin className="text-white w-6 h-6" />
                         </div>
                         <span className="text-2xl font-black text-slate-900 tracking-tight">Trip Buddy</span>
                     </div>

@@ -32,6 +32,7 @@ export interface IUser {
   kyc?: {
     status: string;
     filePath: string;
+    rejectionReason?: string | null;
   };
 }
 

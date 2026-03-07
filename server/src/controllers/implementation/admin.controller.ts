@@ -75,9 +75,9 @@ export class AdminController extends BaseController implements IAdminController 
 
   handleApproveKYC = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, reason } = req.body;
 
-    await this._adminService.approveKYC(id, status);
+    await this._adminService.approveKYC(id, status, reason);
 
     this.sendSuccess(res, null, `KYC status updated to ${status} successfully`);
   });

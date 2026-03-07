@@ -6,6 +6,7 @@
 import { DashboardStatsDTO, GuideListDTO, UserListDTO } from '../../dto/admin.dto';
 import { AdminGuideResponseDTO } from '../../dto/admin.dto';
 import { UserResponseDTO } from '../../dto/user.dto';
+import { KYCStatus } from '../../types/kyc.type';
 export interface IAdminService {
   fetchAllUsers(page: number, limit: number, search: string): Promise<UserListDTO>;
 
@@ -28,6 +29,6 @@ export interface IAdminService {
   ): Promise<GuideListDTO>;
 
   rejectApplication(guideId: string): Promise<boolean>;
-  approveKYC(userId: string, status: string): Promise<boolean>;
+  approveKYC(userId: string, status: KYCStatus, reason?: string): Promise<boolean>;
   getDashboardStats(): Promise<DashboardStatsDTO>;
 }

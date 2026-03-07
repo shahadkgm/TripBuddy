@@ -9,6 +9,7 @@ import { UserMapper } from '../../utils/userMapper';
 import { logger } from '../../utils/logger';
 import { IAdminService } from '../interface/Iadminservice';
 import { IKYCRepository } from '../../repositories/interface/IKycRepository';
+import { KYCStatus } from '../../types/kyc.type';
 
 export class AdminService implements IAdminService {
   constructor(
@@ -87,7 +88,6 @@ export class AdminService implements IAdminService {
 
     await this.adminRepo.updateUserRole(userId, 'guide');
 
-    // Automatically approve KYC when guide is verified
     await this.kycRepo.updateStatus(userId, 'approved');
     logger.info(`KYC status auto-approved for user: ${userId}`);
 
@@ -115,8 +115,8 @@ export class AdminService implements IAdminService {
     return true;
   }
 
-  async approveKYC(userId: string, status: string): Promise<boolean> {
-    const result = await this.kycRepo.updateStatus(userId, status);
+  async approveKYC(userId: string, status: KYCStatus, reason?: string): Promise<boolean> {
+    const result = await this.kycRepo.updateStatus(userId, status, reason);
     if (!result) {
       throw new AppError('KYC record not found', StatusCode.NOT_FOUND);
     }

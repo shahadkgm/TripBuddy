@@ -21,6 +21,7 @@ export class UserMapper {
       createdAt: user.createdAt?.toISOString() ?? '',
       kycStatus: user.kyc?.status || 'none',
       kycDocument: user.kyc?.filePath ? user.kyc.filePath.replace(/\\/g, '/') : '',
+      kycRejectionReason: user.kyc?.rejectionReason || null,
     };
   }
 }

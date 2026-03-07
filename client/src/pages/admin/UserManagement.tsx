@@ -16,6 +16,7 @@ interface UserData {
   isBlocked: boolean;
   kycStatus: 'none' | 'pending' | 'approved' | 'rejected';
   kycDocument?: string;
+  kycRejectionReason?: string;
   avatarURL?: string;
 }
 
@@ -31,6 +32,7 @@ export const UserManagement = () => {
   const [userToBlock, setUserToBlock] = useState<UserData | null>(null);
   const [isKYCModalOpen, setIsKYCModalOpen] = useState(false);
   const [selectedKYCUser, setSelectedKYCUser] = useState<UserData | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
   const limit = 3;
 
   useEffect(() => {
@@ -75,10 +77,15 @@ export const UserManagement = () => {
 
   const handleVerifyKYC = async (userId: string, status: 'approved' | 'rejected') => {
     try {
-      await api.patch(`/api/admin/kyc/${userId}/approve`, { status });
+      if (status === 'rejected' && !rejectionReason.trim()) {
+        toast.error("Please provide a reason for rejection");
+        return;
+      }
+      await api.patch(`/api/admin/kyc/${userId}/approve`, { status, reason: rejectionReason });
       toast.success(`KYC ${status === 'approved' ? 'Approved' : 'Rejected'}`);
       setUsers(users.map(u => u.id === userId ? { ...u, kycStatus: status } : u));
       setIsKYCModalOpen(false);
+      setRejectionReason('');
     } catch (error) {
       toast.error("Failed to update KYC status");
     }
@@ -266,7 +273,7 @@ export const UserManagement = () => {
       {/* KYC View Modal */}
       {isKYCModalOpen && selectedKYCUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsKYCModalOpen(false)} />
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => { setIsKYCModalOpen(false); setRejectionReason(''); }} />
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative z-10 overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b flex justify-between items-center">
               <div>
@@ -274,7 +281,7 @@ export const UserManagement = () => {
                 <p className="text-sm text-gray-500">Review documents for {selectedKYCUser.name}</p>
               </div>
               <button
-                onClick={() => setIsKYCModalOpen(false)}
+                onClick={() => { setIsKYCModalOpen(false); setRejectionReason(''); }}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X size={20} />
@@ -318,23 +325,37 @@ export const UserManagement = () => {
               )}
             </div>
 
-            <div className="p-6 bg-white border-t flex gap-3">
-              <button
-                onClick={() => handleVerifyKYC(selectedKYCUser.id, 'rejected')}
-                disabled={selectedKYCUser.kycStatus === 'rejected'}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-red-200 text-red-600 rounded-xl hover:bg-red-50 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <X size={18} />
-                Reject
-              </button>
-              <button
-                onClick={() => handleVerifyKYC(selectedKYCUser.id, 'approved')}
-                disabled={selectedKYCUser.kycStatus === 'approved'}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#5537ee] text-white rounded-xl hover:bg-[#4429d1] font-semibold shadow-lg shadow-indigo-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Check size={18} />
-                Approve & Verify
-              </button>
+            <div className="p-6 bg-white border-t space-y-4">
+              {selectedKYCUser.kycStatus !== 'approved' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Rejection Reason (Required for rejection)
+                  </label>
+                  <textarea
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                    placeholder="Provide a reason for rejection..."
+                    className="w-full px-4 py-2 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-red-500 min-h-20"
+                  />
+                </div>
+              )}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => handleVerifyKYC(selectedKYCUser.id, 'rejected')}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-red-200 text-red-600 rounded-xl hover:bg-red-50 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <X size={18} />
+                  Reject
+                </button>
+                <button
+                  onClick={() => handleVerifyKYC(selectedKYCUser.id, 'approved')}
+                  disabled={selectedKYCUser.kycStatus === 'approved'}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#5537ee] text-white rounded-xl hover:bg-[#4429d1] font-semibold shadow-lg shadow-indigo-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Check size={18} />
+                  Approve & Verify
+                </button>
+              </div>
             </div>
           </div>
         </div>
