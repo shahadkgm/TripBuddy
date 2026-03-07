@@ -5,7 +5,7 @@ import {
     Shield, LogOut,
     ArrowLeft, UserCheck, Plane,
     Loader2, Edit3, Globe, Compass, Image as ImageIcon,
-    Users, Receipt, ChevronDown, ChevronUp, Check, X, Lock
+    Users, Receipt, ChevronDown, ChevronUp, Check, X, Lock,ShieldQuestion
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
 import { connectionService } from '../../services/c.connection.service';
@@ -34,6 +34,21 @@ const ProfilePage = () => {
     const [passwordData, setPasswordData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
     const [isChangingPassword, setIsChangingPassword] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [errors, setErrors] = useState<{
+        name?: string;
+        bio?: string;
+        oldPassword?: string;
+        newPassword?: string;
+        confirmPassword?: string;
+    }>({});
+
+    const clearError = (field: string) => {
+        setErrors(prev => {
+            const newErrors = { ...prev };
+            delete (newErrors as any)[field];
+            return newErrors;
+        });
+    };
 
     useEffect(() => {
         const loadData = async () => {
@@ -65,13 +80,27 @@ const ProfilePage = () => {
 
     const handleSave = async () => {
         if (!user?.id) return;
+        
+        // Validation
+        const newErrors: any = {};
+        if (!editData.name.trim()) newErrors.name = "Name is required";
+        if (editData.bio.length > 200) newErrors.bio = "Bio cannot exceed 200 characters";
+        
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
         try {
             setIsSaving(true);
             await authService.updateProfile(user.id, editData);
-            toast.success("edited succesfully")
+            toast.success("Profile updated successfully")
             setIsEditing(false);
-        } catch (error) {
-            alert("Failed to update profile.");
+            setErrors({});
+        } catch (error: any) {
+            console.error("Profile update error", error);
+            const message = error.response?.data?.message || "Failed to update profile";
+            toast.error(message);
         } finally {
             setIsSaving(false);
         }
@@ -118,14 +147,17 @@ const ProfilePage = () => {
 
     const handlePasswordChange = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (passwordData.newPassword !== passwordData.confirmPassword) {
-            toast.error("Passwords do not match");
+        const newErrors: any = {};
+
+        if (!passwordData.oldPassword) newErrors.oldPassword = "Current password is required";
+        if (passwordData.newPassword.length < 6) newErrors.newPassword = "Password must be at least 6 characters";
+        if (passwordData.newPassword !== passwordData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
             return;
         }
-        if (passwordData.newPassword.length < 6) {
-            toast.error("Password must be at least 6 characters");
-            return;
-        }
+
         try {
             setIsChangingPassword(true);
             await authService.changePassword(user.id!, {
@@ -135,9 +167,16 @@ const ProfilePage = () => {
             toast.success("Password changed successfully");
             setIsPasswordModalOpen(false);
             setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+            setErrors({});
         } catch (err: unknown) {
             const error = err as { response?: { data?: { message?: string } } };
-            toast.error(error.response?.data?.message || "Failed to change password");
+            const message = error.response?.data?.message || "Failed to change password";
+            
+            if (message.toLowerCase().includes("current password")) {
+                setErrors({ ...errors, oldPassword: message });
+            } else {
+                toast.error(message);
+            }
         } finally {
             setIsChangingPassword(false);
         }
@@ -193,19 +232,30 @@ const ProfilePage = () => {
                                             <input
                                                 type="text"
                                                 value={editData.name}
-                                                onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                                                className="w-full px-4 py-2.5 bg-white border border-blue-100 rounded-xl text-2xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
+                                                onChange={(e) => {
+                                                    setEditData({ ...editData, name: e.target.value });
+                                                    if (errors.name) clearError('name');
+                                                }}
+                                                className={`w-full px-4 py-2.5 bg-white border ${errors.name ? 'border-red-300 ring-4 ring-red-50' : 'border-blue-100'} rounded-xl text-2xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm`}
                                                 placeholder="Your name"
                                             />
+                                            {errors.name && <p className="text-[10px] text-red-500 font-bold mt-1 pl-1 flex items-center gap-1 animate-in slide-in-from-left-2"><X size={10} /> {errors.name}</p>}
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Bio</label>
+                                            <div className="flex justify-between items-center mb-1">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Bio</label>
+                                                <span className={`text-[10px] font-bold ${editData.bio.length > 180 ? 'text-amber-500' : 'text-slate-300'}`}>{editData.bio.length}/200</span>
+                                            </div>
                                             <textarea
                                                 value={editData.bio}
-                                                onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-                                                className="w-full px-4 py-2.5 bg-white border border-blue-100 rounded-xl text-sm font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all min-h-22.5 resize-none shadow-sm"
+                                                onChange={(e) => {
+                                                    setEditData({ ...editData, bio: e.target.value });
+                                                    if (errors.bio) clearError('bio');
+                                                }}
+                                                className={`w-full px-4 py-2.5 bg-white border ${errors.bio ? 'border-red-300 ring-4 ring-red-50' : 'border-blue-100'} rounded-xl text-sm font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all min-h-22.5 resize-none shadow-sm`}
                                                 placeholder="Tell travelers about yourself..."
                                             />
+                                            {errors.bio && <p className="text-[10px] text-red-500 font-bold mt-1 pl-1 flex items-center gap-1 animate-in slide-in-from-left-2"><X size={10} /> {errors.bio}</p>}
                                         </div>
                                     </div>
                                 ) : (
@@ -236,13 +286,13 @@ const ProfilePage = () => {
                                         <button onClick={handleSave} disabled={isSaving} className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50">
                                             {isSaving ? <Loader2 className="animate-spin" size={18} /> : <span>Update Profile</span>}
                                         </button>
-                                        <button onClick={() => { setIsEditing(false); setEditData({ name: user.name, bio: user.bio || '' }); }} className="px-8 py-3 bg-white text-slate-400 rounded-xl font-bold hover:bg-slate-50 transition-all border border-slate-100">
+                                        <button onClick={() => { setIsEditing(false); setEditData({ name: user.name, bio: user.bio || '' }); setErrors({}); }} className="px-8 py-3 bg-white text-slate-400 rounded-xl font-bold hover:bg-slate-50 transition-all border border-slate-100">
                                             Cancel
                                         </button>
                                     </>
                                 ) : (
                                     <>
-                                        <button onClick={() => setIsEditing(true)} className="px-6 py-3 bg-white text-slate-800 rounded-xl font-bold shadow-md hover:bg-slate-50 transition-all flex items-center gap-2 border border-slate-100">
+                                        <button onClick={() => { setIsEditing(true); setErrors({}); }} className="px-6 py-3 bg-white text-slate-800 rounded-xl font-bold shadow-md hover:bg-slate-50 transition-all flex items-center gap-2 border border-slate-100">
                                             <Edit3 size={18} /> Edit Profile
                                         </button>
                                         <button onClick={handleLogout} className="px-6 py-3 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-900 transition-all flex items-center gap-2 shadow-lg shadow-slate-200">
@@ -274,7 +324,11 @@ const ProfilePage = () => {
                                     </button>
                                 )}
                                 <button
-                                    onClick={() => setIsPasswordModalOpen(true)}
+                                    onClick={() => {
+                                        setIsPasswordModalOpen(true);
+                                        setErrors({});
+                                        setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+                                    }}
                                     className="w-full flex items-center justify-between p-4 bg-white text-slate-700 rounded-xl font-bold text-xs ring-1 ring-slate-100 hover:bg-slate-50 transition-all border border-slate-50"
                                 >
                                     <div className="flex items-center gap-2">
@@ -302,11 +356,11 @@ const ProfilePage = () => {
                         <div className="lg:col-span-1 bg-white p-8 rounded-xl shadow-lg border border-slate-100">
                             <div className="mt-2 text-center flex flex-col items-center">
                                 <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mb-4">
-                                    <Plane size={24} className="text-indigo-500" />
+                                    <ShieldQuestion size={24} className="text-indigo-500" />
                                 </div>
-                                <h3 className="font-bold text-slate-800 mb-2">Detailed Travel Desk</h3>
-                                <p className="text-xs text-slate-400 mb-6">Manage all your upcoming and past adventures in one place.</p>
-                                <button onClick={() => navigate("/tripDeatail")} className="w-full py-3 bg-white text-indigo-600 border border-indigo-100 rounded-xl font-bold text-xs hover:bg-indigo-50 transition-all shadow-sm">View Trip Insights</button>
+                                <h3 className="font-bold text-slate-800 mb-2">Coming soon...</h3>
+                                <p className="text-xs text-slate-400 mb-6">Ai assistent for all your trip</p>
+                                <button onClick={() => navigate("/tripDeatail")} className="w-full py-3 bg-white text-indigo-600 border border-indigo-100 rounded-xl font-bold text-xs hover:bg-indigo-50 transition-all shadow-sm">Not ready yet</button>
                             </div>
                         </div>
 
@@ -425,7 +479,7 @@ const ProfilePage = () => {
                             ) : (
                                 <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-slate-100 rounded-2xl bg-slate-50/50">
                                     <Globe className="w-12 h-12 text-slate-200 mb-4" />
-                                    <h3 className="text-slate-500 font-bold mb-1">Your passport is waiting for stamps.</h3>
+                                    {/* <h3 className="text-slate-500 font-bold mb-1">Your passport is waiting for stamps.</h3> */}
                                     <p className="text-slate-400 text-sm mb-6">Start planning your dream journey today.</p>
                                     <button onClick={() => navigate('/create-trip')} className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100">Launch First Trip</button>
                                 </div>
@@ -448,17 +502,21 @@ const ProfilePage = () => {
                             </h3>
                             <p className="text-xs text-slate-400 font-medium mb-6 uppercase tracking-widest">Provide your current and new password below</p>
 
-                            <form onSubmit={handlePasswordChange} className="space-y-4">
+                             <form onSubmit={handlePasswordChange} className="space-y-4">
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Current Password</label>
                                     <input
                                         type="password"
                                         required
                                         value={passwordData.oldPassword}
-                                        onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
-                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
+                                        onChange={(e) => {
+                                            setPasswordData({ ...passwordData, oldPassword: e.target.value });
+                                            if (errors.oldPassword) clearError('oldPassword');
+                                        }}
+                                        className={`w-full px-4 py-3 bg-slate-50 border ${errors.oldPassword ? 'border-red-300 ring-4 ring-red-50' : 'border-slate-100'} rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm`}
                                         placeholder="••••••••"
                                     />
+                                    {errors.oldPassword && <p className="text-[10px] text-red-500 font-bold mt-1 pl-1 animate-in slide-in-from-left-2">{errors.oldPassword}</p>}
                                 </div>
 
                                 <div className="space-y-1">
@@ -468,10 +526,14 @@ const ProfilePage = () => {
                                         required
                                         minLength={6}
                                         value={passwordData.newPassword}
-                                        onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
+                                        onChange={(e) => {
+                                            setPasswordData({ ...passwordData, newPassword: e.target.value });
+                                            if (errors.newPassword) clearError('newPassword');
+                                        }}
+                                        className={`w-full px-4 py-3 bg-slate-50 border ${errors.newPassword ? 'border-red-300 ring-4 ring-red-50' : 'border-slate-100'} rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm`}
                                         placeholder="Min. 6 characters"
                                     />
+                                    {errors.newPassword && <p className="text-[10px] text-red-500 font-bold mt-1 pl-1 animate-in slide-in-from-left-2">{errors.newPassword}</p>}
                                 </div>
 
                                 <div className="space-y-1">
@@ -480,10 +542,14 @@ const ProfilePage = () => {
                                         type="password"
                                         required
                                         value={passwordData.confirmPassword}
-                                        onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
+                                        onChange={(e) => {
+                                            setPasswordData({ ...passwordData, confirmPassword: e.target.value });
+                                            if (errors.confirmPassword) clearError('confirmPassword');
+                                        }}
+                                        className={`w-full px-4 py-3 bg-slate-50 border ${errors.confirmPassword ? 'border-red-300 ring-4 ring-red-50' : 'border-slate-100'} rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm`}
                                         placeholder="••••••••"
                                     />
+                                    {errors.confirmPassword && <p className="text-[10px] text-red-500 font-bold mt-1 pl-1 animate-in slide-in-from-left-2">{errors.confirmPassword}</p>}
                                 </div>
 
                                 <div className="flex gap-3 pt-4">
