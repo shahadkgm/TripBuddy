@@ -5,7 +5,7 @@ import {
     Shield, LogOut,
     ArrowLeft, UserCheck, Plane,
     Loader2, Edit3, Globe, Compass, Image as ImageIcon,
-    Users, Receipt, ChevronDown, ChevronUp, Check, X, Lock,ShieldQuestion
+    Users, Receipt, ChevronDown, ChevronUp, Check, X, Lock, Bot
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
 import { connectionService } from '../../services/c.connection.service';
@@ -80,12 +80,12 @@ const ProfilePage = () => {
 
     const handleSave = async () => {
         if (!user?.id) return;
-        
+
         // Validation
         const newErrors: any = {};
         if (!editData.name.trim()) newErrors.name = "Name is required";
         if (editData.bio.length > 200) newErrors.bio = "Bio cannot exceed 200 characters";
-        
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
@@ -171,7 +171,7 @@ const ProfilePage = () => {
         } catch (err: unknown) {
             const error = err as { response?: { data?: { message?: string } } };
             const message = error.response?.data?.message || "Failed to change password";
-            
+
             if (message.toLowerCase().includes("current password")) {
                 setErrors({ ...errors, oldPassword: message });
             } else {
@@ -352,15 +352,17 @@ const ProfilePage = () => {
                             </div>
                         </div>
 
-                        {/* Itinerary Card */}
+                        {/* AI Assistant Card */}
                         <div className="lg:col-span-1 bg-white p-8 rounded-xl shadow-lg border border-slate-100">
                             <div className="mt-2 text-center flex flex-col items-center">
                                 <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mb-4">
-                                    <ShieldQuestion size={24} className="text-indigo-500" />
+                                    <Bot size={24} className="text-indigo-500" />
                                 </div>
-                                <h3 className="font-bold text-slate-800 mb-2">Coming soon...</h3>
-                                <p className="text-xs text-slate-400 mb-6">Ai assistent for all your trip</p>
-                                <button onClick={() => navigate("/tripDeatail")} className="w-full py-3 bg-white text-indigo-600 border border-indigo-100 rounded-xl font-bold text-xs hover:bg-indigo-50 transition-all shadow-sm">Not ready yet</button>
+                                <h3 className="font-bold text-slate-800 mb-2">AI Travel Assistant</h3>
+                                <p className="text-xs text-slate-400 mb-6">Your personal 24/7 AI-powered travel buddy for trips and planning.</p>
+                                <button onClick={() => navigate("/ai-assistant")} className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-xs hover:bg-indigo-700 transition-all shadow-md shadow-indigo-100 flex items-center justify-center gap-2">
+                                    <Bot size={14} /> Open Assistant
+                                </button>
                             </div>
                         </div>
 
@@ -502,7 +504,7 @@ const ProfilePage = () => {
                             </h3>
                             <p className="text-xs text-slate-400 font-medium mb-6 uppercase tracking-widest">Provide your current and new password below</p>
 
-                             <form onSubmit={handlePasswordChange} className="space-y-4">
+                            <form onSubmit={handlePasswordChange} className="space-y-4">
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Current Password</label>
                                     <input

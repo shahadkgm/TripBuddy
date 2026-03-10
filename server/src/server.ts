@@ -17,9 +17,12 @@ import expenseRoutes from './routes/expense.routes';
 import galleryRoutes from './routes/gallery.routes';
 
 
+import aiRoutes from './routes/ai.routes';
 import { connectDB } from './config/db';
 import UserRoutes from './routes/user.routes';
 import { errorMiddleware } from './middleware/error.middleware';
+import { API_ROUTES } from './constants/routes.constants';
+
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -48,8 +51,11 @@ app.use('/api/guides', guideRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/plantrips', tripRoutes);
 app.use('/api/connections', connectionRoutes);
-app.use('/api/expenses', expenseRoutes);
-app.use('/api/gallery', galleryRoutes);
+app.use(API_ROUTES.EXPENSE.BASE, expenseRoutes);
+app.use(API_ROUTES.GALLERY.BASE, galleryRoutes);
+app.use(API_ROUTES.AI.BASE, aiRoutes);
+
+
 
 // --- Error Handler (MUST BE LAST) ---
 app.use(errorMiddleware);

@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { FooterCTA } from '../../components/FooterCTA';
 import { authService } from '../../services/c.authService';
 import {
-  Calendar, Users, MessageSquare, 
-  Users2, MapPin, 
+  Calendar, Users, MessageSquare,
+  Users2, MapPin,
   Search, UserCheck, X
 } from 'lucide-react';
 
