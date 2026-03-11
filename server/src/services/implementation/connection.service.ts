@@ -1,4 +1,4 @@
- import { IConnectionRepository } from '../../repositories/interface/IConnectionRepository';
+import { IConnectionRepository } from '../../repositories/interface/IConnectionRepository';
 import { ITripRepository } from '../../repositories/interface/ITripRepository';
 import { IConnectionService } from '../interface/IConnectionService';
 import { IConnectionDocument } from '../../types/connection.type';
@@ -46,6 +46,11 @@ export class ConnectionService implements IConnectionService {
     async getPendingRequests(userId: string): Promise<IConnectionDocument[]> {
         logger.info(`Fetching pending requests for user: ${userId}`);
         return await this._connectionRepository.getPendingRequests(userId);
+    }
+
+    async getSentRequests(userId: string, page?: number, limit?: number): Promise<{ requests: IConnectionDocument[], total: number }> {
+        logger.info(`Fetching sent requests for user: ${userId}`);
+        return await this._connectionRepository.getSentRequests(userId, page, limit);
     }
 
     async getConnectionStatus(senderId: string, receiverId: string, tripId?: string): Promise<string> {

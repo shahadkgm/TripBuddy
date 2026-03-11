@@ -49,10 +49,19 @@ export interface ConnectionRequest {
     email: string;
     avatarURL?: string;
   };
-  receiverId: string;
+  receiverId: string | {
+    _id: string;
+    name: string;
+    email: string;
+    avatarURL?: string;
+  };
   tripId?: {
     _id: string;
     title: string;
+    destination?: string;
+    startDate?: string;
+    endDate?: string;
+    status?: string;
   };
   status: 'pending' | 'accepted' | 'rejected';
   createdAt: string;

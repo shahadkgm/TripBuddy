@@ -16,6 +16,11 @@ export const connectionService = {
         return response.data.data;
     },
 
+    async getSentRequests(page?: number, limit?: number) {
+        const response = await api.get("/api/connections/my-requests", { params: { page, limit } });
+        return response.data.data;
+    },
+
     async acceptRequest(requestId: string) {
         const response = await api.patch(`/api/connections/accept/${requestId}`);
         return response.data.data;

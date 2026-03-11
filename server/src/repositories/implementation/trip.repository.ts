@@ -12,7 +12,13 @@ export class TripRepository extends BaseRepository<ITripDocument, CreateTripDTO>
     }
 
     async findByUserId(userId: string): Promise<ITripDocument[]> {
-        return await this._model.find({ userId: userId })
+        return await this._model.find({
+            $or: [
+                { userId: userId },
+                { members: userId }
+            ]
+        })
+            .populate('userId', 'name email avatarURL')
             .populate('members', 'name email avatarURL')
             .sort({ createdAt: -1 });
     }

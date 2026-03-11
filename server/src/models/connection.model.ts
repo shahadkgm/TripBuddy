@@ -28,6 +28,10 @@ const connectionSchema = new Schema<IConnectionDocument>(
     }
 );
 
+// Individual indexes for faster lookups
+connectionSchema.index({ senderId: 1 });
+connectionSchema.index({ receiverId: 1 });
+
 // Prevent duplicate requests between same users for same trip
 connectionSchema.index({ senderId: 1, receiverId: 1, tripId: 1 }, { unique: true });
 

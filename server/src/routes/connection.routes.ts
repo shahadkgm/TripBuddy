@@ -20,7 +20,9 @@ router.post(API_ROUTES.CONNECTION.SEND, connectionController.sendRequest);
 router.patch(API_ROUTES.CONNECTION.ACCEPT, connectionController.acceptRequest);
 router.patch(API_ROUTES.CONNECTION.REJECT, connectionController.rejectRequest);
 router.get(API_ROUTES.CONNECTION.PENDING, connectionController.getPendingRequests);
+router.get(API_ROUTES.CONNECTION.MY_REQUESTS, connectionController.getSentRequests);
 router.get(API_ROUTES.CONNECTION.STATUS, connectionController.getConnectionStatus);
+
 router.get(API_ROUTES.CONNECTION.MEMBERS, connectionController.getTripMembers);
 
 export default router;

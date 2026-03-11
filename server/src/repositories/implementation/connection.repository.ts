@@ -32,6 +32,23 @@ export class ConnectionRepository extends BaseRepository<IConnectionDocument, Cr
             .populate('tripId', 'title destination');
     }
 
+    async getSentRequests(userId: string, page: number = 1, limit: number = 10): Promise<{ requests: IConnectionDocument[], total: number }> {
+        const skip = (page - 1) * limit;
+        const query = { senderId: userId };
+
+        const [requests, total] = await Promise.all([
+            this._model.find(query)
+                .populate('receiverId', 'name email avatarURL')
+                .populate('tripId', 'title destination startDate endDate status')
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit),
+            this._model.countDocuments(query)
+        ]);
+
+        return { requests, total };
+    }
+
     async getTripConnections(tripId: string): Promise<IConnectionDocument[]> {
         return await this._model.find({
             tripId: tripId,

@@ -1,9 +1,9 @@
-import { memo, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
-    Waves, Sparkles, UserCheck, Clock, UserPlus,
+    Sparkles, UserCheck, Clock, UserPlus,
     User,
-    MapPin
+    MapPin, X
 } from 'lucide-react';
 import { tripService } from '../../services/c.trip.service';
 import { connectionService } from '../../services/c.connection.service';
@@ -20,7 +20,7 @@ const TripDetails = () => {
 
     const [trip, setTrip] = useState<ITrip | null>(null);
     const [loading, setLoading] = useState(true);
-    const [status, setStatus] = useState<'none' | 'pending' | 'accepted' | 'incoming_pending' | 'loading'>('loading');
+    const [status, setStatus] = useState<'none' | 'pending' | 'accepted' | 'rejected' | 'incoming_pending' | 'loading'>('loading');
 
     const currentUser = authService.getCurrentUser();
 
@@ -33,7 +33,7 @@ const TripDetails = () => {
 
                 if (currentUser?.id && data.userId._id !== currentUser.id) {
                     const resStatus = await connectionService.getStatus(data.userId._id, data._id);
-                    setStatus(resStatus);
+                    setStatus(resStatus || 'none');
                 } else {
                     setStatus('none');
                 }
@@ -214,6 +214,17 @@ const TripDetails = () => {
                             <Clock className="w-6 h-6" />
                             Request Sent
                         </button>
+                    ) : status === 'rejected' ? (
+                        <div className="space-y-4">
+                            <button
+                                disabled
+                                className="w-full py-5 bg-rose-50 text-rose-600 border-2 border-rose-200 rounded-2xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3"
+                            >
+                                <X className="w-6 h-6" />
+                                Request Rejected
+                            </button>
+                            <p className="text-center text-slate-400 text-sm font-medium italic">Your request to join this trip was not accepted.</p>
+                        </div>
                     ) : status === 'incoming_pending' ? (
                         <button
                             onClick={() => navigate('/connection-requests')}

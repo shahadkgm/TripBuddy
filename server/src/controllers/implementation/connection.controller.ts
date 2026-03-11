@@ -51,7 +51,21 @@ export class ConnectionController extends BaseController {
         this.sendSuccess(res, requests, 'Pending requests fetched successfully');
     });
 
+    getSentRequests = asyncHandler(async (req: AuthRequest, res: Response) => {
+        const userId = req.user?.id;
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+
+        if (!userId) {
+            this.sendError(res, 'User not authenticated', StatusCode.UNAUTHORIZED);
+            return;
+        }
+        const data = await this._connectionService.getSentRequests(userId, page, limit);
+        this.sendSuccess(res, data, 'Sent requests fetched successfully');
+    });
+
     getConnectionStatus = asyncHandler(async (req: AuthRequest, res: Response) => {
+
         const senderId = req.user?.id;
         const { receiverId, tripId } = req.query;
 

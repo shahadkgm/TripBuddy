@@ -6,6 +6,7 @@ export interface IConnectionService {
     acceptRequest(requestId: string): Promise<IConnectionDocument | null>;
     rejectRequest(requestId: string): Promise<IConnectionDocument | null>;
     getPendingRequests(userId: string): Promise<IConnectionDocument[]>;
+    getSentRequests(userId: string, page?: number, limit?: number): Promise<{ requests: IConnectionDocument[], total: number }>;
     getConnectionStatus(senderId: string, receiverId: string, tripId?: string): Promise<string>;
     getTripMembers(tripId: string): Promise<IUser[]>;
 }

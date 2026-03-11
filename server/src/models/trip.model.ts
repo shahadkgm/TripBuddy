@@ -56,4 +56,8 @@ const tripSchema = new Schema<ITripDocument>(
     }
 );
 
+// Basic indexes for user-specific lookups
+tripSchema.index({ userId: 1 });
+tripSchema.index({ members: 1 });
+
 export const TripModel = model<ITripDocument>('Trip', tripSchema);

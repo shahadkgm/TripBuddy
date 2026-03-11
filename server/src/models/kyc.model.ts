@@ -14,4 +14,6 @@ const kycSchema = new Schema({
   uploadedAt: { type: Date, default: Date.now }
 });
 
+kycSchema.index({ userId: 1 });
+
 export const KYC = model('KYC', kycSchema);
