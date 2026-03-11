@@ -30,4 +30,9 @@ export const tripService = {
         const response = await api.patch<ApiResponse<ITrip>>(`/api/plantrips/${id}`, data, { headers });
         return response.data.data;
     },
+
+    async getChatHistory(tripId: string): Promise<any[]> {
+        const response = await api.get<ApiResponse<any[]>>(`/api/plantrips/${tripId}/chat`);
+        return response.data.data;
+    }
 };

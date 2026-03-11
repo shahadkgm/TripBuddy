@@ -1,5 +1,6 @@
 import { ITripDocument, ITripFilters } from '../../types/trip.type';
 import { TripModel } from '../../models/trip.model';
+import { IMessagePopulated } from '../../models/message.model';
 import { CreateTripDTO } from '../../dto/trip.dto';
 import { BaseRepository } from './base.repository';
 import { ITripRepository } from '../interface/ITripRepository';
@@ -68,5 +69,12 @@ export class TripRepository extends BaseRepository<ITripDocument, CreateTripDTO>
             { $addToSet: { members: userId } },
             { new: true }
         );
+    }
+
+    async getChatHistory(tripId: string): Promise<IMessagePopulated[]> {
+        return await mongoose.model('Message').find({ tripId })
+            .populate('senderId', 'name avatarURL')
+            .sort({ createdAt: 1 })
+            .lean() as unknown as IMessagePopulated[];
     }
 }

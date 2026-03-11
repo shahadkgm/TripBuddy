@@ -1,5 +1,6 @@
 import { ITripDocument, ITripFilters } from '../../types/trip.type';
 import { CreateTripDTO } from '../../dto/trip.dto';
+import { IMessagePopulated } from '../../models/message.model';
 import { ITripRepository } from '../../repositories/interface/ITripRepository';
 import { ITripService } from '../interface/ITripService';
 import { logger } from '@/utils/logger';
@@ -37,5 +38,9 @@ export class TripService implements ITripService {
     async updateTrip(id: string, data: Partial<CreateTripDTO>): Promise<ITripDocument | null> {
         logger.info('Updating trip in service', { id, data });
         return await this._tripRepository.updateById(id, data);
+    }
+
+    async getChatHistory(tripId: string): Promise<IMessagePopulated[]> {
+        return await this._tripRepository.getChatHistory(tripId);
     }
 }

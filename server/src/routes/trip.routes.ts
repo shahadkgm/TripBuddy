@@ -47,4 +47,9 @@ router.patch(
     tripController.updateTrip
 );
 
+router.get(
+    API_ROUTES.TRIP.GET_CHAT,
+    tripController.getChatHistory
+);
+
 export default router;

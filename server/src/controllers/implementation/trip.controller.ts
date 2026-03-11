@@ -61,4 +61,10 @@ export class TripController extends BaseController {
         }
         this.sendSuccess(res, updatedTrip, 'Trip updated successfully');
     });
+
+    getChatHistory = asyncHandler(async (req: Request, res: Response) => {
+        const { id } = req.params;
+        const chatHistory = await this._tripService.getChatHistory(id);
+        this.sendSuccess(res, chatHistory, 'Chat history fetched successfully');
+    });
 }

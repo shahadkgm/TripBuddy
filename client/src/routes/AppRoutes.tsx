@@ -22,6 +22,7 @@ import WeatherPage from "../pages/user/WeatherPage";
 import ProfilePage from "../pages/user/ProfilePage";
 import GalleryPage from "../pages/user/GalleryPage";
 import AIAssistantPage from "../pages/user/AIAssistantPage";
+import GroupChatPage from "../pages/user/GroupChatPage";
 
 import { AdminDashboard } from "../pages/admin/AdminDashboard";
 import { UserManagement } from "../pages/admin/UserManagement";
@@ -57,6 +58,7 @@ export default function AppRoutes() {
         <Route path="/gallery" element={<GalleryPage />} />
         <Route path="/gallery/:userId" element={<GalleryPage />} />
         <Route path="/ai-assistant" element={<AIAssistantPage />} />
+        <Route path="/group-chat/:id" element={<GroupChatPage />} />
       </Route>
 
 

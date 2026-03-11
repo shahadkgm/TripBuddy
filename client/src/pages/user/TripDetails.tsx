@@ -3,7 +3,8 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
     Sparkles, UserCheck, Clock, UserPlus,
     User,
-    MapPin, X
+    MapPin, X,
+    MessageCircle
 } from 'lucide-react';
 import { tripService } from '../../services/c.trip.service';
 import { connectionService } from '../../services/c.connection.service';
@@ -204,6 +205,14 @@ const TripDetails = () => {
                                 <UserCheck className="w-6 h-6" />
                                 Connected
                             </button>
+                            <button
+                                onClick={() => navigate(`/group-chat/${trip._id}`)}
+                                className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition"
+                            >
+                                <MessageCircle className="w-6 h-6" />
+                                message
+                            </button>
+
                             <p className="text-center text-slate-400 text-sm font-medium italic">You are already travel buddies for this trip!</p>
                         </div>
                     ) : status === 'pending' ? (
@@ -247,7 +256,6 @@ const TripDetails = () => {
                         </button>
                     )}
                 </div>
-
             </div>
         </div>
     );

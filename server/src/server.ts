@@ -24,7 +24,15 @@ import { errorMiddleware } from './middleware/error.middleware';
 import { API_ROUTES } from './constants/routes.constants';
 
 
+import { createServer } from 'http';
+import { setupSocket } from './config/socket';
+
 const app = express();
+const httpServer = createServer(app);
+
+// Initialize Socket.io
+setupSocket(httpServer);
+
 const PORT = process.env.PORT || 4000;
 
 // --- Middlewares ---
@@ -63,7 +71,7 @@ app.use(errorMiddleware);
 // --- Start Server ---
 connectDB()
     .then(() => {
-        app.listen(PORT, () => {
+        httpServer.listen(PORT, () => {
             console.log(`Server listening on http://localhost:${PORT}`);
         });
     })

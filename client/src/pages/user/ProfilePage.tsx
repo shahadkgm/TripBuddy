@@ -4,7 +4,7 @@ import {
     Shield, LogOut,
     ArrowLeft, Plane,
     Loader2, Globe, Image as ImageIcon,
-    X, Compass, Edit3, Lock, Bot, UserCheck
+    X, Compass, Edit3, Lock, Bot, UserCheck, MessageCircle
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
 import { connectionService } from '../../services/c.connection.service';
@@ -14,6 +14,7 @@ import { Navbar } from "../../components/home/Navbar";
 import { MainFooter } from "../../components/MainFooter";
 import { PlannedTrips } from "../../components/profile/PlannedTrips";
 import { RequestedTrips } from "../../components/profile/RequestedTrips";
+import { LiveChats } from "../../components/profile/LiveChats";
 import toast from 'react-hot-toast';
 
 const ProfilePage = () => {
@@ -22,7 +23,7 @@ const ProfilePage = () => {
 
     const [kycStatus, setKycStatus] = useState<string>('loading');
     const [requests, setRequests] = useState<any[]>([]);
-    const [activeTab, setActiveTab] = useState<'planned' | 'requested'>('planned');
+    const [activeTab, setActiveTab] = useState<'planned' | 'requested' | 'chats'>('planned');
     const [isEditing, setIsEditing] = useState(false);
     const [editData, setEditData] = useState({ name: user?.name || '', bio: user?.bio || '' });
     const [isSaving, setIsSaving] = useState(false);
@@ -181,7 +182,7 @@ const ProfilePage = () => {
                                     ) : (
                                         <User className="w-20 h-20 text-slate-300" />
                                     )}
-                                    <button 
+                                    <button
                                         onClick={() => fileInputRef.current?.click()}
                                         className="absolute inset-0 bg-slate-800/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white"
                                     >
@@ -195,7 +196,7 @@ const ProfilePage = () => {
                                     <div className="space-y-4 w-full max-w-md">
                                         <div className="flex flex-col gap-1">
                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Full Name</label>
-                                            <input 
+                                            <input
                                                 type="text"
                                                 value={editData.name}
                                                 onChange={(e) => {
@@ -212,7 +213,7 @@ const ProfilePage = () => {
                                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Bio</label>
                                                 <span className={`text-[10px] font-bold ${editData.bio.length > 180 ? 'text-amber-500' : 'text-slate-300'}`}>{editData.bio.length}/200</span>
                                             </div>
-                                            <textarea 
+                                            <textarea
                                                 value={editData.bio}
                                                 onChange={(e) => {
                                                     setEditData({ ...editData, bio: e.target.value });
@@ -360,6 +361,19 @@ const ProfilePage = () => {
                                         <div className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-600 rounded-t-full"></div>
                                     )}
                                 </button>
+                                <div className="h-6 w-[1.5px] bg-slate-200"></div>
+                                <button
+                                    onClick={() => setActiveTab('chats')}
+                                    className={`relative py-6 text-sm font-bold transition-all ${activeTab === 'chats' ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'
+                                        }`}
+                                >
+                                    <span className="flex items-center gap-2 italic">
+                                        <MessageCircle size={18} /> Live Chats
+                                    </span>
+                                    {activeTab === 'chats' && (
+                                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-600 rounded-t-full"></div>
+                                    )}
+                                </button>
                             </div>
 
                             {activeTab === 'planned' && (
@@ -375,8 +389,10 @@ const ProfilePage = () => {
                         <div className="p-8">
                             {activeTab === 'planned' ? (
                                 <PlannedTrips userId={user.id!} />
-                            ) : (
+                            ) : activeTab === 'requested' ? (
                                 <RequestedTrips userId={user.id!} />
+                            ) : (
+                                <LiveChats userId={user.id!} />
                             )}
                         </div>
                     </div>
