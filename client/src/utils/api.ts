@@ -27,6 +27,21 @@ api.interceptors.request.use(
 );
 
 
+let isRefreshing = false;
+let failedQueue: any[] = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
+
 // ==========================
 // RESPONSE --> refresh logic
 // ==========================
@@ -40,9 +55,22 @@ api.interceptors.response.use(
       originalRequest.url?.includes('/auth/register') ||
       originalRequest.url?.includes('/auth/refresh');
 
-    //  access expired --> try refresh (but NOT for login/register/refresh)
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthRoute) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return api(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
 
       try {
         const res = await axios.post(
@@ -52,18 +80,19 @@ api.interceptors.response.use(
         );
 
         const newAccessToken = res.data.data.accessToken;
-
         authService.setToken(newAccessToken);
-
-        // Ensure headers exist and attach the new token
+        processQueue(null, newAccessToken);
+        
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
         return api(originalRequest);
       } catch (refreshError) {
+        processQueue(refreshError, null);
         console.error('Refresh token failed:', refreshError);
         localStorage.clear();
         window.location.replace("/login");
         return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 

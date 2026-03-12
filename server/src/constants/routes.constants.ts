@@ -84,5 +84,12 @@ export const API_ROUTES = {
     AI: {
         BASE: '/api/ai',
         CHAT: '/chat',
+    },
+    PAYMENT: {
+        BASE: '/api/payments',
+        PAY_DEPOSIT: '/pay-deposit',
+        MY_PAYMENTS: '/my-payments/:tripId',
+        TRIP_PAYMENTS: '/trip-payments/:tripId',
+        USER_PAYMENTS: '/user-payments',
     }
 };

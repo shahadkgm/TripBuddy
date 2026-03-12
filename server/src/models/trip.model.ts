@@ -39,9 +39,13 @@ const tripSchema = new Schema<ITripDocument>(
             transport: { type: String, default: 'flight' },
             interests: [{ type: String }],
         },
+        depositAmount: {
+            type: Number,
+            default: 0,
+        },
         status: {
             type: String,
-            enum: ['planned', 'ongoing', 'completed', 'cancelled'],
+            enum: ['planned', 'ongoing', 'completed', 'cancelled', 'finalized', 'confirmed'],
             default: 'planned',
         },
         members: [

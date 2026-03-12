@@ -16,7 +16,8 @@ export interface ITrip {
     budget?: number;
     description?: string;
     preferences: ITripPreferences;
-    status: 'planned' | 'ongoing' | 'completed' | 'cancelled';
+    depositAmount?: number;
+    status: 'planned' | 'ongoing' | 'completed' | 'cancelled' | 'finalized' | 'confirmed';
     members: Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;

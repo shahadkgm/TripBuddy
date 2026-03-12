@@ -18,6 +18,7 @@ import galleryRoutes from './routes/gallery.routes';
 
 
 import aiRoutes from './routes/ai.routes';
+import paymentRoutes from './routes/payment.routes';
 import { connectDB } from './config/db';
 import UserRoutes from './routes/user.routes';
 import { errorMiddleware } from './middleware/error.middleware';
@@ -62,6 +63,7 @@ app.use('/api/connections', connectionRoutes);
 app.use(API_ROUTES.EXPENSE.BASE, expenseRoutes);
 app.use(API_ROUTES.GALLERY.BASE, galleryRoutes);
 app.use(API_ROUTES.AI.BASE, aiRoutes);
+app.use(API_ROUTES.PAYMENT.BASE, paymentRoutes);
 
 
 

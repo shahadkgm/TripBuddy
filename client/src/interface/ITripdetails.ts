@@ -21,7 +21,8 @@ export interface ITrip {
         transport: string;
         interests: string[];
     };
-    status: string;
+    depositAmount?: number;
+    status: 'planned' | 'ongoing' | 'completed' | 'cancelled' | 'finalized' | 'confirmed';
     members?: {
         _id: string;
         name: string;

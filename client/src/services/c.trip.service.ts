@@ -1,6 +1,7 @@
 import api from "../utils/api";
 import type { ITrip, ITripFilters, PaginatedTrips } from "../interface/ITripdetails";
 import type { ApiResponse } from "../interface/ApiResponse";
+import type { IMessage } from "../interface/IMessage";
 
 export const tripService = {
     async getAllTrips(filters: ITripFilters): Promise<PaginatedTrips> {
@@ -31,8 +32,16 @@ export const tripService = {
         return response.data.data;
     },
 
-    async getChatHistory(tripId: string): Promise<any[]> {
-        const response = await api.get<ApiResponse<any[]>>(`/api/plantrips/${tripId}/chat`);
+    async getChatHistory(tripId: string): Promise<IMessage[]> {
+        const response = await api.get<ApiResponse<IMessage[]>>(`/api/plantrips/${tripId}/chat`);
+        return response.data.data;
+    },
+
+    async finalizeTrip(id: string, depositAmount: number): Promise<ITrip> {
+        const response = await api.patch<ApiResponse<ITrip>>(`/api/plantrips/${id}`, { 
+            status: 'finalized',
+            depositAmount 
+        });
         return response.data.data;
     }
 };

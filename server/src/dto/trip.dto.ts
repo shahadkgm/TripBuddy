@@ -68,4 +68,12 @@ export class CreateTripDTO {
     @IsOptional()
     @IsArray()
     members?: string[];
+
+    @IsOptional()
+    @IsString()
+    status?: string;
+
+    @IsOptional()
+    @IsNumber()
+    depositAmount?: number;
 }

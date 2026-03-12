@@ -67,6 +67,17 @@ const TripDetails = () => {
             setStatus('none');
         }
     };
+    const handleFinalize = async () => {
+        if (!trip || !id) return;
+        try {
+            const deposit = trip.budget * 0.2;
+            await tripService.finalizeTrip(id, deposit);
+            toast.success("Trip finalized! Members can now pay deposits.");
+            setTrip({ ...trip, status: 'finalized', depositAmount: deposit });
+        } catch (error) {
+            toast.error("Failed to finalize trip");
+        }
+    };
 
     if (loading) {
         return (
@@ -190,12 +201,30 @@ const TripDetails = () => {
                 {/* Action Button Section */}
                 <div className="mt-12">
                     {isOwnTrip ? (
-                        <button
-                            disabled
-                            className="w-full py-5 bg-slate-100 text-slate-400 rounded-2xl font-black uppercase tracking-[0.2em] cursor-not-allowed"
-                        >
-                            This is your trip
-                        </button>
+                        <div className="space-y-4">
+                            {trip.status !== 'finalized' && trip.status !== 'confirmed' ? (
+                                <button
+                                    onClick={handleFinalize}
+                                    className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition"
+                                >
+                                    Finalize Trip & Set Deposit
+                                </button>
+                            ) : (
+                                <button
+                                    disabled
+                                    className="w-full py-5 bg-emerald-50 text-emerald-600 border-2 border-emerald-200 rounded-2xl font-black uppercase tracking-[0.2em]"
+                                >
+                                    Trip Finalized
+                                </button>
+                            )}
+                            <button
+                                onClick={() => navigate(`/group-chat/${trip._id}`)}
+                                className="w-full py-5 bg-slate-100 text-slate-700 rounded-2xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-slate-200 transition"
+                            >
+                                <MessageCircle className="w-6 h-6" />
+                                Go to Chat
+                            </button>
+                        </div>
                     ) : status === 'accepted' ? (
                         <div className="space-y-4">
                             <button

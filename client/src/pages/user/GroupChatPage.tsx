@@ -10,25 +10,22 @@ import { authService } from '../../services/c.authService';
 import { tripService } from '../../services/c.trip.service';
 import type { ITrip } from '../../interface/ITripdetails';
 import toast from 'react-hot-toast';
-
-interface Message {
-    _id: string;
-    senderId: {
-        _id: string;
-        name: string;
-        avatarURL?: string;
-    };
-    content: string;
-    timestamp: string;
-}
+import { CreditCard, ShieldCheck } from 'lucide-react';
+import { paymentService } from '../../services/c.payment.service';
+import type { IPayment } from '../../interface/IPayment';
+import type { IMessage } from '../../interface/IMessage';
 
 const GroupChatPage = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [trip, setTrip] = useState<ITrip | null>(null);
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [messages, setMessages] = useState<IMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const [loading, setLoading] = useState(true);
+    const [hasPaidDeposit, setHasPaidDeposit] = useState(false);
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [tripPayments, setTripPayments] = useState<IPayment[]>([]);
 
     const socket = useSocket(id);
     const currentUser = authService.getCurrentUser();
@@ -48,6 +45,19 @@ const GroupChatPage = () => {
                 ]);
                 setTrip(tripData);
                 setMessages(history);
+
+                // Check if user has paid
+                if (currentUser) {
+                    const myPayments = await paymentService.getMyPayments(id);
+                    const paid = myPayments.some(p => p.status === 'escrowed');
+                    setHasPaidDeposit(paid);
+                }
+
+                // If admin, load all payments
+                if (currentUser?.id === tripData.userId._id) {
+                    const allPayments = await paymentService.getTripPayments(id);
+                    setTripPayments(allPayments);
+                }
             } catch (error) {
                 console.error("Failed to load chat data:", error);
                 toast.error("Failed to load conversation");
@@ -57,12 +67,12 @@ const GroupChatPage = () => {
             }
         };
         loadInitialData();
-    }, [id, navigate]);
+    }, [id, navigate, currentUser]);
 
     useEffect(() => {
         if (!socket) return;
 
-        socket.on('receive_message', (message: Message) => {
+        socket.on('receive_message', (message: IMessage) => {
             setMessages((prev) => [...prev, message]);
         });
 
@@ -86,6 +96,24 @@ const GroupChatPage = () => {
         });
 
         setNewMessage('');
+    };
+    const handlePayment = async () => {
+        if (!trip || !id) return;
+        
+        // 20% Advance logic
+        const depositAmount = trip.depositAmount || (trip.budget * 0.2);
+        
+        try {
+            setIsProcessingPayment(true);
+            await paymentService.payDeposit(id, depositAmount);
+            setHasPaidDeposit(true);
+            toast.success("Payment successful! Funds are held in TripBuddy Escrow.");
+            setShowPaymentModal(false);
+        } catch (error) {
+            toast.error("Payment failed. Please try again.");
+        } finally {
+            setIsProcessingPayment(false);
+        }
     };
 
     if (loading) {
@@ -124,9 +152,15 @@ const GroupChatPage = () => {
 
                 <div className="flex items-center gap-3">
                     <button
-                        className="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-xs font-bold flex items-center gap-2 border border-rose-100 hover:bg-rose-100 transition-all"
+                        onClick={() => setShowPaymentModal(true)}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${
+                            hasPaidDeposit 
+                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                            : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
+                        }`}
                     >
-                        <AlertCircle size={14} /> payment status
+                        {hasPaidDeposit ? <ShieldCheck size={14} /> : <AlertCircle size={14} />}
+                        {hasPaidDeposit ? 'Escrow Confirmed' : 'Pay Deposit'}
                     </button>
                     {isTripAdmin && (
                         <button
@@ -139,13 +173,32 @@ const GroupChatPage = () => {
                         onClick={() => navigate(`/trip-details/${id}`)}
                         className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold flex items-center gap-2 border border-indigo-100 hover:bg-indigo-100 transition-all"
                     >
-                        <Eye size={14} /> View TripPlan
+                        <Eye size={14} /> View  finalize TripPlan
                     </button>
                 </div>
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full bg-white shadow-xl min-h-0">
+            <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full bg-white shadow-xl min-h-0 relative">
+                
+                {/* Payment Notice Banner */}
+                {trip.status === 'finalized' && !hasPaidDeposit && !isTripAdmin && (
+                    <div className="bg-indigo-600 text-white px-6 py-3 flex items-center justify-between animate-in slide-in-from-top duration-500 z-10">
+                        <div className="flex items-center gap-3">
+                            <CreditCard size={18} className="text-indigo-200" />
+                            <p className="text-sm font-bold">
+                                Trip finalized! Pay 20% deposit (₹{(trip.depositAmount || trip.budget * 0.2).toLocaleString()}) to secure your spot.
+                            </p>
+                        </div>
+                        <button 
+                            onClick={handlePayment}
+                            disabled={isProcessingPayment}
+                            className="bg-white text-indigo-600 px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider hover:bg-slate-100 transition-colors shadow-sm disabled:opacity-50"
+                        >
+                            {isProcessingPayment ? 'Processing...' : 'Pay Now'}
+                        </button>
+                    </div>
+                )}
 
                 {/* Scrollable Messages Container */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50">
@@ -215,6 +268,101 @@ const GroupChatPage = () => {
                     </p>
                 </div>
             </div>
+
+            {/* Payment Modal / Overlay */}
+            {showPaymentModal && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                    <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in duration-300">
+                        <div className="flex justify-between items-center mb-8">
+                            <div className="bg-indigo-50 p-3 rounded-2xl">
+                                <CreditCard className="text-indigo-600 w-6 h-6" />
+                            </div>
+                            <button onClick={() => setShowPaymentModal(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                                <X size={24} className="text-slate-400" />
+                            </button>
+                        </div>
+
+                        <h2 className="text-2xl font-black text-slate-900 mb-2">TripBuddy Escrow</h2>
+                        <p className="text-slate-500 text-sm font-medium mb-8">
+                            Secure your spot for the trip to <span className="text-indigo-600 font-bold">{trip.destination}</span>. 
+                            Funds are held safely until the trip begins.
+                        </p>
+
+                        <div className="bg-slate-50 rounded-3xl p-6 mb-8 border border-slate-100">
+                            <div className="flex justify-between items-center mb-4 pb-4 border-b border-slate-200/50">
+                                <span className="text-sm font-bold text-slate-500">Deposit Percentage</span>
+                                <span className="text-sm font-black text-slate-900">20%</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm font-bold text-slate-500">Amount Due</span>
+                                <span className="text-2xl font-black text-indigo-600">₹{(trip.depositAmount || trip.budget * 0.2).toLocaleString()}</span>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mb-8">
+                            <div className="flex flex-col items-center p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                                <span className="text-[10px] font-black uppercase text-emerald-600 tracking-widest mb-1">Creator Cancel</span>
+                                <span className="text-xs font-bold text-emerald-800">100% Refund</span>
+                            </div>
+                            <div className="flex flex-col items-center p-4 bg-amber-50 rounded-2xl border border-amber-100">
+                                <span className="text-[10px] font-black uppercase text-amber-600 tracking-widest mb-1">Member Cancel</span>
+                                <span className="text-xs font-bold text-amber-800">80% Refund</span>
+                            </div>
+                        </div>
+
+                        {hasPaidDeposit ? (
+                            <div className="w-full py-5 bg-emerald-100 text-emerald-700 rounded-2xl font-black uppercase tracking-[0.15em] flex items-center justify-center gap-3">
+                                <ShieldCheck className="w-6 h-6" />
+                                Payment Verified
+                            </div>
+                        ) : (
+                            <button
+                                onClick={handlePayment}
+                                disabled={isProcessingPayment}
+                                className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-[0.15em] hover:bg-indigo-700 transition transform active:scale-95 shadow-xl shadow-indigo-200 disabled:opacity-50 flex items-center justify-center gap-3"
+                            >
+                                {isProcessingPayment ? (
+                                    <Loader2 className="w-6 h-6 animate-spin" />
+                                ) : (
+                                    <>Secure Your Spot</>
+                                )}
+                            </button>
+                        )}
+
+                        {isTripAdmin && tripPayments.length > 0 && (
+                            <div className="mt-8 pt-8 border-t border-slate-100">
+                                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-4">Payment Summary</h3>
+                                <div className="space-y-3">
+                                    {trip.members?.map(member => {
+                                        const payment = tripPayments.find(p => p.userId._id === member._id);
+                                        return (
+                                            <div key={member._id} className="flex items-center justify-between bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                                                <div className="flex items-center gap-2">
+                                                    <img src={member.avatarURL || `https://ui-avatars.com/api/?name=${member.name}`} className="w-6 h-6 rounded-full" alt="" />
+                                                    <span className="text-xs font-bold text-slate-700">{member.name}</span>
+                                                </div>
+                                                <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${
+                                                    payment?.status === 'escrowed' 
+                                                    ? 'bg-emerald-100 text-emerald-700' 
+                                                    : 'bg-slate-200 text-slate-500'
+                                                }`}>
+                                                    {payment?.status === 'escrowed' ? 'Paid' : 'Unpaid'}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                        
+                        {!hasPaidDeposit && !isTripAdmin && (
+                            <p className="text-[10px] text-center text-slate-400 mt-6 font-bold uppercase tracking-widest">
+                                Transaction secured by TripBuddy Escrow protection
+                            </p>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
