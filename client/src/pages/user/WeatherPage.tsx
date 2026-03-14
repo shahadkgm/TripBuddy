@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-    Search, ArrowLeft, Sun, Cloud, CloudSun, CloudRain,
+    ArrowLeft, Sun, Cloud, CloudSun, CloudRain,
     CloudLightning, CloudFog, CloudDrizzle, Navigation,
     Wind, Droplets, Thermometer, Loader2, MapPin
 } from 'lucide-react';

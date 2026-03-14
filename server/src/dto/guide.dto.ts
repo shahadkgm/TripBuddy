@@ -77,6 +77,8 @@ export interface GuideStatusResponse {
 export interface GuideQueryDTO {
   destination?: string;
   maxPrice?: number | string;
+  page?: number | string;
+  limit?: number | string;
 }
 
 export interface GuideResponseDTO {

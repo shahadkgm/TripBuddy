@@ -11,12 +11,22 @@ export class GuideRepository extends BaseRepository<IGuide, CreateGuideDTO> impl
     super(guideModel);
   }
 
-  async findAll(filters: Record<string, unknown> = {}): Promise<IGuide[]> {
-    return await this._model
-      .find(filters as FilterQuery<IGuide>)
-      .populate('userId', 'name email')
-      .sort({ createdAt: -1 })
-      .exec();
+  async findAllWithPagination(filters: Record<string, unknown> = {}, page: number = 1, limit: number = 10): Promise<{ guides: IGuide[], total: number }> {
+    const skip = (page - 1) * limit;
+    const query = filters as FilterQuery<IGuide>;
+    
+    const [guides, total] = await Promise.all([
+      this._model
+        .find(query)
+        .populate('userId', 'name email')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this._model.countDocuments(query)
+    ]);
+
+    return { guides, total };
   }
 
 }

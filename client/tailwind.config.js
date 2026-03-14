@@ -5,7 +5,11 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}", 
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'tb-purple': '#8b5cf6', // TripBuddy Purple
+      },
+    },
   },
   plugins: [],
 }

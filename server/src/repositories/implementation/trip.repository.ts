@@ -7,6 +7,11 @@ import { ITripRepository } from '../interface/ITripRepository';
 import mongoose, { FilterQuery } from 'mongoose';
 import { logger } from '@/utils/logger';
 
+interface IAggregationResult {
+    metadata: { total: number }[];
+    data: ITripDocument[];
+}
+
 export class TripRepository extends BaseRepository<ITripDocument, CreateTripDTO> implements ITripRepository {
     constructor() {
         super(TripModel);
@@ -33,13 +38,17 @@ export class TripRepository extends BaseRepository<ITripDocument, CreateTripDTO>
 
     async findAllTrips(filters: ITripFilters, page: number, limit: number): Promise<{ trips: ITripDocument[], total: number }> {
         const skip = (page - 1) * limit;
-        const query: FilterQuery<ITripDocument> = {};
-        logger.info(`from findAllTrips${query}`);
+        const query: FilterQuery<ITripDocument> = {
+            status: 'planned' // Only show planned trips for joining
+        };
+        
         if (filters.destination) query.destination = { $regex: filters.destination, $options: 'i' };
-        if (filters.transport) query['preferences.transport'] = filters.transport;
-        if (filters.interest) query['preferences.interests'] = filters.interest;
+        if (filters.transport && filters.transport !== 'Any') query['preferences.transport'] = filters.transport;
+        if (filters.interest && filters.interest !== 'Any') query['preferences.interests'] = filters.interest;
 
-        const [result] = await this._model.aggregate([
+        logger.info('Executing findAllTrips query', { query });
+
+        const aggregationResult = await this._model.aggregate<IAggregationResult>([
             { $match: query },
             { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'userDetails' } },
             { $unwind: '$userDetails' },
@@ -57,9 +66,11 @@ export class TripRepository extends BaseRepository<ITripDocument, CreateTripDTO>
             }
         ]);
 
+        const result = aggregationResult[0];
+
         return {
-            trips: result.data,
-            total: result.metadata[0]?.total || 0
+            trips: result?.data || [],
+            total: result?.metadata[0]?.total || 0
         };
     }
 

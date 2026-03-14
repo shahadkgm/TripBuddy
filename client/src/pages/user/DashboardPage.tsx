@@ -30,13 +30,13 @@ const DASHBOARD_FEATURES = [
   //   color: "bg-emerald-50",
   //   path: "/connection-requests"
   // },
-  {
-    title: "Chat with Travelers",
-    desc: "Coordinate plans instantly with messaging.",
-    icon: <MessageSquare className="w-5 h-5 text-purple-600" />,
-    color: "bg-purple-50",
-    path: "/chat"
-  },
+  // {
+  //   title: "Chat with Travelers",
+  //   desc: "Coordinate plans instantly with messaging.",
+  //   icon: <MessageSquare className="w-5 h-5 text-purple-600" />,
+  //   color: "bg-purple-50",
+  //   path: "/chat"
+  // },
   // {
   //   title: "Add Group Expenses",
   //   desc: "Track who paid what for shared costs.",
@@ -44,13 +44,13 @@ const DASHBOARD_FEATURES = [
   //   color: "bg-emerald-50",
   //   path: "/expenses"
   // },
-  {
-    title: "Groups",
-    desc: "Manage your trip groups",
-    icon: <Users2 className="w-5 h-5 text-pink-600" />,
-    color: "bg-pink-50",
-    path: "/groups"
-  },
+  // {
+  //   title: "Groups",
+  //   desc: "Manage your trip groups",
+  //   icon: <Users2 className="w-5 h-5 text-pink-600" />,
+  //   color: "bg-pink-50",
+  //   path: "/groups"
+  // },
   // {
   //   title: "TRIP GALLERY",
   //   desc: "View and share trip photos",
@@ -77,7 +77,7 @@ const DASHBOARD_FEATURES = [
     desc: "Connect with local guides",
     icon: <Search className="w-5 h-5 text-amber-600" />,
     color: "bg-amber-50",
-    path: "/dashboard"
+    path: "/find-guides"
   },
 
   {

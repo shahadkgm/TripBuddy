@@ -46,7 +46,6 @@ const GroupChatPage = () => {
                 setTrip(tripData);
                 setMessages(history);
 
-                // Check if user has paid
                 if (currentUser) {
                     const myPayments = await paymentService.getMyPayments(id);
                     const paid = myPayments.some(p => p.status === 'escrowed');

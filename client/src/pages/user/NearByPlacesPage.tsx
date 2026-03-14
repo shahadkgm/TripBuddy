@@ -9,7 +9,6 @@ import { nearbyService, type Place } from '../../services/c.nearby.service';
 import toast from 'react-hot-toast';
 import L from 'leaflet';
 
-// Fix for default marker icon in Leaflet + React/Vite
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
@@ -22,7 +21,6 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// Sub-component to handle map view updates
 const RecenterMap = ({ lat, lon }: { lat: number, lon: number }) => {
     const map = useMap();
     useEffect(() => {

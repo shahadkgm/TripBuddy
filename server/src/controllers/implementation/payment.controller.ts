@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import {  Response } from 'express';
 import { IPaymentService } from '../../services/interface/IPaymentService';
 import { CreatePaymentDTO } from '../../dto/payment.dto';
 import { asyncHandler } from '../../utils/asyncHandler';

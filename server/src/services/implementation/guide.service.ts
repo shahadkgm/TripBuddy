@@ -58,7 +58,7 @@ export class GuideService implements IGuideService {
   }
 
 
-  async getAllVerifiedGuides(query: GuideQueryDTO): Promise<GuideResponseDTO[]> {
+  async getAllVerifiedGuides(query: GuideQueryDTO): Promise<{ guides: GuideResponseDTO[], total: number }> {
     logger.info(`Fetching all verified guides with filters: ${JSON.stringify(query)}`);
     const filters: Record<string, unknown> = { isVerified: true };
 
@@ -70,8 +70,15 @@ export class GuideService implements IGuideService {
       filters.hourlyRate = { $lte: Number(query.maxPrice) };
     }
 
-    const guides = await this._guideRepository.findAll(filters);
-    logger.info(`Found ${guides.length} verified guides`);
-    return guides.map(toGuideResponse);
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+
+    const { guides, total } = await this._guideRepository.findAllWithPagination(filters, page, limit);
+    logger.info(`Found ${guides.length} verified guides out of ${total}`);
+    
+    return {
+      guides: guides.map(toGuideResponse),
+      total
+    };
   }
 }

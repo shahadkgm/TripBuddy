@@ -36,7 +36,6 @@ class NearByService {
 
     async getNearbyPlaces(lat: number, lon: number, radius: number = 2000): Promise<Place[]> {
         try {
-            // Overpass API query to find touristic places, restaurants, etc.
             const query = `
                 [out:json][timeout:25];
                 (

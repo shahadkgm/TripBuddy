@@ -14,16 +14,16 @@ interface GeminiModelsResponse {
 async function listModels() {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-        console.error("GEMINI_API_KEY missing");
+        console.error('GEMINI_API_KEY missing');
         return;
     }
     try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
         const data = (await response.json()) as GeminiModelsResponse;
         const modelNames = data.models?.map((m: GeminiModel) => m.name.replace('models/', '')) || [];
-        console.log("Available models:", modelNames);
+        console.log('Available models:', modelNames);
     } catch (error) {
-        console.error("Error listing models:", error);
+        console.error('Error listing models:', error);
     }
 }
 

@@ -5,6 +5,6 @@ import { IBaseRepository } from './IBaseRepository';
 
 export interface IGuideRepository extends IBaseRepository<IGuide, CreateGuideDTO> {
 
-  findAll(filters?: Record<string, unknown>): Promise<IGuide[]>;
+  findAllWithPagination(filters?: Record<string, unknown>, page?: number, limit?: number): Promise<{ guides: IGuide[], total: number }>;
 }
 
