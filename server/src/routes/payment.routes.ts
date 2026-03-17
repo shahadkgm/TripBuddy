@@ -3,7 +3,7 @@ import { PaymentRepository } from '../repositories/implementation/payment.reposi
 import { PaymentService } from '../services/implementation/payment.service';
 import { PaymentController } from '../controllers/implementation/payment.controller';
 import { dtoValidationMiddleware } from '../middleware/dtoValidation';
-import { CreatePaymentDTO } from '../dto/payment.dto';
+import { CreatePaymentDTO, CreateRazorpayOrderDTO, VerifyRazorpayPaymentDTO } from '../dto/payment.dto';
 import { API_ROUTES } from '../constants/routes.constants';
 import { protect } from '../middleware/authMiddleware';
 
@@ -20,6 +20,18 @@ router.post(
     API_ROUTES.PAYMENT.PAY_DEPOSIT,
     dtoValidationMiddleware(CreatePaymentDTO),
     paymentController.payDeposit
+);
+
+router.post(
+    '/create-order',
+    dtoValidationMiddleware(CreateRazorpayOrderDTO),
+    paymentController.createOrder
+);
+
+router.post(
+    '/verify-payment',
+    dtoValidationMiddleware(VerifyRazorpayPaymentDTO),
+    paymentController.verifyPayment
 );
 
 router.get(

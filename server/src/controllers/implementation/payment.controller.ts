@@ -1,6 +1,6 @@
 import {  Response } from 'express';
 import { IPaymentService } from '../../services/interface/IPaymentService';
-import { CreatePaymentDTO } from '../../dto/payment.dto';
+import { CreatePaymentDTO, CreateRazorpayOrderDTO, VerifyRazorpayPaymentDTO } from '../../dto/payment.dto';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { BaseController } from './base.controller';
 import { AuthRequest } from '../../types/authRequest';
@@ -9,6 +9,28 @@ export class PaymentController extends BaseController {
     constructor(private readonly _paymentService: IPaymentService) {
         super();
     }
+
+    createOrder = asyncHandler(async (req: AuthRequest<{}, {}, CreateRazorpayOrderDTO>, res: Response) => {
+        const userId = req.user?.id;
+        if (!userId) {
+            this.sendUnauthorized(res, 'User not authenticated');
+            return;
+        }
+
+        const order = await this._paymentService.createOrder(userId, req.body);
+        this.sendSuccess(res, order, 'Razorpay order created successfully');
+    });
+
+    verifyPayment = asyncHandler(async (req: AuthRequest<{}, {}, VerifyRazorpayPaymentDTO>, res: Response) => {
+        const userId = req.user?.id;
+        if (!userId) {
+            this.sendUnauthorized(res, 'User not authenticated');
+            return;
+        }
+
+        const payment = await this._paymentService.verifyPayment(userId, req.body);
+        this.sendSuccess(res, payment, 'Payment verified and recorded successfully');
+    });
 
     payDeposit = asyncHandler(async (req: AuthRequest<{}, {}, CreatePaymentDTO>, res: Response) => {
         const userId = req.user?.id;
