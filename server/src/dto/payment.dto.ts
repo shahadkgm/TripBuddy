@@ -12,7 +12,7 @@ export class CreatePaymentDTO {
     transactionId?: string;
 }
 
-export class CreateRazorpayOrderDTO {
+export class CreateStripeSessionDTO {
     @IsNotEmpty()
     @IsNumber()
     amount!: number;
@@ -22,24 +22,12 @@ export class CreateRazorpayOrderDTO {
     tripId!: string;
 }
 
-export class VerifyRazorpayPaymentDTO {
+export class VerifyStripePaymentDTO {
     @IsNotEmpty()
     @IsString()
-    razorpay_order_id!: string;
-
-    @IsNotEmpty()
-    @IsString()
-    razorpay_payment_id!: string;
-
-    @IsNotEmpty()
-    @IsString()
-    razorpay_signature!: string;
+    sessionId!: string;
 
     @IsNotEmpty()
     @IsString()
     tripId!: string;
-
-    @IsNotEmpty()
-    @IsNumber()
-    amount!: number;
 }

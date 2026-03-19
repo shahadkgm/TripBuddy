@@ -1,6 +1,6 @@
 import {  Response } from 'express';
 import { IPaymentService } from '../../services/interface/IPaymentService';
-import { CreatePaymentDTO, CreateRazorpayOrderDTO, VerifyRazorpayPaymentDTO } from '../../dto/payment.dto';
+import { CreatePaymentDTO, CreateStripeSessionDTO, VerifyStripePaymentDTO } from '../../dto/payment.dto';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { BaseController } from './base.controller';
 import { AuthRequest } from '../../types/authRequest';
@@ -10,25 +10,25 @@ export class PaymentController extends BaseController {
         super();
     }
 
-    createOrder = asyncHandler(async (req: AuthRequest<{}, {}, CreateRazorpayOrderDTO>, res: Response) => {
+    createStripeSession = asyncHandler(async (req: AuthRequest<{}, {}, CreateStripeSessionDTO>, res: Response) => {
         const userId = req.user?.id;
         if (!userId) {
             this.sendUnauthorized(res, 'User not authenticated');
             return;
         }
 
-        const order = await this._paymentService.createOrder(userId, req.body);
-        this.sendSuccess(res, order, 'Razorpay order created successfully');
+        const session = await this._paymentService.createStripeSession(userId, req.body);
+        this.sendSuccess(res, session, 'Stripe session created successfully');
     });
 
-    verifyPayment = asyncHandler(async (req: AuthRequest<{}, {}, VerifyRazorpayPaymentDTO>, res: Response) => {
+    verifyStripePayment = asyncHandler(async (req: AuthRequest<{}, {}, VerifyStripePaymentDTO>, res: Response) => {
         const userId = req.user?.id;
         if (!userId) {
             this.sendUnauthorized(res, 'User not authenticated');
             return;
         }
 
-        const payment = await this._paymentService.verifyPayment(userId, req.body);
+        const payment = await this._paymentService.verifyStripePayment(userId, req.body);
         this.sendSuccess(res, payment, 'Payment verified and recorded successfully');
     });
 

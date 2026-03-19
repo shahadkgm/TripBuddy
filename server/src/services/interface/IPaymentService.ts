@@ -1,11 +1,10 @@
 import { IPaymentDocument } from '../../types/payment.type';
-import { CreatePaymentDTO, CreateRazorpayOrderDTO, VerifyRazorpayPaymentDTO } from '../../dto/payment.dto';
-import { Orders } from 'razorpay/dist/types/orders';
+import { CreatePaymentDTO, CreateStripeSessionDTO, VerifyStripePaymentDTO } from '../../dto/payment.dto';
 
 export interface IPaymentService {
     payDeposit(userId: string, data: CreatePaymentDTO): Promise<IPaymentDocument>;
-    createOrder(userId: string, data: CreateRazorpayOrderDTO): Promise<Orders.RazorpayOrder>;
-    verifyPayment(userId: string, data: VerifyRazorpayPaymentDTO): Promise<IPaymentDocument>;
+    createStripeSession(userId: string, data: CreateStripeSessionDTO): Promise<{ id: string, url: string }>;
+    verifyStripePayment(userId: string, data: VerifyStripePaymentDTO): Promise<IPaymentDocument>;
     getMyPayments(userId: string, tripId: string): Promise<IPaymentDocument[]>;
     getTripPayments(tripId: string): Promise<IPaymentDocument[]>;
     getUserPayments(userId: string): Promise<IPaymentDocument[]>;

@@ -17,13 +17,11 @@
     "framer-motion": "^12.24.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.562.0",
-    "razorpay": "^2.9.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hot-toast": "^2.6.0",
     "react-leaflet": "^5.0.0",
     "react-markdown": "^10.1.0",
-    "react-razorpay": "^3.0.1",
     "react-router-dom": "^7.10.1",
     "socket.io-client": "^4.8.3"
   },

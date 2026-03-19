@@ -84,6 +84,27 @@ const GroupChatPage = () => {
         scrollToBottom();
     }, [messages]);
 
+    useEffect(() => {
+        const queryParams = new URLSearchParams(window.location.search);
+        const sessionId = queryParams.get('session_id');
+        
+        if (sessionId && id) {
+            const verifyPayment = async () => {
+                try {
+                    await paymentService.verifyStripePayment({ sessionId, tripId: id });
+                    setHasPaidDeposit(true);
+                    toast.success("Payment verified successfully! Your spot is secured.");
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch (error) {
+                    console.error("Verification error:", error);
+                    toast.error("Payment verification failed or already processed.");
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            };
+            verifyPayment();
+        }
+    }, [id]);
+
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
         if (!socket || !newMessage.trim() || !currentUser || !id) return;
@@ -104,13 +125,16 @@ const GroupChatPage = () => {
         
         try {
             setIsProcessingPayment(true);
-            await paymentService.payDeposit(id, depositAmount);
-            setHasPaidDeposit(true);
-            toast.success("Payment successful! Funds are held in TripBuddy Escrow.");
-            setShowPaymentModal(false);
+            const { url } = await paymentService.createStripeSession(depositAmount, id);
+            if (url) {
+                window.location.href = url;
+            } else {
+                toast.error("Failed to initiate payment");
+                setIsProcessingPayment(false);
+            }
         } catch (error) {
+            console.error("Payment error:", error);
             toast.error("Payment failed. Please try again.");
-        } finally {
             setIsProcessingPayment(false);
         }
     };

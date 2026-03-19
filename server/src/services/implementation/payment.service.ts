@@ -1,57 +1,69 @@
 import { IPaymentDocument, PaymentStatus, PaymentType } from '../../types/payment.type';
-import { CreatePaymentDTO, CreateRazorpayOrderDTO, VerifyRazorpayPaymentDTO } from '../../dto/payment.dto';
+import { CreatePaymentDTO, CreateStripeSessionDTO, VerifyStripePaymentDTO } from '../../dto/payment.dto';
 import { IPaymentRepository } from '../../repositories/interface/IPaymentRepository';
 import { IPaymentService } from '../interface/IPaymentService';
 import mongoose from 'mongoose';
-import Razorpay from 'razorpay';
-import crypto from 'crypto';
-import { Orders } from 'razorpay/dist/types/orders';
+import Stripe from 'stripe';
 
 export class PaymentService implements IPaymentService {
-    private razorpay: Razorpay;
+    private stripe: Stripe;
 
     constructor(private paymentRepository: IPaymentRepository) {
-        this.razorpay = new Razorpay({
-            key_id: process.env.RAZORPAY_KEY_ID || '',
-            key_secret: process.env.RAZORPAY_KEY_SECRET || '',
-        });
+        const stripeKey = process.env.STRIPE_SECRET_KEY ||""
+        this.stripe = new Stripe(stripeKey);
     }
 
-    async createOrder(userId: string, data: CreateRazorpayOrderDTO): Promise<Orders.RazorpayOrder> {
-        const options = {
-            amount: Math.round(data.amount * 100), // amount in the smallest currency unit
-            currency: "INR",
-            receipt: `receipt_${Date.now()}`
-        };
+    async createStripeSession(userId: string, data: CreateStripeSessionDTO): Promise<{ id: string, url: string }> {
         try {
-            const order = await this.razorpay.orders.create(options);
-            return order;
+            const session = await this.stripe.checkout.sessions.create({
+                // Let Stripe Dashboard automatically handle all active payment methods
+                line_items: [
+                    {
+                        price_data: {
+                            currency: 'inr',
+                            product_data: {
+                                name: `Trip Deposit`,
+                            },
+                            unit_amount: Math.round(data.amount * 100),
+                        },
+                        quantity: 1,
+                    },
+                ],
+                mode: 'payment',
+                success_url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/group-chat/${data.tripId}?session_id={CHECKOUT_SESSION_ID}`,
+                cancel_url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/group-chat/${data.tripId}`,
+                metadata: {
+                    tripId: data.tripId,
+                    userId: userId,
+                    type: PaymentType.DEPOSIT
+                }
+            });
+
+            if (!session.url) {
+                 throw new Error('Failed to create Stripe session URL');
+            }
+
+            return { id: session.id, url: session.url };
         } catch (error) {
-            console.error('Error creating Razorpay order:', error);
-            throw new Error('Failed to create Razorpay order');
+            console.error('Error creating Stripe session:', error);
+            throw new Error('Failed to create Stripe session');
         }
     }
 
-    async verifyPayment(userId: string, data: VerifyRazorpayPaymentDTO): Promise<IPaymentDocument> {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, tripId, amount } = data;
+    async verifyStripePayment(userId: string, data: VerifyStripePaymentDTO): Promise<IPaymentDocument> {
+        const session = await this.stripe.checkout.sessions.retrieve(data.sessionId);
 
-        const body = razorpay_order_id + "|" + razorpay_payment_id;
-        const expectedSignature = crypto
-            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || '')
-            .update(body.toString())
-            .digest("hex");
-
-        if (expectedSignature === razorpay_signature) {
+        if (session.payment_status === 'paid') {
             return await this.paymentRepository.create({
                 userId: new mongoose.Types.ObjectId(userId),
-                tripId: new mongoose.Types.ObjectId(tripId),
-                amount: amount,
+                tripId: new mongoose.Types.ObjectId(data.tripId),
+                amount: session.amount_total ? session.amount_total / 100 : 0,
                 status: PaymentStatus.ESCROWED,
                 paymentType: PaymentType.DEPOSIT,
-                transactionId: razorpay_payment_id
+                transactionId: session.id
             });
         } else {
-            throw new Error('Invalid signature');
+            throw new Error('Stripe payment not confirmed');
         }
     }
 

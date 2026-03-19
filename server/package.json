@@ -25,9 +25,9 @@
     "multer": "^2.0.2",
     "multer-s3": "^3.0.1",
     "nodemailer": "^7.0.12",
-    "razorpay": "^2.9.6",
     "reflect-metadata": "^0.2.2",
     "socket.io": "^4.8.3",
+    "stripe": "^20.4.1",
     "winston": "^3.19.0"
   },
   "devDependencies": {

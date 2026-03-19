@@ -3,13 +3,13 @@ import type { ApiResponse } from "../interface/ApiResponse";
 import type { IPayment } from "../interface/IPayment";
 
 export const paymentService = {
-    async createRazorpayOrder(amount: number, tripId: string): Promise<any> {
-        const response = await api.post<ApiResponse<any>>(`/api/payments/create-order`, { amount, tripId });
+    async createStripeSession(amount: number, tripId: string): Promise<{ id: string, url: string }> {
+        const response = await api.post<ApiResponse<any>>(`/api/payments/create-stripe-session`, { amount, tripId });
         return response.data.data;
     },
 
-    async verifyRazorpayPayment(verificationData: {razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string, tripId: string, amount: number}): Promise<IPayment> {
-        const response = await api.post<ApiResponse<IPayment>>(`/api/payments/verify-payment`, verificationData);
+    async verifyStripePayment(verificationData: {sessionId: string, tripId: string}): Promise<IPayment> {
+        const response = await api.post<ApiResponse<IPayment>>(`/api/payments/verify-stripe-payment`, verificationData);
         return response.data.data;
     },
 

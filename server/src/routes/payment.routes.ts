@@ -3,7 +3,7 @@ import { PaymentRepository } from '../repositories/implementation/payment.reposi
 import { PaymentService } from '../services/implementation/payment.service';
 import { PaymentController } from '../controllers/implementation/payment.controller';
 import { dtoValidationMiddleware } from '../middleware/dtoValidation';
-import { CreatePaymentDTO, CreateRazorpayOrderDTO, VerifyRazorpayPaymentDTO } from '../dto/payment.dto';
+import { CreatePaymentDTO, CreateStripeSessionDTO, VerifyStripePaymentDTO } from '../dto/payment.dto';
 import { API_ROUTES } from '../constants/routes.constants';
 import { protect } from '../middleware/authMiddleware';
 
@@ -23,15 +23,15 @@ router.post(
 );
 
 router.post(
-    '/create-order',
-    dtoValidationMiddleware(CreateRazorpayOrderDTO),
-    paymentController.createOrder
+    '/create-stripe-session',
+    dtoValidationMiddleware(CreateStripeSessionDTO),
+    paymentController.createStripeSession
 );
 
 router.post(
-    '/verify-payment',
-    dtoValidationMiddleware(VerifyRazorpayPaymentDTO),
-    paymentController.verifyPayment
+    '/verify-stripe-payment',
+    dtoValidationMiddleware(VerifyStripePaymentDTO),
+    paymentController.verifyStripePayment
 );
 
 router.get(
