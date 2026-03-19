@@ -59,4 +59,14 @@ export class UploadController extends BaseController {
     const imageUrl = s3File.location;
     this.sendCreated(res, { imageUrl }, 'Profile photo uploaded successfully');
   });
+
+  handleChatImageUpload = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    if (!req.file) {
+      this.sendBadRequest(res, 'No file uploaded');
+      return;
+    }
+    const s3File = req.file as Express.Multer.File & { location: string };
+    const imageUrl = s3File.location;
+    this.sendCreated(res, { imageUrl }, 'Chat image uploaded successfully');
+  });
 }

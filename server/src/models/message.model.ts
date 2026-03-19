@@ -4,6 +4,8 @@ export interface IMessage {
     tripId: Types.ObjectId;
     senderId: Types.ObjectId;
     content: string;
+    messageType?: 'text' | 'image';
+    fileUrl?: string;
     timestamp: Date;
 }
 
@@ -36,6 +38,14 @@ const messageSchema = new Schema<IMessageDocument>(
             type: String,
             required: true,
             trim: true,
+        },
+        messageType: {
+            type: String,
+            enum: ['text', 'image'],
+            default: 'text',
+        },
+        fileUrl: {
+            type: String,
         },
         timestamp: {
             type: Date,

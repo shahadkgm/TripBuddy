@@ -37,6 +37,7 @@ export const API_ROUTES = {
         BASE: '/api',
         FILE_UPLOAD: '/upload',
         PROFILE_PHOTO: '/profile-photo',
+        CHAT_IMAGE: '/chat-image',
         KYC_STATUS: '/kyc-status/:userId',
     },
 

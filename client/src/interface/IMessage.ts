@@ -6,5 +6,7 @@ export interface IMessage {
         avatarURL?: string;
     };
     content: string;
+    messageType?: 'text' | 'image';
+    fileUrl?: string;
     timestamp: string;
 }

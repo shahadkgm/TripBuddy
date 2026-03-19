@@ -18,6 +18,7 @@ const controller = new UploadController(service);
 
 router.post(API_ROUTES.UPLOAD.FILE_UPLOAD, protect, upload.single('image'), controller.handleFileUpload);
 router.post(API_ROUTES.UPLOAD.PROFILE_PHOTO, protect, upload.single('avatar'), controller.handleProfilePhotoUpload);
+router.post(API_ROUTES.UPLOAD.CHAT_IMAGE, protect, upload.single('chat'), controller.handleChatImageUpload);
 router.get(API_ROUTES.UPLOAD.KYC_STATUS, protect, controller.getStatus);
 
 export default router;

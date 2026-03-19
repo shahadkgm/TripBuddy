@@ -3,11 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
     Send, X, User, ArrowLeft, AlertCircle,
     Edit, Eye, ChevronLeft, Loader2,
-    Plane
+    Plane, Smile, Image as ImageIcon
 } from 'lucide-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { useSocket } from '../../hooks/useSocket';
 import { authService } from '../../services/c.authService';
 import { tripService } from '../../services/c.trip.service';
+import api from '../../utils/api';
 import type { ITrip } from '../../interface/ITripdetails';
 import toast from 'react-hot-toast';
 import { CreditCard, ShieldCheck } from 'lucide-react';
@@ -25,7 +27,12 @@ const GroupChatPage = () => {
     const [hasPaidDeposit, setHasPaidDeposit] = useState(false);
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [showMembersModal, setShowMembersModal] = useState(false);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [tripPayments, setTripPayments] = useState<IPayment[]>([]);
+    
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const socket = useSocket(id);
     const currentUser = authService.getCurrentUser();
@@ -117,6 +124,46 @@ const GroupChatPage = () => {
 
         setNewMessage('');
     };
+
+    const onEmojiClick = (emojiData: any) => {
+        setNewMessage(prev => prev + emojiData.emoji);
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !id || !currentUser) return;
+
+        try {
+            setIsUploading(true);
+            const formData = new FormData();
+            formData.append('chat', file);
+
+            const response = await api.post('/api/chat-image', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            const data = response.data;
+            if (data.success) {
+                socket?.emit('send_message', {
+                    tripId: id,
+                    senderId: currentUser.id,
+                    content: 'Shared an image',
+                    messageType: 'image',
+                    fileUrl: data.data.imageUrl
+                });
+            } else {
+                toast.error("Failed to upload image");
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            toast.error("Error uploading image");
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
     const handlePayment = async () => {
         if (!trip || !id) return;
         
@@ -162,7 +209,10 @@ const GroupChatPage = () => {
                     >
                         <ChevronLeft size={24} />
                     </button>
-                    <div className="flex items-center gap-3">
+                    <div 
+                        className="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded-xl transition-colors"
+                        onClick={() => setShowMembersModal(true)}
+                    >
                         <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
                             <Plane size={24} />
                         </div>
@@ -252,7 +302,19 @@ const GroupChatPage = () => {
                                                 ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-none'
                                                 : 'bg-white text-slate-800 rounded-2xl rounded-tl-none border border-slate-100'}
                                         `}>
-                                            <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                                            {msg.messageType === 'image' ? (
+                                                <div className="space-y-2">
+                                                    <img 
+                                                        src={msg.fileUrl} 
+                                                        alt="Sent image" 
+                                                        className="max-w-full rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
+                                                        onClick={() => window.open(msg.fileUrl, '_blank')}
+                                                    />
+                                                    {msg.content !== 'Shared an image' && <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>}
+                                                </div>
+                                            ) : (
+                                                <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                                            )}
                                         </div>
                                         <p className={`text-[10px] text-slate-400 mt-1.5 font-bold ${isOwn ? 'mr-1' : 'ml-1'}`}>
                                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -266,21 +328,58 @@ const GroupChatPage = () => {
                 </div>
 
                 {/* Input Area */}
-                <div className="p-6 bg-white border-t border-slate-100 flex flex-col gap-4">
-                    <form onSubmit={handleSendMessage} className="flex gap-3">
+                <div className="p-6 bg-white border-t border-slate-100 flex flex-col gap-4 relative">
+                    {showEmojiPicker && (
+                        <div className="absolute bottom-full mb-4 left-6 z-50">
+                            <EmojiPicker 
+                                onEmojiClick={onEmojiClick}
+                                theme={Theme.LIGHT}
+                                width={350}
+                                height={400}
+                            />
+                        </div>
+                    )}
+                    
+                    <form onSubmit={handleSendMessage} className="flex gap-3 items-center">
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                className={`p-3 rounded-2xl transition-all ${showEmojiPicker ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                            >
+                                <Smile size={20} />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isUploading}
+                                className="p-3 bg-slate-50 text-slate-500 hover:bg-slate-100 rounded-2xl transition-all disabled:opacity-50"
+                            >
+                                {isUploading ? <Loader2 size={20} className="animate-spin" /> : <ImageIcon size={20} />}
+                            </button>
+                            <input 
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleImageUpload}
+                                accept="image/*"
+                                className="hidden"
+                            />
+                        </div>
+                        
                         <div className="flex-1 relative">
                             <input
                                 type="text"
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
+                                onFocus={() => setShowEmojiPicker(false)}
                                 placeholder="Type your message here..."
                                 className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 font-medium"
                             />
                         </div>
                         <button
                             type="submit"
-                            disabled={!newMessage.trim()}
-                            className="bg-indigo-600 text-white px-8 rounded-2xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-indigo-100 flex items-center justify-center active:scale-95"
+                            disabled={!newMessage.trim() && !isUploading}
+                            className="bg-indigo-600 text-white px-8 h-[54px] rounded-2xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-indigo-100 flex items-center justify-center active:scale-95"
                         >
                             <Send size={20} className="mr-2" />
                             <span className="font-bold uppercase tracking-wider text-xs">Send</span>
@@ -383,6 +482,48 @@ const GroupChatPage = () => {
                                 Transaction secured by TripBuddy Escrow protection
                             </p>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* Members View Modal */}
+            {showMembersModal && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                    <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in duration-300">
+                        <div className="flex justify-between items-center mb-6">
+                            <div className="bg-indigo-50 p-3 rounded-2xl">
+                                <User className="text-indigo-600 w-6 h-6" />
+                            </div>
+                            <button onClick={() => setShowMembersModal(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                                <X size={24} className="text-slate-400" />
+                            </button>
+                        </div>
+
+                        <h2 className="text-2xl font-black text-slate-900 mb-2">Group Members</h2>
+                        <p className="text-slate-500 text-sm font-medium mb-6">
+                            People joining the trip to <span className="text-indigo-600 font-bold">{trip.destination}</span>.
+                        </p>
+
+                        <div className="space-y-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+                            {trip.members?.map(member => (
+                                <div key={member._id} className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100 hover:border-indigo-100 hover:shadow-sm transition-all">
+                                    <img 
+                                        src={member.avatarURL || `https://ui-avatars.com/api/?name=${member.name}`} 
+                                        alt={member.name} 
+                                        className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-sm font-bold text-slate-900 truncate">{member.name}</h3>
+                                        <p className="text-xs text-slate-500 truncate">{member.email}</p>
+                                    </div>
+                                    {member._id === trip.userId._id && (
+                                        <span className="text-[10px] font-black uppercase text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">
+                                            Admin
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             )}

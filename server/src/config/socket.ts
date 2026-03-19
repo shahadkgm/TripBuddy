@@ -19,12 +19,14 @@ export const setupSocket = (httpServer: HTTPServer) => {
             console.log(`User ${socket.id} joined trip: ${tripId}`);
         });
 
-        socket.on('send_message', async (data: { tripId: string, senderId: string, content: string }) => {
+        socket.on('send_message', async (data: { tripId: string, senderId: string, content: string, messageType?: 'text' | 'image', fileUrl?: string }) => {
             try {
                 const newMessage = await MessageModel.create({
                     tripId: data.tripId,
                     senderId: data.senderId,
                     content: data.content,
+                    messageType: data.messageType || 'text',
+                    fileUrl: data.fileUrl,
                 });
 
                 const populatedMessage = await MessageModel.findById(newMessage._id).populate('senderId', 'name avatarURL');

@@ -14,7 +14,7 @@ const s3Storage = multerS3({
   },
   key: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const folder = file.fieldname === 'avatar' ? 'guides' : (file.fieldname === 'gallery' ? 'gallery' : 'kyc');
+    const folder = file.fieldname === 'avatar' ? 'guides' : (file.fieldname === 'gallery' ? 'gallery' : (file.fieldname === 'chat' ? 'chat' : 'kyc'));
     cb(null, `${folder}/${uniqueSuffix}${path.extname(file.originalname)}`);
   }
 });

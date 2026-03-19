@@ -14,6 +14,7 @@
     "@tailwindcss/postcss": "^4.1.18",
     "@types/leaflet": "^1.9.21",
     "axios": "^1.13.2",
+    "emoji-picker-react": "^4.18.0",
     "framer-motion": "^12.24.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.562.0",
