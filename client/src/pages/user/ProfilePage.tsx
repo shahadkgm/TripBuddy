@@ -3,8 +3,8 @@ import {
     User, Mail, Camera,
     Shield, LogOut,
     ArrowLeft, Plane,
-    Loader2, Globe, Image as ImageIcon,
-    X, Compass, Edit3, Lock, Bot, UserCheck, MessageCircle
+    Loader2, Image as ImageIcon,
+    X, Edit3, Lock, Bot, UserCheck, MessageCircle
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
 import { connectionService } from '../../services/c.connection.service';
@@ -156,7 +156,7 @@ const ProfilePage = () => {
 
     return (
         <div className="min-h-screen flex flex-col bg-slate-50">
-            <Navbar />
+            <Navbar variant="sticky" />
 
             <main className="grow py-12 px-4">
                 <div className="max-w-7xl mx-auto">

@@ -1,23 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, Search, MapPin, 
-  RotateCcw, SlidersHorizontal, 
-  Sparkles
+import {
+  Search, MapPin,
+  RotateCcw, SlidersHorizontal
 } from 'lucide-react';
 import api from '../../utils/api';
 import { GuideCard } from '../../components/GuideCard';
 import { Pagination } from '../../components/Pagination';
+import { Navbar } from '../../components/home/Navbar';
 
 import type { IGuide } from '../../interface/IGuide';
 
 const FindGuidesPage: React.FC = () => {
-  const navigate = useNavigate();
   const [guides, setGuides] = useState<IGuide[]>([]);
   const [loading, setLoading] = useState(true);
   const [destination, setDestination] = useState("");
   const [maxPrice, setMaxPrice] = useState(5000);
-  
+
   // Pagination State
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -26,7 +24,7 @@ const FindGuidesPage: React.FC = () => {
   const fetchGuides = async (currentPage = page, filters = { destination, maxPrice }) => {
     setLoading(true);
     try {
-      const res = await api.get(`/api/guides/all`, { 
+      const res = await api.get(`/api/guides/all`, {
         params: {
           ...filters,
           page: currentPage,
@@ -61,28 +59,7 @@ const FindGuidesPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => navigate('/dashboard')} 
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
-            </button>
-            <h1 className="text-xl font-bold text-slate-800 flex items-center gap-3">
-              <Sparkles className="w-5 h-5 text-tb-purple" />
-              Find Local Experts
-            </h1>
-          </div>
-          <button 
-            onClick={() => navigate('/dashboard')}
-            className="text-sm font-semibold text-tb-purple hover:underline"
-          >
-            Dashboard
-          </button>
-        </div>
-      </header>
+      <Navbar variant="sticky" showBack={true} backPath="/dashboard" />
 
       {/* Hero Search Section */}
       <div className="bg-white border-b border-slate-100 pt-8 pb-12 shadow-sm">
@@ -176,7 +153,7 @@ const FindGuidesPage: React.FC = () => {
                   <p className="text-slate-500 max-w-sm mx-auto mt-3">
                     We couldn't find any experts for this destination or price range.
                   </p>
-                  <button 
+                  <button
                     onClick={handleReset}
                     className="mt-8 text-tb-purple font-bold hover:underline"
                   >

@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, Search, MapPin, 
-  Plane, Tag, RotateCcw, 
-  Users, ChevronDown
+import {
+  Search, MapPin,
+  Plane, Tag, RotateCcw,
+  ChevronDown
 } from 'lucide-react';
 import { tripService } from '../../services/c.trip.service';
 import { TravelerCard } from '../../components/TravelerCard';
 import { Pagination } from '../../components/Pagination';
+import { Navbar } from '../../components/home/Navbar';
 import type { ITrip } from '../../interface/ITripdetails';
 
 const INTERESTS_LIST = [
@@ -16,7 +16,6 @@ const INTERESTS_LIST = [
 ];
 
 const FindTravelers = () => {
-  const navigate = useNavigate();
   const [trips, setTrips] = useState<ITrip[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -74,35 +73,14 @@ const FindTravelers = () => {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => navigate('/dashboard')} 
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
-            </button>
-            <h1 className="text-xl font-bold text-slate-800 flex items-center gap-4">
-              <Users className="w-5 h-5 text-tb-purple" />
-              Find Travel Buddies
-            </h1>
-          </div>
-          <button 
-            onClick={() => navigate('/dashboard')}
-            className="text-sm font-semibold text-tb-purple hover:underline transition-colors"
-          >
-            Dashboard
-          </button>
-        </div>
-      </header>
+      <Navbar variant="sticky" showBack={true} backPath="/dashboard" />
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 py-8">
-        
+
         {/* Horizontal Search Bar */}
         <div className="bg-white p-4 rounded-[28px] shadow-xl border border-slate-100 mb-12 flex flex-col md:flex-row items-center gap-3">
-          
+
           {/* Destination */}
           <div className="flex-1 w-full relative group">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-tb-purple transition-colors">
@@ -208,7 +186,7 @@ const FindTravelers = () => {
                   <p className="text-slate-500 max-w-sm mx-auto mt-3 text-lg">
                     We couldn't find any trips matching your filters. Try widening your search!
                   </p>
-                  <button 
+                  <button
                     onClick={handleClearFilters}
                     className="mt-8 px-6 py-3 bg-tb-purple/10 text-tb-purple font-bold rounded-xl hover:bg-tb-purple/20 transition-all"
                   >
