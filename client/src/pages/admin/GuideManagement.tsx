@@ -106,6 +106,7 @@ export const GuideManagement = () => {
     {
       header: "No.",
       key: "index",
+      className: "hidden md:table-cell",
       render: (_: IGuideApplication, index: number) => (
         <span className="text-xs font-mono text-gray-400">
           {(currentPage - 1) * limit + (index + 1)}
@@ -116,10 +117,10 @@ export const GuideManagement = () => {
       header: "Applicant",
       key: "userId",
       render: (guide: IGuideApplication) => (
-        <div className="py-1">
-          <div className="font-bold text-gray-900">{guide.user?.name || "Unknown"}</div>
-          <div className="text-xs text-gray-500">{guide.user?.email}</div>
-          <div className="text-[11px] italic text-gray-400 truncate  max-width: 180px" title={guide.bio}>
+        <div className="py-1 max-w-[150px] sm:max-w-[200px]">
+          <div className="font-bold text-gray-900 truncate">{guide.user?.name || "Unknown"}</div>
+          <div className="text-xs text-gray-500 truncate">{guide.user?.email}</div>
+          <div className="text-[11px] italic text-gray-400 line-clamp-2 mt-1" title={guide.bio}>
             "{guide.bio}"
           </div>
         </div>
@@ -128,10 +129,11 @@ export const GuideManagement = () => {
     {
       header: "Exp & Area",
       key: "yearsOfExperience",
+      className: "hidden sm:table-cell",
       render: (guide: IGuideApplication) => (
-        <div>
+        <div className="max-w-[120px]">
           <div className="text-sm font-semibold">{guide.yearsOfExperience} years</div>
-          <div className="text-xs text-gray-500 truncate  max-width: 120px;">
+          <div className="text-xs text-gray-500 truncate">
             {guide.serviceArea}
           </div>
           <div className="text-xs font-bold text-emerald-600">₹{guide.hourlyRate}/hr</div>
@@ -153,12 +155,13 @@ export const GuideManagement = () => {
     {
       header: "Details",
       key: "details",
+      className: "hidden lg:table-cell",
       render: (guide: IGuideApplication) => (
         <button
           onClick={() => setViewingGuide(guide)}
           className="flex items-center gap-1.5 text-[11px] font-bold text-[#5537ee] hover:text-white hover:bg-[#5537ee] bg-indigo-50/50 px-3 py-1.5 rounded-full border border-indigo-100 transition-all active:scale-95 group"
         >
-          <Eye size={14} className="group-hover:scale-110 transition-transform" /> View Profile
+          <Eye size={14} className="group-hover:scale-110 transition-transform" /> View
         </button>
       )
     },

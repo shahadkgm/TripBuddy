@@ -77,21 +77,21 @@ export const AdminPaymentsPage = () => {
       header: "User",
       key: "userId",
       render: (payment: PaymentData) => (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 max-w-[200px]">
           {payment.userId?.avatarURL ? (
               <img
                   src={payment.userId.avatarURL.startsWith('http') ? payment.userId.avatarURL : `${api.defaults.baseURL}/${payment.userId.avatarURL}`}
                   alt={payment.userId.name}
-                  className="w-8 h-8 rounded-full object-cover"
+                  className="w-8 h-8 rounded-full object-cover shrink-0"
               />
           ) : (
-              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-xs font-bold">
+              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-xs font-bold shrink-0">
                   {payment.userId?.name?.charAt(0) || 'U'}
               </div>
           )}
-          <div>
-            <div className="font-medium text-gray-800 text-sm">{payment.userId?.name || 'Unknown'}</div>
-            <div className="text-xs text-gray-500">{payment.userId?.email || 'N/A'}</div>
+          <div className="truncate">
+            <div className="font-medium text-gray-800 text-sm truncate">{payment.userId?.name || 'Unknown'}</div>
+            <div className="text-xs text-gray-500 truncate">{payment.userId?.email || 'N/A'}</div>
           </div>
         </div>
       )
@@ -100,9 +100,9 @@ export const AdminPaymentsPage = () => {
       header: "Trip",
       key: "tripId",
       render: (payment: PaymentData) => (
-        <div>
-          <div className="font-medium text-gray-800 text-sm">{payment.tripId?.title || 'Unknown Trip'}</div>
-          <div className="text-xs text-gray-400">{payment.tripId?.destination || 'N/A'}</div>
+        <div className="max-w-[180px]">
+          <div className="font-medium text-gray-800 text-sm break-words line-clamp-2">{payment.tripId?.title || 'Unknown Trip'}</div>
+          <div className="text-xs text-gray-400 truncate">{payment.tripId?.destination || 'N/A'}</div>
         </div>
       )
     },
@@ -119,7 +119,7 @@ export const AdminPaymentsPage = () => {
     {
       header: "Type",
       key: "paymentType",
-      className: "text-center",
+      className: "text-center hidden md:table-cell",
       render: (payment: PaymentData) => (
         <span className="capitalize text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded-md">
           {payment.paymentType.replace('_', ' ')}
@@ -152,9 +152,12 @@ export const AdminPaymentsPage = () => {
     {
       header: "Transaction ID",
       key: "transactionId",
-      className: "text-left", // Ready the alignment to left
+      className: "text-left hidden lg:table-cell", // Ready the alignment to left
       render: (payment: PaymentData) => (
-        <span className="text-xs font-mono text-gray-500 bg-gray-50 px-2 py-1 rounded">
+        <span 
+          className="text-[10px] font-mono text-gray-500 bg-gray-50 px-2 py-1 rounded block max-w-[100px] truncate"
+          title={payment.transactionId}
+        >
           {payment.transactionId || 'N/A'}
         </span>
       )
@@ -162,7 +165,7 @@ export const AdminPaymentsPage = () => {
     {
       header: "Date",
       key: "createdAt",
-      className: "text-right",
+      className: "text-right hidden sm:table-cell",
       render: (payment: PaymentData) => (
         <div className="text-xs text-gray-500">
           {new Date(payment.createdAt).toLocaleDateString()}
