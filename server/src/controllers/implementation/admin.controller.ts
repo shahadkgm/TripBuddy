@@ -87,4 +87,18 @@ export class AdminController extends BaseController implements IAdminController 
     const stats = await this._adminService.getDashboardStats();
     this.sendSuccess(res, stats, 'Dashboard stats fetched successfully');
   });
+
+  getAllPayments = asyncHandler(async (req: Request, res: Response) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const data = await this._adminService.getAllPayments(page, limit);
+    this.sendSuccess(res, data, 'Payments fetched successfully');
+  });
+
+  updatePaymentStatus = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const updatedPayment = await this._adminService.updatePaymentStatus(id, status);
+    this.sendSuccess(res, updatedPayment, `Payment status updated to ${status} successfully`);
+  });
 }

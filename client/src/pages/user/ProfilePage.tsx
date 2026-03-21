@@ -4,7 +4,7 @@ import {
     Shield, LogOut,
     ArrowLeft, Plane,
     Loader2, Image as ImageIcon,
-    X, Edit3, Lock, Bot, UserCheck, MessageCircle
+    X, Edit3, Lock, Bot, UserCheck, MessageCircle, CreditCard
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
 import { connectionService } from '../../services/c.connection.service';
@@ -313,6 +313,19 @@ const ProfilePage = () => {
                                 <p className="text-sm text-slate-500 font-medium">Showcase your personal travel memories. Only you and your connected travelers can see this.</p>
                                 <button onClick={() => navigate('/gallery')} className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200 flex items-center justify-center gap-2">
                                     <ImageIcon size={16} /> Open Gallery
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Payment History Card */}
+                        <div className="bg-white p-8 rounded-xl shadow-lg border border-slate-100">
+                            <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                <CreditCard size={20} className="text-indigo-500" /> Payment History
+                            </h3>
+                            <div className="space-y-4">
+                                <p className="text-sm text-slate-500 font-medium">View your transaction history, trip deposits, and refund status in one place.</p>
+                                <button onClick={() => navigate('/my-payments')} className="w-full py-4 bg-[#5537ee] text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2">
+                                    <CreditCard size={16} /> View Payments
                                 </button>
                             </div>
                         </div>

@@ -5,4 +5,5 @@ export interface IPaymentRepository extends IBaseRepository<IPaymentDocument, IP
     findByTripId(tripId: string): Promise<IPaymentDocument[]>;
     findByUserId(userId: string): Promise<IPaymentDocument[]>;
     findByUserAndTrip(userId: string, tripId: string): Promise<IPaymentDocument[]>;
+    findAllPayments(page: number, limit: number): Promise<{ payments: IPaymentDocument[], total: number }>;
 }

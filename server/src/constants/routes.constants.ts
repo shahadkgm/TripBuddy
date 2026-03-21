@@ -31,6 +31,7 @@ export const API_ROUTES = {
         GUIDES_ALL: '/guides',
         GUIDE_REJECT: '/guides/:id',
         STATS: '/stats',
+        PAYMENTS: '/payments',
     },
 
     UPLOAD: {

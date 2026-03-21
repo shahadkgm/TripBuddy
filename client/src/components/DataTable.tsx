@@ -31,7 +31,7 @@ export function DataTable<T extends { id?: string; _id?: string }>({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full table-fixed text-left">
+      <table className="w-full table-auto text-left whitespace-nowrap">
         <thead className="bg-gray-50 border-b border-gray-100">
           <tr>
             {columns.map((col, index) => (

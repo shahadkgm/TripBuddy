@@ -25,10 +25,12 @@ import AIAssistantPage from "../pages/user/AIAssistantPage";
 import GroupChatPage from "../pages/user/GroupChatPage";
 import NearByPlacesPage from "../pages/user/NearByPlacesPage";
 import FindGuidesPage from "../pages/user/FindGuidesPage";
+import MyPaymentsPage from "../pages/user/MyPaymentsPage";
 
 import { AdminDashboard } from "../pages/admin/AdminDashboard";
 import { UserManagement } from "../pages/admin/UserManagement";
 import { GuideManagement } from "../pages/admin/GuideManagement";
+import { AdminPaymentsPage } from "../pages/admin/AdminPaymentsPage";
 
 import { GuideDashboard } from "../pages/guide/GuideDashboard";
 
@@ -63,6 +65,7 @@ export default function AppRoutes() {
         <Route path="/group-chat/:id" element={<GroupChatPage />} />
         <Route path="/nearby" element={<NearByPlacesPage />} />
         <Route path="/find-guides" element={<FindGuidesPage />} />
+        <Route path="/my-payments" element={<MyPaymentsPage />} />
       </Route>
 
 
@@ -72,6 +75,7 @@ export default function AppRoutes() {
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/users" element={<UserManagement />} />
         <Route path="/admin/guides" element={<GuideManagement />} />
+        <Route path="/admin/payments" element={<AdminPaymentsPage />} />
       </Route>
 
       {/* Guide */}

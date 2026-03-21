@@ -31,4 +31,6 @@ export interface IAdminService {
   rejectApplication(guideId: string): Promise<boolean>;
   approveKYC(userId: string, status: KYCStatus, reason?: string): Promise<boolean>;
   getDashboardStats(): Promise<DashboardStatsDTO>;
+  getAllPayments(page: number, limit: number): Promise<{ payments: any[], total: number }>;
+  updatePaymentStatus(paymentId: string, status: string): Promise<any>;
 }

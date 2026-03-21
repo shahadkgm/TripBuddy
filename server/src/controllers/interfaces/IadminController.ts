@@ -11,4 +11,6 @@ export interface IAdminController {
   rejectGuide: RequestHandler;
   handleApproveKYC: RequestHandler;
   getDashboardStats: RequestHandler;
+  getAllPayments: RequestHandler;
+  updatePaymentStatus: RequestHandler;
 }

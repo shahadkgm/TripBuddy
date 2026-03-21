@@ -10,11 +10,13 @@ import { logger } from '../../utils/logger';
 import { IAdminService } from '../interface/Iadminservice';
 import { IKYCRepository } from '../../repositories/interface/IKycRepository';
 import { KYCStatus } from '../../types/kyc.type';
+import { IPaymentRepository } from '../../repositories/interface/IPaymentRepository';
 
 export class AdminService implements IAdminService {
   constructor(
     private adminRepo: IAdminRepository,
-    private kycRepo: IKYCRepository
+    private kycRepo: IKYCRepository,
+    private paymentRepo: IPaymentRepository
   ) { }
 
   async fetchAllUsers(page = 1, limit = 10, search = ''): Promise<UserListDTO> {
@@ -144,5 +146,15 @@ export class AdminService implements IAdminService {
       totalGuides: verifiedGuidesCount,
       pendingApplications: pending.length,
     };
+  }
+
+  async getAllPayments(page: number, limit: number): Promise<{ payments: any[], total: number }> {
+    const result = await this.paymentRepo.findAllPayments(page, limit);
+    return result;
+  }
+
+  async updatePaymentStatus(paymentId: string, status: string): Promise<any> {
+    const updatedPayment = await this.paymentRepo.updateById(paymentId, { status });
+    return updatedPayment;
   }
 }
