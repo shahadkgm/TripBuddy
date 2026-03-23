@@ -43,6 +43,10 @@ const tripSchema = new Schema<ITripDocument>(
             type: Number,
             default: 0,
         },
+        minMembers: {
+            type: Number,
+            default: 2,
+        },
         status: {
             type: String,
             enum: ['planned', 'ongoing', 'completed', 'cancelled', 'finalized', 'confirmed'],

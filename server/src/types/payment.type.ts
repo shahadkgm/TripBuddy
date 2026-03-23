@@ -29,3 +29,19 @@ export interface IPayment {
 export type IPaymentCreate = Omit<IPayment, 'createdAt' | 'updatedAt'>;
 
 export type IPaymentDocument = IPayment & Document;
+
+export interface IPaymentPopulated extends Omit<IPayment, 'userId' | 'tripId'> {
+    userId: {
+        _id: Types.ObjectId;
+        name: string;
+        email: string;
+        avatarURL?: string;
+    };
+    tripId: {
+        _id: Types.ObjectId;
+        destination: string;
+        title: string;
+    };
+}
+
+export type IPaymentPopulatedDocument = IPaymentPopulated & Document;

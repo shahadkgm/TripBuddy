@@ -17,6 +17,7 @@ export interface ITrip {
     description?: string;
     preferences: ITripPreferences;
     depositAmount?: number;
+    minMembers: number;
     status: 'planned' | 'ongoing' | 'completed' | 'cancelled' | 'finalized' | 'confirmed';
     members: Types.ObjectId[];
     createdAt: Date;
@@ -24,6 +25,24 @@ export interface ITrip {
 }
 
 export type ITripDocument = ITrip & Document;
+
+export interface ITripPopulated extends Omit<ITrip, 'userId' | 'members'> {
+    userId: {
+        _id: Types.ObjectId;
+        name: string;
+        email: string;
+        avatarURL?: string;
+        role?: string;
+    };
+    members: {
+        _id: Types.ObjectId;
+        name: string;
+        email: string;
+        avatarURL?: string;
+    }[];
+}
+
+export type ITripPopulatedDocument = ITripPopulated & Document;
 
 export interface ITripFilters {
     destination?: string;

@@ -43,6 +43,17 @@ export class PaymentController extends BaseController {
         this.sendCreated(res, payment, 'Deposit paid successfully');
     });
 
+    payWithWallet = asyncHandler(async (req: AuthRequest<{}, {}, CreatePaymentDTO>, res: Response) => {
+        const userId = req.user?.id;
+        if (!userId) {
+            this.sendUnauthorized(res, 'User not authenticated');
+            return;
+        }
+
+        const payment = await this._paymentService.payWithWallet(userId, req.body);
+        this.sendCreated(res, payment, 'Paid with wallet successfully');
+    });
+
     getMyPayments = asyncHandler(async (req: AuthRequest, res: Response) => {
         const userId = req.user?.id;
         const { tripId } = req.params;

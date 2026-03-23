@@ -84,4 +84,10 @@ export class UserRepository extends BaseRepository<IUser, CreateUserDTO> impleme
         };
         await this.updateById(userId, update);
     }
+
+    async updateWalletBalance(userId: string, amount: number): Promise<void> {
+        await this._model.findByIdAndUpdate(userId, {
+            $inc: { walletBalance: amount }
+        });
+    }
 }

@@ -4,7 +4,7 @@ import {
     Sparkles, UserCheck, Clock, UserPlus,
     User,
     MapPin, X,
-    MessageCircle
+    MessageCircle, AlertCircle, Loader2
 } from 'lucide-react';
 import { tripService } from '../../services/c.trip.service';
 import { connectionService } from '../../services/c.connection.service';
@@ -22,6 +22,8 @@ const TripDetails = () => {
     const [trip, setTrip] = useState<ITrip | null>(null);
     const [loading, setLoading] = useState(true);
     const [status, setStatus] = useState<'none' | 'pending' | 'accepted' | 'rejected' | 'incoming_pending' | 'loading'>('loading');
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [isCancelling, setIsCancelling] = useState(false);
 
     const currentUser = authService.getCurrentUser();
 
@@ -70,12 +72,28 @@ const TripDetails = () => {
     const handleFinalize = async () => {
         if (!trip || !id) return;
         try {
-            const deposit = trip.budget * 0.2;
-            await tripService.finalizeTrip(id, deposit);
+            // Defaulting minMembers to 2 if not set, but the owner can just finalize for now
+            const deposit = trip.budget * 0.2; 
+            await tripService.finalizeTrip(id, trip.budget, deposit);
             toast.success("Trip finalized! Members can now pay deposits.");
             setTrip({ ...trip, status: 'finalized', depositAmount: deposit });
         } catch (error) {
             toast.error("Failed to finalize trip");
+        }
+    };
+
+    const handleCancelTrip = async () => {
+        if (!id) return;
+        try {
+            setIsCancelling(true);
+            await tripService.cancelTrip(id);
+            toast.success("Trip cancelled and members refunded.");
+            if (trip) setTrip({ ...trip, status: 'cancelled' });
+            setShowCancelModal(false);
+        } catch (error) {
+            toast.error("Failed to cancel trip");
+        } finally {
+            setIsCancelling(false);
         }
     };
 
@@ -210,12 +228,20 @@ const TripDetails = () => {
                                     Finalize Trip & Set Deposit
                                 </button>
                             ) : (
-                                <button
-                                    disabled
-                                    className="w-full py-5 bg-emerald-50 text-emerald-600 border-2 border-emerald-200 rounded-2xl font-black uppercase tracking-[0.2em]"
-                                >
-                                    Trip Finalized
-                                </button>
+                                <div className="flex flex-col gap-4">
+                                    <button
+                                        disabled
+                                        className="w-full py-5 bg-emerald-50 text-emerald-600 border-2 border-emerald-200 rounded-2xl font-black uppercase tracking-[0.2em]"
+                                    >
+                                        Trip Finalized
+                                    </button>
+                                        <button
+                                            onClick={() => setShowCancelModal(true)}
+                                            className="w-full py-4 border-2 border-rose-100 text-rose-600 rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-rose-50 transition"
+                                        >
+                                            Cancel Trip & Refund All
+                                        </button>
+                                </div>
                             )}
                             <button
                                 onClick={() => navigate(`/group-chat/${trip._id}`)}
@@ -286,8 +312,44 @@ const TripDetails = () => {
                     )}
                 </div>
             </div>
+
+            {/* Cancel Trip Confirmation Modal */}
+            {showCancelModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowCancelModal(false)} />
+                    <div className="bg-white rounded-[2.5rem] p-8 w-full max-w-md relative animate-in fade-in zoom-in duration-300 shadow-2xl border border-slate-100">
+                        <div className="flex justify-between items-center mb-6">
+                            <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-600">
+                                <AlertCircle size={24} />
+                            </div>
+                            <button onClick={() => setShowCancelModal(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X size={24} className="text-slate-400" /></button>
+                        </div>
+                        <h2 className="text-2xl font-black text-slate-900 mb-2">Cancel Trip?</h2>
+                        <p className="text-slate-500 text-sm mb-8 font-medium">
+                            Are you sure you want to cancel this trip? <br />
+                            <span className="text-rose-600 font-bold">All members will be refunded 100% of their deposits</span> to their TripBuddy Wallet. This action cannot be undone.
+                        </p>
+                        
+                        <div className="flex flex-col gap-3">
+                            <button 
+                                onClick={handleCancelTrip} 
+                                disabled={isCancelling} 
+                                className="w-full py-5 bg-rose-600 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-rose-700 transition shadow-xl shadow-rose-100 disabled:opacity-50 flex items-center justify-center gap-3"
+                            >
+                                {isCancelling ? <Loader2 className="animate-spin" /> : <>Yes, Cancel Trip</>}
+                            </button>
+                            <button 
+                                onClick={() => setShowCancelModal(false)}
+                                className="w-full py-4 bg-slate-50 text-slate-500 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-100 transition"
+                            >
+                                No, Keep Trip
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-export default TripDetails;
+export default TripDetails;

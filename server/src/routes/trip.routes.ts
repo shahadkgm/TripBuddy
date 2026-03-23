@@ -9,15 +9,30 @@ import { API_ROUTES } from '../constants/routes.constants';
 
 import { protect } from '../middleware/authMiddleware';
 
+import { PaymentRepository } from '../repositories/implementation/payment.repository';
+import { UserRepository } from '../repositories/implementation/user.repository';
+
 const router = Router();
 const upload = multer();
 
 // DI
 const tripRepository = new TripRepository();
-const tripService = new TripService(tripRepository);
+const paymentRepository = new PaymentRepository();
+const userRepository = new UserRepository();
+const tripService = new TripService(tripRepository, paymentRepository, userRepository);
 const tripController = new TripController(tripService);
 
 router.use(protect);
+
+router.post(
+    '/:id/finalize',
+    tripController.finalizeTrip
+);
+
+router.post(
+    '/:id/cancel',
+    tripController.cancelTrip
+);
 
 router.post(
     API_ROUTES.TRIP.CREATE,

@@ -37,11 +37,16 @@ export const tripService = {
         return response.data.data;
     },
 
-    async finalizeTrip(id: string, depositAmount: number): Promise<ITrip> {
-        const response = await api.patch<ApiResponse<ITrip>>(`/api/plantrips/${id}`, { 
-            status: 'finalized',
+    async finalizeTrip(id: string, budget: number, depositAmount: number): Promise<ITrip> {
+        const response = await api.post<ApiResponse<ITrip>>(`/api/plantrips/${id}/finalize`, { 
+            budget,
             depositAmount 
         });
+        return response.data.data;
+    },
+
+    async cancelTrip(id: string): Promise<ITrip> {
+        const response = await api.post<ApiResponse<ITrip>>(`/api/plantrips/${id}/cancel`);
         return response.data.data;
     }
 };

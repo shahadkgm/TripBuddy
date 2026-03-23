@@ -9,4 +9,9 @@ export interface ITripService {
     getAllTrips(filters: ITripFilters, page: number, limit: number): Promise<{ trips: ITripDocument[], total: number }>;
     updateTrip(id: string, data: Partial<CreateTripDTO>): Promise<ITripDocument | null>;
     getChatHistory(tripId: string): Promise<IMessagePopulated[]>;
+    
+    // Lifecycle Management
+    finalizeTrip(tripId: string, userId: string, budget: number, depositAmount: number): Promise<ITripDocument>;
+    checkAndConfirmTrip(tripId: string): Promise<ITripDocument | null>;
+    cancelTrip(tripId: string, userId: string): Promise<ITripDocument>;
 }

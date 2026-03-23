@@ -17,6 +17,11 @@ export const paymentService = {
         const response = await api.post<ApiResponse<IPayment>>(`/api/payments/pay-deposit`, { tripId, amount });
         return response.data.data;
     },
+    
+    async payWithWallet(tripId: string, amount: number): Promise<IPayment> {
+        const response = await api.post<ApiResponse<IPayment>>(`/api/payments/pay-with-wallet`, { tripId, amount });
+        return response.data.data;
+    },
 
     async getMyPayments(tripId: string): Promise<IPayment[]> {
         const response = await api.get<ApiResponse<IPayment[]>>(`/api/payments/my-payments/${tripId}`);

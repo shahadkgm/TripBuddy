@@ -2,13 +2,19 @@ import { IPaymentDocument, PaymentStatus, PaymentType } from '../../types/paymen
 import { CreatePaymentDTO, CreateStripeSessionDTO, VerifyStripePaymentDTO } from '../../dto/payment.dto';
 import { IPaymentRepository } from '../../repositories/interface/IPaymentRepository';
 import { IPaymentService } from '../interface/IPaymentService';
+import { IUserRepository } from '../../repositories/interface/IUserRepository';
+import { ITripService } from '../interface/ITripService';
 import mongoose from 'mongoose';
 import Stripe from 'stripe';
 
 export class PaymentService implements IPaymentService {
     private stripe: Stripe;
 
-    constructor(private paymentRepository: IPaymentRepository) {
+    constructor(
+        private paymentRepository: IPaymentRepository,
+        private userRepository: IUserRepository,
+        private tripService: ITripService
+    ) {
         const stripeKey = process.env.STRIPE_SECRET_KEY ||""
         this.stripe = new Stripe(stripeKey);
     }
@@ -54,7 +60,7 @@ export class PaymentService implements IPaymentService {
         const session = await this.stripe.checkout.sessions.retrieve(data.sessionId);
 
         if (session.payment_status === 'paid') {
-            return await this.paymentRepository.create({
+            const payment = await this.paymentRepository.create({
                 userId: new mongoose.Types.ObjectId(userId),
                 tripId: new mongoose.Types.ObjectId(data.tripId),
                 amount: session.amount_total ? session.amount_total / 100 : 0,
@@ -62,6 +68,11 @@ export class PaymentService implements IPaymentService {
                 paymentType: PaymentType.DEPOSIT,
                 transactionId: session.id
             });
+
+            // Trigger trip confirmation check
+            await this.tripService.checkAndConfirmTrip(data.tripId);
+
+            return payment;
         } else {
             throw new Error('Stripe payment not confirmed');
         }
@@ -78,6 +89,35 @@ export class PaymentService implements IPaymentService {
             paymentType: PaymentType.DEPOSIT,
             transactionId: data.transactionId || `sim_${Date.now()}`
         });
+    }
+
+    async payWithWallet(userId: string, data: CreatePaymentDTO): Promise<IPaymentDocument> {
+        const user = await this.userRepository.findById(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        if (user.walletBalance < data.amount) {
+            throw new Error('Insufficient wallet balance');
+        }
+
+        // Deduct from wallet
+        await this.userRepository.updateWalletBalance(userId, -data.amount);
+
+        // Create payment record
+        const payment = await this.paymentRepository.create({
+            userId: new mongoose.Types.ObjectId(userId),
+            tripId: new mongoose.Types.ObjectId(data.tripId),
+            amount: data.amount,
+            status: PaymentStatus.ESCROWED,
+            paymentType: PaymentType.DEPOSIT,
+            transactionId: `wallet_${Date.now()}`
+        });
+
+        // Trigger trip confirmation check
+        await this.tripService.checkAndConfirmTrip(data.tripId);
+
+        return payment;
     }
 
     async getMyPayments(userId: string, tripId: string): Promise<IPaymentDocument[]> {

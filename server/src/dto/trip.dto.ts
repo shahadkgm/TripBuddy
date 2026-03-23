@@ -76,4 +76,8 @@ export class CreateTripDTO {
     @IsOptional()
     @IsNumber()
     depositAmount?: number;
+
+    @IsOptional()
+    @IsNumber()
+    minMembers?: number;
 }

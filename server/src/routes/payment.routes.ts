@@ -7,11 +7,18 @@ import { CreatePaymentDTO, CreateStripeSessionDTO, VerifyStripePaymentDTO } from
 import { API_ROUTES } from '../constants/routes.constants';
 import { protect } from '../middleware/authMiddleware';
 
+import { UserRepository } from '../repositories/implementation/user.repository';
+import { TripRepository } from '../repositories/implementation/trip.repository';
+import { TripService } from '../services/implementation/trip.service';
+
 const router = Router();
 
 // DI
 const paymentRepository = new PaymentRepository();
-const paymentService = new PaymentService(paymentRepository);
+const userRepository = new UserRepository();
+const tripRepository = new TripRepository();
+const tripService = new TripService(tripRepository, paymentRepository, userRepository);
+const paymentService = new PaymentService(paymentRepository, userRepository, tripService);
 const paymentController = new PaymentController(paymentService);
 
 router.use(protect);
@@ -20,6 +27,12 @@ router.post(
     API_ROUTES.PAYMENT.PAY_DEPOSIT,
     dtoValidationMiddleware(CreatePaymentDTO),
     paymentController.payDeposit
+);
+
+router.post(
+    '/pay-with-wallet',
+    dtoValidationMiddleware(CreatePaymentDTO),
+    paymentController.payWithWallet
 );
 
 router.post(

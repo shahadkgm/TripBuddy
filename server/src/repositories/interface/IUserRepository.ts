@@ -23,4 +23,7 @@ export interface IUserRepository extends IBaseRepository<IUser, CreateUserDTO> {
 
   findByVerificationToken(token: string): Promise<IUser | null>;
   verifyUser(userId: string): Promise<void>;
+
+  // Wallet
+  updateWalletBalance(userId: string, amount: number): Promise<void>;
 }

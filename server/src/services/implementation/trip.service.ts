@@ -1,17 +1,21 @@
-import { ITripDocument, ITripFilters } from '../../types/trip.type';
+import { ITripDocument, ITripFilters, ITripPopulatedDocument } from '../../types/trip.type';
 import { CreateTripDTO } from '../../dto/trip.dto';
 import { IMessagePopulated } from '../../models/message.model';
 import { ITripRepository } from '../../repositories/interface/ITripRepository';
 import { ITripService } from '../interface/ITripService';
+import { IPaymentRepository } from '../../repositories/interface/IPaymentRepository';
+import { IUserRepository } from '../../repositories/interface/IUserRepository';
+import { IPaymentPopulatedDocument, PaymentStatus, PaymentType } from '../../types/payment.type';
 import { logger } from '@/utils/logger';
+import mongoose from 'mongoose';
 
 export class TripService implements ITripService {
 
-    private _tripRepository: ITripRepository;
-
-    constructor(tripRepository: ITripRepository) {
-        this._tripRepository = tripRepository;
-    }
+    constructor(
+        private _tripRepository: ITripRepository,
+        private _paymentRepository: IPaymentRepository,
+        private _userRepository: IUserRepository
+    ) {}
 
     async createTrip(data: CreateTripDTO): Promise<ITripDocument> {
         logger.info('Creating new trip in service in t-s', { data });
@@ -42,5 +46,67 @@ export class TripService implements ITripService {
 
     async getChatHistory(tripId: string): Promise<IMessagePopulated[]> {
         return await this._tripRepository.getChatHistory(tripId);
+    }
+
+    async finalizeTrip(tripId: string, userId: string, budget: number, depositAmount: number): Promise<ITripDocument> {
+        const trip = await this._tripRepository.findById(tripId) as ITripPopulatedDocument | null;
+        if (!trip) throw new Error('Trip not found');
+        
+        const ownerId = trip.userId._id.toString();
+        if (ownerId !== userId) throw new Error('Unauthorized');
+        if (trip.status !== 'planned') throw new Error('Trip already finalized or in progress');
+
+        const updatedTrip = await this._tripRepository.updateById(tripId, {
+            budget,
+            depositAmount,
+            status: 'finalized'
+        });
+
+        if (!updatedTrip) throw new Error('Failed to update trip');
+        return updatedTrip;
+    }
+
+    async checkAndConfirmTrip(tripId: string): Promise<ITripDocument | null> {
+        const trip = await this._tripRepository.findById(tripId);
+        if (!trip || trip.status !== 'finalized') return null;
+
+        const payments = await this._paymentRepository.findByTripId(tripId);
+        const paidCount = payments.filter(p => p.status === PaymentStatus.ESCROWED).length;
+
+        if (paidCount >= (trip.minMembers || 2)) {
+            return await this._tripRepository.updateById(tripId, { status: 'confirmed' });
+        }
+
+        return trip;
+    }
+
+    async cancelTrip(tripId: string, userId: string): Promise<ITripDocument> {
+        const trip = await this._tripRepository.findById(tripId) as ITripPopulatedDocument | null;
+        if (!trip) throw new Error('Trip not found');
+        
+        const ownerId = trip.userId._id.toString();
+        if (ownerId !== userId) throw new Error('Unauthorized');
+
+        // 1. Mark trip as cancelled
+        const cancelledTrip = await this._tripRepository.updateById(tripId, { status: 'cancelled' });
+        if (!cancelledTrip) throw new Error('Failed to cancel trip');
+
+        // 2. Refund all escrowed deposits
+        const payments = await this._paymentRepository.findByTripId(tripId) as unknown as IPaymentPopulatedDocument[];
+        const escrowedPayments = payments.filter(p => p.status === PaymentStatus.ESCROWED);
+
+        for (const payment of escrowedPayments) {
+            // Refund 100% to wallet
+            await this._userRepository.updateWalletBalance(payment.userId._id.toString(), payment.amount);
+            
+            // Mark payment as refunded
+            await this._paymentRepository.updateById(payment._id.toString(), { 
+                status: PaymentStatus.REFUNDED 
+            });
+
+            // Log refund (could also create a new payment record if needed, but status update is cleaner)
+        }
+
+        return cancelledTrip;
     }
 }

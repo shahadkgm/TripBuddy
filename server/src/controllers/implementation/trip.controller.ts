@@ -5,6 +5,7 @@ import { asyncHandler } from '../../utils/asyncHandler';
 import { logger } from '@/utils/logger';
 
 import { BaseController } from './base.controller';
+import { AuthRequest } from '../../types/authRequest';
 
 export class TripController extends BaseController {
     constructor(private readonly _tripService: ITripService) {
@@ -60,6 +61,23 @@ export class TripController extends BaseController {
             return;
         }
         this.sendSuccess(res, updatedTrip, 'Trip updated successfully');
+    });
+
+    finalizeTrip = asyncHandler(async (req: AuthRequest<{ id: string }, unknown, { budget: number, depositAmount: number }>, res: Response) => {
+        const { id } = req.params;
+        const { budget, depositAmount } = req.body;
+        const userId = req.user?.id as string;
+        
+        const trip = await this._tripService.finalizeTrip(id, userId, budget, depositAmount);
+        this.sendSuccess(res, trip, 'Trip finalized successfully');
+    });
+
+    cancelTrip = asyncHandler(async (req: AuthRequest<{ id: string }>, res: Response) => {
+        const { id } = req.params;
+        const userId = req.user?.id as string;
+        
+        const trip = await this._tripService.cancelTrip(id, userId);
+        this.sendSuccess(res, trip, 'Trip cancelled and members refunded');
     });
 
     getChatHistory = asyncHandler(async (req: Request, res: Response) => {

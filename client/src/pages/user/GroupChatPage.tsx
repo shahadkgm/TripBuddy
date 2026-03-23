@@ -24,8 +24,11 @@ const GroupChatPage = () => {
     const [newMessage, setNewMessage] = useState('');
     const [loading, setLoading] = useState(true);
     const [hasPaidDeposit, setHasPaidDeposit] = useState(false);
-    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [showFinalizeModal, setShowFinalizeModal] = useState(false);
+    const [finalizeData, setFinalizeData] = useState({ budget: 0, depositAmount: 0 });
+    const [isFinalizing, setIsFinalizing] = useState(false);
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
     const [showMembersModal, setShowMembersModal] = useState(false);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -89,7 +92,7 @@ const GroupChatPage = () => {
             } catch (error) {
                 console.error("Failed to load chat data:", error);
                 toast.error("Failed to load conversation");
-                navigate(-1);
+                navigate('/dashboard');
             } finally {
                 setLoading(false);
             }
@@ -198,6 +201,50 @@ const GroupChatPage = () => {
         }
     };
 
+    const handleWalletPayment = async () => {
+        if (!trip || !id || !currentUser) return;
+        const depositAmount = trip.budget * 0.2;
+        
+        const currentBalance = currentUser.walletBalance || 0;
+        if (currentBalance < depositAmount) {
+            toast.error("Insufficient wallet balance");
+            return;
+        }
+
+        try {
+            setIsProcessingPayment(true);
+            await paymentService.payWithWallet(id, depositAmount);
+            
+            // Refresh local user data to update wallet balance in UI
+            await authService.getProfile(currentUser.id);
+            
+            setHasPaidDeposit(true);
+            setShowPaymentModal(false);
+            toast.success("Spot secured via wallet!");
+        } catch (error) {
+            toast.error("Wallet payment failed.");
+        } finally {
+            setIsProcessingPayment(false);
+        }
+    };
+
+    const handleFinalizeTrip = async () => {
+        if (!id) return;
+        try {
+            setIsFinalizing(true);
+            const response = await api.post(`/api/trips/${id}/finalize`, finalizeData);
+            if (response.data.success) {
+                setTrip(response.data.data);
+                setShowFinalizeModal(false);
+                toast.success("Trip finalized! Members can now pay deposits.");
+            }
+        } catch (error) {
+            toast.error("Failed to finalize trip.");
+        } finally {
+            setIsFinalizing(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -208,13 +255,15 @@ const GroupChatPage = () => {
 
     if (!trip) return null;
 
+    const isOwner = currentUser?.id === trip?.userId._id;
+
     return (
         <div className="h-screen bg-slate-100 flex flex-col font-sans overflow-hidden">
             {/* Centered Header */}
             <div className="bg-white border-b border-slate-200 px-6 py-4 shadow-sm z-20 flex-shrink-0">
                 <div className="max-w-5xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <button onClick={() => navigate(-1)} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500">
+                        <button onClick={() => navigate(`/trip-details/${id}`)} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500">
                             <ChevronLeft size={24} />
                         </button>
                         <div className="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded-xl transition-colors" onClick={() => setShowMembersModal(true)}>
@@ -228,15 +277,35 @@ const GroupChatPage = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => setShowPaymentModal(true)}
-                            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${
-                                hasPaidDeposit ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
-                            }`}
-                        >
-                            {hasPaidDeposit ? <ShieldCheck size={14} /> : <AlertCircle size={14} />}
-                            {hasPaidDeposit ? 'Escrow Confirmed' : 'Pay Deposit'}
-                        </button>
+                        {trip?.status === 'planned' && isOwner && (
+                            <button
+                                onClick={() => setShowFinalizeModal(true)}
+                                className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all shadow-sm"
+                            >
+                                Finalize Trip
+                            </button>
+                        )}
+                        {trip?.status === 'planned' && !isOwner && (
+                            <div className="px-4 py-2 bg-amber-50 text-amber-600 border border-amber-100 rounded-xl text-xs font-bold">
+                                Awaiting Finalization
+                            </div>
+                        )}
+                        {trip?.status === 'finalized' && (
+                            <button
+                                onClick={() => !hasPaidDeposit && setShowPaymentModal(true)}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${
+                                    hasPaidDeposit ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
+                                }`}
+                            >
+                                {hasPaidDeposit ? <ShieldCheck size={14} /> : <AlertCircle size={14} />}
+                                {hasPaidDeposit ? 'Spot Secured' : 'Secure Spot'}
+                            </button>
+                        )}
+                        {trip?.status === 'confirmed' && (
+                            <div className="px-4 py-2 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl text-xs font-bold flex items-center gap-2">
+                                <ShieldCheck size={14} /> Confirmed ✅
+                            </div>
+                        )}
                         <button onClick={() => navigate(`/trip-details/${id}`)} className="hidden md:flex px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold items-center gap-2 border border-indigo-100 hover:bg-indigo-100 transition-all">
                             <Eye size={14} /> Details
                         </button>
@@ -342,13 +411,30 @@ const GroupChatPage = () => {
                             <button onClick={() => setShowPaymentModal(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X size={24} className="text-slate-400" /></button>
                         </div>
                         <h2 className="text-2xl font-black text-slate-900 mb-2">TripBuddy Escrow</h2>
-                        <div className="bg-slate-50 rounded-3xl p-6 mb-8 border border-slate-100 flex justify-between items-center">
+                        <div className="bg-slate-50 rounded-3xl p-6 mb-4 border border-slate-100 flex justify-between items-center">
                             <span className="text-sm font-bold text-slate-500">Amount Due</span>
                             <span className="text-2xl font-black text-indigo-600">₹{(trip.budget * 0.2).toLocaleString()}</span>
                         </div>
-                        <button onClick={handlePayment} disabled={isProcessingPayment} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 transition shadow-xl disabled:opacity-50 flex items-center justify-center gap-3">
-                            {isProcessingPayment ? <Loader2 className="animate-spin" /> : <>Secure Spot</>}
-                        </button>
+                        <div className="bg-indigo-50/50 rounded-2xl p-4 mb-8 border border-indigo-100/50 flex justify-between items-center">
+                             <span className="text-xs font-bold text-indigo-600">Your Wallet</span>
+                             <span className="text-sm font-black text-indigo-700">₹{currentUser?.walletBalance?.toLocaleString() || 0}</span>
+                        </div>
+                        <div className="space-y-3">
+                            <button 
+                                onClick={handleWalletPayment} 
+                                disabled={isProcessingPayment || Math.round((currentUser?.walletBalance || 0) * 100) < Math.round((trip.budget * 0.2) * 100)} 
+                                className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 transition shadow-xl disabled:opacity-50 flex items-center justify-center gap-3"
+                            >
+                                {isProcessingPayment ? <Loader2 className="animate-spin" /> : <>Pay with Wallet</>}
+                            </button>
+                            <button 
+                                onClick={handlePayment} 
+                                disabled={isProcessingPayment} 
+                                className="w-full py-4 bg-white border-2 border-slate-200 text-slate-600 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-50 transition flex items-center justify-center gap-3"
+                            >
+                                {isProcessingPayment ? <Loader2 className="animate-spin" /> : <>Pay with Card/Stripe</>}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -372,6 +458,54 @@ const GroupChatPage = () => {
                                 </div>
                             ))}
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Finalize Trip Modal */}
+            {showFinalizeModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowFinalizeModal(false)} />
+                    <div className="bg-white rounded-[2.5rem] p-8 w-full max-w-md relative animate-in fade-in zoom-in duration-300 shadow-2xl border border-slate-100">
+                        <div className="flex justify-between items-center mb-6">
+                            <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                                <AlertCircle size={24} />
+                            </div>
+                            <button onClick={() => setShowFinalizeModal(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X size={24} className="text-slate-400" /></button>
+                        </div>
+                        <h2 className="text-2xl font-black text-slate-900 mb-2">Finalize Trip</h2>
+                        <p className="text-slate-500 text-sm mb-8 font-medium">Set the budget and deposit to open payments for members.</p>
+                        
+                        <div className="space-y-4 mb-8">
+                            <div>
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Total Budget (₹)</label>
+                                <input 
+                                    type="number" 
+                                    value={finalizeData.budget}
+                                    onChange={(e) => setFinalizeData({...finalizeData, budget: Number(e.target.value)})}
+                                    className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-indigo-500 transition-all font-bold text-slate-700 outline-none"
+                                    placeholder="e.g. 10000"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Deposit Amount (₹)</label>
+                                <input 
+                                    type="number" 
+                                    value={finalizeData.depositAmount}
+                                    onChange={(e) => setFinalizeData({...finalizeData, depositAmount: Number(e.target.value)})}
+                                    className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-indigo-500 transition-all font-bold text-slate-700 outline-none"
+                                    placeholder="e.g. 2000"
+                                />
+                            </div>
+                        </div>
+
+                        <button 
+                            onClick={handleFinalizeTrip} 
+                            disabled={isFinalizing || !finalizeData.budget || !finalizeData.depositAmount} 
+                            className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 transition shadow-xl disabled:opacity-50 flex items-center justify-center gap-3"
+                        >
+                            {isFinalizing ? <Loader2 className="animate-spin" /> : <>Finalize Trip Now</>}
+                        </button>
                     </div>
                 </div>
             )}
