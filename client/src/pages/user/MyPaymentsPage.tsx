@@ -5,6 +5,8 @@ import toast from 'react-hot-toast';
 import { Navbar } from '../../components/home/Navbar';
 import { MainFooter } from '../../components/MainFooter';
 import api from '../../utils/api';
+import { authService } from '../../services/c.authService';
+import type { AuthUser } from '../../types/auth.dto';
 
 interface PaymentData {
   _id: string;
@@ -25,10 +27,24 @@ const MyPaymentsPage = () => {
     const navigate = useNavigate();
     const [payments, setPayments] = useState<PaymentData[]>([]);
     const [loading, setLoading] = useState(true);
+    const [userProfile, setUserProfile] = useState<AuthUser | null>(authService.getCurrentUser());
 
     useEffect(() => {
         fetchMyPayments();
+        fetchLatestProfile();
     }, []);
+
+    const fetchLatestProfile = async () => {
+        const currentUser = authService.getCurrentUser();
+        if (currentUser?.id) {
+            try {
+                const profile = await authService.getProfile(currentUser.id);
+                setUserProfile(profile);
+            } catch (error) {
+                console.error("Failed to fetch profile", error);
+            }
+        }
+    };
 
     const fetchMyPayments = async () => {
         try {
@@ -93,13 +109,24 @@ const MyPaymentsPage = () => {
                             <h1 className="text-3xl font-black text-slate-900 tracking-tight">Payment History</h1>
                             <p className="text-slate-500 font-medium">Track your trip deposits and refund status</p>
                         </div>
-                        <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
-                            <div className="bg-indigo-50 p-2 rounded-xl text-indigo-600">
-                                <CreditCard size={20} />
+                        <div className="flex flex-wrap gap-4">
+                            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+                                <div className="bg-indigo-50 p-2 rounded-xl text-indigo-600">
+                                    <CreditCard size={20} />
+                                </div>
+                                <div>
+                                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Total Transactions</div>
+                                    <div className="text-lg font-black text-slate-900">{payments.length}</div>
+                                </div>
                             </div>
-                            <div>
-                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Total Transactions</div>
-                                <div className="text-lg font-black text-slate-900">{payments.length}</div>
+                            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 bg-gradient-to-br from-emerald-50/30 to-white">
+                                <div className="bg-emerald-50 p-2 rounded-xl text-emerald-600">
+                                    <div className="font-bold">₹</div>
+                                </div>
+                                <div>
+                                    <div className="text-[10px] font-bold text-emerald-600/60 uppercase tracking-widest leading-none mb-1">Wallet Balance</div>
+                                    <div className="text-lg font-black text-emerald-600">₹{(userProfile?.walletBalance || 0).toLocaleString()}</div>
+                                </div>
                             </div>
                         </div>
                     </div>

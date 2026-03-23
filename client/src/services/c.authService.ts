@@ -84,5 +84,15 @@ export const authService = {
   async changePassword(userId: string, data: ChangePasswordDTO) {
     const response = await api.post(`/api/users/edit-password/${userId}`, data);
     return response.data;
+  },
+
+  async getProfile(userId: string): Promise<AuthUser> {
+    const response = await api.get(`/api/users/profile/${userId}`);
+    const updatedUser = response.data.data;
+    if (updatedUser) {
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      window.dispatchEvent(new Event("storage"));
+    }
+    return updatedUser;
   }
 };

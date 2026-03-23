@@ -60,6 +60,7 @@ export interface UserResponseDTO {
   kycStatus?: string;
   kycDocument?: string;
   kycRejectionReason?: string | null;
+  walletBalance: number;
 }
 
 export interface RegisterUserResponseDTO {

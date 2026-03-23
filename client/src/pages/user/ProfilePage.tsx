@@ -19,13 +19,13 @@ import toast from 'react-hot-toast';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
-    const user = authService.getCurrentUser();
+    const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
 
     const [kycStatus, setKycStatus] = useState<string>('loading');
     const [requests, setRequests] = useState<any[]>([]);
     const [activeTab, setActiveTab] = useState<'planned' | 'requested' | 'chats'>('planned');
     const [isEditing, setIsEditing] = useState(false);
-    const [editData, setEditData] = useState({ name: user?.name || '', bio: user?.bio || '' });
+    const [editData, setEditData] = useState({ name: currentUser?.name || '', bio: currentUser?.bio || '' });
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -50,22 +50,24 @@ const ProfilePage = () => {
 
     useEffect(() => {
         const loadInitialData = async () => {
-            if (!user?.id) return;
+            if (!currentUser?.id) return;
             try {
-                const [kycRes, reqData] = await Promise.all([
-                    api.get(`/api/kyc-status/${user.id}`),
-                    connectionService.getPendingRequests()
+                const [kycRes, reqData, profileData] = await Promise.all([
+                    api.get(`/api/kyc-status/${currentUser.id}`),
+                    connectionService.getPendingRequests(),
+                    authService.getProfile(currentUser.id)
                 ]);
                 setKycStatus(kycRes.data.data?.status || 'none');
                 setRequests(reqData);
+                setCurrentUser(profileData);
             } catch (err) {
                 console.error("Data load failed", err);
             }
         };
         loadInitialData();
-    }, [user?.id]);
+    }, [currentUser?.id]);
 
-    if (!user) { navigate('/login'); return null; }
+    if (!currentUser) { navigate('/login'); return null; }
 
     const handleLogout = () => {
         authService.logout();
@@ -73,7 +75,7 @@ const ProfilePage = () => {
     };
 
     const handleSave = async () => {
-        if (!user?.id) return;
+        if (!currentUser?.id) return;
 
         // Validation
         const newErrors: any = {};
@@ -87,7 +89,7 @@ const ProfilePage = () => {
 
         try {
             setIsSaving(true);
-            await authService.updateProfile(user.id, editData);
+            await authService.updateProfile(currentUser.id, editData);
             toast.success("Profile updated successfully")
             setIsEditing(false);
             setErrors({});
@@ -102,7 +104,7 @@ const ProfilePage = () => {
 
     const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file || !user?.id) return;
+        if (!file || !currentUser?.id) return;
         const formData = new FormData();
         formData.append('avatar', file);
         try {
@@ -110,7 +112,7 @@ const ProfilePage = () => {
             const res = await api.post('/api/profile-photo', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            await authService.updateProfile(user.id, { avatarURL: res.data.data.imageUrl });
+            await authService.updateProfile(currentUser.id, { avatarURL: res.data.data.imageUrl });
         } catch (error) { alert("Upload failed"); }
         finally { setIsUploading(false); }
     };
@@ -132,7 +134,7 @@ const ProfilePage = () => {
 
         try {
             setIsChangingPassword(true);
-            await authService.changePassword(user.id!, {
+            await authService.changePassword(currentUser.id!, {
                 oldPassword: passwordData.oldPassword,
                 newPassword: passwordData.newPassword
             });
@@ -177,10 +179,14 @@ const ProfilePage = () => {
                                 <div className="w-40 h-40 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg relative group">
                                     {isUploading ? (
                                         <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
-                                    ) : user.avatarURL ? (
-                                        <img src={user.avatarURL} alt="" className="w-full h-full object-cover" />
+                                    ) : currentUser.avatarURL ? (
+                                        <img src={currentUser.avatarURL} alt="" className="w-full h-full object-cover" />
                                     ) : (
-                                        <User className="w-20 h-20 text-slate-300" />
+                                        currentUser.name ? (
+                                            <span className="text-5xl font-bold text-slate-400">{currentUser.name[0]}</span>
+                                        ) : (
+                                            <User className="w-20 h-20 text-slate-300" />
+                                        )
                                     )}
                                     <button
                                         onClick={() => fileInputRef.current?.click()}
@@ -228,16 +234,16 @@ const ProfilePage = () => {
                                 ) : (
                                     <>
                                         <div className="flex flex-col md:flex-row items-center gap-3 mb-2 text-center md:text-left">
-                                            <h2 className="text-3xl font-bold text-slate-800">{user.name}</h2>
+                                            <h2 className="text-3xl font-bold text-slate-800">{currentUser.name}</h2>
                                             <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                                                {user.role}
+                                                {currentUser.role}
                                             </span>
                                         </div>
                                         <p className="text-slate-500 font-medium mb-4 flex items-center justify-center md:justify-start gap-2">
-                                            <Mail size={16} /> {user.email}
+                                            <Mail size={16} /> {currentUser.email}
                                         </p>
                                         <p className="text-slate-600 text-sm leading-relaxed max-w-xl">
-                                            {user.bio || "No biography added yet."}
+                                            {currentUser.bio || "No biography added yet."}
                                         </p>
                                     </>
                                 )}
@@ -249,7 +255,7 @@ const ProfilePage = () => {
                                         <button onClick={handleSave} disabled={isSaving} className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50">
                                             {isSaving ? <Loader2 className="animate-spin" size={18} /> : <span>Save Changes</span>}
                                         </button>
-                                        <button onClick={() => { setIsEditing(false); setEditData({ name: user.name, bio: user.bio || '' }); setErrors({}); }} className="px-8 py-3 bg-white text-slate-400 rounded-xl font-bold hover:bg-slate-50 transition-all border border-slate-100">
+                                        <button onClick={() => { setIsEditing(false); setEditData({ name: currentUser.name, bio: currentUser.bio || '' }); setErrors({}); }} className="px-8 py-3 bg-white text-slate-400 rounded-xl font-bold hover:bg-slate-50 transition-all border border-slate-100">
                                             Cancel
                                         </button>
                                     </>
@@ -299,8 +305,22 @@ const ProfilePage = () => {
                                     <div className="flex items-center gap-2">
                                         <Lock size={14} className="text-slate-400" /> Change Password
                                     </div>
-                                    <span className="text-slate-300">→</span>
+                                    <p className="text-gray-500 text-xs">Access all your payment records</p>
                                 </button>
+                            </div>
+                        </div>
+
+                        {/* 💰 WALLET BALANCE CARD */}
+                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition cursor-default">
+                            <div className="flex items-center gap-4">
+                                <div className="p-4 bg-emerald-50 text-emerald-600 rounded-2xl">
+                                    <div className="font-bold text-xl">₹</div>
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="font-bold text-gray-800">Wallet Balance</h3>
+                                    <p className="text-2xl font-black text-emerald-600">₹{(currentUser?.walletBalance || 0).toLocaleString()}</p>
+                                    <p className="text-gray-400 text-[10px] uppercase tracking-wider font-bold mt-1">Ready to use for next trip</p>
+                                </div>
                             </div>
                         </div>
 
@@ -401,11 +421,11 @@ const ProfilePage = () => {
 
                         <div className="p-8">
                             {activeTab === 'planned' ? (
-                                <PlannedTrips userId={user.id!} />
+                                <PlannedTrips userId={currentUser.id!} />
                             ) : activeTab === 'requested' ? (
-                                <RequestedTrips userId={user.id!} />
+                                <RequestedTrips userId={currentUser.id!} />
                             ) : (
-                                <LiveChats userId={user.id!} />
+                                <LiveChats userId={currentUser.id!} />
                             )}
                         </div>
                     </div>

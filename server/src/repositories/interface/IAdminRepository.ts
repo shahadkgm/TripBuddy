@@ -33,6 +33,7 @@ export interface IAdminRepository {
     userId: string,
     role: 'user' | 'guide' | 'admin'
   ): Promise<IUser | null>;
+  updateWalletBalance(userId: string, amount: number): Promise<IUser | null>;
 
 
 

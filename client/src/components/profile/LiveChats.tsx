@@ -15,6 +15,7 @@ export const LiveChats: React.FC<LiveChatsProps> = ({ userId }) => {
 
     useEffect(() => {
         const fetchChats = async () => {
+            if (!userId) return;
             try {
                 const data = await tripService.getUserTrips(userId);
                 setTrips(data);
@@ -25,7 +26,9 @@ export const LiveChats: React.FC<LiveChatsProps> = ({ userId }) => {
             }
         };
 
-        fetchChats();
+        if (userId) {
+            fetchChats();
+        }
     }, [userId]);
 
     if (loading) {

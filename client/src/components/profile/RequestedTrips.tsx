@@ -20,6 +20,7 @@ export const RequestedTrips: React.FC<RequestedTripsProps> = ({ userId }) => {
     const LIMIT = 4;
 
     const loadData = async (pageNum: number) => {
+        if (!userId) return;
         try {
             if (pageNum === 1 && !paginationLoading) setLoading(true);
             else setPaginationLoading(true);
@@ -37,7 +38,9 @@ export const RequestedTrips: React.FC<RequestedTripsProps> = ({ userId }) => {
     };
 
     useEffect(() => {
-        loadData(page);
+        if (userId) {
+            loadData(page);
+        }
     }, [userId, page]);
 
     if (loading) {

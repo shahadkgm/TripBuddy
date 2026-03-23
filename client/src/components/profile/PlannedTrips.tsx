@@ -22,6 +22,7 @@ export const PlannedTrips: React.FC<PlannedTripsProps> = ({ userId }) => {
     const [expandedTripId, setExpandedTripId] = useState<string | null>(null);
 
     const loadData = async () => {
+        if (!userId) return;
         try {
             setLoading(true);
             const [tripData, reqData] = await Promise.all([
@@ -39,7 +40,9 @@ export const PlannedTrips: React.FC<PlannedTripsProps> = ({ userId }) => {
     };
 
     useEffect(() => {
-        loadData();
+        if (userId) {
+            loadData();
+        }
     }, [userId]);
 
     const handleAcceptRequest = async (requestId: string) => {

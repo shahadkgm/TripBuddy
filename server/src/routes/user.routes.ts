@@ -37,5 +37,6 @@ router.use(protect);
 router.get(API_ROUTES.USER.GET_ALL, userController.getUsers);
 router.patch(API_ROUTES.USER.EDIT_PROFILE, userController.updateProfile);
 router.post(API_ROUTES.USER.CHANGE_PASSWORD, userController.changePassword);
+router.get(API_ROUTES.USER.GET_PROFILE, userController.getUserProfile);
 
 export default router;

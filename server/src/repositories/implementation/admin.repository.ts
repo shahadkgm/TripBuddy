@@ -212,5 +212,11 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
     logger.info('from countverifiedGuide');
     return await UserModel.countDocuments({ role: 'guide' });
   }
-
+  async updateWalletBalance(userId: string, amount: number): Promise<IUser | null> {
+    return await UserModel.findByIdAndUpdate(
+      userId,
+      { $inc: { walletBalance: amount } },
+      { new: true }
+    ).select('-password').lean<IUser>();
+  }
 }

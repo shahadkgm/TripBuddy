@@ -14,6 +14,7 @@ export interface IUser {
 
   isBlocked: boolean;
   isVerified: boolean;
+  walletBalance: number;
 
   verificationToken?: string;
   verificationTokenExpires?: Date;

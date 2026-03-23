@@ -72,7 +72,7 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <div className="pt-8 flex gap-4">
+              {/* <div className="pt-8 flex gap-4">
                 <button
                   onClick={() => navigate("/register")}
                   className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-1 transition-all"
@@ -85,7 +85,7 @@ export default function HomePage() {
                 >
                   Sign In
                 </button>
-              </div>
+              </div> */}
             </motion.div>
 
             {/* 3D Globe Visualization */}
@@ -107,8 +107,8 @@ export default function HomePage() {
 
               <div className="absolute top-8 left-8 z-10">
                 <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                  <span className="text-[10px] font-bold text-white uppercase tracking-widest">Global Network</span>
+                  {/* <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" /> */}
+                  {/* <span className="text-[10px] font-bold text-white uppercase tracking-widest">Global Network</span> */}
                 </div>
               </div>
 

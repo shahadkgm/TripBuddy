@@ -11,6 +11,7 @@ import { IAdminService } from '../interface/Iadminservice';
 import { IKYCRepository } from '../../repositories/interface/IKycRepository';
 import { KYCStatus } from '../../types/kyc.type';
 import { IPaymentRepository } from '../../repositories/interface/IPaymentRepository';
+import { IPaymentDocument } from '../../types/payment.type';
 
 export class AdminService implements IAdminService {
   constructor(
@@ -148,13 +149,32 @@ export class AdminService implements IAdminService {
     };
   }
 
-  async getAllPayments(page: number, limit: number): Promise<{ payments: any[], total: number }> {
+  async getAllPayments(page: number, limit: number): Promise<{ payments: IPaymentDocument[], total: number }> {
     const result = await this.paymentRepo.findAllPayments(page, limit);
     return result;
   }
 
-  async updatePaymentStatus(paymentId: string, status: string): Promise<any> {
+  async updatePaymentStatus(paymentId: string, status: string): Promise<IPaymentDocument> {
+    const payment = await this.paymentRepo.findById(paymentId);
+    if (!payment) {
+      throw new AppError('Payment not found', StatusCode.NOT_FOUND);
+    }
+
+    // Only credit wallet if status is changing to refunded and wasn't already refunded
+    if (status === 'refunded' && payment.status !== 'refunded') {
+      // Safely extract userId string whether it's an ObjectId or a populated object
+      const userId = payment.userId instanceof Types.ObjectId 
+        ? payment.userId.toString() 
+        : (payment.userId as unknown as { _id: Types.ObjectId })._id.toString();
+
+      await this.adminRepo.updateWalletBalance(userId, payment.amount);
+      logger.info(`Credited ${payment.amount} to user ${userId} wallet due to refund.`);
+    }
+
     const updatedPayment = await this.paymentRepo.updateById(paymentId, { status });
+    if (!updatedPayment) {
+        throw new AppError('Failed to update payment status', StatusCode.INTERNAL_SERVER_ERROR);
+    }
     return updatedPayment;
   }
 }

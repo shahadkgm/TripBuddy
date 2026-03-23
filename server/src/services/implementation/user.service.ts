@@ -134,4 +134,12 @@ export class UserService implements IUserService {
     await this._userRepository.updatePassword(userId, newPassword);
     return { message: 'Password changed successfully' };
   }
+
+  async getUserProfile(userId: string): Promise<IUser> {
+    const user = await this._userRepository.findById(userId);
+    if (!user) {
+      throw new AppError('User not found', StatusCode.NOT_FOUND);
+    }
+    return user;
+  }
 }

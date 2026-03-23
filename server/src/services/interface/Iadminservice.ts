@@ -7,6 +7,7 @@ import { DashboardStatsDTO, GuideListDTO, UserListDTO } from '../../dto/admin.dt
 import { AdminGuideResponseDTO } from '../../dto/admin.dto';
 import { UserResponseDTO } from '../../dto/user.dto';
 import { KYCStatus } from '../../types/kyc.type';
+import { IPaymentDocument } from '../../types/payment.type';
 export interface IAdminService {
   fetchAllUsers(page: number, limit: number, search: string): Promise<UserListDTO>;
 
@@ -31,6 +32,6 @@ export interface IAdminService {
   rejectApplication(guideId: string): Promise<boolean>;
   approveKYC(userId: string, status: KYCStatus, reason?: string): Promise<boolean>;
   getDashboardStats(): Promise<DashboardStatsDTO>;
-  getAllPayments(page: number, limit: number): Promise<{ payments: any[], total: number }>;
-  updatePaymentStatus(paymentId: string, status: string): Promise<any>;
+  getAllPayments(page: number, limit: number): Promise<{ payments: IPaymentDocument[], total: number }>;
+  updatePaymentStatus(paymentId: string, status: string): Promise<IPaymentDocument>;
 }

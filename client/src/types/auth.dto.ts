@@ -23,6 +23,7 @@ export interface AuthUser {
   isBlocked?: boolean;
   bio?: string;
   avatarURL?: string;
+  walletBalance?: number;
 }
 
 export interface AuthTokens {

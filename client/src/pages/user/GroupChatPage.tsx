@@ -95,7 +95,7 @@ const GroupChatPage = () => {
             }
         };
         loadInitialData();
-    }, [id, navigate, currentUser]);
+    }, [id, navigate, currentUser?.id]);
 
     useEffect(() => {
         if (!socket) return;

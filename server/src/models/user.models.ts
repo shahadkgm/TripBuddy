@@ -67,6 +67,7 @@ const userSchema = new Schema<IUser>(
     verificationTokenExpires: Date,
 
     isVerified: { type: Boolean, default: false },
+    walletBalance: { type: Number, default: 0 },
     avatarURL: { type: String },
     bio: { type: String },
     hourlyRate: { type: Number },
