@@ -1,3 +1,14 @@
+export interface IItineraryItem {
+    day: number;
+    date: Date | string;
+    activities: {
+        time: string;
+        activity: string;
+        location?: string;
+        notes?: string;
+    }[];
+}
+
 export interface ITrip {
     _id: string;
     userId: {
@@ -29,6 +40,7 @@ export interface ITrip {
         email: string;
         avatarURL?: string;
     }[];
+    itinerary?: IItineraryItem[];
     createdAt: string;
     updatedAt: string;
 }

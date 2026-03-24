@@ -21,6 +21,7 @@ import WeatherPage from "../pages/user/WeatherPage";
 
 import ProfilePage from "../pages/user/ProfilePage";
 import GalleryPage from "../pages/user/GalleryPage";
+import TripManagementPage from '../pages/user/TripManagementPage';
 import AIAssistantPage from "../pages/user/AIAssistantPage";
 import GroupChatPage from "../pages/user/GroupChatPage";
 import NearByPlacesPage from "../pages/user/NearByPlacesPage";
@@ -63,6 +64,7 @@ export default function AppRoutes() {
         <Route path="/gallery/:userId" element={<GalleryPage />} />
         <Route path="/ai-assistant" element={<AIAssistantPage />} />
         <Route path="/group-chat/:id" element={<GroupChatPage />} />
+        <Route path="/manage-trip/:id" element={<TripManagementPage />} />
         <Route path="/nearby" element={<NearByPlacesPage />} />
         <Route path="/find-guides" element={<FindGuidesPage />} />
         <Route path="/my-payments" element={<MyPaymentsPage />} />

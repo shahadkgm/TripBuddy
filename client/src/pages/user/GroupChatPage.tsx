@@ -4,7 +4,7 @@ import {
     Send, X, User, AlertCircle,
     Eye, ChevronLeft, Loader2,
     Plane, Smile, Image as ImageIcon, ChevronDown,
-    CreditCard, ShieldCheck
+    CreditCard, ShieldCheck, Settings, Bot
 } from 'lucide-react';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { useSocket } from '../../hooks/useSocket';
@@ -277,6 +277,11 @@ const GroupChatPage = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
+                        {isOwner && (
+                            <button onClick={() => navigate(`/manage-trip/${id}`)} className="hidden md:flex p-2 bg-indigo-50 text-indigo-600 rounded-xl items-center justify-center hover:bg-indigo-100 transition-all font-bold border border-indigo-100 shadow-sm" title="Manage Trip">
+                                <Settings size={18} />
+                            </button>
+                        )}
                         {trip?.status === 'planned' && isOwner && (
                             <button
                                 onClick={() => setShowFinalizeModal(true)}
@@ -351,7 +356,21 @@ const GroupChatPage = () => {
                                                 <div className={`relative px-4 py-2.5 shadow-sm text-sm font-semibold transition-all hover:shadow-md ${isOwn ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-none' : 'bg-white text-slate-800 rounded-2xl rounded-tl-none border border-slate-200/50'}`}>
                                                     {msg.messageType === 'image' ? <img src={msg.fileUrl} className="max-h-[400px] rounded-xl cursor-zoom-in" onLoad={() => scrollToBottom(false)} onClick={() => window.open(msg.fileUrl, '_blank')} alt="" /> : <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>}
                                                 </div>
-                                                <p className="text-[8px] text-slate-400 mt-1 font-black uppercase opacity-0 group-hover:opacity-100 transition-opacity">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                <div className="flex items-center gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <p className="text-[8px] text-slate-400 font-black uppercase">{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                    {msg.messageType !== 'image' && (
+                                                        <button 
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                navigate('/ai-assistant', { state: { initialContext: `Regarding this message in the group chat: "${msg.content}"\n\nCan you help me with this?` } });
+                                                            }}
+                                                            className={`p-1 rounded-full ${isOwn ? 'hover:bg-indigo-100 text-indigo-400' : 'hover:bg-slate-200 text-slate-400 hover:text-indigo-600'} transition-colors shadow-sm`}
+                                                            title="Ask AI Assistant"
+                                                        >
+                                                            <Bot size={12} />
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                             {isOwn && isFirstInGroup && (
                                                 <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center overflow-hidden border border-indigo-100 shadow-sm">

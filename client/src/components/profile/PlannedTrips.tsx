@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Globe, MapPin, Calendar, Users, Receipt, Edit3,
-    ChevronDown, ChevronUp, UserCheck, Check, X, Loader2
+    ChevronDown, ChevronUp, UserCheck, Check, X, Loader2, Settings
 } from 'lucide-react';
 import { tripService } from '../../services/c.trip.service';
 import { connectionService } from '../../services/c.connection.service';
@@ -127,6 +127,16 @@ export const PlannedTrips: React.FC<PlannedTripsProps> = ({ userId }) => {
                                             </div>
 
                                             <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        navigate(`/manage-trip/${trip._id}`);
+                                                    }}
+                                                    className="p-2 bg-white text-indigo-600 hover:bg-indigo-50 rounded-lg shadow-sm border border-indigo-100 transition-colors"
+                                                    title="Manage Trip"
+                                                >
+                                                    <Settings size={14} />
+                                                </button>
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();

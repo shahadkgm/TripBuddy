@@ -7,6 +7,17 @@ export interface ITripPreferences {
     interests: string[];
 }
 
+export interface IItineraryItem {
+    day: number;
+    date: Date;
+    activities: {
+        time: string;
+        activity: string;
+        location?: string;
+        notes?: string;
+    }[];
+}
+
 export interface ITrip {
     userId: Types.ObjectId;
     title: string;
@@ -20,6 +31,7 @@ export interface ITrip {
     minMembers: number;
     status: 'planned' | 'ongoing' | 'completed' | 'cancelled' | 'finalized' | 'confirmed';
     members: Types.ObjectId[];
+    itinerary?: IItineraryItem[];
     createdAt: Date;
     updatedAt: Date;
 }

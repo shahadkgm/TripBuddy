@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, X, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { aiService } from '../../services/c.ai.service';
 import toast from 'react-hot-toast';
 
@@ -21,6 +21,15 @@ const AIAssistantPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.initialContext) {
+            setInput(location.state.initialContext);
+            window.history.replaceState({}, document.title);
+        }
+    }, [location.state]);
+
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

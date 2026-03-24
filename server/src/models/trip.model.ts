@@ -58,6 +58,20 @@ const tripSchema = new Schema<ITripDocument>(
                 ref: 'User',
             },
         ],
+        itinerary: [
+            {
+                day: { type: Number, required: true },
+                date: { type: Date, required: true },
+                activities: [
+                    {
+                        time: { type: String, required: true },
+                        activity: { type: String, required: true },
+                        location: { type: String },
+                        notes: { type: String },
+                    },
+                ],
+            },
+        ],
     },
     {
         timestamps: true,

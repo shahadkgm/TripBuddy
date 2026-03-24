@@ -18,6 +18,35 @@ export class TripPreferencesDTO {
     interests!: string[];
 }
 
+export class ItineraryActivityDTO {
+    @IsString()
+    time!: string;
+
+    @IsString()
+    activity!: string;
+
+    @IsOptional()
+    @IsString()
+    location?: string;
+
+    @IsOptional()
+    @IsString()
+    notes?: string;
+}
+
+export class ItineraryDayDTO {
+    @IsNumber()
+    day!: number;
+
+    @IsDateString()
+    date!: string;
+
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => ItineraryActivityDTO)
+    activities!: ItineraryActivityDTO[];
+}
+
 export class CreateTripDTO {
     @IsString()
     @IsNotEmpty()
@@ -80,4 +109,10 @@ export class CreateTripDTO {
     @IsOptional()
     @IsNumber()
     minMembers?: number;
+
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => ItineraryDayDTO)
+    itinerary?: ItineraryDayDTO[];
 }
