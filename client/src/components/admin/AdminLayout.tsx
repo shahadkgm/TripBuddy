@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { authService } from '../../services/c.authService';
 import {
   LayoutDashboard, Users, Map, MessageSquare,
-  Image, Settings, Menu, X, ShieldCheck, LogOut, CreditCard
+  Settings, Menu, X, ShieldCheck, LogOut, CreditCard
 } from 'lucide-react';
 export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -17,11 +17,11 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={20} /> },
     { name: 'Manage Users', path: "/admin/users", icon: <Users size={20} /> },
     { name: 'Manage Guides', path: "/admin/guides", icon: <ShieldCheck size={20} /> },
-    { name: 'Manage Trips', path: '#', icon: <Map size={20} /> },
-    { name: 'Groups & Chat', path: '#', icon: <MessageSquare size={20} /> },
+    { name: 'Manage Trips', path: '/admin/trips', icon: <Map size={20} /> },
+    // { name: 'Groups & Chat', path: '#', icon: <MessageSquare size={20} /> },
     // { name: 'Posts', path: '#', icon: <Image size={20} /> },
     { name: 'Payments', path: '/admin/payments', icon: <CreditCard size={20} /> },
-    { name: 'Settings', path: '#', icon: <Settings size={20} /> },
+    // { name: 'Settings', path: '#', icon: <Settings size={20} /> },
   ];
 
   return (

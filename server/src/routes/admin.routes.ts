@@ -33,4 +33,8 @@ router.get(API_ROUTES.ADMIN.STATS, adminController.getDashboardStats);
 router.get(API_ROUTES.ADMIN.PAYMENTS, adminController.getAllPayments);
 router.patch('/payments/:id/status', adminController.updatePaymentStatus);
 
+// Trips
+router.get('/trips', adminController.getAllTrips);
+router.patch('/trips/:id/status', adminController.updateTripStatus);
+
 export default router;

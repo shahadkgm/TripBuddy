@@ -2,6 +2,7 @@
 
 import { IGuide } from '../../types/guide.type';
 import { IUser } from '../../types/user.type';
+import { ITripDocument } from '../../types/trip.type';
 
 export interface IAdminRepository {
   // users
@@ -52,4 +53,14 @@ export interface IAdminRepository {
 
   deleteGuide(id: string): Promise<IGuide | null>;
   countVerifiedGuides(): Promise<number>;
+
+  // trips
+  getAllTrips(page: number, limit: number, search: string): Promise<{
+    trips: ITripDocument[],
+    totalPages: number,
+    currentPage: number,
+    totalTrips: number
+  }>;
+
+  updateTripStatus(tripId: string, status: string): Promise<ITripDocument | null>;
 }

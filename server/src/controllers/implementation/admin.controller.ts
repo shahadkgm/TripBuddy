@@ -101,4 +101,20 @@ export class AdminController extends BaseController implements IAdminController 
     const updatedPayment = await this._adminService.updatePaymentStatus(id, status);
     this.sendSuccess(res, updatedPayment, `Payment status updated to ${status} successfully`);
   });
+
+  // Trips
+  getAllTrips = asyncHandler(async (req: Request, res: Response) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search = String(req.query.search || '');
+    const data = await this._adminService.getAllTrips(page, limit, search);
+    this.sendSuccess(res, data, 'Trips fetched successfully');
+  });
+
+  updateTripStatus = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const updatedTrip = await this._adminService.updateTripStatus(id, status);
+    this.sendSuccess(res, updatedTrip, `Trip status updated to ${status} successfully`);
+  });
 }

@@ -10,6 +10,8 @@ import { logger } from '../../utils/logger';
 import { BaseRepository } from './base.repository';
 import { IGuide } from '../../types/guide.type';
 
+import { ITripDocument } from '../../types/trip.type';
+
 export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implements IAdminRepository {
 
   constructor() {
@@ -218,5 +220,45 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
       { $inc: { walletBalance: amount } },
       { new: true }
     ).select('-password').lean<IUser>();
+  }
+
+  // Trips
+  async getAllTrips(page: number, limit: number, search: string) {
+    page = Math.max(1, page);
+    limit = Math.max(1, limit);
+    const skip = (page - 1) * limit;
+    const query = search
+      ? {
+        $or: [
+          { title: { $regex: search, $options: 'i' } },
+          { destination: { $regex: search, $options: 'i' } }
+        ]
+      }
+      : {};
+
+    const [trips, totalTrips] = await Promise.all([
+      TripModel.find(query)
+        .populate('userId', 'name email avatarURL role')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean<ITripDocument[]>(),
+      TripModel.countDocuments(query)
+    ]);
+
+    return {
+      trips,
+      totalPages: Math.ceil(totalTrips / limit),
+      currentPage: page,
+      totalTrips
+    };
+  }
+
+  async updateTripStatus(tripId: string, status: string): Promise<ITripDocument | null> {
+    return await TripModel.findByIdAndUpdate(
+      tripId,
+      { status },
+      { new: true }
+    ).populate('userId', 'name email').lean<ITripDocument>();
   }
 }

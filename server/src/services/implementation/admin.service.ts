@@ -12,6 +12,7 @@ import { IKYCRepository } from '../../repositories/interface/IKycRepository';
 import { KYCStatus } from '../../types/kyc.type';
 import { IPaymentRepository } from '../../repositories/interface/IPaymentRepository';
 import { IPaymentDocument } from '../../types/payment.type';
+import { ITripDocument } from '../../types/trip.type';
 
 export class AdminService implements IAdminService {
   constructor(
@@ -176,5 +177,18 @@ export class AdminService implements IAdminService {
         throw new AppError('Failed to update payment status', StatusCode.INTERNAL_SERVER_ERROR);
     }
     return updatedPayment;
+  }
+
+  // Trips
+  async getAllTrips(page = 1, limit = 10, search = ''): Promise<{ trips: ITripDocument[], totalPages: number, currentPage: number, totalTrips: number }> {
+    return await this.adminRepo.getAllTrips(page, limit, search);
+  }
+
+  async updateTripStatus(tripId: string, status: string): Promise<ITripDocument> {
+    const updatedTrip = await this.adminRepo.updateTripStatus(tripId, status);
+    if (!updatedTrip) {
+      throw new AppError('Trip not found or failed to update', StatusCode.NOT_FOUND);
+    }
+    return updatedTrip;
   }
 }

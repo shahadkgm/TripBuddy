@@ -4,7 +4,7 @@ import {
     Send, X, User, AlertCircle,
     Eye, ChevronLeft, Loader2,
     Plane, Smile, Image as ImageIcon, ChevronDown,
-    CreditCard, ShieldCheck, Settings, Bot
+    CreditCard, ShieldCheck, Settings, Bot, Calendar, Lock, MapPin
 } from 'lucide-react';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { useSocket } from '../../hooks/useSocket';
@@ -26,6 +26,7 @@ const GroupChatPage = () => {
     const [hasPaidDeposit, setHasPaidDeposit] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [showFinalizeModal, setShowFinalizeModal] = useState(false);
+    const [showItineraryModal, setShowItineraryModal] = useState(false);
     const [finalizeData, setFinalizeData] = useState({ budget: 0, depositAmount: 0 });
     const [isFinalizing, setIsFinalizing] = useState(false);
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
@@ -311,8 +312,8 @@ const GroupChatPage = () => {
                                 <ShieldCheck size={14} /> Confirmed ✅
                             </div>
                         )}
-                        <button onClick={() => navigate(`/trip-details/${id}`)} className="hidden md:flex px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold items-center gap-2 border border-indigo-100 hover:bg-indigo-100 transition-all">
-                            <Eye size={14} /> Details
+                        <button onClick={() => setShowItineraryModal(true)} className="hidden md:flex px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold items-center gap-2 border border-indigo-100 hover:bg-indigo-100 transition-all">
+                            <Eye size={14} /> Itinerary
                         </button>
                     </div>
                 </div>
@@ -525,6 +526,94 @@ const GroupChatPage = () => {
                         >
                             {isFinalizing ? <Loader2 className="animate-spin" /> : <>Finalize Trip Now</>}
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Itinerary Modal */}
+            {showItineraryModal && trip && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowItineraryModal(false)} />
+                    <div className="bg-white rounded-[2.5rem] p-8 max-h-[85vh] overflow-y-auto custom-scrollbar w-full max-w-xl relative animate-in fade-in zoom-in duration-300 shadow-2xl border border-slate-100">
+                        <div className="flex justify-between items-center mb-6">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 border border-indigo-100/50">
+                                    <Calendar size={24} />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-black text-slate-900 leading-none">Trip Itinerary</h2>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-1">Daily Plan</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setShowItineraryModal(false)} className="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors"><X size={20} className="text-slate-500" /></button>
+                        </div>
+                        
+                        <div className="relative overflow-hidden rounded-[2rem] border border-slate-100 bg-white">
+                            {isOwner || hasPaidDeposit ? (
+                                <div className="p-6 space-y-6">
+                                    {trip.itinerary && trip.itinerary.length > 0 ? (
+                                        trip.itinerary.map((day, idx) => (
+                                            <div key={idx} className="border-l-2 border-indigo-100 pl-6 relative pb-2">
+                                                <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-indigo-500 border-4 border-white shadow-sm"></div>
+                                                <h4 className="font-black text-slate-800 tracking-tight">Day {day.day} <span className="text-slate-400 font-medium text-sm ml-2">{new Date(day.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric'})}</span></h4>
+                                                <div className="mt-4 space-y-3">
+                                                    {day.activities.map((act, actIdx) => (
+                                                        <div key={actIdx} className="bg-slate-50 p-4 rounded-3xl border border-slate-100 flex flex-col gap-1 hover:shadow-md transition-shadow group">
+                                                            <div className="flex justify-between items-start">
+                                                                <span className="text-sm font-bold text-slate-800 pr-4">{act.activity}</span>
+                                                                <span className="text-[10px] font-black tracking-widest uppercase text-indigo-600 bg-indigo-100 px-2 py-1 rounded-lg whitespace-nowrap">{act.time}</span>
+                                                            </div>
+                                                            {act.location && <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5 mt-2.5"><MapPin size={12} className="text-indigo-400"/> {act.location}</span>}
+                                                            {act.notes && <p className="text-xs text-slate-600 mt-3 italic font-medium border-t border-slate-200/50 pt-3">{act.notes}</p>}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 rounded-[2rem] bg-slate-50/50">
+                                            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest italic">No itinerary planned yet</p>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="relative min-h-[350px] bg-slate-50/30 p-6">
+                                    {/* Blurred Background Preview */}
+                                    <div className="space-y-6 filter blur-sm opacity-30 select-none pointer-events-none">
+                                        {[1, 2].map((i) => (
+                                            <div key={i} className="border-l-2 border-slate-200 pl-6 relative">
+                                                <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-slate-300 border-4 border-white"></div>
+                                                <div className="bg-slate-200 h-5 w-40 rounded-lg mb-4"></div>
+                                                <div className="space-y-3">
+                                                    <div className="bg-slate-100 h-24 rounded-3xl border border-slate-200/50"></div>
+                                                    <div className="bg-slate-100 h-20 rounded-3xl border border-slate-200/50"></div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    
+                                    {/* Locked Overlay */}
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center z-20 bg-white/40 backdrop-blur-[3px]">
+                                        <div className="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center shadow-2xl border border-slate-100 mb-6 text-slate-400 rotate-12 transition-transform hover:rotate-0 duration-300">
+                                            <Lock size={32} />
+                                        </div>
+                                        <h3 className="text-2xl font-black text-slate-900 tracking-tighter mb-3">Itinerary Locked</h3>
+                                        <p className="text-sm text-slate-600 font-medium leading-relaxed max-w-[280px]">
+                                            The day-by-day plan is exclusively available to confirmed trip members. Secure your spot to view the details!
+                                        </p>
+                                        <button 
+                                            onClick={() => {
+                                                setShowItineraryModal(false);
+                                                setShowPaymentModal(true);
+                                            }}
+                                            className="mt-8 px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-200 hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all"
+                                        >
+                                            Pay Deposit
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

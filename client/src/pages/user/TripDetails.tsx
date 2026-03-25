@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
     Sparkles, UserCheck, Clock, UserPlus,
-    User,
+    User, Calendar, Lock,
     MapPin, X,
     MessageCircle, AlertCircle, Loader2
 } from 'lucide-react';
 import { tripService } from '../../services/c.trip.service';
 import { connectionService } from '../../services/c.connection.service';
 import { authService } from '../../services/c.authService';
+import { paymentService } from '../../services/c.payment.service';
 import type { ITrip } from '../../interface/ITripdetails';
 import toast from 'react-hot-toast';
 
@@ -22,6 +23,7 @@ const TripDetails = () => {
     const [trip, setTrip] = useState<ITrip | null>(null);
     const [loading, setLoading] = useState(true);
     const [status, setStatus] = useState<'none' | 'pending' | 'accepted' | 'rejected' | 'incoming_pending' | 'loading'>('loading');
+    const [hasPaidDeposit, setHasPaidDeposit] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [isCancelling, setIsCancelling] = useState(false);
 
@@ -37,6 +39,12 @@ const TripDetails = () => {
                 if (currentUser?.id && data.userId._id !== currentUser.id) {
                     const resStatus = await connectionService.getStatus(data.userId._id, data._id);
                     setStatus(resStatus || 'none');
+                    
+                    if (resStatus === 'accepted') {
+                        const myPayments = await paymentService.getMyPayments(id);
+                        const paid = myPayments.some(p => p.status === 'escrowed');
+                        setHasPaidDeposit(paid);
+                    }
                 } else {
                     setStatus('none');
                 }
@@ -216,8 +224,71 @@ const TripDetails = () => {
                     </div>
                 </div>
 
+                {/* Itinerary Section */}
+                <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm mb-auto mt-8 relative overflow-hidden">
+                    <h2 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2 relative z-10">
+                        <Calendar className="text-indigo-500 w-5 h-5" /> Trip Itinerary
+                    </h2>
+                    
+                    {isOwnTrip || hasPaidDeposit ? (
+                        <div className="space-y-6 relative z-10">
+                            {trip.itinerary && trip.itinerary.length > 0 ? (
+                                trip.itinerary.map((day, idx) => (
+                                    <div key={idx} className="border-l-2 border-indigo-100 pl-6 relative">
+                                        <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-indigo-500 border-4 border-white shadow-sm"></div>
+                                        <h4 className="font-black text-slate-800 tracking-tight">Day {day.day} - {new Date(day.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric'})}</h4>
+                                        <div className="mt-4 space-y-3">
+                                            {day.activities.map((act, actIdx) => (
+                                                <div key={actIdx} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex flex-col gap-1 hover:shadow-md transition-shadow">
+                                                    <div className="flex justify-between items-start">
+                                                        <span className="text-sm font-bold text-slate-800">{act.activity}</span>
+                                                        <span className="text-[10px] font-black tracking-widest uppercase text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">{act.time}</span>
+                                                    </div>
+                                                    {act.location && <span className="text-[11px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1 mt-2.5"><MapPin size={12} className="text-indigo-400"/> {act.location}</span>}
+                                                    {act.notes && <p className="text-xs text-slate-600 mt-2 italic font-medium border-t border-slate-200/50 pt-2">{act.notes}</p>}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="py-8 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 rounded-3xl bg-slate-50/50">
+                                    <p className="text-slate-400 text-sm font-bold uppercase tracking-widest italic">No itinerary planned yet</p>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="relative z-10 min-h-[300px]">
+                            {/* Blurred Background Preview */}
+                            <div className="space-y-6 filter blur-sm opacity-30 select-none pointer-events-none absolute inset-0 pt-4">
+                                {[1, 2].map((i) => (
+                                    <div key={i} className="border-l-2 border-slate-200 pl-6 relative">
+                                        <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-slate-300 border-4 border-white"></div>
+                                        <div className="bg-slate-200 h-5 w-40 rounded-md mb-4"></div>
+                                        <div className="space-y-3">
+                                            <div className="bg-slate-50 h-24 rounded-2xl border border-slate-100"></div>
+                                            <div className="bg-slate-50 h-20 rounded-2xl border border-slate-100"></div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            
+                            {/* Locked Overlay */}
+                            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-20 bg-white/60 backdrop-blur-[2px]">
+                                <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center shadow-xl border border-slate-100 mb-6 text-slate-400">
+                                    <Lock size={28} />
+                                </div>
+                                <h3 className="text-2xl font-black text-slate-900 tracking-tighter mb-2">Itinerary Locked</h3>
+                                <p className="text-sm text-slate-600 font-medium max-w-sm leading-relaxed mb-6">
+                                    The full day-by-day plan is exclusively available to confirmed trip members. Secure your spot by paying the deposit!
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 {/* Action Button Section */}
-                <div className="mt-12">
+                <div className="mt-8">
                     {isOwnTrip ? (
                         <div className="space-y-4">
                             {trip.status !== 'finalized' && trip.status !== 'confirmed' ? (

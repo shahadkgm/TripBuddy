@@ -13,4 +13,8 @@ export interface IAdminController {
   getDashboardStats: RequestHandler;
   getAllPayments: RequestHandler;
   updatePaymentStatus: RequestHandler;
+
+  // Trips
+  getAllTrips: RequestHandler;
+  updateTripStatus: RequestHandler;
 }

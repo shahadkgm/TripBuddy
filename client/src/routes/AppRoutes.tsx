@@ -31,7 +31,8 @@ import MyPaymentsPage from "../pages/user/MyPaymentsPage";
 import { AdminDashboard } from "../pages/admin/AdminDashboard";
 import { UserManagement } from "../pages/admin/UserManagement";
 import { GuideManagement } from "../pages/admin/GuideManagement";
-import { AdminPaymentsPage } from "../pages/admin/AdminPaymentsPage";
+import { AdminPaymentsPage } from '../pages/admin/AdminPaymentsPage';
+import { AdminTripManagementPage } from '../pages/admin/AdminTripManagementPage';
 
 import { GuideDashboard } from "../pages/guide/GuideDashboard";
 
@@ -78,6 +79,7 @@ export default function AppRoutes() {
         <Route path="/admin/users" element={<UserManagement />} />
         <Route path="/admin/guides" element={<GuideManagement />} />
         <Route path="/admin/payments" element={<AdminPaymentsPage />} />
+        <Route path="/admin/trips" element={<AdminTripManagementPage />} />
       </Route>
 
       {/* Guide */}
