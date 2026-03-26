@@ -31,6 +31,7 @@ export interface ITrip {
     minMembers: number;
     status: 'planned' | 'ongoing' | 'completed' | 'cancelled' | 'finalized' | 'confirmed';
     members: Types.ObjectId[];
+    guideId?: Types.ObjectId | null;
     itinerary?: IItineraryItem[];
     createdAt: Date;
     updatedAt: Date;
@@ -38,7 +39,7 @@ export interface ITrip {
 
 export type ITripDocument = ITrip & Document;
 
-export interface ITripPopulated extends Omit<ITrip, 'userId' | 'members'> {
+export interface ITripPopulated extends Omit<ITrip, 'userId' | 'members' | 'guideId'> {
     userId: {
         _id: Types.ObjectId;
         name: string;
@@ -52,6 +53,17 @@ export interface ITripPopulated extends Omit<ITrip, 'userId' | 'members'> {
         email: string;
         avatarURL?: string;
     }[];
+    guideId?: {
+        _id: Types.ObjectId;
+        name: string;
+        bio: string;
+        hourlyRate: number;
+        serviceArea: string;
+        avatarURL?: string;
+        specialties: string[];
+        isVerified: boolean;
+        userId?: { name: string; email: string };
+    } | null;
 }
 
 export type ITripPopulatedDocument = ITripPopulated & Document;

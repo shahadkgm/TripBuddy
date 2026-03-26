@@ -85,4 +85,13 @@ export class TripController extends BaseController {
         const chatHistory = await this._tripService.getChatHistory(id);
         this.sendSuccess(res, chatHistory, 'Chat history fetched successfully');
     });
+
+    assignGuide = asyncHandler(async (req: AuthRequest<{ id: string }, unknown, { guideId?: string | null }>, res: Response) => {
+        const { id } = req.params;
+        const { guideId } = req.body; // can be a string ID or null
+        const userId = req.user?.id as string;
+
+        const updatedTrip = await this._tripService.assignGuide(id, guideId ?? null, userId);
+        this.sendSuccess(res, updatedTrip, guideId ? 'Guide assigned successfully' : 'Guide removed successfully');
+    });
 }

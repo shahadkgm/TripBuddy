@@ -28,6 +28,9 @@ const GroupChatPage = () => {
     const [showFinalizeModal, setShowFinalizeModal] = useState(false);
     const [showItineraryModal, setShowItineraryModal] = useState(false);
     const [finalizeData, setFinalizeData] = useState({ budget: 0, depositAmount: 0 });
+    const [isEditingBudget, setIsEditingBudget] = useState(false);
+    const [newBudget, setNewBudget] = useState(0);
+    const [isUpdatingBudget, setIsUpdatingBudget] = useState(false);
     const [isFinalizing, setIsFinalizing] = useState(false);
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
     const [showMembersModal, setShowMembersModal] = useState(false);
@@ -246,6 +249,21 @@ const GroupChatPage = () => {
         }
     };
 
+    const handleEditBudget = async () => {
+        if (!id || newBudget <= 0) return;
+        try {
+            setIsUpdatingBudget(true);
+            const updatedTrip = await tripService.updateTrip(id, { budget: newBudget });
+            setTrip(updatedTrip);
+            setIsEditingBudget(false);
+            toast.success("Budget updated successfully!");
+        } catch (error) {
+            toast.error("Failed to update budget");
+        } finally {
+            setIsUpdatingBudget(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -264,7 +282,7 @@ const GroupChatPage = () => {
             <div className="bg-white border-b border-slate-200 px-6 py-4 shadow-sm z-20 flex-shrink-0">
                 <div className="max-w-5xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <button onClick={() => navigate(`/trip-details/${id}`)} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500">
+                        <button onClick={() => navigate(-1)} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500">
                             <ChevronLeft size={24} />
                         </button>
                         <div className="flex items-center gap-3 cursor-pointer p-2 hover:bg-slate-50 rounded-xl transition-colors" onClick={() => setShowMembersModal(true)}>
@@ -535,14 +553,55 @@ const GroupChatPage = () => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowItineraryModal(false)} />
                     <div className="bg-white rounded-[2.5rem] p-8 max-h-[85vh] overflow-y-auto custom-scrollbar w-full max-w-xl relative animate-in fade-in zoom-in duration-300 shadow-2xl border border-slate-100">
-                        <div className="flex justify-between items-center mb-6">
+                        <div className="flex justify-between items-start mb-6">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 border border-indigo-100/50">
                                     <Calendar size={24} />
                                 </div>
                                 <div>
                                     <h2 className="text-xl font-black text-slate-900 leading-none">Trip Itinerary</h2>
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-1">Daily Plan</p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Daily Plan</p>
+                                        <span className="text-slate-200 text-xs">•</span>
+                                        <div className="flex items-center gap-1">
+                                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Total Budget:</span>
+                                            {isEditingBudget ? (
+                                                <div className="flex items-center gap-1 ml-1">
+                                                    <input 
+                                                        type="number" 
+                                                        value={newBudget} 
+                                                        onChange={(e) => setNewBudget(Number(e.target.value))}
+                                                        className="w-20 px-1 py-0.5 text-xs font-bold border border-indigo-200 rounded outline-none text-slate-700 bg-indigo-50/50"
+                                                        disabled={isUpdatingBudget}
+                                                        autoFocus
+                                                    />
+                                                    <button onClick={handleEditBudget} disabled={isUpdatingBudget} className="text-[10px] bg-indigo-600 text-white rounded px-2 py-0.5 font-bold hover:bg-indigo-700 disabled:opacity-50">
+                                                        {isUpdatingBudget ? '...' : 'Save'}
+                                                    </button>
+                                                    <button onClick={() => setIsEditingBudget(false)} disabled={isUpdatingBudget} className="text-[10px] bg-slate-100 text-slate-600 rounded px-2 py-0.5 font-bold hover:bg-slate-200 disabled:opacity-50">
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-2 ml-1">
+                                                    <span className="text-[10px] font-black tracking-widest bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-md border border-emerald-100">
+                                                        ₹{trip.budget?.toLocaleString() || 0}
+                                                    </span>
+                                                    {isOwner && (
+                                                        <button 
+                                                            onClick={() => {
+                                                                setNewBudget(trip.budget || 0);
+                                                                setIsEditingBudget(true);
+                                                            }}
+                                                            className="text-[10px] font-bold text-indigo-500 hover:text-indigo-700 underline"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <button onClick={() => setShowItineraryModal(false)} className="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors"><X size={20} className="text-slate-500" /></button>

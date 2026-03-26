@@ -48,5 +48,10 @@ export const tripService = {
     async cancelTrip(id: string): Promise<ITrip> {
         const response = await api.post<ApiResponse<ITrip>>(`/api/plantrips/${id}/cancel`);
         return response.data.data;
+    },
+
+    async assignGuide(tripId: string, guideId: string | null): Promise<ITrip> {
+        const response = await api.patch<ApiResponse<ITrip>>(`/api/plantrips/${tripId}/guide`, { guideId });
+        return response.data.data;
     }
 };

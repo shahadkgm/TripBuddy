@@ -4,12 +4,13 @@ import {
     Calendar, MapPin, Users,
     Plus, Trash2, Save, ArrowLeft,
     Settings, Clock, Sparkles, ChevronRight,
-    Loader2, CheckCircle2, Wand2
+    Loader2, CheckCircle2, Wand2, UserSearch, Search, RotateCcw, Star, BadgeCheck
 } from 'lucide-react';
 import { tripService } from '../../services/c.trip.service';
 import { aiService } from '../../services/c.ai.service';
 import type { ITrip, IItineraryItem } from '../../interface/ITripdetails';
 import toast from 'react-hot-toast';
+import api from '../../utils/api';
 
 const TripManagementPage = () => {
     const { id } = useParams<{ id: string }>();
@@ -18,10 +19,17 @@ const TripManagementPage = () => {
     const [loading, setLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [isGeneratingAI, setIsGeneratingAI] = useState(false);
-    const [activeTab, setActiveTab] = useState<'itinerary' | 'members' | 'settings'>('itinerary');
+    const [activeTab, setActiveTab] = useState<'itinerary' | 'members' | 'settings' | 'guide'>('itinerary');
     
     // Itinerary State
     const [itinerary, setItinerary] = useState<IItineraryItem[]>([]);
+
+    // Guide Search State
+    const [guides, setGuides] = useState<any[]>([]);
+    const [guideLoading, setGuideLoading] = useState(false);
+    const [guideDestination, setGuideDestination] = useState('');
+    const [guideMaxPrice, setGuideMaxPrice] = useState(5000);
+    const [assigningGuideId, setAssigningGuideId] = useState<string | null>(null);
 
     useEffect(() => {
         const loadTrip = async () => {
@@ -101,6 +109,33 @@ const TripManagementPage = () => {
         }
     };
 
+    // Guide Search
+    const fetchGuides = async (destination = guideDestination, maxPrice = guideMaxPrice) => {
+        setGuideLoading(true);
+        try {
+            const res = await api.get('/api/guides/all', { params: { destination, maxPrice, page: 1, limit: 12 } });
+            setGuides(res.data.data.guides);
+        } catch {
+            toast.error('Failed to fetch guides');
+        } finally {
+            setGuideLoading(false);
+        }
+    };
+
+    const handleAssignGuide = async (guideId: string | null) => {
+        if (!id) return;
+        setAssigningGuideId(guideId);
+        try {
+            const updatedTrip = await tripService.assignGuide(id, guideId);
+            setTrip(updatedTrip);
+            toast.success(guideId ? 'Guide assigned to trip!' : 'Guide removed from trip.');
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message || 'Failed to update guide assignment');
+        } finally {
+            setAssigningGuideId(null);
+        }
+    };
+
     const handleCancelTrip = async () => {
         if (!id || !window.confirm("Are you sure you want to cancel this trip? This will refund all members 100% and cannot be undone.")) return;
         try {
@@ -157,7 +192,6 @@ Do not include any other text, markdown formatting, or code blocks outside the J
 
             const responseText = await aiService.getChatResponse(prompt);
             
-            // Clean up the response
             let jsonString = responseText;
             if (jsonString.startsWith('\`\`\`json')) {
                 jsonString = jsonString.replace(/\`\`\`json\n/g, '').replace(/\n\`\`\`/g, '');
@@ -167,7 +201,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
             
             const generatedData = JSON.parse(jsonString);
             
-            // Map the generated data to match our complete IItineraryItem structure exactly
+            // Map the generated data to match  complete IItineraryItem structure exactly
             const newItinerary: IItineraryItem[] = generatedData.map((dayData: any, index: number) => {
                 const currentDate = new Date(trip.startDate);
                 currentDate.setDate(currentDate.getDate() + index);
@@ -242,6 +276,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                         {[
                             { id: 'itinerary', label: 'Itinerary Builder', icon: Calendar },
                             { id: 'members', label: 'Trip Members', icon: Users },
+                            { id: 'guide', label: 'Find Guide', icon: UserSearch },
                             { id: 'settings', label: 'Management', icon: Settings },
                         ].map((tab) => (
                             <button
@@ -427,6 +462,143 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                             </div>
                                         </div>
                                     ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'guide' && (
+                            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+                                {/* Assigned Guide Card */}
+                                {trip.guideId && (
+                                    <div className="bg-white rounded-[3rem] border-2 border-indigo-100 shadow-xl p-8">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600"><BadgeCheck size={22} /></div>
+                                            <h3 className="text-xl font-black text-slate-900 tracking-tighter">Assigned Guide</h3>
+                                        </div>
+                                        <div className="flex items-start gap-5">
+                                            <img
+                                                src={trip.guideId.avatarURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${trip.guideId.name}`}
+                                                alt={trip.guideId.name}
+                                                className="w-20 h-20 rounded-2xl object-cover border-4 border-indigo-100 shadow-md flex-shrink-0"
+                                            />
+                                            <div className="flex-1">
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div>
+                                                        <h4 className="font-black text-slate-900 text-lg tracking-tight">{trip.guideId.name}</h4>
+                                                        <p className="text-indigo-600 font-bold text-sm flex items-center gap-1 mt-0.5">
+                                                            <MapPin size={12} /> {trip.guideId.serviceArea}
+                                                        </p>
+                                                    </div>
+                                                    <span className="text-xl font-black text-indigo-600">₹{trip.guideId.hourlyRate}<small className="text-xs text-slate-400 font-normal">/hr</small></span>
+                                                </div>
+                                                <p className="text-sm text-slate-500 mt-2 line-clamp-2">{trip.guideId.bio}</p>
+                                                <div className="flex flex-wrap gap-2 mt-3">
+                                                    {trip.guideId.specialties?.map(s => (
+                                                        <span key={s} className="text-[10px] uppercase tracking-wider font-bold bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg border border-indigo-100">{s}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => handleAssignGuide(null)}
+                                            disabled={assigningGuideId === null && assigningGuideId !== undefined}
+                                            className="mt-6 w-full py-3 rounded-2xl border-2 border-dashed border-rose-200 text-rose-400 hover:bg-rose-50 hover:border-rose-400 font-black uppercase tracking-widest text-[11px] transition-all"
+                                        >
+                                            Remove Guide from Trip
+                                        </button>
+                                    </div>
+                                )}
+
+                                {/* Guide Search */}
+                                <div className="bg-white rounded-[3rem] border border-slate-100 shadow-xl p-8">
+                                    <h3 className="text-xl font-black text-slate-900 tracking-tighter mb-6 flex items-center gap-3">
+                                        <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600"><UserSearch size={22} /></div>
+                                        Browse Verified Guides
+                                    </h3>
+
+                                    {/* Filters */}
+                                    <div className="flex flex-col md:flex-row gap-4 mb-6">
+                                        <div className="flex-1 relative">
+                                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                            <input
+                                                type="text"
+                                                placeholder="Filter by service area..."
+                                                value={guideDestination}
+                                                onChange={e => setGuideDestination(e.target.value)}
+                                                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                                            />
+                                        </div>
+                                        <div className="w-full md:w-64 px-5 py-3 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col justify-center">
+                                            <div className="flex justify-between mb-1">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Max Rate</label>
+                                                <span className="text-xs font-black text-indigo-600">₹{guideMaxPrice}/hr</span>
+                                            </div>
+                                            <input type="range" min="100" max="10000" step="50" value={guideMaxPrice} onChange={e => setGuideMaxPrice(Number(e.target.value))} className="w-full h-1.5 accent-indigo-600" />
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button onClick={() => { setGuideDestination(''); setGuideMaxPrice(5000); fetchGuides('', 5000); }} className="p-3 bg-slate-100 rounded-2xl text-slate-400 hover:text-indigo-600 transition-all" title="Reset"><RotateCcw size={18} /></button>
+                                            <button onClick={() => fetchGuides()} className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 hover:bg-slate-900 transition-all shadow-lg shadow-indigo-100">
+                                                <Search size={14} /> Search
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Lazy load guides on tab open */}
+                                    {guides.length === 0 && !guideLoading && (
+                                        <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 rounded-3xl">
+                                            <UserSearch className="text-slate-200 w-12 h-12 mb-3" />
+                                            <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Click Search to find guides</p>
+                                        </div>
+                                    )}
+
+                                    {guideLoading ? (
+                                        <div className="grid grid-cols-1 gap-4">
+                                            {[1, 2, 3].map(i => <div key={i} className="h-28 bg-slate-50 animate-pulse rounded-3xl" />)}
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            {guides.map((guide: any) => {
+                                                const guideId = guide._id || guide.id;
+                                                const isAssigned = Boolean(trip.guideId && (trip.guideId._id === guideId || trip.guideId === guideId));
+                                                const isLoading = assigningGuideId === guideId;
+                                                return (
+                                                    <div key={guide._id || guide.id} className={`flex items-start gap-5 p-6 rounded-3xl border-2 transition-all ${ isAssigned ? 'border-indigo-200 bg-indigo-50/40' : 'border-slate-100 bg-white hover:border-indigo-100 hover:shadow-md' }`}>
+                                                        <img
+                                                            src={guide.avatarURL ? (guide.avatarURL.startsWith('http') ? guide.avatarURL : `${import.meta.env.VITE_API_URL || ''}${guide.avatarURL}`) : `https://api.dicebear.com/7.x/avataaars/svg?seed=${guide.name || 'guide'}`}
+                                                            className="w-16 h-16 rounded-2xl object-cover border-4 border-slate-100 flex-shrink-0"
+                                                            alt={guide.name}
+                                                        />
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-start justify-between gap-2">
+                                                                <div>
+                                                                    <h4 className="font-black text-slate-900 tracking-tight">{guide.userId?.name || guide.name}</h4>
+                                                                    <p className="text-indigo-600 font-bold text-xs flex items-center gap-1 mt-0.5"><MapPin size={11}/>{guide.serviceArea}</p>
+                                                                </div>
+                                                                <span className="font-black text-indigo-600 text-base whitespace-nowrap">₹{guide.hourlyRate}<small className="text-slate-400 text-xs font-normal">/hr</small></span>
+                                                            </div>
+                                                            <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{guide.bio}</p>
+                                                            <div className="flex flex-wrap gap-1.5 mt-2">
+                                                                {guide.specialties?.slice(0, 3).map((s: string) => (
+                                                                    <span key={s} className="text-[10px] uppercase tracking-wider font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md">{s}</span>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => handleAssignGuide(isAssigned ? null : guideId)}
+                                                            disabled={isLoading}
+                                                            className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all ${
+                                                                isAssigned
+                                                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
+                                                                    : 'bg-slate-100 text-slate-600 hover:bg-indigo-600 hover:text-white hover:shadow-lg hover:shadow-indigo-100'
+                                                            }`}
+                                                        >
+                                                            {isLoading ? <Loader2 size={14} className="animate-spin" /> : isAssigned ? <><CheckCircle2 size={13}/> Assigned</> : <><Star size={13}/> Assign</>}
+                                                        </button>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}

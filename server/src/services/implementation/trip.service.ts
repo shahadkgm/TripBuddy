@@ -8,6 +8,7 @@ import { IUserRepository } from '../../repositories/interface/IUserRepository';
 import { IPaymentPopulatedDocument, PaymentStatus, PaymentType } from '../../types/payment.type';
 import { logger } from '@/utils/logger';
 import mongoose from 'mongoose';
+import guideModel from '../../models/guide.model';
 
 export class TripService implements ITripService {
 
@@ -108,5 +109,24 @@ export class TripService implements ITripService {
         }
 
         return cancelledTrip;
+    }
+
+    async assignGuide(tripId: string, guideId: string | null, userId: string): Promise<ITripDocument> {
+        const trip = await this._tripRepository.findById(tripId) as ITripPopulatedDocument | null;
+        if (!trip) throw new Error('Trip not found');
+
+        // Only trip owner can assign a guide
+        const ownerId = trip.userId._id.toString();
+        if (ownerId !== userId) throw new Error('Unauthorized: only the trip owner can assign a guide');
+
+        if (guideId) {
+            const guide = await guideModel.findById(guideId);
+            if (!guide) throw new Error('Guide not found');
+            if (!guide.isVerified) throw new Error('Only verified guides can be assigned to a trip');
+        }
+
+        const updated = await this._tripRepository.assignGuide(tripId, guideId);
+        if (!updated) throw new Error('Failed to assign guide');
+        return updated;
     }
 }

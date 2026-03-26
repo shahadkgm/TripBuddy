@@ -115,4 +115,8 @@ export class CreateTripDTO {
     @ValidateNested({ each: true })
     @Type(() => ItineraryDayDTO)
     itinerary?: ItineraryDayDTO[];
+
+    @IsOptional()
+    @IsString()
+    guideId?: string | null;
 }

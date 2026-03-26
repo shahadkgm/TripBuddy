@@ -58,6 +58,11 @@ const tripSchema = new Schema<ITripDocument>(
                 ref: 'User',
             },
         ],
+        guideId: {
+            type: Schema.Types.ObjectId,
+            ref: 'GuideProfile',
+            default: null,
+        },
         itinerary: [
             {
                 day: { type: Number, required: true },

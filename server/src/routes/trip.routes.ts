@@ -67,4 +67,10 @@ router.get(
     tripController.getChatHistory
 );
 
+// Assign / remove a guide from a trip
+router.patch(
+    '/:id/guide',
+    tripController.assignGuide
+);
+
 export default router;

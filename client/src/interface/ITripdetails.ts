@@ -41,6 +41,17 @@ export interface ITrip {
         avatarURL?: string;
     }[];
     itinerary?: IItineraryItem[];
+    guideId?: {
+        _id: string;
+        name: string;
+        bio: string;
+        hourlyRate: number;
+        serviceArea: string;
+        avatarURL?: string;
+        specialties: string[];
+        isVerified: boolean;
+        userId?: { name: string; email: string };
+    } | null;
     createdAt: string;
     updatedAt: string;
 }

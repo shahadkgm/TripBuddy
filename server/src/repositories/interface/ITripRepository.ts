@@ -8,4 +8,5 @@ export interface ITripRepository extends IBaseRepository<ITripDocument, CreateTr
     findAllTrips(filters: ITripFilters, page: number, limit: number): Promise<{ trips: ITripDocument[], total: number }>;
     addMember(tripId: string, userId: string): Promise<ITripDocument | null>;
     getChatHistory(tripId: string): Promise<IMessagePopulated[]>;
+    assignGuide(tripId: string, guideId: string | null): Promise<ITripDocument | null>;
 }

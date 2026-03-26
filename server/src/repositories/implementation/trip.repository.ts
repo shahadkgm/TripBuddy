@@ -26,6 +26,7 @@ export class TripRepository extends BaseRepository<ITripDocument, CreateTripDTO>
         })
             .populate('userId', 'name email avatarURL')
             .populate('members', 'name email avatarURL')
+            .populate('guideId', 'name bio hourlyRate serviceArea avatarURL specialties isVerified userId')
             .sort({ createdAt: -1 });
     }
 
@@ -33,6 +34,7 @@ export class TripRepository extends BaseRepository<ITripDocument, CreateTripDTO>
         return await this._model.findById(id)
             .populate('userId', 'name email avatarURL')
             .populate('members', 'name email avatarURL')
+            .populate('guideId', 'name bio hourlyRate serviceArea avatarURL specialties isVerified userId')
             .exec();
     }
 
@@ -87,5 +89,13 @@ export class TripRepository extends BaseRepository<ITripDocument, CreateTripDTO>
             .populate('senderId', 'name avatarURL')
             .sort({ createdAt: 1 })
             .lean() as unknown as IMessagePopulated[];
+    }
+
+    async assignGuide(tripId: string, guideId: string | null): Promise<ITripDocument | null> {
+        const update = guideId
+            ? { $set: { guideId } }
+            : { $unset: { guideId: '' } };
+        return await this._model.findByIdAndUpdate(tripId, update, { new: true })
+            .populate('guideId', 'name bio hourlyRate serviceArea avatarURL specialties isVerified userId');
     }
 }
