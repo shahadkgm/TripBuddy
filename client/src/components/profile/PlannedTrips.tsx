@@ -178,7 +178,7 @@ export const PlannedTrips: React.FC<PlannedTripsProps> = ({ userId }) => {
                                                     onClick={() => navigate('/expenses', { state: { tripId: trip._id, from: '/profile' } })}
                                                     className="flex items-center justify-center gap-2 w-full py-2.5 bg-indigo-600 text-white rounded-xl font-bold text-xs shadow-md shadow-indigo-100 hover:bg-indigo-700 transition-all"
                                                 >
-                                                    <Receipt size={14} /> Expense Split
+                                                    <Receipt size={14} /> Expense Log
                                                 </button>
                                                 <button
                                                     onClick={() => navigate(`/trip-details/${trip._id}`, { state: { from: '/profile' } })}

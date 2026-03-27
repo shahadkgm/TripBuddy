@@ -44,7 +44,7 @@ export default function HomePage() {
               className="space-y-8"
             >
               <div className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-sm font-black uppercase tracking-widest mb-4">
-                Global Travel Network
+                
               </div>
               <h1 className="text-5xl lg:text-7xl font-black text-slate-900 leading-[1.1]">
                 The Magic of the <span className="text-indigo-600">Journey</span>
@@ -57,8 +57,8 @@ export default function HomePage() {
                 {[
                   { icon: "📍", title: "Smart Planning", desc: "Detailed stop-by-stop itineraries." },
                   { icon: "👥", title: "Traveler Network", desc: "Connect with like-minded buddies." },
-                  { icon: "💰", title: "Expense Sync", desc: "Real-time group splitting." },
-                  { icon: "🌎", title: "Global Access", desc: "Guides in 50+ countries." }
+                  { icon: "💰", title: "Expense Log", desc: "Real-time group splitting." },
+                  { icon: "🌎", title: "Global Access", desc: "Guides." }
                 ].map((item, i) => (
                   <motion.div
                     key={i}

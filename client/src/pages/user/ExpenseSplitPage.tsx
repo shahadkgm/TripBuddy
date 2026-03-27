@@ -160,7 +160,7 @@ export const ExpenseSplitPage = () => {
 
                 {/* Header */}
                 <div className="text-center mb-10 pt-4">
-                    <h1 className="text-4xl font-black text-indigo-600 tracking-tight">Expense Split</h1>
+                    <h1 className="text-4xl font-black text-indigo-600 tracking-tight">Expense Log</h1>
                     <p className="text-slate-500 font-medium mt-2">Keep your trip finances crystal clear</p>
                 </div>
 
