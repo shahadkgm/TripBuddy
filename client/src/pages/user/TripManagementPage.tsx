@@ -624,16 +624,16 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                         
                                         <div className="p-8 rounded-[2rem] border-2 border-dashed border-slate-200 bg-slate-50/50 flex flex-col md:flex-row items-center justify-between gap-6">
                                             <div>
-                                                <h4 className="text-lg font-black text-slate-800 tracking-tight">Post-Trip Archive</h4>
+                                                {/* <h4 className="text-lg font-black text-slate-800 tracking-tight">Post-Trip Archive</h4> */}
                                                 <p className="text-xs text-slate-500 font-medium mt-1">Mark this trip as completed to move it to history.</p>
                                             </div>
-                                            <button 
+                                            {/* <button 
                                                 onClick={handleMarkCompleted}
                                                 disabled={isSaving}
                                                 className="px-8 py-3.5 bg-slate-800 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-slate-100 transition-all hover:bg-emerald-600 disabled:opacity-50"
                                             >
                                                 Mark Completed
-                                            </button>
+                                            </button> */}
                                         </div>
                                     </div>
                                 </div>

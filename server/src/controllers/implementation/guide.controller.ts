@@ -6,10 +6,9 @@ import { logger } from '@/utils/logger';
 import { AuthRequest } from '../../types/authRequest';
 import { S3File } from '../../types/multer-s3';
 import { asyncHandler } from '../../utils/asyncHandler';
-
+import { GuideRegisterDTO } from '../../dto/guide.dto';
 
 import { BaseController } from './base.controller';
-
 
 export class GuideController extends BaseController {
   constructor(private readonly _guideService: IGuideService) {
@@ -27,7 +26,7 @@ export class GuideController extends BaseController {
 
     const profile = await this._guideService.register(
       userId,
-      req.body,
+      req.body as GuideRegisterDTO,
       (req.file as unknown as S3File)?.location
     );
 

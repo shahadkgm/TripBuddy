@@ -234,6 +234,7 @@ export const ExpenseSplitPage = () => {
                                             <th className="px-8 py-5">Title</th>
                                             <th className="px-8 py-5">Amount</th>
                                             <th className="px-8 py-5">Paid By</th>
+                                            <th className="px-8 py-5">Split (Per Person)</th>
                                             <th className="px-8 py-5 text-right">Action</th>
                                         </tr>
                                     </thead>
@@ -254,6 +255,11 @@ export const ExpenseSplitPage = () => {
                                                         {exp.paidBy}
                                                     </span>
                                                 </td>
+                                                <td className="px-8 py-6">
+                                                    <span className="bg-slate-50 text-slate-700 px-4 py-1.5 rounded-xl text-xs font-bold border border-slate-200">
+                                                        ₹{(exp.amount / Math.max(Array.isArray(exp.splitAmong) ? exp.splitAmong.length : tripMembers.length, 1)).toFixed(2)}
+                                                    </span>
+                                                </td>
                                                 <td className="px-8 py-6 text-right">
                                                     <button
                                                         onClick={() => deleteExpense(exp._id)}
@@ -266,12 +272,27 @@ export const ExpenseSplitPage = () => {
                                         ))}
                                         {expenses.length === 0 && (
                                             <tr>
-                                                <td colSpan={4} className="text-center py-20 text-slate-400 font-medium">
+                                                <td colSpan={5} className="text-center py-20 text-slate-400 font-medium">
                                                     No expenses recorded for this trip yet.
                                                 </td>
                                             </tr>
                                         )}
                                     </tbody>
+                                    {expenses.length > 0 && (
+                                        <tfoot className="bg-slate-50 border-t border-slate-100">
+                                            <tr>
+                                                <td colSpan={3} className="px-8 py-5 text-right font-bold text-slate-500 uppercase text-[10px] tracking-widest">
+                                                    Total Per Person:
+                                                </td>
+                                                <td className="px-8 py-5">
+                                                    <span className="bg-slate-800 text-white px-4 py-1.5 rounded-xl text-sm font-bold shadow-sm">
+                                                        ₹{expenses.reduce((acc, exp) => acc + (exp.amount / Math.max(Array.isArray(exp.splitAmong) ? exp.splitAmong.length : tripMembers.length, 1)), 0).toFixed(2)}
+                                                    </span>
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                    )}
                                 </table>
                             </div>
                         )}
