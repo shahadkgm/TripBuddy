@@ -4,6 +4,8 @@ import { TripRepository } from '../repositories/implementation/trip.repository';
 import { ConnectionService } from '../services/implementation/connection.service';
 import { ConnectionController } from '../controllers/implementation/connection.controller';
 import { protect } from '../middleware/authMiddleware';
+import { dtoValidationMiddleware } from '../middleware/dtoValidation';
+import { CreateConnectionDTO } from '../dto/connection.dto';
 import { API_ROUTES } from '../constants/routes.constants';
 
 const router = Router();
@@ -16,7 +18,11 @@ const connectionController = new ConnectionController(connectionService);
 
 router.use(protect);
 
-router.post(API_ROUTES.CONNECTION.SEND, connectionController.sendRequest);
+router.post(
+    API_ROUTES.CONNECTION.SEND,
+    dtoValidationMiddleware(CreateConnectionDTO),
+    connectionController.sendRequest
+);
 router.patch(API_ROUTES.CONNECTION.ACCEPT, connectionController.acceptRequest);
 router.patch(API_ROUTES.CONNECTION.REJECT, connectionController.rejectRequest);
 router.get(API_ROUTES.CONNECTION.PENDING, connectionController.getPendingRequests);

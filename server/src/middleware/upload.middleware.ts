@@ -23,11 +23,11 @@ const fileFilter: multer.Options['fileFilter'] = (req, file, cb) => {
   const allowedExtensions = ['.jpeg', '.jpg', '.png', '.gif', '.webp', '.jfif'];
   const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
 
-  const extension = path.extname(file.originalname).toLowerCase();
+                const extension = path.extname(file.originalname).toLowerCase();
   const mimetype = file.mimetype;
 
   const isExtensionValid = allowedExtensions.includes(extension);
-  const isMimeTypeValid = allowedMimeTypes.includes(mimetype);
+           const isMimeTypeValid = allowedMimeTypes.includes(mimetype);
 
   logger.info(`File upload check: originalname="${file.originalname}", mimetype="${mimetype}", extension="${extension}", isExtensionValid=${isExtensionValid}, isMimeTypeValid=${isMimeTypeValid}`);
 

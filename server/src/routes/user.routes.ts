@@ -5,7 +5,7 @@ import { UserService } from '../services/implementation/user.service';
 import { UserController } from '../controllers/implementation/user.controller';
 import { MailService } from '../services/implementation/mail.service';
 import { dtoValidationMiddleware } from '../middleware/dtoValidation';
-import { ForgotPasswordDTO, ResetPasswordDTO } from '../dto/user.dto';
+import { ForgotPasswordDTO, ResetPasswordDTO, ChangePasswordDTO } from '../dto/user.dto';
 import { API_ROUTES } from '../constants/routes.constants';
 
 import { protect } from '../middleware/authMiddleware';
@@ -36,7 +36,11 @@ router.use(protect);
 
 router.get(API_ROUTES.USER.GET_ALL, userController.getUsers);
 router.patch(API_ROUTES.USER.EDIT_PROFILE, userController.updateProfile);
-router.post(API_ROUTES.USER.CHANGE_PASSWORD, userController.changePassword);
+router.post(
+    API_ROUTES.USER.CHANGE_PASSWORD,
+    dtoValidationMiddleware(ChangePasswordDTO),
+    userController.changePassword
+);
 router.get(API_ROUTES.USER.GET_PROFILE, userController.getUserProfile);
 
 export default router;

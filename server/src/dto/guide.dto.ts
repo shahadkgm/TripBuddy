@@ -74,11 +74,28 @@ export interface GuideStatusResponse {
   isVerified?: boolean;
 }
 
-export interface GuideQueryDTO {
+export class GuideQueryDTO {
+  @IsOptional()
+  @IsString()
   destination?: string;
-  maxPrice?: number | string;
-  page?: number | string;
-  limit?: number | string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  maxPrice?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  page?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  limit?: number;
 }
 
 export interface GuideResponseDTO {

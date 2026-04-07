@@ -39,3 +39,34 @@ export interface DashboardStatsDTO {
   totalGuides: number;
   pendingApplications: number;
 }
+
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, IsEnum } from 'class-validator';
+
+export class UpdateUserBlockDTO {
+  @IsNotEmpty({ message: 'Blocked status is required' })
+  @IsBoolean({ message: 'Blocked must be a boolean' })
+  blocked!: boolean;
+}
+
+export class ApproveKYCDTO {
+  @IsNotEmpty({ message: 'Status is required' })
+  @IsString()
+  @IsEnum(['approved', 'rejected'], { message: 'Status must be either approved or rejected' })
+  status!: string;
+
+  @IsOptional()
+  @IsString()
+  reason?: string;
+}
+
+export class UpdatePaymentStatusDTO {
+  @IsNotEmpty({ message: 'Status is required' })
+  @IsString()
+  status!: string;
+}
+
+export class UpdateTripStatusDTO {
+  @IsNotEmpty({ message: 'Status is required' })
+  @IsString()
+  status!: string;
+}

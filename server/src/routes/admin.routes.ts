@@ -6,6 +6,8 @@ import { AdminController } from '../controllers/implementation/admin.controller'
 import { PaymentRepository } from '../repositories/implementation/payment.repository';
 import { isAdmin, protect } from '../middleware/authMiddleware';
 import { API_ROUTES } from '../constants/routes.constants';
+import { dtoValidationMiddleware } from '../middleware/dtoValidation';
+import { UpdateUserBlockDTO, ApproveKYCDTO, UpdatePaymentStatusDTO, UpdateTripStatusDTO } from '../dto/admin.dto';
 
 const router = express.Router();
 
@@ -20,21 +22,21 @@ const adminController = new AdminController(adminService);
 router.use(protect, isAdmin);
 
 router.get(API_ROUTES.ADMIN.USERS, adminController.getAllUsers);
-router.patch(API_ROUTES.ADMIN.USER_BLOCK, adminController.handleBlockUser);
+router.patch(API_ROUTES.ADMIN.USER_BLOCK, dtoValidationMiddleware(UpdateUserBlockDTO), adminController.handleBlockUser);
 router.delete(API_ROUTES.ADMIN.USER_DELETE, adminController.deleteUser);
 //guide
 router.get(API_ROUTES.ADMIN.GUIDES_PENDING, adminController.getPendingGuides);
 router.patch(API_ROUTES.ADMIN.GUIDE_VERIFY, adminController.handleVerifyGuide);
 router.get(API_ROUTES.ADMIN.GUIDES_ALL, adminController.getAllGuides);
 router.delete(API_ROUTES.ADMIN.GUIDE_REJECT, protect, isAdmin, adminController.rejectGuide);
-router.patch('/kyc/:id/approve', adminController.handleApproveKYC);
+router.patch('/kyc/:id/approve', dtoValidationMiddleware(ApproveKYCDTO), adminController.handleApproveKYC);
 
 router.get(API_ROUTES.ADMIN.STATS, adminController.getDashboardStats);
 router.get(API_ROUTES.ADMIN.PAYMENTS, adminController.getAllPayments);
-router.patch('/payments/:id/status', adminController.updatePaymentStatus);
+router.patch('/payments/:id/status', dtoValidationMiddleware(UpdatePaymentStatusDTO), adminController.updatePaymentStatus);
 
 // Trips
 router.get('/trips', adminController.getAllTrips);
-router.patch('/trips/:id/status', adminController.updateTripStatus);
+router.patch('/trips/:id/status', dtoValidationMiddleware(UpdateTripStatusDTO), adminController.updateTripStatus);
 
 export default router;
