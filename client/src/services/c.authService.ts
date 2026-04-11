@@ -69,7 +69,7 @@ export const authService = {
   },
 
   async updateProfile(userId: string, updateData: UpdateProfileDTO): Promise<AuthUser> {
-    const response = await api.patch(`/api/users/edit-profile/${userId}`, updateData);
+    const response = await api.patch(`/api/users/profile/${userId}`, updateData);
     const updatedUser = response.data.data;
 
     if (updatedUser) {
@@ -82,7 +82,7 @@ export const authService = {
   },
 
   async changePassword(userId: string, data: ChangePasswordDTO) {
-    const response = await api.post(`/api/users/edit-password/${userId}`, data);
+    const response = await api.post(`/api/users/password/${userId}`, data);
     return response.data;
   },
 

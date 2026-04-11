@@ -5,7 +5,7 @@ import { ITripRepository } from '../../repositories/interface/ITripRepository';
 import { ITripService } from '../interface/ITripService';
 import { IPaymentRepository } from '../../repositories/interface/IPaymentRepository';
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
-import { IPaymentPopulatedDocument, PaymentStatus, PaymentType } from '../../types/payment.type';
+import { IPaymentPopulatedDocument, PaymentStatus } from '../../types/payment.type';
 import { logger } from '@/utils/logger';
 import mongoose from 'mongoose';
 import guideModel from '../../models/guide.model';

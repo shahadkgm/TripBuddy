@@ -64,7 +64,7 @@ export class UploadController extends BaseController {
   handleChatImageUpload = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     if (!req.file) {
       this.sendBadRequest(res, 'No file uploaded');
-      logger.info('chat image upload failed:in upload controller')
+      logger.info('chat image upload failed:in upload controller');
       return;
     }
     const s3File = req.file as Express.Multer.File & { location: string };

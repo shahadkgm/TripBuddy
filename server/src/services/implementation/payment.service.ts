@@ -15,7 +15,7 @@ export class PaymentService implements IPaymentService {
         private userRepository: IUserRepository,
         private tripService: ITripService
     ) {
-        const stripeKey = process.env.STRIPE_SECRET_KEY ||""
+        const stripeKey = process.env.STRIPE_SECRET_KEY ||'';
         this.stripe = new Stripe(stripeKey);
     }
 
@@ -28,7 +28,7 @@ export class PaymentService implements IPaymentService {
                         price_data: {
                             currency: 'inr',
                             product_data: {
-                                name: `Trip Deposit`,
+                                name: 'Trip Deposit',
                             },
                             unit_amount: Math.round(data.amount * 100),
                         },

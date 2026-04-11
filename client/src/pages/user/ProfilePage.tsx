@@ -114,7 +114,8 @@ const ProfilePage = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             await authService.updateProfile(currentUser.id, { avatarURL: res.data.data.imageUrl });
-        } catch (error) { alert("Upload failed"); }
+            toast.success("Profile photo updated successfully");
+        } catch (error) { toast.error("Upload failed"); }
         finally { setIsUploading(false); }
     };
 
