@@ -111,6 +111,42 @@ export class TripService implements ITripService {
         return cancelledTrip;
     }
 
+    async completeTrip(tripId: string, userId: string): Promise<ITripDocument> {
+        const trip = await this._tripRepository.findById(tripId) as ITripPopulatedDocument | null;
+        if (!trip) throw new Error('Trip not found');
+        
+        const ownerId = trip.userId._id.toString();
+        if (ownerId !== userId) throw new Error('Unauthorized');
+
+        if (!['confirmed', 'ongoing'].includes(trip.status)) {
+            throw new Error('Trip must be confirmed or ongoing to be completed.');
+        }
+
+        // 1. Mark trip as completed
+        const completedTrip = await this._tripRepository.updateById(tripId, { status: 'completed' });
+        if (!completedTrip) throw new Error('Failed to complete trip');
+
+        // 2. Release Escrowed funds to the Trip Organizer
+        const payments = await this._paymentRepository.findByTripId(tripId);
+        const escrowedPayments = payments.filter(p => p.status === PaymentStatus.ESCROWED);
+        
+        const totalEscrowPool = escrowedPayments.reduce((acc, curr) => acc + curr.amount, 0);
+
+        if (totalEscrowPool > 0) {
+            // Transfer entire escrow pool to the organizer's wallet
+            await this._userRepository.updateWalletBalance(ownerId, totalEscrowPool);
+
+            // Mark all those payments as RELEASED
+            for (const payment of escrowedPayments) {
+                await this._paymentRepository.updateById(payment._id.toString(), {
+                    status: PaymentStatus.RELEASED
+                });
+            }
+        }
+        
+        return completedTrip;
+    }
+
     async assignGuide(tripId: string, guideId: string | null, userId: string): Promise<ITripDocument> {
         const trip = await this._tripRepository.findById(tripId) as ITripPopulatedDocument | null;
         if (!trip) throw new Error('Trip not found');

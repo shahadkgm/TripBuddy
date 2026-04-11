@@ -35,6 +35,11 @@ router.post(
 );
 
 router.post(
+    '/:id/complete',
+    tripController.completeTrip
+);
+
+router.post(
     API_ROUTES.TRIP.CREATE,
     upload.none(), // Parse FormData fields into req.body
     dtoValidationMiddleware(CreateTripDTO),

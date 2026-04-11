@@ -80,6 +80,14 @@ export class TripController extends BaseController {
         this.sendSuccess(res, trip, 'Trip cancelled and members refunded');
     });
 
+    completeTrip = asyncHandler(async (req: AuthRequest<{ id: string }>, res: Response) => {
+        const { id } = req.params;
+        const userId = req.user?.id as string;
+        
+        const trip = await this._tripService.completeTrip(id, userId);
+        this.sendSuccess(res, trip, 'Trip successfully completed and escrow funds released.');
+    });
+
     getChatHistory = asyncHandler(async (req: Request, res: Response) => {
         const { id } = req.params;
         const chatHistory = await this._tripService.getChatHistory(id);
