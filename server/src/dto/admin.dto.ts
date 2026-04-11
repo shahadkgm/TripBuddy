@@ -38,6 +38,8 @@ export interface DashboardStatsDTO {
   totalUsers: number;
   totalGuides: number;
   pendingApplications: number;
+  totalTrips: number;
+  totalPayments: number;
 }
 
 import { IsBoolean, IsNotEmpty, IsOptional, IsString, IsEnum } from 'class-validator';

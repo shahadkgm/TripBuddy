@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { authService } from '../../services/c.authService';
 import {
   LayoutDashboard, Users, Map, MessageSquare,
-  Settings, Menu, X, ShieldCheck, LogOut, CreditCard
+  Settings, Menu, X, ShieldCheck, LogOut, CreditCard, Bell, Search
 } from 'lucide-react';
 export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -12,6 +12,17 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const handleLogout = () => {
     authService.logout();
   }
+
+  const getPageTitle = () => {
+    switch (location.pathname) {
+      case '/admin/dashboard': return 'Dashboard Overview';
+      case '/admin/users': return 'User Directory';
+      case '/admin/guides': return 'Expert Guides';
+      case '/admin/trips': return 'Platform Escapes';
+      case '/admin/payments': return 'Financial Escrow';
+      default: return 'Control Panel';
+    }
+  };
 
   const menuItems = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={20} /> },
@@ -25,62 +36,92 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   ];
 
   return (
-    <div className="bg-gray-100 min-h-screen flex">
+    <div className="bg-[#f8fafc] min-h-screen flex font-sans">
       {/* 📌 SIDEBAR */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-65 bg-[#111827] text-white p-6 shadow-2xl transition-transform duration-300
-        lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        fixed inset-y-0 left-0 z-50 w-65 bg-[#0f172a] border-r border-slate-800 p-6 shadow-xl shadow-slate-900/40 transition-transform duration-300
+        lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col
       `}>
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-[#5537ee]">
-            Travel <span className="text-white">Admin</span>
-          </h2>
-          <button className="lg:hidden text-gray-400 hover:text-white" onClick={() => setIsSidebarOpen(false)}>
+        <div className="flex items-center justify-between mb-10 pl-2">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-xl bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+              <Map className="text-white h-5 w-5" />
+            </div>
+            <h2 className="text-2xl font-black text-white tracking-tight">
+              Trip<span className="text-indigo-400">Admin</span>
+            </h2>
+          </div>
+          <button className="lg:hidden text-slate-400 hover:text-white" onClick={() => setIsSidebarOpen(false)}>
             <X size={24} />
           </button>
         </div>
 
-        <nav className="space-y-2">
-          {menuItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex items-center space-x-3 p-3 rounded-xl transition duration-200 ${location.pathname === item.path
-                ? 'bg-[#5537ee] text-white shadow-md'
-                : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+        <nav className="space-y-1.5 flex-1">
+          {menuItems.map((item) => {
+            const isActive = location.pathname.startsWith(item.path);
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center space-x-3 px-4 py-3.5 rounded-2xl transition-all duration-300 font-semibold text-sm ${
+                  isActive
+                    ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 translate-x-1'
+                    : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
                 }`}
-            >
-              {item.icon}
-              <span className="font-medium">{item.name}</span>
-            </Link>
-          ))}
+              >
+                <div className={`${isActive ? 'text-indigo-400' : 'text-slate-500'}`}>
+                  {item.icon}
+                </div>
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
         </nav>
+
+        {/* Sidebar Footer User Info */}
+        <div className="mt-8 bg-slate-800/50 rounded-2xl p-4 border border-slate-700/50 flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0 border border-indigo-500/30">
+            <span className="text-indigo-400 font-bold">SH</span>
+          </div>
+          <div className="overflow-hidden">
+            <p className="text-sm font-bold text-slate-200 truncate">Shahad</p>
+            <p className="text-xs text-slate-500 truncate">Super Admin</p>
+          </div>
+        </div>
       </aside>
 
       {/* 📌 MAIN CONTENT */}
-      <div className="flex-1 lg:ml-65 min-h-screen flex flex-col">
+      <div className="flex-1 lg:ml-65 min-h-screen flex flex-col max-w-full overflow-hidden">
         {/* Header */}
-        <header className="bg-white p-4 lg:p-6 shadow-sm flex justify-between items-center m-5 lg:m-8 rounded-2xl">
-          <div className="flex items-center">
-            <button className="lg:hidden mr-4 text-gray-700 hover:text-[#5537ee]" onClick={() => setIsSidebarOpen(true)}>
-              <Menu size={28} />
-            </button>
-            <h1 className="text-xl lg:text-2xl font-bold text-[#1e293b]">Dashboard Overview</h1>
-          </div>
+        <header className="bg-white/80 backdrop-blur-md p-4 lg:py-5 lg:px-8 flex justify-between items-center m-4 lg:m-8 lg:mb-8 rounded-3xl shadow-sm border border-slate-100 sticky top-4 z-40">
           <div className="flex items-center gap-4">
-            <div className="hidden sm:block text-sm text-gray-500 bg-[#f0f9ff] py-1.5 px-4 rounded-full">
-              Admin: <span className="font-semibold text-[#5537ee]">Shahad</span> | Role: <span className="font-medium">Super Admin</span>
+            <button className="lg:hidden text-slate-500 hover:text-indigo-600 transition-colors" onClick={() => setIsSidebarOpen(true)}>
+              <Menu size={24} />
+            </button>
+            <div>
+              <h1 className="text-2xl font-black text-slate-800 tracking-tight">{getPageTitle()}</h1>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest hidden sm:block mt-0.5">Admin Control Center</p>
             </div>
+          </div>
+          <div className="flex items-center gap-5">
+            <div className="hidden md:flex items-center justify-center p-2.5 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 transition-colors cursor-pointer border border-slate-100">
+              <Search size={18} strokeWidth={2.5} />
+            </div>
+            <div className="relative flex items-center justify-center p-2.5 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 transition-colors cursor-pointer border border-slate-100">
+              <Bell size={18} strokeWidth={2.5} />
+              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-rose-500 animate-pulse border-2 border-white"></span>
+            </div>
+            
+            <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block"></div>
 
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-xl hover:bg-red-100 transition font-medium"
+              className="flex items-center justify-center p-2.5 lg:px-5 lg:py-2.5 lg:gap-2.5 bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white rounded-full lg:rounded-xl font-bold transition-all shadow-sm group"
             >
-              <LogOut size={18} />
-              Logout
+              <LogOut size={18} className="group-hover:-translate-x-1 transition-transform" strokeWidth={2.5}/>
+              <span className="hidden lg:block text-sm">Sign Out</span>
             </button>
           </div>
-
         </header>
 
         {/* Page Content */}

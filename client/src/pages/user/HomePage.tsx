@@ -28,7 +28,7 @@ export default function HomePage() {
       <Background />
       <Navbar />
 
-      <main className="grow">
+      <main className="grow mt-16 lg:mt-24">
 
 
         {/* 2. Enhanced Hero / Globe Section */}
