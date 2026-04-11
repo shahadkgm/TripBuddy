@@ -18,7 +18,7 @@ export class GalleryController extends BaseController {
         this.sendSuccess(res, { imageUrl: s3File.location });
     });
 
-    createPost = asyncHandler(async (req: AuthRequest, res: Response) => {
+    createPost = asyncHandler(async (req: AuthRequest<Record<string, string>, unknown, { image: string; caption?: string; tripName?: string }>, res: Response) => {
         const userId = req.user?.id;
         logger.info(`userId from p-c ${userId}`);
         const { image, caption, tripName } = req.body;

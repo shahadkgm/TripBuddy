@@ -11,7 +11,7 @@ export class ConnectionController extends BaseController {
         super();
     }
 
-    sendRequest = asyncHandler(async (req: AuthRequest, res: Response) => {
+    sendRequest = asyncHandler(async (req: AuthRequest<Record<string, string>, unknown, { receiverId: string; tripId: string }>, res: Response) => {
         const senderId = req.user?.id;
         const { receiverId, tripId } = req.body;
 
@@ -51,7 +51,7 @@ export class ConnectionController extends BaseController {
         this.sendSuccess(res, requests, 'Pending requests fetched successfully');
     });
 
-    getSentRequests = asyncHandler(async (req: AuthRequest, res: Response) => {
+    getSentRequests = asyncHandler(async (req: AuthRequest<Record<string, string>, unknown, unknown, { page?: string; limit?: string }>, res: Response) => {
         const userId = req.user?.id;
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
@@ -64,7 +64,7 @@ export class ConnectionController extends BaseController {
         this.sendSuccess(res, data, 'Sent requests fetched successfully');
     });
 
-    getConnectionStatus = asyncHandler(async (req: AuthRequest, res: Response) => {
+    getConnectionStatus = asyncHandler(async (req: AuthRequest<Record<string, string>, unknown, unknown, { receiverId: string; tripId: string }>, res: Response) => {
 
         const senderId = req.user?.id;
         const { receiverId, tripId } = req.query;
