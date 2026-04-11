@@ -236,7 +236,7 @@ const GroupChatPage = () => {
         if (!id) return;
         try {
             setIsFinalizing(true);
-            const response = await api.post(`/api/trips/${id}/finalize`, finalizeData);
+            const response = await api.post(`/api/plantrips/${id}/finalize`, finalizeData);
             if (response.data.success) {
                 setTrip(response.data.data);
                 setShowFinalizeModal(false);

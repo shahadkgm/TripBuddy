@@ -1,9 +1,9 @@
 import { IsString, IsNotEmpty, IsOptional, IsEnum } from 'class-validator';
 
 export class CreateConnectionDTO {
+    @IsOptional()
     @IsString()
-    @IsNotEmpty()
-    senderId!: string;
+    senderId?: string;
 
     @IsString()
     @IsNotEmpty()

@@ -143,7 +143,7 @@ const FindTravelers = () => {
             </button>
             <button
               onClick={handleApplyFilters}
-              className="flex-1 md:flex-none px-8 py-4 md:py-5 bg-tb-purple text-white font-bold rounded-2xl shadow-lg shadow-purple-100 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+              className="flex-1 md:flex-none px-8 py-4 md:py-5 bg-tb-purple  font-bold rounded-2xl shadow-lg shadow-purple-100 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               <Search className="w-5 h-5" />
               Search
