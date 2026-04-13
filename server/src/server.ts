@@ -67,12 +67,16 @@ app.use(API_ROUTES.PAYMENT.BASE, paymentRoutes);
 
 
 
-// --- Error Handler (MUST BE LAST) ---
+import { startCronJobs } from './jobs/trip.cron';
+
 app.use(errorMiddleware);
 
 // --- Start Server ---
 connectDB()
     .then(() => {
+        //where cron jobs are initialized 
+        startCronJobs();
+
         httpServer.listen(PORT, () => {
             console.log(`Server listening on http://localhost:${PORT}`);
         });

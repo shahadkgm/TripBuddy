@@ -81,6 +81,64 @@ export class TripService implements ITripService {
         return trip;
     }
 
+    async leaveTrip(tripId: string, userId: string): Promise<ITripDocument> {
+        const trip = await this._tripRepository.findById(tripId);
+        if (!trip) throw new Error('Trip not found');
+        
+        // Organizer cannot leave the trip, they must cancel it entirely
+        if (trip.userId.toString() === userId) {
+            throw new Error('Organizer cannot leave the trip. You must cancel the entire trip.');
+        }
+
+        const isMember = trip.members.some(m => m.toString() === userId);
+        if (!isMember) throw new Error('You are not a member of this trip');
+
+        if (['completed', 'cancelled'].includes(trip.status)) {
+            throw new Error('Cannot leave a trip that is already completed or cancelled.');
+        }
+
+        const payments = await this._paymentRepository.findByUserAndTrip(userId, tripId);
+        const escrowedPayment = payments.find(p => p.status === PaymentStatus.ESCROWED);
+        
+        if (!escrowedPayment) {
+            throw new Error('No escrowed payment found. Cannot process refund.');
+        }
+
+        const msPerDay = 1000 * 60 * 60 * 24;
+        const daysTillTrip = (new Date(trip.startDate).getTime() - new Date().getTime()) / msPerDay;
+        
+        let deductionRate = 0;
+        if (daysTillTrip < 3) {
+            deductionRate = 0.3; 
+        } else if (daysTillTrip <= 7) {
+            deductionRate = 0.1; 
+        }
+
+        const cancellationFee = Number((escrowedPayment.amount * deductionRate).toFixed(2));
+        const refundAmount = Number((escrowedPayment.amount - cancellationFee).toFixed(2));
+
+        const newMembers = trip.members.filter(m => m.toString() !== userId);
+        const newPoolBalance = (trip.poolBalance || 0) + cancellationFee;
+
+        const updatedTrip = await this._tripRepository.updateById(tripId, { 
+            members: newMembers,
+            poolBalance: newPoolBalance
+        });
+
+        if (!updatedTrip) throw new Error('Failed to update trip when leaving');
+
+        if (refundAmount > 0) {
+            await this._userRepository.updateWalletBalance(userId, refundAmount);
+        }
+
+        await this._paymentRepository.updateById(escrowedPayment._id.toString(), {
+            status: PaymentStatus.REFUNDED,
+            refundReason: `User left trip. Refund: ${refundAmount}. Cancel Fee: ${cancellationFee}`
+        });
+
+        return updatedTrip;
+    }
+
     async cancelTrip(tripId: string, userId: string): Promise<ITripDocument> {
         const trip = await this._tripRepository.findById(tripId) as ITripPopulatedDocument | null;
         if (!trip) throw new Error('Trip not found');
@@ -122,8 +180,9 @@ export class TripService implements ITripService {
             throw new Error('Trip must be confirmed or ongoing to be completed.');
         }
 
-        // 1. Mark trip as completed
-        const completedTrip = await this._tripRepository.updateById(tripId, { status: 'completed' });
+        // 1. Mark trip as completed and wipe pool balance
+        const initialPoolBalance = trip.poolBalance || 0;
+        const completedTrip = await this._tripRepository.updateById(tripId, { status: 'completed', poolBalance: 0 });
         if (!completedTrip) throw new Error('Failed to complete trip');
 
         // 2. Release Escrowed funds to the Trip Organizer
@@ -141,6 +200,14 @@ export class TripService implements ITripService {
                 await this._paymentRepository.updateById(payment._id.toString(), {
                     status: PaymentStatus.RELEASED
                 });
+            }
+        }
+
+        // 3. Post-Trip Payout: Distribute trip pool balance to the remaining users equitably!
+        if (initialPoolBalance > 0 && trip.members.length > 0) {
+            const splitAmount = Number((initialPoolBalance / trip.members.length).toFixed(2));
+            for (const member of trip.members) {
+                 await this._userRepository.updateWalletBalance(member._id.toString(), splitAmount);
             }
         }
         

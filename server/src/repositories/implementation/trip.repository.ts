@@ -41,7 +41,8 @@ export class TripRepository extends BaseRepository<ITripDocument, CreateTripDTO>
     async findAllTrips(filters: ITripFilters, page: number, limit: number): Promise<{ trips: ITripDocument[], total: number }> {
         const skip = (page - 1) * limit;
         const query: FilterQuery<ITripDocument> = {
-            status: 'planned' // Only show planned trips for joining
+            status: 'planned', // Only show planned trips for joining
+            joinDeadline: { $gt: new Date() } // Ensure the deadline hasn't passed!
         };
         
         if (filters.destination) query.destination = { $regex: filters.destination, $options: 'i' };

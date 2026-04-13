@@ -1,0 +1,52 @@
+import cron from 'node-cron';
+import { TripModel } from '../models/trip.model';
+import { PaymentModel } from '../models/payment.model';
+import { PaymentStatus } from '../types/payment.type';
+import { TripRepository } from '../repositories/implementation/trip.repository';
+import { PaymentRepository } from '../repositories/implementation/payment.repository';
+import { UserRepository } from '../repositories/implementation/user.repository';
+import { logger } from '@/utils/logger';
+
+const tripRepository = new TripRepository();
+const paymentRepository = new PaymentRepository();
+const userRepository = new UserRepository();
+
+export const startCronJobs = () => {
+    // Run every hour to check for expired deadlines
+    cron.schedule('0 * * * *', async () => {
+        try {
+            logger.info('Running Trip Auto-Cancellation Cron Job...');
+            const now = new Date();
+            
+            // Find trips where the join deadline has passed, and they are still stuck in planned/finalized
+            const pendingTrips = await TripModel.find({
+                joinDeadline: { $lt: now },
+                status: { $in: ['planned', 'finalized'] }
+            });
+
+            for (const trip of pendingTrips) {
+                // Check if they met the minimum members requirement
+                const payments = await PaymentModel.find({ tripId: trip._id, status: PaymentStatus.ESCROWED });
+                
+                // If didn't reach the target
+                if (payments.length < trip.minMembers) {
+                    logger.info(`Auto-cancelling trip ${trip._id} - failed to reach min members before deadline.`);
+                    
+                    // Direct 100% refund for all remaining members who placed an escrow
+                    for (const payment of payments) {
+                        await userRepository.updateWalletBalance(payment.userId.toString(), payment.amount);
+                        await paymentRepository.updateById(payment._id.toString(), {
+                            status: PaymentStatus.REFUNDED,
+                            refundReason: 'Auto-refund: Trip failed to reach minimum members by the required join deadline.'
+                        });
+                    }
+
+                    // Safely cancel trip globally
+                    await tripRepository.updateById(trip._id.toString(), { status: 'cancelled' });
+                }
+            }
+        } catch (error) {
+            logger.error('Error running trip cron jobs:', error);
+        }
+    });
+};

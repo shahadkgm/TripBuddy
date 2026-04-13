@@ -77,6 +77,18 @@ const tripSchema = new Schema<ITripDocument>(
                 ],
             },
         ],
+        joinDeadline: {
+            type: Date,
+            default: function(this: ITripDocument) {
+                // Default to 7 days before startDate if not provided
+                const daysBefore = 7 * 24 * 60 * 60 * 1000;
+                return new Date(this.startDate.getTime() - daysBefore);
+            }
+        },
+        poolBalance: {
+            type: Number,
+            default: 0,
+        },
     },
     {
         timestamps: true,

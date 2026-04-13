@@ -21,6 +21,13 @@ export class PaymentService implements IPaymentService {
 
     async createStripeSession(userId: string, data: CreateStripeSessionDTO): Promise<{ id: string, url: string }> {
         try {
+            const trip = await this.tripService.getTripById(data.tripId);
+            if (!trip) throw new Error('Trip not found');
+
+            if (new Date() > new Date(trip.joinDeadline)) {
+                throw new Error('Join deadline has passed. This trip is no longer accepting new members.');
+            }
+
             const session = await this.stripe.checkout.sessions.create({
                 // Let Stripe Dashboard automatically handle all active payment methods
                 line_items: [
@@ -80,7 +87,13 @@ export class PaymentService implements IPaymentService {
 
     async payDeposit(userId: string, data: CreatePaymentDTO): Promise<IPaymentDocument> {
         //  integrate Razorpay,or stripe this time only message 
-        
+        const trip = await this.tripService.getTripById(data.tripId);
+        if (!trip) throw new Error('Trip not found');
+
+        if (new Date() > new Date(trip.joinDeadline)) {
+            throw new Error('Join deadline has passed.');
+        }
+
         return await this.paymentRepository.create({
             userId: new mongoose.Types.ObjectId(userId),
             tripId: new mongoose.Types.ObjectId(data.tripId),
@@ -95,6 +108,13 @@ export class PaymentService implements IPaymentService {
         const user = await this.userRepository.findById(userId);
         if (!user) {
             throw new Error('User not found');
+        }
+
+        const trip = await this.tripService.getTripById(data.tripId);
+        if (!trip) throw new Error('Trip not found');
+
+        if (new Date() > new Date(trip.joinDeadline)) {
+            throw new Error('Join deadline has passed. This trip is no longer accepting new members.');
         }
 
         if (user.walletBalance < data.amount) {

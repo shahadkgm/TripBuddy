@@ -67,6 +67,10 @@ export class CreateTripDTO {
     endDate!: string;
 
     @IsOptional()
+    @IsDateString()
+    joinDeadline?: string;
+
+    @IsOptional()
     @Transform(({ value }) => {
         if (value === '' || value === null || value === undefined) return undefined;
         return Number(value);

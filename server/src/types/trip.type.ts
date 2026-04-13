@@ -33,6 +33,8 @@ export interface ITrip {
     members: Types.ObjectId[];
     guideId?: Types.ObjectId | null;
     itinerary?: IItineraryItem[];
+    joinDeadline: Date;
+    poolBalance: number;
     createdAt: Date;
     updatedAt: Date;
 }

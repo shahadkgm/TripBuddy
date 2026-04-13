@@ -80,6 +80,14 @@ export class TripController extends BaseController {
         this.sendSuccess(res, trip, 'Trip cancelled and members refunded');
     });
 
+    leaveTrip = asyncHandler(async (req: AuthRequest<{ id: string }>, res: Response) => {
+        const { id } = req.params;
+        const userId = req.user?.id as string;
+        
+        const trip = await this._tripService.leaveTrip(id, userId);
+        this.sendSuccess(res, trip, 'You have left the trip. Necessary cancellation fee deductions were processed.');
+    });
+
     completeTrip = asyncHandler(async (req: AuthRequest<{ id: string }>, res: Response) => {
         const { id } = req.params;
         const userId = req.user?.id as string;

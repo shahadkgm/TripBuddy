@@ -40,6 +40,11 @@ router.post(
 );
 
 router.post(
+    '/:id/leave',
+    tripController.leaveTrip
+);
+
+router.post(
     API_ROUTES.TRIP.CREATE,
     upload.none(), // Parse FormData fields into req.body
     dtoValidationMiddleware(CreateTripDTO),
