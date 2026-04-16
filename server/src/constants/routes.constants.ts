@@ -98,5 +98,12 @@ export const API_ROUTES = {
     REVIEW: {
         BASE: '/api/reviews',
         ADD: '/',
+    },
+    GUIDE_INVITATION: {
+        BASE: '/api/guide-invitations',
+        SEND: '/send',
+        RESPOND: '/respond',
+        INBOUND: '/inbound',
+        OUTBOUND: '/outbound',
     }
 };

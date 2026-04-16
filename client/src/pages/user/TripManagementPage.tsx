@@ -271,7 +271,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
             </div>
 
             {/* Expiry Warning */}
-            {trip && new Date(trip.startDate) < new Date() && trip.status !== 'confirmed' && trip.status !== 'completed' && (
+            {trip && new Date(new Date(trip.startDate).getTime() + 3 * 24 * 60 * 60 * 1000) < new Date() && trip.status !== 'confirmed' && trip.status !== 'completed' && (
                 <div className="bg-rose-50 border-b border-rose-100 px-6 py-3">
                     <div className="max-w-6xl mx-auto flex items-center justify-between">
                         <div className="flex items-center gap-3 text-rose-600">
@@ -455,7 +455,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                                         className="w-14 h-14 rounded-2xl object-cover shadow-md" 
                                                         alt="" 
                                                     />
-                                                    {member._id === trip.userId._id && (
+                                                    {member._id === (typeof trip.userId === 'string' ? trip.userId : trip.userId._id) && (
                                                         <div className="absolute -top-2 -right-2 bg-indigo-600 text-white p-1 rounded-lg border-2 border-white">
                                                             <ShieldCheck size={12} />
                                                         </div>

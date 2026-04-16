@@ -369,7 +369,8 @@ const GroupChatPage = () => {
 
     if (!trip) return null;
 
-    const isOwner = currentUser?.id === trip?.userId._id;
+    const organizerId = typeof trip.userId === 'string' ? trip.userId : trip.userId?._id;
+    const isOwner = currentUser?.id === organizerId;
 
     return (
         <div className="h-screen bg-slate-100 flex flex-col font-sans overflow-hidden">
@@ -405,7 +406,7 @@ const GroupChatPage = () => {
                             </button>
                         )}
                         {/* Trip Status Badge */}
-                        {(new Date(trip?.startDate || '') < new Date() && trip?.status !== 'confirmed' && trip?.status !== 'completed' && trip?.status !== 'cancelled') && (
+                        {(new Date(new Date(trip?.startDate || '').getTime() + 3 * 24 * 60 * 60 * 1000) < new Date() && trip?.status !== 'confirmed' && trip?.status !== 'completed' && trip?.status !== 'cancelled') && (
                             <div className="px-4 py-2 bg-rose-50 text-rose-600 border border-rose-100 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2">
                                 <AlertCircle size={14} /> EXPIRED
                             </div>
@@ -690,7 +691,7 @@ const GroupChatPage = () => {
                                     <img src={member.avatarURL || `https://ui-avatars.com/api/?name=${member.name}`} alt="" className="w-10 h-10 rounded-full object-cover shadow-sm" />
                                     <div className="flex-1 min-w-0">
                                         <h3 className="text-sm font-bold text-slate-900 truncate">{member.name}</h3>
-                                        <p className="text-[10px] text-slate-500 font-black uppercase">{member._id === trip.userId._id ? 'Admin' : 'Member'}</p>
+                                        <p className="text-[10px] text-slate-500 font-black uppercase">{member._id === (typeof trip.userId === 'string' ? trip.userId : trip.userId?._id) ? 'Admin' : 'Member'}</p>
                                     </div>
                                 </div>
                             ))}
@@ -936,7 +937,7 @@ const GroupChatPage = () => {
                 <ReviewModal 
                     tripId={trip._id}
                     target={reviewTarget}
-                    targetName={reviewTarget === 'organizer' ? trip.userId?.name : trip.guideId?.name}
+                    targetName={reviewTarget === 'organizer' ? (typeof trip.userId !== 'string' ? trip.userId.name : 'Organizer') : trip.guideId?.name}
                     onClose={() => setShowReviewModal(false)}
                     onSuccess={() => {}}
                 />

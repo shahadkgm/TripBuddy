@@ -9,9 +9,10 @@ export const tripService = {
         return response.data.data;
     },
 
-    async createTrip(data: FormData): Promise<ITrip> {
+    async createTrip(data: Partial<ITrip> | FormData): Promise<ITrip> {
+        const headers = data instanceof FormData ? { "Content-Type": "multipart/form-data" } : {};
         const response = await api.post<ApiResponse<ITrip>>("/api/plantrips", data, {
-            headers: { "Content-Type": "multipart/form-data" },
+            headers
         });
         return response.data.data;
     },

@@ -18,9 +18,13 @@ export const startCronJobs = () => {
             logger.info('Running Trip Auto-Cancellation Cron Job...');
             const now = new Date();
             
-            // Find trips where the join deadline has passed, and they are still stuck in planned/finalized
+            // Find trips where the deadline (startDate) has passed by more than 3 days
+            // and they are still stuck in planned/finalized
+            const gracePeriod = 3 * 24 * 60 * 60 * 1000;
+            const expiryDate = new Date(now.getTime() - gracePeriod);
+            
             const pendingTrips = await TripModel.find({
-                joinDeadline: { $lt: now },
+                joinDeadline: { $lt: expiryDate },
                 status: { $in: ['planned', 'finalized'] }
             });
 

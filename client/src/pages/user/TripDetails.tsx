@@ -36,8 +36,10 @@ const TripDetails = () => {
                 const data = await tripService.getTripById(id);
                 setTrip(data);
 
-                if (currentUser?.id && data.userId._id !== currentUser.id) {
-                    const resStatus = await connectionService.getStatus(data.userId._id, data._id);
+                const tripOrganizerId = typeof data.userId === 'string' ? data.userId : data.userId._id;
+
+                if (currentUser?.id && tripOrganizerId !== currentUser.id) {
+                    const resStatus = await connectionService.getStatus(tripOrganizerId, data._id);
                     setStatus(resStatus || 'none');
                     
                     if (resStatus === 'accepted') {
@@ -68,8 +70,8 @@ const TripDetails = () => {
         if (!trip) return;
 
         try {
-            setStatus('loading');
-            await connectionService.sendRequest(trip.userId._id, trip._id);
+            const tripOrganizerId = typeof trip.userId === 'string' ? trip.userId : trip.userId._id;
+            await connectionService.sendRequest(tripOrganizerId, trip._id);
             setStatus('pending');
             toast.success("Connection request sent!");
         } catch (error) {
@@ -113,7 +115,7 @@ const TripDetails = () => {
         );
     }
 
-    const isOwnTrip = currentUser?.id === trip.userId._id;
+    const isOwnTrip = currentUser?.id === (typeof trip.userId === 'string' ? trip.userId : trip.userId._id);
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans">
@@ -140,13 +142,13 @@ const TripDetails = () => {
                 <div className="flex flex-col md:flex-row gap-8 mb-10">
                     <div className="relative shrink-0">
                         <img
-                            src={trip.userId.avatarURL || `https://i.pravatar.cc/300?u=${trip.userId._id}`}
+                            src={typeof trip.userId !== 'string' ? (trip.userId.avatarURL || `https://i.pravatar.cc/300?u=${trip.userId._id}`) : `https://i.pravatar.cc/300?u=${trip.userId}`}
                             className="w-32 h-32 md:w-40 md:h-40 rounded-[2.5rem] object-cover border-4 border-indigo-50 shadow-md"
-                            alt={trip.userId.name}
+                            alt={typeof trip.userId !== 'string' ? trip.userId.name : 'Organizer'}
                         />
                     </div>
                     <div className="flex flex-col justify-center">
-                        <h1 className="text-3xl font-black text-slate-900 mb-2">{trip.userId.name}</h1>
+                        <h1 className="text-3xl font-black text-slate-900 mb-2">{typeof trip.userId !== 'string' ? trip.userId.name : 'Unknown Organizer'}</h1>
                         <p className="text-slate-500 font-bold mb-4">Age: 23</p>
                         <div className="space-y-2">
                             <p className="text-slate-700 font-bold flex items-center gap-2 text-lg">

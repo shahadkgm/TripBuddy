@@ -30,19 +30,19 @@ export interface IGuide {
 
 export interface ITrip {
     _id: string;
-    userId: {
+    userId: string | {
         _id: string;
         name: string;
         email: string;
         avatarURL?: string;
-        avatar?: string; // Standardize this
+        avatar?: string;
         role: string;
         bio?: string;
     };
     title: string;
     destination: string;
-    startDate: string;
-    endDate: string;
+    startDate: string | Date;
+    endDate: string | Date;
     budget: number;
     description?: string;
     preferences: {
