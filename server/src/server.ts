@@ -15,6 +15,7 @@ import tripRoutes from './routes/trip.routes';
 import connectionRoutes from './routes/connection.routes';
 import expenseRoutes from './routes/expense.routes';
 import galleryRoutes from './routes/gallery.routes';
+import reviewRoutes from './routes/review.routes';
 
 
 import aiRoutes from './routes/ai.routes';
@@ -64,6 +65,7 @@ app.use(API_ROUTES.EXPENSE.BASE, expenseRoutes);
 app.use(API_ROUTES.GALLERY.BASE, galleryRoutes);
 app.use(API_ROUTES.AI.BASE, aiRoutes);
 app.use(API_ROUTES.PAYMENT.BASE, paymentRoutes);
+app.use(API_ROUTES.REVIEW.BASE, reviewRoutes);
 
 
 

@@ -23,6 +23,12 @@ export class UserMapper {
       kycDocument: user.kyc?.filePath ? user.kyc.filePath.replace(/\\/g, '/') : '',
       kycRejectionReason: user.kyc?.rejectionReason || null,
       walletBalance: user.walletBalance || 0,
+      guideProfile: (user as any).guideProfile ? {
+        _id: (user as any).guideProfile._id.toString(),
+        hourlyRate: (user as any).guideProfile.hourlyRate,
+        serviceArea: (user as any).guideProfile.serviceArea,
+        bio: (user as any).guideProfile.bio,
+      } : null,
     };
   }
 }

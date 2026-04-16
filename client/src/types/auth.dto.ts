@@ -24,6 +24,15 @@ export interface AuthUser {
   bio?: string;
   avatarURL?: string;
   walletBalance?: number;
+    guideProfile?: {
+      _id: string;
+      hourlyRate: number;
+      serviceArea?: string;
+      bio?: string;
+      yearsOfExperience?: number;
+      specialties?: string[];
+      avatarURL?: string;
+    };
 }
 
 export interface AuthTokens {

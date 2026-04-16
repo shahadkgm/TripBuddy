@@ -21,8 +21,12 @@ export class TripController extends BaseController {
 
     getUserTrips = asyncHandler(async (req: Request, res: Response) => {
         const { userId } = req.params;
-        const trips = await this._tripService.getUserTrips(userId);
-        this.sendSuccess(res, trips, 'User trips fetched successfully');
+        const { page, limit } = req.query;
+        const pageNum = parseInt(page as string) || 1;
+        const limitNum = parseInt(limit as string) || 10;
+
+        const result = await this._tripService.getUserTrips(userId, pageNum, limitNum);
+        this.sendSuccess(res, result, 'User trips fetched successfully');
     });
 
     getTripById = asyncHandler(async (req: Request, res: Response) => {
@@ -98,7 +102,11 @@ export class TripController extends BaseController {
 
     getChatHistory = asyncHandler(async (req: Request, res: Response) => {
         const { id } = req.params;
-        const chatHistory = await this._tripService.getChatHistory(id);
+        const { page, limit } = req.query;
+        const pageNum = parseInt(page as string) || 1;
+        const limitNum = parseInt(limit as string) || 50; // History usually loads more
+
+        const chatHistory = await this._tripService.getChatHistory(id, pageNum, limitNum);
         this.sendSuccess(res, chatHistory, 'Chat history fetched successfully');
     });
 
@@ -109,5 +117,15 @@ export class TripController extends BaseController {
 
         const updatedTrip = await this._tripService.assignGuide(id, guideId ?? null, userId);
         this.sendSuccess(res, updatedTrip, guideId ? 'Guide assigned successfully' : 'Guide removed successfully');
+    });
+
+    getGuideTrips = asyncHandler(async (req: Request, res: Response) => {
+        const { guideId } = req.params;
+        const { page, limit } = req.query;
+        const pageNum = parseInt(page as string) || 1;
+        const limitNum = parseInt(limit as string) || 10;
+
+        const result = await this._tripService.getGuideTrips(guideId, pageNum, limitNum);
+        this.sendSuccess(res, result, 'Guide trips fetched successfully');
     });
 }

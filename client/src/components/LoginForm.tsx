@@ -3,7 +3,9 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast'; // Added toast but it have problem i want to recheck this 
 import { authService } from '../services/c.authService';
-import { Button } from './Button';
+import { Button } from './Button'
+import { GoogleLogin } from '@react-oauth/google';
+;
 
 export const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -68,6 +70,18 @@ export const LoginForm = () => {
       setIsLoading(false);
     }
   };
+   const handleGoogleSuccess = async (credentialResponse: any) => {
+    setIsLoading(true);
+    try {
+      await authService.googleLogin(credentialResponse.credential);
+      toast.success("Google Login Successful!");
+      navigate("/");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Google Login failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="w-full max-w-md">
@@ -116,6 +130,17 @@ export const LoginForm = () => {
           {isLoading ? "Signing in..." : "Login"}
         </Button>
       </form>
+      
+      <div className="w-full flex justify-center  h-1.50 mt-6">
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={() => toast.error("Google Login Failed")}
+          useOneTap
+          theme="outline"
+          shape="pill"
+          width="350"
+        />
+      </div>
     </div>
   );
 };

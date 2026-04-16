@@ -71,6 +71,12 @@ export interface UserResponseDTO {
   kycDocument?: string;
   kycRejectionReason?: string | null;
   walletBalance: number;
+  guideProfile?: {
+    _id: string;
+    hourlyRate: number;
+    serviceArea: string;
+    bio: string;
+  } | null;
 }
 
 export interface RegisterUserResponseDTO {

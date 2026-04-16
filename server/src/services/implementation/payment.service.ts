@@ -24,7 +24,12 @@ export class PaymentService implements IPaymentService {
             const trip = await this.tripService.getTripById(data.tripId);
             if (!trip) throw new Error('Trip not found');
 
-            if (new Date() > new Date(trip.joinDeadline)) {
+            const now = new Date();
+            const joinDeadline = new Date(trip.joinDeadline);
+            const startDate = new Date(trip.startDate);
+            const absoluteCutoff = new Date(startDate.getTime() - (8 * 60 * 60 * 1000)); // 8 hours before start
+
+            if (now > joinDeadline && now > absoluteCutoff) {
                 throw new Error('Join deadline has passed. This trip is no longer accepting new members.');
             }
 
@@ -90,7 +95,12 @@ export class PaymentService implements IPaymentService {
         const trip = await this.tripService.getTripById(data.tripId);
         if (!trip) throw new Error('Trip not found');
 
-        if (new Date() > new Date(trip.joinDeadline)) {
+        const now = new Date();
+        const joinDeadline = new Date(trip.joinDeadline);
+        const startDate = new Date(trip.startDate);
+        const absoluteCutoff = new Date(startDate.getTime() - (8 * 60 * 60 * 1000));
+
+        if (now > joinDeadline && now > absoluteCutoff) {
             throw new Error('Join deadline has passed.');
         }
 
@@ -113,7 +123,12 @@ export class PaymentService implements IPaymentService {
         const trip = await this.tripService.getTripById(data.tripId);
         if (!trip) throw new Error('Trip not found');
 
-        if (new Date() > new Date(trip.joinDeadline)) {
+        const now = new Date();
+        const joinDeadline = new Date(trip.joinDeadline);
+        const startDate = new Date(trip.startDate);
+        const absoluteCutoff = new Date(startDate.getTime() - (8 * 60 * 60 * 1000));
+
+        if (now > joinDeadline && now > absoluteCutoff) {
             throw new Error('Join deadline has passed. This trip is no longer accepting new members.');
         }
 

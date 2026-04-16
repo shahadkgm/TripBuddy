@@ -76,8 +76,19 @@ const userSchema = new Schema<IUser>(
     passwordResetToken: String,
     passwordResetExpires: Date,
   },
-  { timestamps: true }
+  { 
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+  }
 );
+
+userSchema.virtual('guideProfile', {
+  ref: 'GuideProfile',
+  localField: '_id',
+  foreignField: 'userId',
+  justOne: true
+});
 
 import { IUser } from '../types/user.type';
 

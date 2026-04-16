@@ -47,6 +47,7 @@ export const API_ROUTES = {
         REGISTER: '/register',
         STATUS: '/status/:userId',
         GET_ALL: '/all',
+        UPDATE: '/profile',
     },
 
     TRIP: {
@@ -93,5 +94,9 @@ export const API_ROUTES = {
         MY_PAYMENTS: '/my-payments/:tripId',
         TRIP_PAYMENTS: '/trip-payments/:tripId',
         USER_PAYMENTS: '/user-payments',
+    },
+    REVIEW: {
+        BASE: '/api/reviews',
+        ADD: '/',
     }
 };

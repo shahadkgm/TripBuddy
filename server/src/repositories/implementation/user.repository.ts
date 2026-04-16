@@ -14,7 +14,7 @@ export class UserRepository extends BaseRepository<IUser, CreateUserDTO> impleme
     }
 
     async findByEmail(email: string): Promise<IUser | null> {
-        return await this.findOne({ email });
+        return await this._model.findOne({ email }).populate('guideProfile');
     }
 
     async updateResetToken(userId: string, token: string, expires: number): Promise<void> {
@@ -89,5 +89,9 @@ export class UserRepository extends BaseRepository<IUser, CreateUserDTO> impleme
         await this._model.findByIdAndUpdate(userId, {
             $inc: { walletBalance: amount }
         });
+    }
+
+    override async findById(id: string): Promise<IUser | null> {
+        return await this._model.findById(id).populate('guideProfile');
     }
 }

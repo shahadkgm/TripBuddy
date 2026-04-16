@@ -64,7 +64,11 @@ export interface ITripPopulated extends Omit<ITrip, 'userId' | 'members' | 'guid
         avatarURL?: string;
         specialties: string[];
         isVerified: boolean;
-        userId?: { name: string; email: string };
+        userId: { 
+            _id: Types.ObjectId;
+            name: string; 
+            email: string 
+        };
     } | null;
 }
 

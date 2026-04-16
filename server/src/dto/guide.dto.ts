@@ -19,21 +19,54 @@ export class GuideRegisterDTO {
   @Min(0)
   yearsOfExperience!: number;
 
-  @Transform(({ value }: { value: any }) => {
+  @Transform(({ value }) => {
     if (typeof value === 'string') {
-      try {
-        // Try to parse if it's a JSON string like '["hiking", "climbing"]'
-        return JSON.parse(value);
-      } catch {
-        // Otherwise treat as comma-separated or just a single value
-        return value.split(',').map((s: string) => s.trim()).filter((s: string) => s !== '');
-      }
+      try { return JSON.parse(value); }
+      catch { return value.split(',').map((s: string) => s.trim()).filter(Boolean); }
     }
     return Array.isArray(value) ? value : [value];
   })
   @IsArray()
   @IsString({ each: true })
   specialties!: string[];
+}
+
+export class GuideUpdateDTO {
+  @IsOptional()
+  @IsString()
+  bio?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  hourlyRate?: number;
+
+  @IsOptional()
+  @IsString()
+  serviceArea?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  yearsOfExperience?: number;
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+        try { return JSON.parse(value); }
+        catch { return value.split(',').map((s: string) => s.trim()).filter(Boolean); }
+    }
+    return Array.isArray(value) ? value : [value];
+  })
+  @IsArray()
+  @IsString({ each: true })
+  specialties?: string[];
+
+  @IsOptional()
+  @IsString()
+  avatarURL?: string;
 }
 
 export class CreateGuideDTO {

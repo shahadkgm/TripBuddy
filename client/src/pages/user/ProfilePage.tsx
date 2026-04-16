@@ -1,4 +1,6 @@
 import { useNavigate } from 'react-router-dom';
+import type { AuthUser } from '../../types/auth.dto';
+import type { ConnectionRequest } from '../../types/auth.dto';
 import {
     User, Mail, Camera,
     Shield, LogOut,
@@ -22,7 +24,7 @@ const ProfilePage = () => {
     const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
 
     const [kycStatus, setKycStatus] = useState<string>('loading');
-    const [requests, setRequests] = useState<any[]>([]);
+    const [requests, setRequests] = useState<ConnectionRequest[]>([]);
     const [activeTab, setActiveTab] = useState<'planned' | 'requested' | 'chats'>('planned');
     const [isEditing, setIsEditing] = useState(false);
     const [editData, setEditData] = useState({ name: currentUser?.name || '', bio: currentUser?.bio || '' });
@@ -43,7 +45,7 @@ const ProfilePage = () => {
     const clearError = (field: string) => {
         setErrors(prev => {
             const newErrors = { ...prev };
-            delete (newErrors as any)[field];
+            delete (newErrors as Record<string, string>)[field];
             return newErrors;
         });
     };
@@ -79,7 +81,7 @@ const ProfilePage = () => {
         if (!currentUser?.id) return;
 
         // Validation
-        const newErrors: any = {};
+        const newErrors: Record<string, string> = {};
         if (!editData.name.trim()) newErrors.name = "Name is required";
         if (editData.bio.length > 200) newErrors.bio = "Bio cannot exceed 200 characters";
 
@@ -94,9 +96,10 @@ const ProfilePage = () => {
             toast.success("Profile updated successfully")
             setIsEditing(false);
             setErrors({});
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Profile update error", error);
-            const message = error.response?.data?.message || "Failed to update profile";
+            const err = error as { response?: { data?: { message?: string } } };
+            const message = err.response?.data?.message || "Failed to update profile";
             toast.error(message);
         } finally {
             setIsSaving(false);
@@ -123,7 +126,7 @@ const ProfilePage = () => {
 
     const handlePasswordChange = async (e: React.FormEvent) => {
         e.preventDefault();
-        const newErrors: any = {};
+        const newErrors: Record<string, string> = {};
 
         if (!passwordData.oldPassword) newErrors.oldPassword = "Current password is required";
         if (passwordData.newPassword.length < 6) newErrors.newPassword = "Password must be at least 6 characters";

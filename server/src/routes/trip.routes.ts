@@ -83,4 +83,9 @@ router.patch(
     tripController.assignGuide
 );
 
+router.get(
+    '/guide/:guideId',
+    tripController.getGuideTrips
+);
+
 export default router;

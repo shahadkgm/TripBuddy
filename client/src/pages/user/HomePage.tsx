@@ -32,8 +32,8 @@ export default function HomePage() {
 
 
         {/* 2. Enhanced Hero / Globe Section */}
-        <section className="relative py-20 px-6 overflow-hidden">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <section className="relative py-12 lg:py-20 px-4 md:px-6 overflow-hidden">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
 
             {/* Text Content with Framer Motion */}
             <motion.div
@@ -41,19 +41,19 @@ export default function HomePage() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="space-y-8"
+              className="space-y-4 lg:space-y-8"
             >
-              <div className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-sm font-black uppercase tracking-widest mb-4">
-                
+              <div className="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-[10px] md:text-sm font-black uppercase tracking-widest mb-2 lg:mb-4">
+                Your Adventure Starts Here
               </div>
-              <h1 className="text-5xl lg:text-7xl font-black text-slate-900 leading-[1.1]">
+              <h1 className="text-3xl md:text-5xl lg:text-7xl font-black text-slate-900 leading-[1.1]">
                 The Magic of the <span className="text-indigo-600">Journey</span>
               </h1>
-              <p className="text-slate-500 text-xl font-medium leading-relaxed max-w-lg">
-                We travel not to escape life, but for life not to escape us. Trip Buddy is here to remove the stress, so you can focus on the discovery.
+              <p className="text-slate-500 text-base md:text-xl font-medium leading-relaxed max-w-lg">
+                We travel not to escape life, but for life not to escape us. Trip Buddy is here to remove the stress.
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+              <div className="grid grid-cols-2 gap-3 md:gap-4 pt-2 lg:pt-4">
                 {[
                   { icon: "📍", title: "Smart Planning", desc: "Detailed stop-by-stop itineraries." },
                   { icon: "👥", title: "Traveler Network", desc: "Connect with like-minded buddies." },
@@ -63,38 +63,23 @@ export default function HomePage() {
                   <motion.div
                     key={i}
                     whileHover={{ scale: 1.05 }}
-                    className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group"
+                    className="p-3 lg:p-4 bg-white rounded-xl lg:rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group"
                   >
-                    <span className="text-3xl mb-3 block group-hover:scale-125 transition-transform">{item.icon}</span>
-                    <h4 className="font-bold text-slate-800 text-sm mb-1">{item.title}</h4>
-                    <p className="text-xs text-slate-500">{item.desc}</p>
+                    <span className="text-xl md:text-3xl mb-1 lg:mb-3 block group-hover:scale-125 transition-transform">{item.icon}</span>
+                    <h4 className="font-bold text-slate-800 text-[10px] md:text-sm mb-0.5 lg:mb-1">{item.title}</h4>
+                    <p className="text-[9px] md:text-xs text-slate-500 line-clamp-2">{item.desc}</p>
                   </motion.div>
                 ))}
               </div>
-
-              {/* <div className="pt-8 flex gap-4">
-                <button
-                  onClick={() => navigate("/register")}
-                  className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-1 transition-all"
-                >
-                  Start Planning Now
-                </button>
-                <button
-                  onClick={() => navigate("/login")}
-                  className="px-8 py-4 bg-white text-slate-600 border border-slate-200 rounded-2xl font-bold hover:bg-slate-50 transition-all"
-                >
-                  Sign In
-                </button>
-              </div> */}
             </motion.div>
 
-            {/* 3D Globe Visualization */}
+            {/* Image Section */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 1, delay: 0.2 }}
-              className="relative aspect-square lg:aspect-auto h-[600px] bg-indigo-50/30 rounded-[3rem] shadow-2xl shadow-indigo-100/50 overflow-hidden border-8 border-white group"
+              className="relative w-full aspect-[4/3] lg:aspect-auto h-[300px] sm:h-[450px] lg:h-[600px] bg-indigo-50/30 rounded-2xl lg:rounded-[3rem] shadow-xl shadow-indigo-100/50 overflow-hidden border-2 lg:border-8 border-white group"
             >
               <div className="absolute inset-0 group-hover:scale-105 transition-transform duration-[2000ms] ease-out">
                 <img 
@@ -105,18 +90,16 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-indigo-950/40 via-transparent to-transparent opacity-60" />
               </div>
 
-              <div className="absolute top-8 left-8 z-10">
+              <div className="absolute top-4 lg:top-8 left-4 lg:left-8 z-10">
                 <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
-                  {/* <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" /> */}
-                  {/* <span className="text-[10px] font-bold text-white uppercase tracking-widest">Global Network</span> */}
                 </div>
               </div>
 
-              <div className="absolute bottom-8 left-8 right-8 z-10">
-                 <div className="bg-white/20 backdrop-blur-md p-6 rounded-3xl border border-white/30 text-white">
-                   <p className="text-[10px] font-bold uppercase tracking-widest mb-1 opacity-80">Explore The World</p>
-                   <h3 className="text-2xl font-black leading-none mb-1">Unforgettable Journeys</h3>
-                   <p className="text-xs font-medium opacity-90">Find buddies for your next big adventure.</p>
+              <div className="absolute bottom-4 lg:bottom-8 left-4 lg:left-8 right-4 lg:right-8 z-10">
+                 <div className="bg-white/20 backdrop-blur-md p-4 lg:p-6 rounded-xl lg:rounded-3xl border border-white/30 text-white">
+                   <p className="text-[8px] lg:text-[10px] font-bold uppercase tracking-widest mb-0.5 lg:mb-1 opacity-80">Explore The World</p>
+                   <h3 className="text-base lg:text-2xl font-black leading-none mb-0.5 lg:mb-1">Unforgettable Journeys</h3>
+                   <p className="text-[10px] lg:text-xs font-medium opacity-90">Find buddies for your next big adventure.</p>
                  </div>
               </div>
             </motion.div>

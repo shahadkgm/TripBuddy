@@ -33,4 +33,11 @@ router.get(API_ROUTES.GUIDE.STATUS, protect, guideController.getGuideStatus);
 
 router.get(API_ROUTES.GUIDE.GET_ALL, protect, guideController.getAllGuides);
 
+router.put(
+  API_ROUTES.GUIDE.UPDATE,
+  protect,
+  upload.single('avatar'),
+  guideController.updateProfile
+);
+
 export default router;

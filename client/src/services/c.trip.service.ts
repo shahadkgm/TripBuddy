@@ -16,8 +16,10 @@ export const tripService = {
         return response.data.data;
     },
 
-    async getUserTrips(userId: string): Promise<ITrip[]> {
-        const response = await api.get<ApiResponse<ITrip[]>>(`/api/plantrips/user/${userId}`);
+    async getUserTrips(userId: string, page: number = 1, limit: number = 10): Promise<PaginatedTrips> {
+        const response = await api.get<ApiResponse<PaginatedTrips>>(`/api/plantrips/user/${userId}`, { 
+            params: { page, limit } 
+        });
         return response.data.data;
     },
 
@@ -32,8 +34,10 @@ export const tripService = {
         return response.data.data;
     },
 
-    async getChatHistory(tripId: string): Promise<IMessage[]> {
-        const response = await api.get<ApiResponse<IMessage[]>>(`/api/plantrips/${tripId}/chat`);
+    async getChatHistory(tripId: string, page: number = 1, limit: number = 50): Promise<{ messages: IMessage[], total: number }> {
+        const response = await api.get<ApiResponse<{ messages: IMessage[], total: number }>>(`/api/plantrips/${tripId}/chat`, {
+            params: { page, limit }
+        });
         return response.data.data;
     },
 
@@ -52,6 +56,18 @@ export const tripService = {
 
     async assignGuide(tripId: string, guideId: string | null): Promise<ITrip> {
         const response = await api.patch<ApiResponse<ITrip>>(`/api/plantrips/${tripId}/guide`, { guideId });
+        return response.data.data;
+    },
+
+    async getGuideTrips(guideId: string, page: number = 1, limit: number = 10): Promise<PaginatedTrips> {
+        const response = await api.get<ApiResponse<PaginatedTrips>>(`/api/plantrips/guide/${guideId}`, {
+            params: { page, limit }
+        });
+        return response.data.data;
+    },
+
+    async completeTrip(id: string): Promise<ITrip> {
+        const response = await api.post<ApiResponse<ITrip>>(`/api/plantrips/${id}/complete`);
         return response.data.data;
     }
 };

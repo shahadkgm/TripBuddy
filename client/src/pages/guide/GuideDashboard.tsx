@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+ import React, { useState, useEffect } from "react";
 import {
   User,
   Star,
@@ -6,24 +6,64 @@ import {
   IndianRupee,
   Calendar,
   MessageSquare,
-  LogOut
+  LogOut,
+  MapPin,
+  ChevronRight,
+  Loader2
 
 } from "lucide-react";
 import { authService } from "../../services/c.authService";
 import { GuideSidebar } from "./GuideSidebar";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-// import { GuideSidebar } from "../../components/guide/GuideSidebar";
+import { tripService } from "../../services/c.trip.service";
+import type { ITrip } from "../../interface/ITripdetails";
 
 export const GuideDashboard = () => {
   const user = authService.getCurrentUser();
-  const navigate = useNavigate()
-  const [stats] = useState({
+  const navigate = useNavigate();
+  const [trips, setTrips] = useState<ITrip[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
     totalBookings: 0,
     rating: 5.0,
     earned: 0,
     status: "Verified"
   });
+
+  useEffect(() => {
+    const fetchGuideData = async () => {
+      if (!user?.guideProfile?._id) {
+         setLoading(false);
+         return;
+      }
+      try {
+        const data = await tripService.getGuideTrips(user.guideProfile._id, 1, 10);
+        const guideTrips = data.trips;
+        setTrips(guideTrips);
+        
+        // Calculate stats
+        const completedTrips = guideTrips.filter(t => t.status === 'completed');
+        const earnings = completedTrips.reduce((acc, trip) => {
+            const days = Math.ceil((new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            return acc + (days * (user.guideProfile?.hourlyRate || 0));
+        }, 0);
+
+        setStats(prev => ({
+            ...prev,
+            totalBookings: data.total,
+            earned: earnings
+        }));
+      } catch (err) {
+        console.error("Error fetching guide trips:", err);
+        toast.error("Failed to load dashboard data");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGuideData();
+  }, [user?.guideProfile?._id]);
+
   const handleLogout = () => {
     authService.logout();
     toast.success("Logged out successfully");
@@ -31,63 +71,144 @@ export const GuideDashboard = () => {
   };
 
   return (
-    <div className="flex bg-slate-50 min-h-screen">
+    <div className="flex bg-slate-50 min-h-screen font-outfit">
       {/* Sidebar */}
       <GuideSidebar />
 
       {/* Main Content */}
-      <div className="flex-1 ml-64">
+      <div className="flex-1 ml-64 transition-all duration-300">
         {/* Top Bar */}
-        <header className="bg-white px-6 py-4 border-b flex justify-between items-center sticky top-0 z-10">
-          <h2 className="font-bold text-lg">Dashboard</h2>
+        <header className="bg-white/80 backdrop-blur-md px-10 py-5 border-b border-slate-100 flex justify-between items-center sticky top-0 z-30">
+          <div className="flex items-center gap-2">
+            <h2 className="font-black text-slate-900 tracking-tighter uppercase text-sm">Guide Central</h2>
+            <span className="text-slate-200">/</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Dashboard</span>
+          </div>
 
           <div className="flex items-center gap-6">
-            {/* User Info */}
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium">{user?.name}</span>
-              <div className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center">
+            <div className="flex items-center gap-3 pr-6 border-r border-slate-100">
+              <div className="text-right">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">{user?.name}</p>
+                <p className="text-[9px] font-bold text-indigo-500 uppercase tracking-widest">Verified Expert</p>
+              </div>
+              <div className="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-sm">
                 <User size={18} />
               </div>
             </div>
 
-            {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors border-l pl-6"
+              className="group p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+              title="Logout"
             >
-              <LogOut size={18} />
-              <span>Logout</span>
+              <LogOut size={20} />
             </button>
           </div>
         </header>
 
-        <main className="p-6 lg:p-10">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold">
-              Welcome back, {user?.name?.split(" ")[0]} 👋
-            </h1>
-            <p className="text-gray-500">
-              Here’s what’s happening .
-            </p>
+        <main className="p-10 max-w-6xl mx-auto">
+          <div className="mb-12 relative">
+             <div className="relative z-10">
+                <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-none">
+                  Hi, {user?.name?.split(" ")[0]}!
+                </h1>
+                <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-3">
+                  Check your latest adventure assignments
+                </p>
+             </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-            <StatCard icon={<Calendar className="text-blue-600" />} label="Bookings" value={stats.totalBookings} />
-            <StatCard icon={<Star className="text-amber-500" />} label="Rating" value={stats.rating} />
-            <StatCard icon={<IndianRupee className="text-emerald-600" />} label="Earnings" value={`₹${stats.earned}`} />
-            <StatCard icon={<Clock className="text-purple-600" />} label="Status" value={stats.status} />
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <StatCard 
+              icon={<Calendar className="text-indigo-600" />} 
+              label="Total Trips" 
+              value={stats.totalBookings} 
+              color="indigo"
+            />
+            <StatCard 
+              icon={<Star className="text-amber-500" />} 
+              label="Avg. Rating" 
+              value={stats.rating} 
+              color="amber"
+            />
+            <StatCard 
+              icon={<IndianRupee className="text-emerald-600" />} 
+              label="Total Earned" 
+              value={`₹${stats.earned.toLocaleString()}`} 
+              color="emerald"
+            />
+            <StatCard 
+              icon={<Clock className="text-slate-600" />} 
+              label="Profile Status" 
+              value={stats.status} 
+              color="slate"
+            />
           </div>
 
-          {/* Bookings */}
-          <div className="bg-white rounded-2xl shadow-sm border p-10 text-center">
-            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <MessageSquare className="text-slate-400" />
+          {/* Trips Section */}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-4 px-2">
+                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">Upcoming Assignments</h3>
+                <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">{trips.length} Total</span>
             </div>
-            <h4 className="font-semibold">No bookings yet</h4>
-            <p className="text-sm text-gray-500 mt-1">
-              Travelers who book you will appear here.
-            </p>
+
+            {loading ? (
+                <div className="py-20 flex flex-col items-center justify-center gap-4">
+                    <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-300">Syncing assignments...</p>
+                </div>
+            ) : trips.length > 0 ? (
+                <div className="grid grid-cols-1 gap-6">
+                    {trips.map((trip) => (
+                        <div 
+                          key={trip._id}
+                          className="group bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:border-indigo-100/50 transition-all duration-500 flex flex-col md:flex-row items-center gap-8"
+                        >
+                            <div className="w-20 h-20 bg-slate-50 rounded-3xl flex flex-col items-center justify-center border border-slate-100 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-inner">
+                                <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Trips</span>
+                                <Calendar size={24} className="mt-1" />
+                            </div>
+
+                            <div className="flex-1 text-center md:text-left">
+                                <h4 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">{trip.title}</h4>
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-2">
+                                    <span className="flex items-center gap-1.5 text-xs font-bold text-slate-500">
+                                        <MapPin size={14} className="text-indigo-500" />
+                                        {trip.destination}
+                                    </span>
+                                    <span className="text-slate-200">•</span>
+                                    <span className="text-xs font-bold text-slate-500">
+                                        {new Date(trip.startDate).toLocaleDateString()} - {new Date(trip.endDate).toLocaleDateString()}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col items-center md:items-end gap-2">
+                                <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm
+                                    ${trip.status === 'completed' ? 'bg-emerald-50 text-emerald-600' : 
+                                      trip.status === 'ongoing' ? 'bg-blue-50 text-blue-600' : 
+                                      trip.status === 'planned' ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-400'}`}>
+                                    {trip.status}
+                                </span>
+                                <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-slate-900 transition-colors pt-2 group-hover:translate-x-1 duration-300">
+                                    View Details <ChevronRight size={14} />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="bg-white rounded-[3rem] border-2 border-dashed border-slate-100 p-20 text-center shadow-xl shadow-slate-100/50">
+                    <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
+                        <MessageSquare className="text-slate-200" size={40} />
+                    </div>
+                    <h4 className="text-2xl font-black text-slate-900 tracking-tight">No adventures assigned yet</h4>
+                    <p className="text-slate-400 font-medium max-w-xs mx-auto mt-3">
+                        Once travelers book your services, they will appear here in your dashboard.
+                    </p>
+                </div>
+            )}
           </div>
         </main>
       </div>
@@ -98,19 +219,21 @@ export const GuideDashboard = () => {
 const StatCard = ({
   icon,
   label,
-  value
+  value,
+  color
 }: {
   icon: React.ReactNode;
   label: string;
   value: string | number;
+  color: string;
 }) => (
-  <div className="bg-white p-6 rounded-2xl border shadow-sm flex gap-4">
-    <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center">
+  <div className="group bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col items-start gap-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+    <div className={`w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-lg border border-slate-50 group-hover:bg-${color}-600 group-hover:text-white transition-all duration-300`}>
       {icon}
     </div>
     <div>
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="text-xl font-bold">{value}</p>
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
+      <p className="text-2xl font-black text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors uppercase">{value}</p>
     </div>
   </div>
 );

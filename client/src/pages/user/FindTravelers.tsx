@@ -20,7 +20,7 @@ const FindTravelers = () => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const limit = 3;
+  const limit = 6;
 
   const [filters, setFilters] = useState({
     destination: '',

@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { tripService } from '../../services/c.trip.service';
 import { aiService } from '../../services/c.ai.service';
-import type { ITrip, IItineraryItem } from '../../interface/ITripdetails';
+import type { ITrip, IItineraryItem, IGuide } from '../../interface/ITripdetails';
 import toast from 'react-hot-toast';
 import api from '../../utils/api';
 
@@ -25,7 +25,7 @@ const TripManagementPage = () => {
     const [itinerary, setItinerary] = useState<IItineraryItem[]>([]);
 
     // Guide Search State
-    const [guides, setGuides] = useState<any[]>([]);
+    const [guides, setGuides] = useState<IGuide[]>([]);
     const [guideLoading, setGuideLoading] = useState(false);
     const [guideDestination, setGuideDestination] = useState('');
     const [guideMaxPrice, setGuideMaxPrice] = useState(5000);
@@ -84,9 +84,10 @@ const TripManagementPage = () => {
         setItinerary(NewItinerary);
     };
 
-    const handleActivityChange = (dayIndex: number, activityIndex: number, field: string, value: string) => {
+    const handleActivityChange = (dayIndex: number, activityIndex: number, field: keyof IItineraryItem['activities'][0], value: string) => {
         const NewItinerary = [...itinerary];
-        (NewItinerary[dayIndex].activities[activityIndex] as any)[field] = value;
+        const activity = NewItinerary[dayIndex].activities[activityIndex];
+        (activity as Record<string, string>)[field] = value;
         setItinerary(NewItinerary);
     };
 
@@ -268,6 +269,19 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                     </div>
                 </div>
             </div>
+
+            {/* Expiry Warning */}
+            {trip && new Date(trip.startDate) < new Date() && trip.status !== 'confirmed' && trip.status !== 'completed' && (
+                <div className="bg-rose-50 border-b border-rose-100 px-6 py-3">
+                    <div className="max-w-6xl mx-auto flex items-center justify-between">
+                        <div className="flex items-center gap-3 text-rose-600">
+                            <Clock size={16} className="animate-pulse" />
+                            <span className="text-[11px] font-black uppercase tracking-widest">This trip has expired! The scheduled dates have passed.</span>
+                        </div>
+                        <p className="text-[10px] text-rose-500 font-bold italic">Update the dates in "Management" to renew/reschedule.</p>
+                    </div>
+                </div>
+            )}
 
             <main className="max-w-6xl mx-auto px-6 py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -489,7 +503,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                                             <MapPin size={12} /> {trip.guideId.serviceArea}
                                                         </p>
                                                     </div>
-                                                    <span className="text-xl font-black text-indigo-600">₹{trip.guideId.hourlyRate}<small className="text-xs text-slate-400 font-normal">/hr</small></span>
+                                                    <span className="text-xl font-black text-indigo-600">₹{trip.guideId.hourlyRate}<small className="text-xs text-slate-400 font-normal">/day</small></span>
                                                 </div>
                                                 <p className="text-sm text-slate-500 mt-2 line-clamp-2">{trip.guideId.bio}</p>
                                                 <div className="flex flex-wrap gap-2 mt-3">
@@ -513,8 +527,52 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                 <div className="bg-white rounded-[3rem] border border-slate-100 shadow-xl p-8">
                                     <h3 className="text-xl font-black text-slate-900 tracking-tighter mb-6 flex items-center gap-3">
                                         <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600"><UserSearch size={22} /></div>
-                                        Browse Verified Guides
+                                        Available Local Guides
                                     </h3>
+
+                                    {/* Recommended Guides Section */}
+                                    <div className="mb-10">
+                                        <div className="flex items-center gap-2 mb-4 px-2">
+                                            <Sparkles className="text-amber-500" size={16} />
+                                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Recommended for {trip.destination}</h4>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            {guides.filter(g => g.serviceArea?.toLowerCase().includes(trip.destination?.toLowerCase())).slice(0, 3).map(guide => {
+                                                const guideId = (guide._id || guide.id) as string;
+                                                const isAssigned = Boolean(trip.guideId && (trip.guideId._id === guideId));
+                                                return (
+                                                    <div key={guideId} className="bg-slate-50/50 p-4 rounded-3xl border border-slate-100 flex flex-col gap-3 group/rec">
+                                                        <div className="flex items-center gap-3">
+                                                            <img 
+                                                                src={guide.avatarURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${guide.name}`} 
+                                                                className="w-10 h-10 rounded-xl object-cover" 
+                                                                alt="" 
+                                                            />
+                                                            <div className="flex-1">
+                                                                <h5 className="text-xs font-black text-slate-900 leading-none">{guide.userId?.name || guide.name}</h5>
+                                                                <p className="text-[9px] font-bold text-indigo-500 uppercase mt-1">₹{guide.hourlyRate}/day</p>
+                                                            </div>
+                                                        </div>
+                                                        <button 
+                                                            onClick={() => handleAssignGuide(isAssigned ? null : guideId)}
+                                                            className={`w-full py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                                                                isAssigned ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:border-indigo-600 hover:text-indigo-600'
+                                                            }`}
+                                                        >
+                                                            {isAssigned ? 'Assigned' : 'Select Guide'}
+                                                        </button>
+                                                    </div>
+                                                );
+                                            })}
+                                            {(guides.filter(g => g.serviceArea?.toLowerCase().includes(trip.destination?.toLowerCase())).length === 0) && (
+                                                <div className="col-span-full py-6 text-center bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+                                                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-300">No locals matched currently</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="h-px bg-slate-50 mb-8" />
 
                                     {/* Filters */}
                                     <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -531,7 +589,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                         <div className="w-full md:w-64 px-5 py-3 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col justify-center">
                                             <div className="flex justify-between mb-1">
                                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Max Rate</label>
-                                                <span className="text-xs font-black text-indigo-600">₹{guideMaxPrice}/hr</span>
+                                                <span className="text-xs font-black text-indigo-600">₹{guideMaxPrice}/day</span>
                                             </div>
                                             <input type="range" min="100" max="10000" step="50" value={guideMaxPrice} onChange={e => setGuideMaxPrice(Number(e.target.value))} className="w-full h-1.5 accent-indigo-600" />
                                         </div>
@@ -557,9 +615,9 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                         </div>
                                     ) : (
                                         <div className="space-y-4">
-                                            {guides.map((guide: any) => {
-                                                const guideId = guide._id || guide.id;
-                                                const isAssigned = Boolean(trip.guideId && (trip.guideId._id === guideId || trip.guideId === guideId));
+                                            {guides.map((guide: IGuide) => {
+                                                const guideId = (guide._id || guide.id) as string;
+                                                const isAssigned = Boolean(trip.guideId && (trip.guideId._id === guideId));
                                                 const isLoading = assigningGuideId === guideId;
                                                 return (
                                                     <div key={guide._id || guide.id} className={`flex items-start gap-5 p-6 rounded-3xl border-2 transition-all ${ isAssigned ? 'border-indigo-200 bg-indigo-50/40' : 'border-slate-100 bg-white hover:border-indigo-100 hover:shadow-md' }`}>
@@ -574,7 +632,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                                                     <h4 className="font-black text-slate-900 tracking-tight">{guide.userId?.name || guide.name}</h4>
                                                                     <p className="text-indigo-600 font-bold text-xs flex items-center gap-1 mt-0.5"><MapPin size={11}/>{guide.serviceArea}</p>
                                                                 </div>
-                                                                <span className="font-black text-indigo-600 text-base whitespace-nowrap">₹{guide.hourlyRate}<small className="text-slate-400 text-xs font-normal">/hr</small></span>
+                                                                <span className="font-black text-indigo-600 text-base whitespace-nowrap">₹{guide.hourlyRate}<small className="text-slate-400 text-xs font-normal">/day</small></span>
                                                             </div>
                                                             <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{guide.bio}</p>
                                                             <div className="flex flex-wrap gap-1.5 mt-2">

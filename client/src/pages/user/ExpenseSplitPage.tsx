@@ -36,14 +36,14 @@ export const ExpenseSplitPage = () => {
     const loadUserTrips = async () => {
         if (!currentUser?.id) return;
         try {
-            const data = await tripService.getUserTrips(currentUser.id);
-            setTrips(data);
+            const data = await tripService.getUserTrips(currentUser.id, 1, 100);
+            setTrips(data.trips);
 
             // If we have a stateTripId, prioritize it. Otherwise, pick the first one from the list.
             if (stateTripId) {
                 setSelectedTripId(stateTripId);
-            } else if (data.length > 0 && !selectedTripId) {
-                setSelectedTripId(data[0]._id);
+            } else if (data.trips.length > 0 && !selectedTripId) {
+                setSelectedTripId(data.trips[0]._id);
             }
         } catch (error) {
             toast.error("Failed to load trips");

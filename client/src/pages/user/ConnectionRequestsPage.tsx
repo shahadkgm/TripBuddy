@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { connectionService } from '../../services/c.connection.service';
+import type { ConnectionRequest } from '../../types/auth.dto';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, UserCheck, UserX, Clock, MessageSquare, Plane } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const ConnectionRequestsPage = () => {
-    const [requests, setRequests] = useState<any[]>([]);
+    const [requests, setRequests] = useState<ConnectionRequest[]>([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 

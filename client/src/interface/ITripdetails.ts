@@ -9,6 +9,25 @@ export interface IItineraryItem {
     }[];
 }
 
+export interface IGuide {
+    _id?: string;
+    id?: string; // Some parts use id
+    name: string;
+    bio: string;
+    hourlyRate: number;
+    serviceArea: string;
+    avatarURL?: string;
+    avatar?: string;
+    specialties: string[];
+    yearsOfExperience: number;
+    isVerified: boolean;
+    userId?: { 
+        _id?: string;
+        name: string; 
+        email: string 
+    };
+}
+
 export interface ITrip {
     _id: string;
     userId: {
@@ -41,17 +60,8 @@ export interface ITrip {
         avatarURL?: string;
     }[];
     itinerary?: IItineraryItem[];
-    guideId?: {
-        _id: string;
-        name: string;
-        bio: string;
-        hourlyRate: number;
-        serviceArea: string;
-        avatarURL?: string;
-        specialties: string[];
-        isVerified: boolean;
-        userId?: { name: string; email: string };
-    } | null;
+    joinDeadline: string;
+    guideId?: IGuide | null;
     createdAt: string;
     updatedAt: string;
 }

@@ -34,6 +34,24 @@ class NearByService {
         }
     }
 
+    async getSuggestions(query: string): Promise<{ display_name: string; lat: string; lon: string }[]> {
+        if (!query || query.length < 3) return [];
+        try {
+            const response = await axios.get(`https://nominatim.openstreetmap.org/search`, {
+                params: {
+                    q: query,
+                    format: 'json',
+                    addressdetails: 1,
+                    limit: 10
+                }
+            });
+            return response.data || [];
+        } catch (error) {
+            console.error('Error fetching suggestions:', error);
+            return [];
+        }
+    }
+
     async getNearbyPlaces(lat: number, lon: number, radius: number = 2000): Promise<Place[]> {
         try {
             const query = `

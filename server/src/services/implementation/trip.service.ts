@@ -20,6 +20,16 @@ export class TripService implements ITripService {
 
     async createTrip(data: CreateTripDTO): Promise<ITripDocument> {
         logger.info('Creating new trip in service in t-s', { data });
+        
+        const existingTrip = await this._tripRepository.findOne({ 
+            userId: data.userId, 
+            title: { $regex: new RegExp(`^${data.title}$`, 'i') } 
+        });
+
+        if (existingTrip) {
+            throw new Error(' Please choose a unique name.');
+        }
+
         const tripData: CreateTripDTO = {
             ...data,
             members: [data.userId]
@@ -27,8 +37,8 @@ export class TripService implements ITripService {
         return await this._tripRepository.create(tripData);
     }
 
-    async getUserTrips(userId: string): Promise<ITripDocument[]> {
-        return await this._tripRepository.findByUserId(userId);
+    async getUserTrips(userId: string, page: number, limit: number): Promise<{ trips: ITripDocument[], total: number }> {
+        return await this._tripRepository.findByUserId(userId, page, limit);
     }
 
     async getTripById(tripId: string): Promise<ITripDocument | null> {
@@ -42,11 +52,24 @@ export class TripService implements ITripService {
 
     async updateTrip(id: string, data: Partial<CreateTripDTO>): Promise<ITripDocument | null> {
         logger.info('Updating trip in service', { id, data });
+
+        if (data.title && data.userId) {
+            const existingTrip = await this._tripRepository.findOne({
+                userId: data.userId,
+                title: { $regex: new RegExp(`^${data.title}$`, 'i') },
+                _id: { $ne: id } // Exclude current trip from the search
+            });
+
+            if (existingTrip) {
+                throw new Error('You already have another trip with this title. Please choose a unique name.');
+            }
+        }
+
         return await this._tripRepository.updateById(id, data);
     }
 
-    async getChatHistory(tripId: string): Promise<IMessagePopulated[]> {
-        return await this._tripRepository.getChatHistory(tripId);
+    async getChatHistory(tripId: string, page: number, limit: number): Promise<{ messages: IMessagePopulated[], total: number }> {
+        return await this._tripRepository.getChatHistory(tripId, page, limit);
     }
 
     async finalizeTrip(tripId: string, userId: string, budget: number, depositAmount: number): Promise<ITripDocument> {
@@ -210,6 +233,27 @@ export class TripService implements ITripService {
                  await this._userRepository.updateWalletBalance(member._id.toString(), splitAmount);
             }
         }
+
+        // 4. Guide Payout: If a guide was assigned, pay them their daily rate * days
+        if (trip.guideId) {
+            try {
+                const startDate = new Date(trip.startDate);
+                const endDate = new Date(trip.endDate);
+                const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                const totalPayout = days * (trip.guideId.hourlyRate || 0);
+
+                if (totalPayout > 0 && trip.guideId && trip.guideId.userId) {
+                    const guideUserId = (trip.guideId.userId as { _id?: mongoose.Types.ObjectId })._id?.toString() || 
+                                        (trip.guideId.userId as unknown as string);
+                    
+                    await this._userRepository.updateWalletBalance(guideUserId, totalPayout);
+                    logger.info('Guide payout released', { tripId, guideId: trip.guideId._id, amount: totalPayout });
+                }
+            } catch (err) {
+                logger.error('Failed to process guide payout', { tripId, error: err });
+                // We don't throw here to ensure trip completion still finishes, but we log the error
+            }
+        }
         
         return completedTrip;
     }
@@ -231,5 +275,9 @@ export class TripService implements ITripService {
         const updated = await this._tripRepository.assignGuide(tripId, guideId);
         if (!updated) throw new Error('Failed to assign guide');
         return updated;
+    }
+
+    async getGuideTrips(guideId: string, page: number, limit: number): Promise<{ trips: ITripDocument[], total: number }> {
+        return await this._tripRepository.findByGuideId(guideId, page, limit);
     }
 }

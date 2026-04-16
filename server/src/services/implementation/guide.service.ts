@@ -1,4 +1,4 @@
-import { CreateGuideDTO, GuideQueryDTO, GuideRegisterDTO, GuideResponseDTO } from '../../dto/guide.dto';
+import { CreateGuideDTO, GuideQueryDTO, GuideRegisterDTO, GuideResponseDTO, GuideUpdateDTO } from '../../dto/guide.dto';
 import { IGuide } from '../../types/guide.type';
 import { IGuideRepository } from '../../repositories/interface/IGuideRepository';
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
@@ -80,5 +80,25 @@ export class GuideService implements IGuideService {
       guides: guides.map(toGuideResponse),
       total
     };
+  }
+
+  async updateProfile(userId: string, data: GuideUpdateDTO): Promise<IGuide | null> {
+    logger.info(`Updating guide profile for user: ${userId}`, { data });
+    const guide = await this._guideRepository.findOne({ userId });
+    if (!guide) {
+        throw new Error('Guide profile not found');
+    }
+
+    const updated = await this._guideRepository.updateById(guide._id.toString(), {
+        ...data,
+        lastUpdated: new Date()
+    });
+
+    if (updated && data.avatarURL) {
+        // Also update user avatar if guide avatar is updated
+        await this._userRepository.updateById(userId, { avatarURL: data.avatarURL });
+    }
+
+    return updated;
   }
 }

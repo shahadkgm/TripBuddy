@@ -35,6 +35,10 @@ import { AdminPaymentsPage } from '../pages/admin/AdminPaymentsPage';
 import { AdminTripManagementPage } from '../pages/admin/AdminTripManagementPage';
 
 import { GuideDashboard } from "../pages/guide/GuideDashboard";
+import { GuideProfilePage } from "../pages/guide/GuideProfilePage";
+import { GuideBookingsPage } from "../pages/guide/GuideBookingsPage";
+import { GuideEarningsPage } from "../pages/guide/GuideEarningsPage";
+import { GuideReviewsPage } from "../pages/guide/GuideReviewsPage";
 
 export default function AppRoutes() {
   return (
@@ -85,6 +89,10 @@ export default function AppRoutes() {
       {/* Guide */}
       <Route element={<ProtectedRoute allowedRoles="guide" />}>
         <Route path="/guide-dashboard" element={<GuideDashboard />} />
+        <Route path="/guide/profile" element={<GuideProfilePage />} />
+        <Route path="/guide/bookings" element={<GuideBookingsPage />} />
+        <Route path="/guide/earnings" element={<GuideEarningsPage />} />
+        <Route path="/guide/reviews" element={<GuideReviewsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
