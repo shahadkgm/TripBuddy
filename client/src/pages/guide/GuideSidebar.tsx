@@ -6,6 +6,7 @@ import {
   User,
   Star
 } from "lucide-react";
+import { useSocketContext } from "../../context/SocketContext";
 
 const menu = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/guide-dashboard" },
@@ -16,6 +17,7 @@ const menu = [
 ];
 
 export const GuideSidebar = () => {
+  const { totalUnread } = useSocketContext();
   return (
     <aside className="w-64 min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white fixed left-0 top-0">
       {/* Brand */}
@@ -26,23 +28,33 @@ export const GuideSidebar = () => {
 
       {/* Menu */}
       <nav className="px-4 py-6 space-y-2">
-        {menu.map(({ name, icon: Icon, path }) => (
-          <NavLink
-            key={name}
-            to={path}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition
-              ${
-                isActive
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-300 hover:bg-slate-700"
-              }`
-            }
-          >
-            <Icon size={18} />
-            {name}
-          </NavLink>
-        ))}
+        {menu.map(({ name, icon: Icon, path }) => {
+          const isBookings = name === "Bookings";
+          return (
+            <NavLink
+              key={name}
+              to={path}
+              className={({ isActive }) =>
+                `flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition
+                ${
+                  isActive
+                    ? "bg-indigo-600 text-white"
+                    : "text-slate-300 hover:bg-slate-700"
+                }`
+              }
+            >
+              <div className="flex items-center gap-3">
+                <Icon size={18} />
+                {name}
+              </div>
+              {isBookings && totalUnread > 0 && (
+                <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-bounce">
+                  {totalUnread}
+                </span>
+              )}
+            </NavLink>
+          );
+        })}
       </nav>
     </aside>
   );

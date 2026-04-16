@@ -54,7 +54,7 @@ const ProfilePage = () => {
         const loadInitialData = async () => {
             if (!currentUser?.id) return;
             try {
-                console.log("current user",currentUser)
+                console.log("current user", currentUser)
                 const [kycRes, reqData, profileData] = await Promise.all([
                     api.get(`/api/kyc-status/${currentUser.id}`),
                     connectionService.getPendingRequests(),
@@ -247,7 +247,7 @@ const ProfilePage = () => {
                                         <p className="text-slate-500 font-medium mb-4 flex items-center justify-center md:justify-start gap-2">
                                             <Mail size={16} /> {currentUser.email}
                                         </p>
-                                            {/* <h1>{currentUser.isBlocked}</h1> */}
+                                        {/* <h1>{currentUser.isBlocked}</h1> */}
                                         <p className="text-slate-600 text-sm leading-relaxed max-w-xl">
                                             {currentUser.bio || "No biography added yet."}
                                         </p>

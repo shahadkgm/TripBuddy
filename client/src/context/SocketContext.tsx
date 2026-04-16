@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { authService } from '../services/c.authService';
 import { tripService } from '../services/c.trip.service';
 import toast from 'react-hot-toast';
+import { MessageSquare } from 'lucide-react';
 import type { IMessage } from '../interface/IMessage';
 
 interface SocketContextType {
@@ -10,6 +11,7 @@ interface SocketContextType {
     currentChatId: string | null;
     setCurrentChatId: (id: string | null) => void;
     unreadCounts: Record<string, number>;
+    totalUnread: number;
     markAsRead: (tripId: string) => void;
 }
 
@@ -97,18 +99,47 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
                 const tripTitle = tripTitlesRef.current[incomingTripId] || 'Trip Update';
                 
-                toast.success(` New message from ${tripTitle}`, {
-                    duration: 5000,
-                    position: 'top-right',
-                    style: {
-                        background: '#1e293b',
-                        color: '#fff',
-                        borderRadius: '1.25rem',
-                        padding: '1rem',
-                        boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'
-                    },
-                    icon: '🚀'
-                });
+                toast.custom((t) => (
+                    <div className={`${t.visible ? 'animate-in fade-in slide-in-from-top-4' : 'animate-out fade-out slide-out-to-top-2'} max-w-sm w-full bg-slate-900 shadow-2xl rounded-3xl pointer-events-auto flex ring-1 ring-white/10 overflow-hidden`}>
+                        <div className="flex-1 w-0 p-5">
+                            <div className="flex items-start">
+                                <div className="flex-shrink-0 pt-0.5">
+                                    <div className="h-10 w-10 rounded-2xl bg-indigo-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                                        <MessageSquare size={20} />
+                                    </div>
+                                </div>
+                                <div className="ml-4 flex-1">
+                                    <p className="text-xs font-black uppercase tracking-widest text-indigo-400 mb-1">
+                                        New in {tripTitle}
+                                    </p>
+                                    <p className="text-sm font-bold text-white line-clamp-1">
+                                        {message.senderId.name}
+                                    </p>
+                                    <p className="mt-1 text-xs font-medium text-slate-400 line-clamp-2 italic">
+                                        "{message.content.length > 60 ? message.content.substring(0, 60) + '...' : message.content}"
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex flex-col border-l border-white/5 bg-white/5">
+                            <button
+                                onClick={() => {
+                                    window.location.replace(`/group-chat/${incomingTripId}`);
+                                    toast.dismiss(t.id);
+                                }}
+                                className="w-full flex-1 flex items-center justify-center text-[10px] font-black uppercase tracking-widest text-indigo-400 hover:text-white px-6 transition-colors"
+                            >
+                                Open
+                            </button>
+                            <button
+                                onClick={() => toast.dismiss(t.id)}
+                                className="w-full flex-1 flex items-center justify-center text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white px-6 border-t border-white/5 transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                ), { duration: 6000, position: 'top-right' });
             }
         });
 
@@ -117,8 +148,18 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         };
     }, [currentUser?.id]);
 
+    const totalUnread = Object.values(unreadCounts).reduce((acc, curr) => acc + curr, 0);
+    
+    useEffect(() => {
+        if (totalUnread > 0) {
+            document.title = `(${totalUnread}) New Messages | TripBuddy`;
+        } else {
+            document.title = 'TripBuddy | Your Adventure Partner';
+        }
+    }, [totalUnread]);
+
     return (
-        <SocketContext.Provider value={{ socket, currentChatId, setCurrentChatId, unreadCounts, markAsRead }}>
+        <SocketContext.Provider value={{ socket, currentChatId, setCurrentChatId, unreadCounts, totalUnread, markAsRead }}>
             {children}
         </SocketContext.Provider>
     );

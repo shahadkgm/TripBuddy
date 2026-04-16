@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/c.authService";
 import api from "../../utils/api";
-import { User, ArrowLeft } from "lucide-react";
+import { User, ArrowLeft, MessageCircle } from "lucide-react";
+import { useSocketContext } from "../../context/SocketContext";
 
 
 interface NavbarProps {
@@ -16,6 +17,7 @@ export const Navbar = ({ variant = 'floating', showBack = false, backPath = "/" 
 
   const navigate = useNavigate();
   const user = authService.getCurrentUser();
+  const { totalUnread } = useSocketContext();
   const [kycStatus, setKycStatus] = useState<string>('loading');
 
   useEffect(() => {
@@ -94,7 +96,20 @@ export const Navbar = ({ variant = 'floating', showBack = false, backPath = "/" 
                   )}
                 </div>
               )}
-
+              
+              <div className="relative cursor-pointer hover:bg-slate-50 p-2 rounded-xl transition-all group">
+                <MessageCircle 
+                  size={20} 
+                  className="text-slate-400 group-hover:text-indigo-600 transition-colors" 
+                  onClick={() => navigate('/dashboard')} // Or a specific messages page
+                />
+                {totalUnread > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full animate-bounce">
+                    {totalUnread}
+                  </span>
+                )}
+              </div>
+              
               <div
                 onClick={() => navigate("/profile")}
                 className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 md:px-3 md:py-2 rounded-xl transition group"
