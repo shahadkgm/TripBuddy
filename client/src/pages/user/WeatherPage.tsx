@@ -124,7 +124,7 @@ export const WeatherPage = () => {
                                                 <span className="text-8xl font-black text-slate-900 tracking-tighter leading-none">{weather.temp}</span>
                                                 <span className="text-3xl font-black text-indigo-600 ml-1">°</span>
                                             </div>
-                                            <p className="text-slate-400 font-bold text-xl capitalize mt-2">{weather.description}</p>
+                                            <p className="text-slate-400 font-bold text-xl capitalize mt-2">{weather.condition}</p>
                                         </div>
                                     </div>
 

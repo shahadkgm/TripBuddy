@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
     MapPin, Calendar, User, IndianRupee,
-    Briefcase, Hotel, Plane, CheckCircle, FileText, X, Loader2, CloudSun,
+    Briefcase, Hotel,ArrowLeft, Plane, CheckCircle, FileText,Sparkles, X, Loader2, CloudSun,
     Plus, Search, Thermometer, Wind, Droplets, Sun, Cloud, CloudRain, CloudLightning, CloudFog, CloudDrizzle
 } from 'lucide-react';
 
@@ -261,11 +261,12 @@ const CreateTripPage = () => {
 
         setIsSubmitting(true);
         try {
-            const tripData = {
+            // Prepare plain data first
+            const tripPayload: any = {
                 title: formData.title,
                 destination: formData.destination,
-                startDate: new Date(formData.startDate),
-                endDate: new Date(formData.endDate),
+                startDate: formData.startDate,
+                endDate: formData.endDate,
                 budget: Number(formData.budget),
                 preferences: {
                     travelers: formData.travelers,
@@ -276,11 +277,22 @@ const CreateTripPage = () => {
                 description: formData.notes
             };
 
+            // Wrap in FormData because the backend uses multer
+            const data = new FormData();
+            data.append('userId', user?._id || user?.id || '');
+            data.append('title', tripPayload.title || '');
+            data.append('destination', tripPayload.destination || '');
+            data.append('startDate', tripPayload.startDate || '');
+            data.append('endDate', tripPayload.endDate || '');
+            data.append('budget', String(tripPayload.budget || 0));
+            data.append('description', tripPayload.description || '');
+            data.append('preferences', JSON.stringify(tripPayload.preferences));
+
             if (isEditing && id) {
-                await tripService.updateTrip(id, tripData);
+                await tripService.updateTrip(id, data as any);
                 toast.success("Trip updated successfully!");
             } else {
-                await tripService.createTrip(tripData);
+                await tripService.createTrip(data as any);
                 toast.success("Trip created successfully!");
             }
             setShowSuccess(true);

@@ -6,7 +6,7 @@ import axios from 'axios';
 export interface WeatherData {
     city: string;
     temp: number;
-    description: string;
+    condition: string;
     icon: string;
     uvIndex: number;
     humidity: number;
@@ -53,7 +53,7 @@ export const weatherService = {
         return {
             city: coords.display_name,
             temp: Math.round(response.data.current.temperature_2m),
-            description: weather.desc,
+            condition: weather.desc,
             icon: weather.icon,
             uvIndex: response.data.daily.uv_index_max[0],
             humidity: response.data.current.relative_humidity_2m,
