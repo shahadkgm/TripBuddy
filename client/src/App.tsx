@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import AppRoutes from "./routes/AppRoutes";
+import { SocketProvider } from "./context/SocketContext";
 
 function App() {
   useEffect(() => {
@@ -18,7 +19,9 @@ function App() {
   return (
     <>
       <Toaster position="top-right" />
-      <AppRoutes />
+      <SocketProvider>
+        <AppRoutes />
+      </SocketProvider>
     </>
   );
 }

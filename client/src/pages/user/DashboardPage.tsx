@@ -72,13 +72,13 @@ const DASHBOARD_FEATURES = [
   //   color: "bg-cyan-50",
   //   path: "/support"
   // },
-  {
-    title: "Find Local Experts",
-    desc: "Connect with local guides",
-    icon: <Search className="w-5 h-5 text-amber-600" />,
-    color: "bg-amber-50",
-    path: "/find-guides"
-  },
+  // {
+  //   title: "Find Local Experts",
+  //   desc: "Connect with local guides",
+  //   icon: <Search className="w-5 h-5 text-amber-600" />,
+  //   color: "bg-amber-50",
+  //   path: "/find-guides"
+  // },
 
   {
     title: "Join as a guide",

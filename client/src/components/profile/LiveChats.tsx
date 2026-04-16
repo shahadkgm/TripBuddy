@@ -4,6 +4,7 @@ import { MessageCircle, Plane, ArrowRight, Loader2 } from 'lucide-react';
 import { tripService } from '../../services/c.trip.service';
 import { Pagination } from '../Pagination';
 import type { ITrip } from '../../interface/ITripdetails';
+import { useSocketContext } from '../../context/SocketContext';
 
 interface LiveChatsProps {
     userId: string;
@@ -11,6 +12,7 @@ interface LiveChatsProps {
 
 export const LiveChats: React.FC<LiveChatsProps> = ({ userId }) => {
     const navigate = useNavigate();
+    const { unreadCounts } = useSocketContext();
     const [trips, setTrips] = useState<ITrip[]>([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
@@ -73,34 +75,44 @@ export const LiveChats: React.FC<LiveChatsProps> = ({ userId }) => {
                     </div>
                 )}
                 <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 transition-opacity duration-200 ${paginationLoading ? 'opacity-40' : 'opacity-100'}`}>
-                    {trips.map((trip) => (
-                        <div
-                            key={trip._id}
-                            className="group bg-white p-6 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:shadow-md transition-all cursor-pointer flex items-center justify-between"
-                            onClick={() => navigate(`/group-chat/${trip._id}`)}
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className="bg-indigo-50 p-3 rounded-xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                                    <Plane size={24} />
+                    {trips.map((trip) => {
+                        const unreadCount = unreadCounts[trip._id] || 0;
+                        return (
+                            <div
+                                key={trip._id}
+                                className="group bg-white p-6 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:shadow-md transition-all cursor-pointer flex items-center justify-between relative"
+                                onClick={() => navigate(`/group-chat/${trip._id}`)}
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="relative">
+                                        <div className="bg-indigo-50 p-3 rounded-xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                            <Plane size={24} />
+                                        </div>
+                                        {unreadCount > 0 && (
+                                            <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white animate-bounce">
+                                                {unreadCount > 9 ? '9+' : unreadCount}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-slate-800">{trip.title || trip.destination}</h4>
+                                        <p className="text-xs text-slate-500 font-medium">
+                                            {new Date(trip.startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} -
+                                            {new Date(trip.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-slate-800">{trip.destination}</h4>
-                                    <p className="text-xs text-slate-500 font-medium">
-                                        {new Date(trip.startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} -
-                                        {new Date(trip.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                    </p>
+                                <div className="flex flex-col items-end gap-2">
+                                    <span className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                                        {trip.members?.length || 0} Members
+                                    </span>
+                                    <div className="text-indigo-600 font-bold text-xs flex items-center gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                                        Open Chat <ArrowRight size={14} />
+                                    </div>
                                 </div>
                             </div>
-                            <div className="flex flex-col items-end gap-2">
-                                <span className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
-                                    {trip.members?.length || 0} Members
-                                </span>
-                                <div className="text-indigo-600 font-bold text-xs flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    Open Chat <ArrowRight size={14} />
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
             <Pagination 

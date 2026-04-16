@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import type { EmojiClickData } from 'emoji-picker-react';
-import { useSocket } from '../../hooks/useSocket';
+import { useSocketContext } from '../../context/SocketContext';
 import { authService } from '../../services/c.authService';
 import { tripService } from '../../services/c.trip.service';
 import api from '../../utils/api';
@@ -54,7 +54,7 @@ const GroupChatPage = () => {
     
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const socket = useSocket(id);
+    const { socket, setCurrentChatId } = useSocketContext();
     const currentUser = authService.getCurrentUser();
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -125,6 +125,19 @@ const GroupChatPage = () => {
         };
         loadInitialData();
     }, [id, navigate, currentUser?.id]);
+
+    useEffect(() => {
+        if (!id) return;
+        setCurrentChatId(id);
+        return () => {
+            setCurrentChatId(null);
+        };
+    }, [id, setCurrentChatId]);
+
+    useEffect(() => {
+        if (!socket || !id) return;
+        socket.emit('join_trip', id);
+    }, [socket, id]);
 
     const loadMoreMessages = async () => {
         if (!id || isLoadingMore || !hasMoreMessages) return;

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { authService } from '../services/c.authService';
+import { tripService } from '../services/c.trip.service';
 import toast from 'react-hot-toast';
 import type { IMessage } from '../interface/IMessage';
 
@@ -8,6 +9,8 @@ interface SocketContextType {
     socket: Socket | null;
     currentChatId: string | null;
     setCurrentChatId: (id: string | null) => void;
+    unreadCounts: Record<string, number>;
+    markAsRead: (tripId: string) => void;
 }
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -17,13 +20,26 @@ const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+    const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
+    const tripTitlesRef = useRef<Record<string, string>>({});
+    
     const currentUser = authService.getCurrentUser();
     const currentChatIdRef = useRef<string | null>(null);
 
     // Keep ref in sync for the event listener
     useEffect(() => {
         currentChatIdRef.current = currentChatId;
+        if (currentChatId) {
+            markAsRead(currentChatId);
+        }
     }, [currentChatId]);
+
+    const markAsRead = (tripId: string) => {
+        setUnreadCounts(prev => ({
+            ...prev,
+            [tripId]: 0
+        }));
+    };
 
     useEffect(() => {
         if (!currentUser) {
@@ -41,6 +57,31 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         setSocket(newSocket);
 
+        // Join all user's/guide's trip rooms for global notifications
+        const joinAllRooms = async () => {
+             try {
+                // User trips
+                const userTrips = await tripService.getUserTrips(currentUser.id, 1, 100);
+                userTrips.trips.forEach(trip => {
+                    newSocket.emit('join_trip', trip._id);
+                    tripTitlesRef.current[trip._id] = trip.title;
+                });
+
+                // Guide trips
+                if (currentUser.guideProfile?._id) {
+                    const guideTrips = await tripService.getGuideTrips(currentUser.guideProfile._id, 1, 100);
+                    guideTrips.trips.forEach(trip => {
+                        newSocket.emit('join_trip', trip._id);
+                        tripTitlesRef.current[trip._id] = trip.title;
+                    });
+                }
+             } catch (error) {
+                console.error("Error joining rooms:", error);
+             }
+        };
+
+        joinAllRooms();
+
         newSocket.on('receive_message', (message: IMessage) => {
             const incomingTripId = String(message.tripId);
             const activeTripId = currentChatIdRef.current ? String(currentChatIdRef.current) : null;
@@ -48,7 +89,15 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             const myId = String(currentUser?.id || '');
 
             if (incomingTripId !== activeTripId && senderId !== myId && myId !== '') {
-                toast.success(`Trip Update: New message from ${message.senderId.name}`, {
+                // Increment unread count
+                setUnreadCounts(prev => ({
+                    ...prev,
+                    [incomingTripId]: (prev[incomingTripId] || 0) + 1
+                }));
+
+                const tripTitle = tripTitlesRef.current[incomingTripId] || 'Trip Update';
+                
+                toast.success(` New message from ${tripTitle}`, {
                     duration: 5000,
                     position: 'top-right',
                     style: {
@@ -69,7 +118,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }, [currentUser?.id]);
 
     return (
-        <SocketContext.Provider value={{ socket, currentChatId, setCurrentChatId }}>
+        <SocketContext.Provider value={{ socket, currentChatId, setCurrentChatId, unreadCounts, markAsRead }}>
             {children}
         </SocketContext.Provider>
     );
