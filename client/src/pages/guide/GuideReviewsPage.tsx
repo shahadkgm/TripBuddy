@@ -8,6 +8,8 @@ import { GuideSidebar } from "./GuideSidebar";
 import api from "../../utils/api";
 import toast from "react-hot-toast";
 
+import { GuideHeader } from "./GuideHeader";
+
 export const GuideReviewsPage = () => {
     const user = authService.getCurrentUser();
     const [reviews, setReviews] = useState<any[]>([]);
@@ -54,11 +56,13 @@ export const GuideReviewsPage = () => {
         <div className="flex bg-slate-50 min-h-screen font-outfit">
             <GuideSidebar />
 
-            <div className="flex-1 ml-64 p-10">
-                <header className="mb-10">
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Public Feedback</h1>
-                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">What travelers are saying about you</p>
-                </header>
+            <div className="flex-1 ml-64 transition-all duration-300">
+                <GuideHeader currentPage="Reviews" />
+                <div className="p-10">
+                    <header className="mb-10">
+                        <h1 className="text-4xl font-black text-slate-900 tracking-tight">Public Feedback</h1>
+                        <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">What travelers are saying about you</p>
+                    </header>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                     {/* Rating Summary */}
@@ -167,6 +171,7 @@ export const GuideReviewsPage = () => {
                         </p>
                     </div>
                 )}
+                </div>
             </div>
         </div>
     );

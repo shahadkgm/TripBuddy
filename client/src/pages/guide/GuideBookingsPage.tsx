@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { authService } from "../../services/c.authService";
 import { tripService } from "../../services/c.trip.service";
+import { GuideHeader } from "./GuideHeader";
 import { GuideSidebar } from "./GuideSidebar";
 import type { ITrip } from "../../interface/ITripdetails";
 import toast from "react-hot-toast";
@@ -69,7 +70,9 @@ export const GuideBookingsPage = () => {
         <div className="flex bg-slate-50 min-h-screen font-outfit">
             <GuideSidebar />
 
-            <div className="flex-1 ml-64 p-10">
+            <div className="flex-1 ml-64 transition-all duration-300">
+                <GuideHeader currentPage="Bookings" />
+                <div className="p-10">
                 <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
                         <h1 className="text-4xl font-black text-slate-900 tracking-tight">Your Bookings</h1>
@@ -186,7 +189,8 @@ export const GuideBookingsPage = () => {
                 </div>
             </div>
         </div>
-    );
+    </div>
+);
 };
 
 const formatDate = (dateStr: string | Date) => {

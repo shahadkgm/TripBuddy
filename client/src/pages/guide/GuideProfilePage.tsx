@@ -9,6 +9,8 @@ import { guideService } from "../../services/c.guide.service";
 import { GuideSidebar } from "./GuideSidebar";
 import toast from "react-hot-toast";
 
+import { GuideHeader } from "./GuideHeader";
+
 export const GuideProfilePage = () => {
     const user = authService.getCurrentUser();
     const navigate = useNavigate();
@@ -80,19 +82,21 @@ export const GuideProfilePage = () => {
         <div className="flex bg-slate-50 min-h-screen font-outfit">
             <GuideSidebar />
 
-            <div className="flex-1 ml-64 p-10">
-                <header className="mb-10 flex items-center justify-between">
-                    <div>
-                        <button 
-                            onClick={() => navigate(-1)}
-                            className="flex items-center gap-2 text-slate-400 hover:text-indigo-600 transition-colors mb-4 group"
-                        >
-                            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Back to Dashboard</span>
-                        </button>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight">Edit Your Profile</h1>
-                    </div>
-                </header>
+            <div className="flex-1 ml-64 transition-all duration-300">
+                <GuideHeader currentPage="Profile Edit" />
+                <div className="p-10">
+                    <header className="mb-10 flex items-center justify-between">
+                        <div>
+                            <button 
+                                onClick={() => navigate(-1)}
+                                className="flex items-center gap-2 text-slate-400 hover:text-indigo-600 transition-colors mb-4 group"
+                            >
+                                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Back to Dashboard</span>
+                            </button>
+                            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Edit Your Profile</h1>
+                        </div>
+                    </header>
 
                 <div className="max-w-4xl bg-white rounded-[3rem] border border-slate-100 shadow-2xl shadow-slate-200/50 overflow-hidden">
                     <form onSubmit={handleSave}>
@@ -247,5 +251,6 @@ export const GuideProfilePage = () => {
                 </div>
             </div>
         </div>
-    );
+    </div>
+);
 };

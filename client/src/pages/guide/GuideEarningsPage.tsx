@@ -8,6 +8,7 @@ import { authService } from "../../services/c.authService";
 import { tripService } from "../../services/c.trip.service";
 import { GuideSidebar } from "./GuideSidebar";
 import type { ITrip } from "../../interface/ITripdetails";
+import { GuideHeader } from "./GuideHeader";
 import toast from "react-hot-toast";
 
 export const GuideEarningsPage = () => {
@@ -60,17 +61,18 @@ export const GuideEarningsPage = () => {
         <div className="flex bg-slate-50 min-h-screen font-outfit">
             <GuideSidebar />
 
-            <div className="flex-1 ml-64 p-10">
-                <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight">Financial Overview</h1>
-                        <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">Track your revenue and payouts</p>
-                    </div>
-
-                    <button className="flex items-center gap-2 px-6 py-3 bg-white text-slate-900 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-indigo-200 hover:text-indigo-600 transition-all shadow-sm">
-                        <Download size={16} /> Export Statement
-                    </button>
-                </header>
+            <div className="flex-1 ml-64 transition-all duration-300">
+                <GuideHeader currentPage="Earnings" />
+                <div className="p-10">
+                    <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div>
+                            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Financial Overview</h1>
+                            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">Track your revenue and payouts</p>
+                        </div>
+                        <button className="flex items-center gap-2 px-6 py-3 bg-white text-slate-900 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-indigo-200 hover:text-indigo-600 transition-all shadow-sm">
+                            <Download size={16} /> Export Statement
+                        </button>
+                    </header>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                     <EarningStat 
@@ -162,7 +164,8 @@ export const GuideEarningsPage = () => {
                 </div>
             </div>
         </div>
-    );
+    </div>
+);
 };
 
 const EarningStat = ({ label, value, icon, trend, color }: any) => (
