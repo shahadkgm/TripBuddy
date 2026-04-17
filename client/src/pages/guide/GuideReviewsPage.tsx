@@ -4,9 +4,9 @@ import {
     Filter, Loader2, Quote, ThumbsUp
 } from "lucide-react";
 import { authService } from "../../services/c.authService";
+import { GuideSidebar } from "./GuideSidebar";
 import api from "../../utils/api";
 import toast from "react-hot-toast";
-import { GuideLayout } from "../../components/guide/GuideLayout";
 
 export const GuideReviewsPage = () => {
     const user = authService.getCurrentUser();
@@ -51,49 +51,51 @@ export const GuideReviewsPage = () => {
     }, [user?.guideProfile?._id]);
 
     return (
-        <GuideLayout>
-            <div className="p-6 lg:p-10">
+        <div className="flex bg-slate-50 min-h-screen font-outfit">
+            <GuideSidebar />
+
+            <div className="flex-1 ml-64 p-10">
                 <header className="mb-10">
-                    <h1 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Public Feedback</h1>
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Public Feedback</h1>
                     <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">What travelers are saying about you</p>
                 </header>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 mb-12">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                     {/* Rating Summary */}
-                    <div className="bg-white p-8 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
+                    <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Average Rating</p>
-                        <h2 className="text-6xl lg:text-7xl font-black text-slate-900 leading-none">{stats.averageRating.toFixed(1)}</h2>
+                        <h2 className="text-7xl font-black text-slate-900 leading-none">{stats.averageRating.toFixed(1)}</h2>
                         <div className="flex gap-1.5 my-6">
                             {[1, 2, 3, 4, 5].map((s) => (
                                 <Star 
                                     key={s} 
-                                    size={18} 
+                                    size={20} 
                                     className={s <= Math.round(stats.averageRating) ? "text-amber-400 fill-amber-400" : "text-slate-100 fill-slate-100"} 
                                 />
                             ))}
                         </div>
-                        <p className="text-[10px] lg:text-xs font-bold text-slate-500">Based on {stats.totalReviews} verified reviews</p>
+                        <p className="text-xs font-bold text-slate-500">Based on {stats.totalReviews} verified reviews</p>
                     </div>
 
                     {/* Rating Bars */}
-                    <div className="lg:col-span-2 bg-white p-8 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border border-slate-100 shadow-sm flex flex-col justify-center">
+                    <div className="lg:col-span-2 bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col justify-center">
                         <div className="space-y-4">
                             {stats.ratingDistribution.map((count, idx) => {
                                 const rating = 5 - idx;
                                 const percentage = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
                                 return (
                                     <div key={rating} className="flex items-center gap-4">
-                                        <div className="flex items-center gap-2 w-10 lg:w-12">
-                                            <span className="text-[10px] lg:text-xs font-black text-slate-400">{rating}</span>
+                                        <div className="flex items-center gap-2 w-12">
+                                            <span className="text-xs font-black text-slate-400">{rating}</span>
                                             <Star size={12} className="text-amber-400 fill-amber-400" />
                                         </div>
-                                        <div className="flex-1 h-2 lg:h-2.5 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
+                                        <div className="flex-1 h-2.5 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
                                             <div 
                                                 className="h-full bg-indigo-500 rounded-full transition-all duration-1000" 
                                                 style={{ width: `${percentage}%` }}
                                             />
                                         </div>
-                                        <span className="text-[9px] lg:text-[10px] font-black text-slate-400 w-6 lg:w-8">{count}</span>
+                                        <span className="text-[10px] font-black text-slate-400 w-8">{count}</span>
                                     </div>
                                 );
                             })}
@@ -111,41 +113,41 @@ export const GuideReviewsPage = () => {
                         {reviews.map((review) => (
                             <div 
                                 key={review._id} 
-                                className="bg-white p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 relative overflow-hidden"
+                                className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 relative"
                             >
-                                <Quote className="absolute top-8 right-8 text-slate-50 opacity-[0.05]" size={60} />
+                                <Quote className="absolute top-8 right-8 text-slate-50 opacity-[0.05]" size={80} />
                                 
                                 <div className="flex items-center gap-4 mb-6">
                                     <img 
                                         src={review.reviewerId?.avatarURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${review.reviewerId?.name}`} 
-                                        className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl object-cover border-2 border-slate-50 shadow-sm"
+                                        className="w-12 h-12 rounded-2xl object-cover border-2 border-slate-50 shadow-sm"
                                         alt=""
                                     />
-                                    <div className="min-w-0">
-                                        <h4 className="text-xs lg:text-sm font-black text-slate-900 uppercase tracking-tight truncate">{review.reviewerId?.name}</h4>
-                                        <p className="text-[8px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">{new Date(review.createdAt).toLocaleDateString()}</p>
+                                    <div>
+                                        <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">{review.reviewerId?.name}</h4>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(review.createdAt).toLocaleDateString()}</p>
                                     </div>
                                     <div className="ml-auto flex gap-0.5">
                                         {[1, 2, 3, 4, 5].map((s) => (
                                             <Star 
                                                 key={s} 
-                                                size={8}
+                                                size={10} 
                                                 className={s <= review.rating ? "text-amber-400 fill-amber-400" : "text-slate-100 fill-slate-100"} 
                                             />
                                         ))}
                                     </div>
                                 </div>
 
-                                <p className="text-slate-600 text-xs lg:text-sm font-medium leading-relaxed italic mb-6">
+                                <p className="text-slate-600 text-sm font-medium leading-relaxed italic mb-6">
                                     "{review.comment}"
                                 </p>
 
                                 <div className="flex items-center justify-between pt-6 border-t border-slate-50">
                                     <div className="flex items-center gap-1.5">
-                                        <div className="w-5 h-5 lg:w-6 lg:h-6 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-500">
+                                        <div className="w-6 h-6 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-500">
                                             <MessageSquare size={12} />
                                         </div>
-                                        <span className="text-[8px] lg:text-[10px] font-black text-indigo-600 uppercase tracking-widest">Verified Trip Member</span>
+                                        <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Verified Trip Member</span>
                                     </div>
                                     <button className="text-slate-300 hover:text-indigo-500 transition-colors">
                                         <ThumbsUp size={16} />
@@ -155,17 +157,17 @@ export const GuideReviewsPage = () => {
                         ))}
                     </div>
                 ) : (
-                    <div className="bg-white rounded-[2rem] lg:rounded-[3rem] border-2 border-dashed border-slate-200 p-12 lg:p-24 text-center shadow-sm">
-                        <div className="w-20 h-20 lg:w-24 lg:h-24 bg-slate-50 rounded-[2rem] lg:rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
+                    <div className="bg-white rounded-[3rem] border-2 border-dashed border-slate-200 p-24 text-center">
+                        <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
                             <Star className="text-slate-200" size={48} />
                         </div>
-                        <h4 className="text-xl lg:text-2xl font-black text-slate-900 tracking-tight">No feedback yet</h4>
-                        <p className="text-slate-400 text-sm font-medium max-w-xs mx-auto mt-4">
+                        <h4 className="text-2xl font-black text-slate-900 tracking-tight">No feedback yet</h4>
+                        <p className="text-slate-400 font-medium max-w-xs mx-auto mt-4">
                             Complete trips and provide excellent service to start receiving reviews from travelers.
                         </p>
                     </div>
                 )}
             </div>
-        </GuideLayout>
+        </div>
     );
 };
