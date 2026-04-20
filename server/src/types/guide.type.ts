@@ -2,11 +2,13 @@ import { Types } from 'mongoose';
 
 export interface IGuide {
   _id: Types.ObjectId;
-  userId: Types.ObjectId | {
-    _id: Types.ObjectId;
-    name: string;
-    email: string;
-  };
+  userId:
+    | Types.ObjectId
+    | {
+        _id: Types.ObjectId;
+        name: string;
+        email: string;
+      };
   name: string;
   bio: string;
   hourlyRate: number;
@@ -19,4 +21,4 @@ export interface IGuide {
   lastUpdated: Date;
   createdAt: Date;
   updatedAt: Date;
-};
+}

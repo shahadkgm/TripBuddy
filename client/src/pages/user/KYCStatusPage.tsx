@@ -14,12 +14,12 @@ const KYCStatusPage = () => {
       const userId = user?.id; // The ID from your log
       if (userId) {
         try {
-          console.log("userId", userId)
+          console.log('userId', userId);
           const res = await api.get(`/api/kyc-status/${userId}`);
-          console.log("KYC Data from API:", res.data.data);
+          console.log('KYC Data from API:', res.data.data);
           setKycData(res.data.data);
         } catch (err) {
-          console.error("Error fetching KYC details:", err);
+          console.error('Error fetching KYC details:', err);
         } finally {
           setLoading(false);
         }
@@ -28,13 +28,17 @@ const KYCStatusPage = () => {
     fetchKYCDetails();
   }, [user?.id]);
 
-  if (loading) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  if (loading)
+    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
 
   const getStatusStyles = () => {
     switch (kycData?.status) {
-      case 'approved': return { bg: 'bg-green-100', text: 'text-green-700', icon: '✅', label: 'Verified' };
-      case 'rejected': return { bg: 'bg-red-100', text: 'text-red-700', icon: '❌', label: 'Rejected' };
-      default: return { bg: 'bg-blue-100', text: 'text-blue-700', icon: '⏳', label: 'Pending Review' };
+      case 'approved':
+        return { bg: 'bg-green-100', text: 'text-green-700', icon: '✅', label: 'Verified' };
+      case 'rejected':
+        return { bg: 'bg-red-100', text: 'text-red-700', icon: '❌', label: 'Rejected' };
+      default:
+        return { bg: 'bg-blue-100', text: 'text-blue-700', icon: '⏳', label: 'Pending Review' };
     }
   };
 
@@ -44,14 +48,25 @@ const KYCStatusPage = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Verification Status</h2>
-        <p className="text-gray-500 mb-8 text-sm">Track the progress of your identity verification.</p>
+        <p className="text-gray-500 mb-8 text-sm">
+          Track the progress of your identity verification.
+        </p>
 
-        <div className={`${styles.bg} ${styles.text} rounded-2xl p-6 text-center mb-8 border border-opacity-20`}>
+        <div
+          className={`${styles.bg} ${styles.text} rounded-2xl p-6 text-center mb-8 border border-opacity-20`}
+        >
           <div className="text-4xl mb-2">{styles.icon}</div>
           <div className="text-xl font-bold">{styles.label}</div>
           <div className="text-sm mt-2 opacity-80">
-            {kycData?.status === 'pending' && <p>We are reviewing your document. This usually takes 24 hours.</p>}
-            {kycData?.status === 'approved' && <p>Congratulations! You are now a verified Guide. Please login again to access your Guide Dashboard.</p>}
+            {kycData?.status === 'pending' && (
+              <p>We are reviewing your document. This usually takes 24 hours.</p>
+            )}
+            {kycData?.status === 'approved' && (
+              <p>
+                Congratulations! You are now a verified Guide. Please login again to access your
+                Guide Dashboard.
+              </p>
+            )}
             {kycData?.status === 'rejected' && (
               <div className="space-y-2">
                 <p>We couldn't verify your document.</p>
@@ -69,7 +84,9 @@ const KYCStatusPage = () => {
         <div className="space-y-4 text-left border-t pt-6">
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">Document Type</span>
-            <span className="font-medium text-gray-900 capitalize">{kycData?.documentType?.replace('_', ' ') || 'N/A'}</span>
+            <span className="font-medium text-gray-900 capitalize">
+              {kycData?.documentType?.replace('_', ' ') || 'N/A'}
+            </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">Submitted On</span>

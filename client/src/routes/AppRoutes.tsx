@@ -1,46 +1,46 @@
 // src/routes/AppRoutes.tsx
-import { Routes, Route, Navigate } from "react-router-dom";
-import ProtectedRoute from "./ProtectedRoute";
+import { Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from './ProtectedRoute';
 
-import HomePage from "../pages/user/HomePage";
-import AuthPage from "../pages/auth/AuthPage";
-import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
-import { ResetPasswordPage } from "../pages/auth/ResetPasswordPage";
-import VerifyEmail from "../pages/auth/VerifyEmail";
+import HomePage from '../pages/user/HomePage';
+import AuthPage from '../pages/auth/AuthPage';
+import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage';
+import { ResetPasswordPage } from '../pages/auth/ResetPasswordPage';
+import VerifyEmail from '../pages/auth/VerifyEmail';
 
-import DashboardPage from "../pages/user/DashboardPage";
-import KYCStatusPage from "../pages/user/KYCStatusPage";
-import KYCPage from "../pages/user/KYCPage";
-import { GuideRegistrationPage } from "../pages/user/GuideRegistrationPage";
-import CreateTripPage from "../pages/user/CreateTripPage";
-import FindTravelers from "../pages/user/FindTravelers";
-import TripDetails from "../pages/user/TripDetails";
-import ConnectionRequestsPage from "../pages/user/ConnectionRequestsPage";
-import ExpenseSplitPage from "../pages/user/ExpenseSplitPage";
-import WeatherPage from "../pages/user/WeatherPage";
+import DashboardPage from '../pages/user/DashboardPage';
+import KYCStatusPage from '../pages/user/KYCStatusPage';
+import KYCPage from '../pages/user/KYCPage';
+import { GuideRegistrationPage } from '../pages/user/GuideRegistrationPage';
+import CreateTripPage from '../pages/user/CreateTripPage';
+import FindTravelers from '../pages/user/FindTravelers';
+import TripDetails from '../pages/user/TripDetails';
+import ConnectionRequestsPage from '../pages/user/ConnectionRequestsPage';
+import ExpenseSplitPage from '../pages/user/ExpenseSplitPage';
+import WeatherPage from '../pages/user/WeatherPage';
 
-import ProfilePage from "../pages/user/ProfilePage";
-import GalleryPage from "../pages/user/GalleryPage";
+import ProfilePage from '../pages/user/ProfilePage';
+import GalleryPage from '../pages/user/GalleryPage';
 import TripManagementPage from '../pages/user/TripManagementPage';
-import AIAssistantPage from "../pages/user/AIAssistantPage";
-import GroupChatPage from "../pages/user/GroupChatPage";
-import NearByPlacesPage from "../pages/user/NearByPlacesPage";
-import FindGuidesPage from "../pages/user/FindGuidesPage";
-import MyPaymentsPage from "../pages/user/MyPaymentsPage";
+import AIAssistantPage from '../pages/user/AIAssistantPage';
+import GroupChatPage from '../pages/user/GroupChatPage';
+import NearByPlacesPage from '../pages/user/NearByPlacesPage';
+import FindGuidesPage from '../pages/user/FindGuidesPage';
+import MyPaymentsPage from '../pages/user/MyPaymentsPage';
 
-import { AdminDashboard } from "../pages/admin/AdminDashboard";
-import { UserManagement } from "../pages/admin/UserManagement";
-import { GuideManagement } from "../pages/admin/GuideManagement";
+import { AdminDashboard } from '../pages/admin/AdminDashboard';
+import { UserManagement } from '../pages/admin/UserManagement';
+import { GuideManagement } from '../pages/admin/GuideManagement';
 import { AdminPaymentsPage } from '../pages/admin/AdminPaymentsPage';
 import { AdminTripManagementPage } from '../pages/admin/AdminTripManagementPage';
 
-import { GuideDashboard } from "../pages/guide/GuideDashboard";
-import { GuideProfilePage } from "../pages/guide/GuideProfilePage";
-import { GuideBookingsPage } from "../pages/guide/GuideBookingsPage";
-import { GuideEarningsPage } from "../pages/guide/GuideEarningsPage";
-import { GuideReviewsPage } from "../pages/guide/GuideReviewsPage";
-import { GuideInvitationsPage } from "../pages/guide/GuideInvitationsPage";
-import { GuideTripRequestDetailsPage } from "../pages/guide/GuideTripRequestDetailsPage";
+import { GuideDashboard } from '../pages/guide/GuideDashboard';
+import { GuideProfilePage } from '../pages/guide/GuideProfilePage';
+import { GuideBookingsPage } from '../pages/guide/GuideBookingsPage';
+import { GuideEarningsPage } from '../pages/guide/GuideEarningsPage';
+import { GuideReviewsPage } from '../pages/guide/GuideReviewsPage';
+import { GuideInvitationsPage } from '../pages/guide/GuideInvitationsPage';
+import { GuideTripRequestDetailsPage } from '../pages/guide/GuideTripRequestDetailsPage';
 
 export default function AppRoutes() {
   return (
@@ -70,14 +70,16 @@ export default function AppRoutes() {
         <Route path="/gallery" element={<GalleryPage />} />
         <Route path="/gallery/:userId" element={<GalleryPage />} />
         <Route path="/ai-assistant" element={<AIAssistantPage />} />
-        <Route path="/group-chat/:id" element={<GroupChatPage />} />
         <Route path="/manage-trip/:id" element={<TripManagementPage />} />
         <Route path="/nearby" element={<NearByPlacesPage />} />
         <Route path="/find-guides" element={<FindGuidesPage />} />
         <Route path="/my-payments" element={<MyPaymentsPage />} />
       </Route>
 
-
+      {/* Shared: User + Guide (group chat) */}
+      <Route element={<ProtectedRoute allowedRoles={['user', 'guide']} />}>
+        <Route path="/group-chat/:id" element={<GroupChatPage />} />
+      </Route>
 
       {/* Admin */}
       <Route element={<ProtectedRoute allowedRoles="admin" />}>
@@ -96,7 +98,10 @@ export default function AppRoutes() {
         <Route path="/guide/earnings" element={<GuideEarningsPage />} />
         <Route path="/guide/reviews" element={<GuideReviewsPage />} />
         <Route path="/guide/invitations" element={<GuideInvitationsPage />} />
-        <Route path="/guide/trip-request/:id/:invitationId" element={<GuideTripRequestDetailsPage />} />
+        <Route
+          path="/guide/trip-request/:id/:invitationId"
+          element={<GuideTripRequestDetailsPage />}
+        />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

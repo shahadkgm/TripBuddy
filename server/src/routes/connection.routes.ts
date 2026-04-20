@@ -19,9 +19,9 @@ const connectionController = new ConnectionController(connectionService);
 router.use(protect);
 
 router.post(
-    API_ROUTES.CONNECTION.SEND,
-    dtoValidationMiddleware(CreateConnectionDTO),
-    connectionController.sendRequest
+  API_ROUTES.CONNECTION.SEND,
+  dtoValidationMiddleware(CreateConnectionDTO),
+  connectionController.sendRequest
 );
 router.patch(API_ROUTES.CONNECTION.ACCEPT, connectionController.acceptRequest);
 router.patch(API_ROUTES.CONNECTION.REJECT, connectionController.rejectRequest);

@@ -6,12 +6,12 @@ const kycSchema = new Schema({
   documentType: {
     type: String,
     enum: ['national_id', 'passport', 'driver_license'],
-    required: true
+    required: true,
   },
   filePath: { type: String, required: true },
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   rejectionReason: { type: String, default: null },
-  uploadedAt: { type: Date, default: Date.now }
+  uploadedAt: { type: Date, default: Date.now },
 });
 
 kycSchema.index({ userId: 1 });

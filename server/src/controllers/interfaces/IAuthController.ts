@@ -8,4 +8,4 @@ export interface IAuthController {
   refreshToken: ControllerFn;
 }
 
-type ControllerFn = RequestHandler
+type ControllerFn = RequestHandler;

@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
-  MapPin, Calendar, IndianRupee, UserCheck,
-  ChevronRight, Clock, Edit3, AlertCircle
+  MapPin,
+  Calendar,
+  IndianRupee,
+  UserCheck,
+  ChevronRight,
+  Clock,
+  Edit3,
+  AlertCircle,
 } from 'lucide-react';
 import type { ITrip } from '../interface/ITripdetails';
 import { connectionService } from '../services/c.connection.service';
@@ -14,11 +20,16 @@ interface Props {
 
 export const TravelerCard: React.FC<Props> = ({ trip }) => {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<'none' | 'pending' | 'accepted' | 'incoming_pending' | 'loading'>('loading');
+  const [status, setStatus] = useState<
+    'none' | 'pending' | 'accepted' | 'incoming_pending' | 'loading'
+  >('loading');
   const currentUser = authService.getCurrentUser();
   const isOwnTrip = currentUser?.id === trip.userId?._id;
-  
-  const isExpired = new Date(trip.startDate).getTime() - (8 * 60 * 60 * 1000) < new Date().getTime() || trip.status === 'completed' || trip.status === 'cancelled';
+
+  const isExpired =
+    new Date(trip.startDate).getTime() - 8 * 60 * 60 * 1000 < new Date().getTime() ||
+    trip.status === 'completed' ||
+    trip.status === 'cancelled';
 
   useEffect(() => {
     if (!currentUser?.id || isOwnTrip) {
@@ -31,7 +42,7 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
         const resStatus = await connectionService.getStatus(trip.userId._id, trip._id);
         setStatus(resStatus);
       } catch (error) {
-        console.error("Error fetching connection status:", error);
+        console.error('Error fetching connection status:', error);
         setStatus('none');
       }
     };
@@ -56,7 +67,10 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
       <div className="flex items-center space-x-4 mb-6 group/header">
         <div className="relative">
           <img
-            src={trip.userId?.avatarURL || `https://i.pravatar.cc/150?u=${trip.userId?._id || 'unknown'}`}
+            src={
+              trip.userId?.avatarURL ||
+              `https://i.pravatar.cc/150?u=${trip.userId?._id || 'unknown'}`
+            }
             className="w-16 h-16 rounded-2xl border-2 border-indigo-50 object-cover shadow-sm group-hover/header:border-indigo-500 transition-all duration-300"
             alt={trip.userId?.name || 'Unknown Traveler'}
           />
@@ -71,12 +85,15 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
             {trip.title || trip.destination}
           </h3>
           <p className="text-slate-500 text-sm font-bold mt-0.5">
-            organized by <span className="text-indigo-600">{trip.userId?.name || 'Unknown Traveler'}</span>
+            organized by{' '}
+            <span className="text-indigo-600">{trip.userId?.name || 'Unknown Traveler'}</span>
           </p>
         </div>
       </div>
 
-      <div className={`space-y-3 mb-6 p-4 rounded-2xl ${isExpired ? 'bg-amber-50/50' : 'bg-slate-50/50'}`}>
+      <div
+        className={`space-y-3 mb-6 p-4 rounded-2xl ${isExpired ? 'bg-amber-50/50' : 'bg-slate-50/50'}`}
+      >
         <div className="flex items-center gap-3">
           <div className="p-2 bg-white rounded-lg shadow-sm">
             <MapPin className={`w-4 h-4 ${isExpired ? 'text-amber-500' : 'text-indigo-500'}`} />
@@ -89,28 +106,35 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
             <Calendar className={`w-4 h-4 ${isExpired ? 'text-amber-500' : 'text-indigo-500'}`} />
           </div>
           <div className="flex flex-col">
-            <span className={`${isExpired ? 'text-amber-700' : 'text-slate-600'} text-sm font-medium`}>
-              {new Date(trip.startDate).toLocaleDateString()} - {new Date(trip.endDate).toLocaleDateString()}
+            <span
+              className={`${isExpired ? 'text-amber-700' : 'text-slate-600'} text-sm font-medium`}
+            >
+              {new Date(trip.startDate).toLocaleDateString()} -{' '}
+              {new Date(trip.endDate).toLocaleDateString()}
             </span>
             {isExpired && (
-                <span className="text-amber-500 text-[9px] font-black uppercase flex items-center gap-1 mt-0.5">
-                    <AlertCircle size={10} /> Date passed
-                </span>
+              <span className="text-amber-500 text-[9px] font-black uppercase flex items-center gap-1 mt-0.5">
+                <AlertCircle size={10} /> Date passed
+              </span>
             )}
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="p-2 bg-white rounded-lg shadow-sm">
-            <IndianRupee className={`w-4 h-4 ${isExpired ? 'text-amber-500' : 'text-indigo-500'}`} />
+            <IndianRupee
+              className={`w-4 h-4 ${isExpired ? 'text-amber-500' : 'text-indigo-500'}`}
+            />
           </div>
-          <span className="text-slate-600 text-sm font-extrabold group-hover:text-slate-900 transition-colors">Budget: ₹{trip.budget}</span>
+          <span className="text-slate-600 text-sm font-extrabold group-hover:text-slate-900 transition-colors">
+            Budget: ₹{trip.budget}
+          </span>
         </div>
       </div>
 
       {isOwnTrip && isExpired ? (
         <button
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             navigate(`/edit-trip/${trip._id}`);
           }}
@@ -122,14 +146,18 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
       ) : (
         <button
           className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 shadow-lg 
-            ${isExpired 
-                ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 mb-2' 
-                : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-100'}`}
+            ${
+              isExpired
+                ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 mb-2'
+                : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-100'
+            }`}
         >
           {isExpired ? 'Expired' : 'See More'}
-          {!isExpired && <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />}
+          {!isExpired && (
+            <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          )}
         </button>
       )}
     </div>
   );
-};
+};

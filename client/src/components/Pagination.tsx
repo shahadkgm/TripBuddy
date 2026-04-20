@@ -1,12 +1,12 @@
 // client/src/components/Pagination.tsx
-import type { PaginationProps } from "../interface/IPagination";
+import type { PaginationProps } from '../interface/IPagination';
 
 export const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) => {
   if (totalPages <= 1) return null;
 
   return (
     <div className="flex justify-center items-center gap-4 mt-6 pb-2">
-      <button 
+      <button
         disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
         className="px-4 py-2 bg-white border border-slate-200 rounded-xl disabled:opacity-50 hover:bg-slate-50 hover:border-indigo-300 transition-all font-medium text-slate-600"
@@ -20,7 +20,7 @@ export const Pagination = ({ currentPage, totalPages, onPageChange }: Pagination
         </span>
       </div>
 
-      <button 
+      <button
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
         className="px-4 py-2 bg-white border border-slate-200 rounded-xl disabled:opacity-50 hover:bg-slate-50 hover:border-indigo-300 transition-all font-medium text-slate-600"

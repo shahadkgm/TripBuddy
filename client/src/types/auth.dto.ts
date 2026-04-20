@@ -20,20 +20,20 @@ export interface AuthUser {
   _id?: string;
   name: string;
   email: string;
-  role: "user" | "admin" | "guide";
+  role: 'user' | 'admin' | 'guide';
   isBlocked?: boolean;
   bio?: string;
   avatarURL?: string;
   walletBalance?: number;
-    guideProfile?: {
-      _id: string;
-      hourlyRate: number;
-      serviceArea?: string;
-      bio?: string;
-      yearsOfExperience?: number;
-      specialties?: string[];
-      avatarURL?: string;
-    };
+  guideProfile?: {
+    _id: string;
+    hourlyRate: number;
+    serviceArea?: string;
+    bio?: string;
+    yearsOfExperience?: number;
+    specialties?: string[];
+    avatarURL?: string;
+  };
 }
 
 export interface AuthTokens {
@@ -60,12 +60,14 @@ export interface ConnectionRequest {
     email: string;
     avatarURL?: string;
   };
-  receiverId: string | {
-    _id: string;
-    name: string;
-    email: string;
-    avatarURL?: string;
-  };
+  receiverId:
+    | string
+    | {
+        _id: string;
+        name: string;
+        email: string;
+        avatarURL?: string;
+      };
   tripId?: {
     _id: string;
     title: string;

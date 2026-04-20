@@ -1,10 +1,8 @@
 // import type { ITrip } from "./ITripdetails";
 
-  
-  
 export interface PaginationProps {
   currentPage: number;
-  totalPages: number; 
+  totalPages: number;
   onPageChange: (page: number) => void;
 }
 

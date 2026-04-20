@@ -24,9 +24,21 @@ const invitationController = new GuideInvitationController(invitationService);
 // Routes
 router.use(protect);
 
-router.post(API_ROUTES.GUIDE_INVITATION.SEND, invitationController.sendInvitation.bind(invitationController));
-router.post(API_ROUTES.GUIDE_INVITATION.RESPOND, invitationController.respondToInvitation.bind(invitationController));
-router.get(API_ROUTES.GUIDE_INVITATION.INBOUND, invitationController.getInboundInvitations.bind(invitationController));
-router.get(API_ROUTES.GUIDE_INVITATION.OUTBOUND, invitationController.getOutboundInvitations.bind(invitationController));
+router.post(
+  API_ROUTES.GUIDE_INVITATION.SEND,
+  invitationController.sendInvitation.bind(invitationController)
+);
+router.post(
+  API_ROUTES.GUIDE_INVITATION.RESPOND,
+  invitationController.respondToInvitation.bind(invitationController)
+);
+router.get(
+  API_ROUTES.GUIDE_INVITATION.INBOUND,
+  invitationController.getInboundInvitations.bind(invitationController)
+);
+router.get(
+  API_ROUTES.GUIDE_INVITATION.OUTBOUND,
+  invitationController.getOutboundInvitations.bind(invitationController)
+);
 
 export default router;

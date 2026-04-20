@@ -14,4 +14,3 @@ const aiController = new AIController(aiService);
 router.post(API_ROUTES.AI.CHAT, protect, aiController.getAIResponse);
 
 export default router;
-

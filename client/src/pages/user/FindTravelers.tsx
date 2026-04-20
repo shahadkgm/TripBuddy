@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  Search, MapPin,
-  Plane, Tag, RotateCcw,
-  ChevronDown
-} from 'lucide-react';
+import { Search, MapPin, Plane, Tag, RotateCcw, ChevronDown } from 'lucide-react';
 import { tripService } from '../../services/c.trip.service';
 import { TravelerCard } from '../../components/TravelerCard';
 import { Pagination } from '../../components/Pagination';
@@ -11,8 +7,14 @@ import { Navbar } from '../../components/home/Navbar';
 import type { ITrip } from '../../interface/ITripdetails';
 
 const INTERESTS_LIST = [
-  "Beaches", "Adventure Sports", "Shopping", "City Tours",
-  "History/Culture", "Nightlife", "Nature/Parks", "Food & Dining"
+  'Beaches',
+  'Adventure Sports',
+  'Shopping',
+  'City Tours',
+  'History/Culture',
+  'Nightlife',
+  'Nature/Parks',
+  'Food & Dining',
 ];
 
 const FindTravelers = () => {
@@ -25,7 +27,7 @@ const FindTravelers = () => {
   const [filters, setFilters] = useState({
     destination: '',
     transport: 'Any',
-    interest: 'Any'
+    interest: 'Any',
   });
 
   const loadTrips = async (currentFilters = filters, currentPage = page) => {
@@ -33,7 +35,7 @@ const FindTravelers = () => {
     try {
       const activeFilters: Record<string, string | number> = {
         page: currentPage,
-        limit
+        limit,
       };
 
       if (currentFilters.destination) activeFilters.destination = currentFilters.destination;
@@ -44,7 +46,7 @@ const FindTravelers = () => {
       setTrips(response.trips);
       setTotalPages(Math.ceil(response.total / limit));
     } catch (error) {
-      console.error("Error fetching trips:", error);
+      console.error('Error fetching trips:', error);
     } finally {
       setLoading(false);
     }
@@ -63,7 +65,7 @@ const FindTravelers = () => {
     const defaultFilters = {
       destination: '',
       transport: 'Any',
-      interest: 'Any'
+      interest: 'Any',
     };
     setFilters(defaultFilters);
     setPage(1);
@@ -77,10 +79,8 @@ const FindTravelers = () => {
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 py-8">
-
         {/* Horizontal Search Bar */}
         <div className="bg-white p-4 rounded-[28px] shadow-xl border border-slate-100 mb-12 flex flex-col md:flex-row items-center gap-3">
-
           {/* Destination */}
           <div className="flex-1 w-full relative group">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-tb-purple transition-colors">
@@ -91,7 +91,7 @@ const FindTravelers = () => {
               placeholder="Where are you going?"
               className="w-full pl-12 pr-4 py-4 md:py-5 bg-slate-50 group-hover:bg-slate-100 focus:bg-white border-2 border-transparent focus:border-tb-purple/20 rounded-2xl outline-none transition-all font-semibold text-slate-700"
               value={filters.destination}
-              onChange={(e) => setFilters({ ...filters, destination: e.target.value })}
+              onChange={e => setFilters({ ...filters, destination: e.target.value })}
             />
           </div>
 
@@ -103,7 +103,7 @@ const FindTravelers = () => {
             <select
               className="w-full pl-12 pr-10 py-4 md:py-5 bg-slate-50 border-2 border-transparent focus:border-tb-purple/20 rounded-2xl outline-none transition-all font-semibold text-slate-700 appearance-none cursor-pointer"
               value={filters.transport}
-              onChange={(e) => setFilters({ ...filters, transport: e.target.value })}
+              onChange={e => setFilters({ ...filters, transport: e.target.value })}
             >
               <option value="Any">Any Transport</option>
               <option value="flight">Flight</option>
@@ -122,11 +122,13 @@ const FindTravelers = () => {
             <select
               className="w-full pl-12 pr-10 py-4 md:py-5 bg-slate-50 border-2 border-transparent focus:border-tb-purple/20 rounded-2xl outline-none transition-all font-semibold text-slate-700 appearance-none cursor-pointer"
               value={filters.interest}
-              onChange={(e) => setFilters({ ...filters, interest: e.target.value })}
+              onChange={e => setFilters({ ...filters, interest: e.target.value })}
             >
               <option value="Any">Any Interest</option>
               {INTERESTS_LIST.map(item => (
-                <option key={item} value={item}>{item}</option>
+                <option key={item} value={item}>
+                  {item}
+                </option>
               ))}
             </select>
             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -154,11 +156,11 @@ const FindTravelers = () => {
         {/* Results Info */}
         <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-extrabold text-slate-800">
-              Explore Trips
-            </h2>
+            <h2 className="text-3xl font-extrabold text-slate-800">Explore Trips</h2>
             <p className="text-slate-500 font-medium mt-1">
-              {loading ? "Discovering adventures..." : `Found ${trips.length} amazing trips to join`}
+              {loading
+                ? 'Discovering adventures...'
+                : `Found ${trips.length} amazing trips to join`}
             </p>
           </div>
         </div>
@@ -166,17 +168,18 @@ const FindTravelers = () => {
         {/* Content Section */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-72 bg-white animate-pulse rounded-[32px] border border-slate-100" />
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div
+                key={i}
+                className="h-72 bg-white animate-pulse rounded-[32px] border border-slate-100"
+              />
             ))}
           </div>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {trips.length > 0 ? (
-                trips.map(trip => (
-                  <TravelerCard key={trip._id} trip={trip} />
-                ))
+                trips.map(trip => <TravelerCard key={trip._id} trip={trip} />)
               ) : (
                 <div className="col-span-full py-24 bg-white rounded-[40px] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-center px-6">
                   <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
@@ -202,7 +205,7 @@ const FindTravelers = () => {
                 <Pagination
                   currentPage={page}
                   totalPages={totalPages}
-                  onPageChange={(newPage) => {
+                  onPageChange={newPage => {
                     setPage(newPage);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}

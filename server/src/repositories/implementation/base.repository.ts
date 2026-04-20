@@ -1,4 +1,4 @@
- import mongoose, { Model, FilterQuery, UpdateQuery } from 'mongoose';
+import mongoose, { Model, FilterQuery, UpdateQuery } from 'mongoose';
 import { IBaseRepository } from '../interface/IBaseRepository';
 
 export abstract class BaseRepository<T, DTO> implements IBaseRepository<T, DTO> {
@@ -24,7 +24,10 @@ export abstract class BaseRepository<T, DTO> implements IBaseRepository<T, DTO> 
     return await this._model.find(filter).exec();
   }
 
-  async updateById(id: string | mongoose.Types.ObjectId, update: UpdateQuery<T>): Promise<T | null> {
+  async updateById(
+    id: string | mongoose.Types.ObjectId,
+    update: UpdateQuery<T>
+  ): Promise<T | null> {
     return await this._model.findByIdAndUpdate(id, update, { new: true }).exec();
   }
 

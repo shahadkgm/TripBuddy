@@ -2,26 +2,22 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FooterCTA } from '../../components/FooterCTA';
 import { authService } from '../../services/c.authService';
-import {
-  Calendar, Users, MessageSquare,
-  Users2, MapPin,
-  Search, UserCheck, X
-} from 'lucide-react';
+import { Calendar, Users, MessageSquare, Users2, MapPin, Search, UserCheck, X } from 'lucide-react';
 
 const DASHBOARD_FEATURES = [
   {
-    title: "Create a Trip Plan",
-    desc: "Organize flights, hotels, and activities in one place.",
+    title: 'Create a Trip Plan',
+    desc: 'Organize flights, hotels, and activities in one place.',
     icon: <Calendar className="w-5 h-5 text-indigo-600" />,
-    color: "bg-indigo-50",
-    path: "/create-trip"
+    color: 'bg-indigo-50',
+    path: '/create-trip',
   },
   {
-    title: "Find Trips",
-    desc: "Explore and join upcoming journeys.",
+    title: 'Find Trips',
+    desc: 'Explore and join upcoming journeys.',
     icon: <Users className="w-5 h-5 text-blue-600" />,
-    color: "bg-blue-50",
-    path: "/find-travelers"
+    color: 'bg-blue-50',
+    path: '/find-travelers',
   },
   // {
   //   title: "Connection Requests",
@@ -59,11 +55,11 @@ const DASHBOARD_FEATURES = [
   //   path: "/gallery"
   // },
   {
-    title: "NearByPlace",
-    desc: "Explore local spots around you",
+    title: 'NearByPlace',
+    desc: 'Explore local spots around you',
     icon: <MapPin className="w-5 h-5 text-orange-600" />,
-    color: "bg-orange-50",
-    path: "/nearby"
+    color: 'bg-orange-50',
+    path: '/nearby',
   },
   // {
   //   title: "Travel Assistance",
@@ -81,11 +77,11 @@ const DASHBOARD_FEATURES = [
   // },
 
   {
-    title: "Join as a guide",
-    desc: "Start earning by guiding",
+    title: 'Join as a guide',
+    desc: 'Start earning by guiding',
     icon: <UserCheck className="w-5 h-5 text-rose-600" />,
-    color: "bg-rose-50",
-    path: "/join-guide"
+    color: 'bg-rose-50',
+    path: '/join-guide',
   },
 ];
 
@@ -105,7 +101,6 @@ const DashboardPage = () => {
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 md:p-8">
       {/* Main Container */}
       <div className="bg-white w-full max-w-4xl rounded-[40px] shadow-2xl overflow-hidden relative p-8 md:p-12 border border-white/20">
-
         {/* Close Button */}
         <button
           onClick={() => navigate('/')}
@@ -118,7 +113,8 @@ const DashboardPage = () => {
         <div className="mb-12">
           <h1 className="text-3xl font-extrabold text-indigo-700 mb-2">Unlock Your Adventure</h1>
           <p className="text-gray-500 text-sm md:text-base max-w-lg leading-relaxed">
-            Trip Buddy handles everything, so you can focus on making memories. Choose a feature to get started:
+            Trip Buddy handles everything, so you can focus on making memories. Choose a feature to
+            get started:
           </p>
         </div>
 
@@ -130,7 +126,9 @@ const DashboardPage = () => {
               onClick={() => navigate(item.path)}
               className="flex items-center gap-4 p-4 rounded-2xl transition-all text-left hover:bg-gray-50 active:scale-[0.98] border border-transparent hover:border-gray-100 group w-full"
             >
-              <div className={`w-12 h-12 ${item.color} rounded-2xl flex items-center justify-center transition-all group-hover:rotate-6 group-hover:shadow-inner`}>
+              <div
+                className={`w-12 h-12 ${item.color} rounded-2xl flex items-center justify-center transition-all group-hover:rotate-6 group-hover:shadow-inner`}
+              >
                 {item.icon}
               </div>
               <div className="flex flex-col">

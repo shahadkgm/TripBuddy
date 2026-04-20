@@ -25,21 +25,22 @@ export const GuideStatusPage = () => {
             <Clock className="w-10 h-10 text-amber-500" />
           </div>
 
-          <h1 className="text-3xl font-extrabold text-slate-900 mb-3">
-            Application Received!
-          </h1>
+          <h1 className="text-3xl font-extrabold text-slate-900 mb-3">Application Received!</h1>
 
           <p className="text-sm font-bold text-amber-600 uppercase tracking-widest mb-6 py-1.5 px-4 inline-block rounded-full bg-amber-50 border border-amber-200">
             Status: Pending Review
           </p>
 
           <p className="text-gray-600 max-w-md mx-auto leading-relaxed text-lg">
-            Thank you for applying to join the Trip Buddy Guide Network. Your application is now being reviewed by our verification team.
+            Thank you for applying to join the Trip Buddy Guide Network. Your application is now
+            being reviewed by our verification team.
           </p>
 
           <div className="mt-10 pt-8 border-t border-gray-100">
             <p className="text-sm text-gray-500 mb-6">
-              We aim to complete the review process within <span className="font-bold text-gray-700">48 hours</span>. You will receive an email notification once your status changes.
+              We aim to complete the review process within{' '}
+              <span className="font-bold text-gray-700">48 hours</span>. You will receive an email
+              notification once your status changes.
             </p>
             {/* <button className="flex items-center justify-center mx-auto px-8 py-3 bg-[#5537ee] text-white text-lg font-bold rounded-xl shadow-lg hover:bg-opacity-90 transition duration-300">
               <FileText className="w-5 h-5 mr-2" /> View Application Details

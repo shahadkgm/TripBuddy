@@ -7,7 +7,7 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
 
   if (!errors.isEmpty()) {
     return res.status(StatusCode.BAD_REQUEST).json({
-      message: errors.array()[0].msg
+      message: errors.array()[0].msg,
     });
   }
 

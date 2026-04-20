@@ -170,7 +170,7 @@ export class AuthService implements IAuthService {
 
   async refreshToken(token: string): Promise<string> {
     try {
-      const decoded = jwt.verify(token, this.JWT_SECRET) as { id: string, role: string };
+      const decoded = jwt.verify(token, this.JWT_SECRET) as { id: string; role: string };
       const user = await this.userRepo.findById(decoded.id);
 
       if (!user) {
@@ -198,11 +198,11 @@ export class AuthService implements IAuthService {
   // =================================================
   private generateTokens(user: { id: string; role: string }) {
     const accessTokenOptions: jwt.SignOptions = {
-      expiresIn: (process.env.ACCESS_TOKEN_EXPIRE as jwt.SignOptions['expiresIn']) || '15m'
+      expiresIn: (process.env.ACCESS_TOKEN_EXPIRE as jwt.SignOptions['expiresIn']) || '15m',
     };
 
     const refreshTokenOptions: jwt.SignOptions = {
-      expiresIn: (process.env.REFRESH_TOKEN_EXPIRE as jwt.SignOptions['expiresIn']) || '7d'
+      expiresIn: (process.env.REFRESH_TOKEN_EXPIRE as jwt.SignOptions['expiresIn']) || '7d',
     };
 
     return {
@@ -215,22 +215,14 @@ export class AuthService implements IAuthService {
     const token = crypto.randomBytes(32).toString('hex');
     const expires = Date.now() + 24 * 60 * 60 * 1000;
 
-    await this.userRepo.updateVerificationToken(
-      user._id.toString(),
-      token,
-      expires
-    );
+    await this.userRepo.updateVerificationToken(user._id.toString(), token, expires);
 
     const link = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
     console.log('link for get', link);
 
     logger.info('Sending verification email:', user.email);
 
-    await this._mailService.sendVerificationEmail(
-      user.email,
-      user.name,
-      link
-    );
+    await this._mailService.sendVerificationEmail(user.email, user.name, link);
   }
 
   private async resendVerification(user: IUser): Promise<never> {

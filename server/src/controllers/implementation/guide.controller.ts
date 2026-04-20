@@ -45,19 +45,21 @@ export class GuideController extends BaseController {
     this.sendSuccess(res, guides, 'Guides fetched successfully');
   });
 
-  updateProfile = asyncHandler(async (req: AuthRequest<{}, unknown, GuideUpdateDTO>, res: Response): Promise<void> => {
-    const userId = req.user?.id;
-    if (!userId) {
-      this.sendError(res, 'User not authenticated', StatusCode.UNAUTHORIZED);
-      return;
-    }
+  updateProfile = asyncHandler(
+    async (req: AuthRequest<{}, unknown, GuideUpdateDTO>, res: Response): Promise<void> => {
+      const userId = req.user?.id;
+      if (!userId) {
+        this.sendError(res, 'User not authenticated', StatusCode.UNAUTHORIZED);
+        return;
+      }
 
-    const updateData = { ...(req.body as GuideUpdateDTO) };
-    if (req.file) {
-      updateData.avatarURL = (req.file as unknown as S3File).location;
-    }
+      const updateData = { ...(req.body as GuideUpdateDTO) };
+      if (req.file) {
+        updateData.avatarURL = (req.file as unknown as S3File).location;
+      }
 
-    const updated = await this._guideService.updateProfile(userId, updateData);
-    this.sendSuccess(res, updated, 'Profile updated successfully');
-  });
+      const updated = await this._guideService.updateProfile(userId, updateData);
+      this.sendSuccess(res, updated, 'Profile updated successfully');
+    }
+  );
 }

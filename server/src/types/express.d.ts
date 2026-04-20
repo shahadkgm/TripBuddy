@@ -1,4 +1,3 @@
-
 declare global {
   namespace Express {
     interface Request {
@@ -11,4 +10,4 @@ declare global {
   }
 }
 
-export { };
+export {};

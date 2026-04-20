@@ -5,19 +5,19 @@ import { BaseController } from './base.controller';
 import { StatusCode } from '../../constants/statusCode.enum';
 
 export class AIController extends BaseController {
-    constructor(private readonly _aiService: IAIService) {
-        super();
+  constructor(private readonly _aiService: IAIService) {
+    super();
+  }
+
+  getAIResponse = asyncHandler(async (req: Request, res: Response) => {
+    const { prompt } = req.body;
+
+    if (!prompt) {
+      return this.sendError(res, 'Prompt is required', StatusCode.BAD_REQUEST);
     }
 
-    getAIResponse = asyncHandler(async (req: Request, res: Response) => {
-        const { prompt } = req.body;
+    const response = await this._aiService.generateResponse(prompt);
 
-        if (!prompt) {
-            return this.sendError(res, 'Prompt is required', StatusCode.BAD_REQUEST);
-        }
-
-        const response = await this._aiService.generateResponse(prompt);
-
-        this.sendSuccess(res, { response }, 'AI response generated successfully');
-    });
+    this.sendSuccess(res, { response }, 'AI response generated successfully');
+  });
 }

@@ -4,7 +4,6 @@ import { GuideResponseDTO } from '../dto/guide.dto';
 import { IGuide } from '../types/guide.type';
 
 export const toGuideResponse = (guide: IGuide): GuideResponseDTO => ({
-
   id: guide._id.toString(),
   name: guide.name,
   bio: guide.bio,
@@ -12,12 +11,13 @@ export const toGuideResponse = (guide: IGuide): GuideResponseDTO => ({
   serviceArea: guide.serviceArea,
   specialties: guide.specialties,
   avatarURL: guide.avatarURL,
-  isVerified: guide.isVerified
+  isVerified: guide.isVerified,
 });
 export const toAdminGuideResponse = (guide: IGuide): AdminGuideResponseDTO => {
-  const populatedUser = (guide.userId && typeof guide.userId === 'object' && 'name' in guide.userId)
-    ? guide.userId as { _id: Types.ObjectId; name: string; email: string; role: string }
-    : null;
+  const populatedUser =
+    guide.userId && typeof guide.userId === 'object' && 'name' in guide.userId
+      ? (guide.userId as { _id: Types.ObjectId; name: string; email: string; role: string })
+      : null;
 
   return {
     id: guide._id.toString(),
@@ -25,7 +25,7 @@ export const toAdminGuideResponse = (guide: IGuide): AdminGuideResponseDTO => {
       id: populatedUser?._id.toString() || guide.userId.toString(),
       name: populatedUser?.name || guide.name || 'Unknown',
       email: populatedUser?.email || 'N/A',
-      role: populatedUser?.role || 'guide'
+      role: populatedUser?.role || 'guide',
     },
     bio: guide.bio,
     hourlyRate: guide.hourlyRate,

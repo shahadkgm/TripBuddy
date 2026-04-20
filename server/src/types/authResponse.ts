@@ -10,7 +10,7 @@ export interface AuthResponse {
     name: string;
     email: string;
     role: 'user' | 'guide' | 'admin';
-    isBlocked:boolean
+    isBlocked: boolean;
   };
 }
 

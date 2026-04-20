@@ -1,4 +1,3 @@
-
 import mongoose, { FilterQuery, UpdateQuery } from 'mongoose';
 
 export interface IBaseRepository<T, DTO> {

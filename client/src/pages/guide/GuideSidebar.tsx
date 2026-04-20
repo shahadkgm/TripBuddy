@@ -1,20 +1,13 @@
-import { NavLink } from "react-router-dom";
-import {
-  LayoutDashboard,
-  CalendarCheck,
-  Wallet,
-  User,
-  Star,
-  Mail
-} from "lucide-react";
+import { NavLink } from 'react-router-dom';
+import { LayoutDashboard, CalendarCheck, Wallet, User, Star, Mail } from 'lucide-react';
 
 const menu = [
-  { name: "Dashboard", icon: LayoutDashboard, path: "/guide-dashboard" },
-  { name: "Invitations", icon: Mail, path: "/guide/invitations" },
-  { name: "Bookings", icon: CalendarCheck, path: "/guide/bookings" },
-  { name: "Earnings", icon: Wallet, path: "/guide/earnings" },
-  { name: "Profile Edit", icon: User, path: "/guide/profile" },
-  { name: "Reviews", icon: Star, path: "/guide/reviews" }
+  { name: 'Dashboard', icon: LayoutDashboard, path: '/guide-dashboard' },
+  { name: 'Invitations', icon: Mail, path: '/guide/invitations' },
+  { name: 'Bookings', icon: CalendarCheck, path: '/guide/bookings' },
+  { name: 'Earnings', icon: Wallet, path: '/guide/earnings' },
+  { name: 'Profile Edit', icon: User, path: '/guide/profile' },
+  { name: 'Reviews', icon: Star, path: '/guide/reviews' },
 ];
 
 export const GuideSidebar = () => {
@@ -34,11 +27,7 @@ export const GuideSidebar = () => {
             to={path}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition
-              ${
-                isActive
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-300 hover:bg-slate-700"
-              }`
+              ${isActive ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-700'}`
             }
           >
             <Icon size={18} />

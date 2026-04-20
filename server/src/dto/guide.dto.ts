@@ -1,4 +1,12 @@
-import { IsArray, IsBoolean, IsMongoId, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsMongoId,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { Types } from 'mongoose';
 import { Type, Transform } from 'class-transformer';
 
@@ -21,8 +29,14 @@ export class GuideRegisterDTO {
 
   @Transform(({ value }) => {
     if (typeof value === 'string') {
-      try { return JSON.parse(value); }
-      catch { return value.split(',').map((s: string) => s.trim()).filter(Boolean); }
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value
+          .split(',')
+          .map((s: string) => s.trim())
+          .filter(Boolean);
+      }
     }
     return Array.isArray(value) ? value : [value];
   })
@@ -55,8 +69,14 @@ export class GuideUpdateDTO {
   @IsOptional()
   @Transform(({ value }) => {
     if (typeof value === 'string') {
-        try { return JSON.parse(value); }
-        catch { return value.split(',').map((s: string) => s.trim()).filter(Boolean); }
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value
+          .split(',')
+          .map((s: string) => s.trim())
+          .filter(Boolean);
+      }
     }
     return Array.isArray(value) ? value : [value];
   })

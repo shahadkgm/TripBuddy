@@ -5,7 +5,7 @@ export interface AuthRequest<
   P = ParamsDictionary,
   ResBody = unknown,
   ReqBody = unknown,
-  ReqQuery = unknown
+  ReqQuery = unknown,
 > extends Request<P, ResBody, ReqBody, ReqQuery> {
   user?: {
     id: string;

@@ -3,7 +3,11 @@ import { PaymentRepository } from '../repositories/implementation/payment.reposi
 import { PaymentService } from '../services/implementation/payment.service';
 import { PaymentController } from '../controllers/implementation/payment.controller';
 import { dtoValidationMiddleware } from '../middleware/dtoValidation';
-import { CreatePaymentDTO, CreateStripeSessionDTO, VerifyStripePaymentDTO } from '../dto/payment.dto';
+import {
+  CreatePaymentDTO,
+  CreateStripeSessionDTO,
+  VerifyStripePaymentDTO,
+} from '../dto/payment.dto';
 import { API_ROUTES } from '../constants/routes.constants';
 import { protect } from '../middleware/authMiddleware';
 
@@ -24,42 +28,33 @@ const paymentController = new PaymentController(paymentService);
 router.use(protect);
 
 router.post(
-    API_ROUTES.PAYMENT.PAY_DEPOSIT,
-    dtoValidationMiddleware(CreatePaymentDTO),
-    paymentController.payDeposit
+  API_ROUTES.PAYMENT.PAY_DEPOSIT,
+  dtoValidationMiddleware(CreatePaymentDTO),
+  paymentController.payDeposit
 );
 
 router.post(
-    '/pay-with-wallet',
-    dtoValidationMiddleware(CreatePaymentDTO),
-    paymentController.payWithWallet
+  '/pay-with-wallet',
+  dtoValidationMiddleware(CreatePaymentDTO),
+  paymentController.payWithWallet
 );
 
 router.post(
-    '/create-stripe-session',
-    dtoValidationMiddleware(CreateStripeSessionDTO),
-    paymentController.createStripeSession
+  '/create-stripe-session',
+  dtoValidationMiddleware(CreateStripeSessionDTO),
+  paymentController.createStripeSession
 );
 
 router.post(
-    '/verify-stripe-payment',
-    dtoValidationMiddleware(VerifyStripePaymentDTO),
-    paymentController.verifyStripePayment
+  '/verify-stripe-payment',
+  dtoValidationMiddleware(VerifyStripePaymentDTO),
+  paymentController.verifyStripePayment
 );
 
-router.get(
-    API_ROUTES.PAYMENT.MY_PAYMENTS,
-    paymentController.getMyPayments
-);
+router.get(API_ROUTES.PAYMENT.MY_PAYMENTS, paymentController.getMyPayments);
 
-router.get(
-    API_ROUTES.PAYMENT.TRIP_PAYMENTS,
-    paymentController.getTripPayments
-);
+router.get(API_ROUTES.PAYMENT.TRIP_PAYMENTS, paymentController.getTripPayments);
 
-router.get(
-    API_ROUTES.PAYMENT.USER_PAYMENTS,
-    paymentController.getUserPayments
-);
+router.get(API_ROUTES.PAYMENT.USER_PAYMENTS, paymentController.getUserPayments);
 
 export default router;

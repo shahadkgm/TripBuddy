@@ -6,15 +6,10 @@ import { IKYC } from '../../types/kyc.type';
 import { logger } from '@/utils/logger';
 
 export class UploadService implements IUploadService {
-
-  constructor(private readonly _kycRepo: IKYCRepository) { }
+  constructor(private readonly _kycRepo: IKYCRepository) {}
   async saveKYCDocument(file: Express.Multer.File, userId: string, docType: string): Promise<IKYC> {
     logger.info(`Processing KYC document for user: ${userId}, type: ${docType}`);
-    const newKYC = await this._kycRepo.createKYC(
-      file,
-      userId,
-      docType,
-    );
+    const newKYC = await this._kycRepo.createKYC(file, userId, docType);
 
     logger.info(`KYC document saved to database for user: ${userId}`);
     return newKYC;

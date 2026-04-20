@@ -12,12 +12,13 @@ import { IGuide } from '../../types/guide.type';
 
 import { ITripDocument } from '../../types/trip.type';
 
-export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implements IAdminRepository {
-
+export class AdminRepository
+  extends BaseRepository<IUser, CreateUserDTO>
+  implements IAdminRepository
+{
   constructor() {
     super(UserModel);
   }
-
 
   async getAllUsers(page: number, limit: number, search: string) {
     page = Math.max(1, page);
@@ -25,11 +26,11 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
     const skip = (page - 1) * limit;
     const query = search
       ? {
-        $or: [
-          { name: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } }
-        ]
-      }
+          $or: [
+            { name: { $regex: search, $options: 'i' } },
+            { email: { $regex: search, $options: 'i' } },
+          ],
+        }
       : {};
 
     const [users, totalUsers] = await Promise.all([
@@ -45,24 +46,24 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
             pipeline: [
               { $match: { $expr: { $eq: ['$userId', '$$userIdStr'] } } },
               { $sort: { uploadedAt: -1 } },
-              { $limit: 1 }
+              { $limit: 1 },
             ],
-            as: 'kycData'
-          }
+            as: 'kycData',
+          },
         },
         {
           $addFields: {
-            kyc: { $arrayElemAt: ['$kycData', 0] }
-          }
+            kyc: { $arrayElemAt: ['$kycData', 0] },
+          },
         },
         {
           $project: {
             password: 0,
-            kycData: 0
-          }
-        }
+            kycData: 0,
+          },
+        },
       ]),
-      UserModel.countDocuments(query)
+      UserModel.countDocuments(query),
     ]);
 
     logger.info('Fetched all users with KYC data in admin repository');
@@ -71,24 +72,17 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
       users: users as IUser[],
       totalPages: Math.ceil(totalUsers / limit),
       currentPage: page,
-      totalUsers
+      totalUsers,
     };
   }
-
-
 
   async findUserById(id: string): Promise<IUser | null> {
     return await UserModel.findById(id).select('-password');
   }
 
-
   async updateUserBlockStatus(id: string, isBlocked: boolean): Promise<IUser | null> {
     console.log('id', id);
-    return await UserModel.findByIdAndUpdate(
-      id,
-      { isBlocked },
-      { new: true }
-    ).select('-password');
+    return await UserModel.findByIdAndUpdate(id, { isBlocked }, { new: true }).select('-password');
   }
   async deleteUser(id: string): Promise<boolean> {
     logger.info(`Starting cascading delete for user: ${id}`);
@@ -99,7 +93,7 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
       GuideProfile.deleteMany({ userId: id }),
       KYC.deleteMany({ userId: id }),
       // Also cleanup trips if they exist
-      TripModel.deleteMany({ userId: id })
+      TripModel.deleteMany({ userId: id }),
     ]);
 
     if (userResult) {
@@ -117,7 +111,6 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
       .populate('userId', 'name email role')
       .sort({ createdAt: -1 })
       .lean<IGuide[]>();
-
   }
   async getAllGuides(page: number, limit: number, search: string) {
     const skip = (Math.max(1, page) - 1) * limit;
@@ -128,10 +121,10 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
           from: 'users',
           localField: 'userId',
           foreignField: '_id',
-          as: 'user'
-        }
+          as: 'user',
+        },
       },
-      { $unwind: '$user' }
+      { $unwind: '$user' },
     ];
 
     if (search) {
@@ -143,9 +136,9 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
             { bio: { $regex: search, $options: 'i' } },
             { specialties: { $regex: search, $options: 'i' } },
             { 'user.email': { $regex: search, $options: 'i' } },
-            { 'user.name': { $regex: search, $options: 'i' } }
-          ]
-        }
+            { 'user.name': { $regex: search, $options: 'i' } },
+          ],
+        },
       });
     }
 
@@ -171,14 +164,11 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
             specialties: 1,
             isVerified: 1,
             createdAt: 1,
-            updatedAt: 1
-          }
-        }
+            updatedAt: 1,
+          },
+        },
       ]),
-      GuideProfile.aggregate([
-        ...pipeline,
-        { $count: 'count' }
-      ])
+      GuideProfile.aggregate([...pipeline, { $count: 'count' }]),
     ]);
 
     const totalGuides = totalResults.length > 0 ? totalResults[0].count : 0;
@@ -188,7 +178,7 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
       guides,
       totalPages: Math.ceil(totalGuides / limit),
       totalGuides,
-      currentPage: page
+      currentPage: page,
     };
   }
   async verifyGuide(guideId: string): Promise<IGuide | null> {
@@ -219,7 +209,9 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
       userId,
       { $inc: { walletBalance: amount } },
       { new: true }
-    ).select('-password').lean<IUser>();
+    )
+      .select('-password')
+      .lean<IUser>();
   }
 
   // Trips
@@ -229,11 +221,11 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
     const skip = (page - 1) * limit;
     const query = search
       ? {
-        $or: [
-          { title: { $regex: search, $options: 'i' } },
-          { destination: { $regex: search, $options: 'i' } }
-        ]
-      }
+          $or: [
+            { title: { $regex: search, $options: 'i' } },
+            { destination: { $regex: search, $options: 'i' } },
+          ],
+        }
       : {};
 
     const [trips, totalTrips] = await Promise.all([
@@ -243,22 +235,20 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
         .skip(skip)
         .limit(limit)
         .lean<ITripDocument[]>(),
-      TripModel.countDocuments(query)
+      TripModel.countDocuments(query),
     ]);
 
     return {
       trips,
       totalPages: Math.ceil(totalTrips / limit),
       currentPage: page,
-      totalTrips
+      totalTrips,
     };
   }
 
   async updateTripStatus(tripId: string, status: string): Promise<ITripDocument | null> {
-    return await TripModel.findByIdAndUpdate(
-      tripId,
-      { status },
-      { new: true }
-    ).populate('userId', 'name email').lean<ITripDocument>();
+    return await TripModel.findByIdAndUpdate(tripId, { status }, { new: true })
+      .populate('userId', 'name email')
+      .lean<ITripDocument>();
   }
 }

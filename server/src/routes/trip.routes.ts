@@ -24,68 +24,34 @@ const tripController = new TripController(tripService);
 
 router.use(protect);
 
-router.post(
-    '/:id/finalize',
-    tripController.finalizeTrip
-);
+router.post('/:id/finalize', tripController.finalizeTrip);
+
+router.post('/:id/cancel', tripController.cancelTrip);
+
+router.post('/:id/complete', tripController.completeTrip);
+
+router.post('/:id/leave', tripController.leaveTrip);
 
 router.post(
-    '/:id/cancel',
-    tripController.cancelTrip
+  API_ROUTES.TRIP.CREATE,
+  upload.none(), // Parse FormData fields into req.body
+  dtoValidationMiddleware(CreateTripDTO),
+  tripController.createTrip
 );
 
-router.post(
-    '/:id/complete',
-    tripController.completeTrip
-);
+router.get(API_ROUTES.TRIP.GET_BY_USER, tripController.getUserTrips);
 
-router.post(
-    '/:id/leave',
-    tripController.leaveTrip
-);
+router.get(API_ROUTES.TRIP.GET_ALL, tripController.getAllTrips);
 
-router.post(
-    API_ROUTES.TRIP.CREATE,
-    upload.none(), // Parse FormData fields into req.body
-    dtoValidationMiddleware(CreateTripDTO),
-    tripController.createTrip
-);
+router.get(API_ROUTES.TRIP.GET_BY_ID, tripController.getTripById);
 
-router.get(
-    API_ROUTES.TRIP.GET_BY_USER,
-    tripController.getUserTrips
-);
+router.patch(API_ROUTES.TRIP.GET_BY_ID, upload.none(), tripController.updateTrip);
 
-router.get(
-    API_ROUTES.TRIP.GET_ALL,
-    tripController.getAllTrips
-);
-
-router.get(
-    API_ROUTES.TRIP.GET_BY_ID,
-    tripController.getTripById
-);
-
-router.patch(
-    API_ROUTES.TRIP.GET_BY_ID,
-    upload.none(),
-    tripController.updateTrip
-);
-
-router.get(
-    API_ROUTES.TRIP.GET_CHAT,
-    tripController.getChatHistory
-);
+router.get(API_ROUTES.TRIP.GET_CHAT, tripController.getChatHistory);
 
 // Assign / remove a guide from a trip
-router.patch(
-    '/:id/guide',
-    tripController.assignGuide
-);
+router.patch('/:id/guide', tripController.assignGuide);
 
-router.get(
-    '/guide/:guideId',
-    tripController.getGuideTrips
-);
+router.get('/guide/:guideId', tripController.getGuideTrips);
 
 export default router;

@@ -2,7 +2,6 @@
 import { IUser } from '../types/user.type';
 import { UserResponseDTO } from '../dto/user.dto';
 
-
 export class UserMapper {
   static toResponseDTO(user: IUser): UserResponseDTO {
     return {
@@ -26,4 +25,3 @@ export class UserMapper {
     };
   }
 }
-

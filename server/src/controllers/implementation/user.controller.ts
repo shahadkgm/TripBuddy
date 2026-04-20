@@ -19,13 +19,11 @@ export class UserController extends BaseController {
     this.sendSuccess(res, users, 'Users fetched successfully');
   });
 
-  forgotPassword = asyncHandler(
-    async (req: Request<{}, {}, ForgotPasswordDTO>, res: Response) => {
-      const { email } = req.body;
-      const result = await this._userService.forgotPassword(email);
-      this.sendSuccess(res, result, 'Reset email sent successfully');
-    }
-  );
+  forgotPassword = asyncHandler(async (req: Request<{}, {}, ForgotPasswordDTO>, res: Response) => {
+    const { email } = req.body;
+    const result = await this._userService.forgotPassword(email);
+    this.sendSuccess(res, result, 'Reset email sent successfully');
+  });
 
   resetPassword = asyncHandler(async (req: Request, res: Response) => {
     const { token } = req.params;
@@ -62,5 +60,4 @@ export class UserController extends BaseController {
     const response = UserMapper.toResponseDTO(user);
     this.sendSuccess(res, response, 'User profile fetched successfully');
   });
-
 }

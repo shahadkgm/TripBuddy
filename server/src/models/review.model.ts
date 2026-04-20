@@ -1,54 +1,54 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
 export interface IReview {
-    tripId: Types.ObjectId;
-    reviewerId: Types.ObjectId;
-    organizerId: Types.ObjectId;
-    guideId?: Types.ObjectId;
-    rating: number; // 1-5
-    comment: string;
-    createdAt: Date;
+  tripId: Types.ObjectId;
+  reviewerId: Types.ObjectId;
+  organizerId: Types.ObjectId;
+  guideId?: Types.ObjectId;
+  rating: number; // 1-5
+  comment: string;
+  createdAt: Date;
 }
 
 export type IReviewDocument = IReview & Document;
 
 const reviewSchema = new Schema<IReviewDocument>(
-    {
-        tripId: {
-            type: Schema.Types.ObjectId,
-            ref: 'Trip',
-            required: true,
-        },
-        reviewerId: {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-            required: true,
-        },
-        organizerId: {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-            required: true,
-        },
-        guideId: {
-            type: Schema.Types.ObjectId,
-            ref: 'GuideProfile',
-            required: false,
-        },
-        rating: {
-            type: Number,
-            required: true,
-            min: 1,
-            max: 5,
-        },
-        comment: {
-            type: String,
-            required: true,
-            trim: true,
-        },
+  {
+    tripId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Trip',
+      required: true,
     },
-    {
-        timestamps: { createdAt: true, updatedAt: false },
-    }
+    reviewerId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    organizerId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    guideId: {
+      type: Schema.Types.ObjectId,
+      ref: 'GuideProfile',
+      required: false,
+    },
+    rating: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5,
+    },
+    comment: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+  {
+    timestamps: { createdAt: true, updatedAt: false },
+  }
 );
 
 // Indexes

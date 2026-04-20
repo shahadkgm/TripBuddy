@@ -1,26 +1,26 @@
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL
+const SOCKET_URL = import.meta.env.VITE_API_URL;
 
 export const useSocket = (tripId: string | undefined) => {
-    const [socket, setSocket] = useState<Socket | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
-    useEffect(() => {
-        if (!tripId) return;
+  useEffect(() => {
+    if (!tripId) return;
 
-        const newSocket = io(SOCKET_URL, {
-            withCredentials: true,
-        });
+    const newSocket = io(SOCKET_URL, {
+      withCredentials: true,
+    });
 
-        setSocket(newSocket);
+    setSocket(newSocket);
 
-        newSocket.emit('join_trip', tripId);
+    newSocket.emit('join_trip', tripId);
 
-        return () => {
-            newSocket.disconnect();
-        };
-    }, [tripId]);
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [tripId]);
 
-    return socket;
+  return socket;
 };

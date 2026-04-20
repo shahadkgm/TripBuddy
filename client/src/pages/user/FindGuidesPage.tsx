@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Search, MapPin,
-  RotateCcw, SlidersHorizontal
-} from 'lucide-react';
+import { Search, MapPin, RotateCcw, SlidersHorizontal } from 'lucide-react';
 import api from '../../utils/api';
 import { GuideCard } from '../../components/GuideCard';
 import { Pagination } from '../../components/Pagination';
@@ -13,7 +10,7 @@ import type { IGuide } from '../../interface/IGuide';
 const FindGuidesPage: React.FC = () => {
   const [guides, setGuides] = useState<IGuide[]>([]);
   const [loading, setLoading] = useState(true);
-  const [destination, setDestination] = useState("");
+  const [destination, setDestination] = useState('');
   const [maxPrice, setMaxPrice] = useState(5000);
 
   // Pagination State
@@ -28,13 +25,13 @@ const FindGuidesPage: React.FC = () => {
         params: {
           ...filters,
           page: currentPage,
-          limit
-        }
+          limit,
+        },
       });
       setGuides(res.data.data.guides);
       setTotalPages(Math.ceil(res.data.data.total / limit));
     } catch (err) {
-      console.error("Error fetching guides", err);
+      console.error('Error fetching guides', err);
     } finally {
       setLoading(false);
     }
@@ -50,10 +47,10 @@ const FindGuidesPage: React.FC = () => {
   };
 
   const handleReset = () => {
-    setDestination("");
+    setDestination('');
     setMaxPrice(5000);
     setPage(1);
-    fetchGuides(1, { destination: "", maxPrice: 5000 });
+    fetchGuides(1, { destination: '', maxPrice: 5000 });
   };
 
   return (
@@ -66,7 +63,9 @@ const FindGuidesPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="mb-8">
             <h2 className="text-3xl font-extrabold text-slate-900">Discover Local Guides</h2>
-            <p className="text-slate-500 font-medium mt-1">Connect with verified experts who know the hidden gems.</p>
+            <p className="text-slate-500 font-medium mt-1">
+              Connect with verified experts who know the hidden gems.
+            </p>
           </div>
 
           <div className="bg-slate-50 p-4 rounded-[32px] border border-slate-200 flex flex-col md:flex-row items-center gap-4">
@@ -80,14 +79,16 @@ const FindGuidesPage: React.FC = () => {
                 placeholder="Where do you need a guide?"
                 className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 focus:border-tb-purple rounded-2xl outline-none transition-all font-semibold text-slate-700 shadow-sm"
                 value={destination}
-                onChange={(e) => setDestination(e.target.value)}
+                onChange={e => setDestination(e.target.value)}
               />
             </div>
 
             {/* Price Filter */}
             <div className="w-full md:w-72 px-6 py-3 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
               <div className="flex justify-between items-center mb-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Rate Limit</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  Rate Limit
+                </label>
                 <span className="text-sm font-black text-tb-purple">₹{maxPrice}</span>
               </div>
               <input
@@ -96,7 +97,7 @@ const FindGuidesPage: React.FC = () => {
                 max="5000"
                 step="50"
                 value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
+                onChange={e => setMaxPrice(Number(e.target.value))}
                 className="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-tb-purple"
               />
             </div>
@@ -127,23 +128,24 @@ const FindGuidesPage: React.FC = () => {
         <div className="mb-8 flex items-center justify-between">
           <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
             <SlidersHorizontal className="w-5 h-5 text-slate-400" />
-            {loading ? "Searching for experts..." : `${guides.length} Verified local experts`}
+            {loading ? 'Searching for experts...' : `${guides.length} Verified local experts`}
           </h3>
         </div>
 
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-44 bg-white animate-pulse rounded-[28px] border border-slate-100 shadow-sm" />
+            {[1, 2, 3, 4].map(i => (
+              <div
+                key={i}
+                className="h-44 bg-white animate-pulse rounded-[28px] border border-slate-100 shadow-sm"
+              />
             ))}
           </div>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
               {guides.length > 0 ? (
-                guides.map((guide) => (
-                  <GuideCard key={guide.id} guide={guide} />
-                ))
+                guides.map(guide => <GuideCard key={guide.id} guide={guide} />)
               ) : (
                 <div className="col-span-full py-24 bg-white rounded-[40px] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-center px-6">
                   <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
@@ -169,7 +171,7 @@ const FindGuidesPage: React.FC = () => {
                 <Pagination
                   currentPage={page}
                   totalPages={totalPages}
-                  onPageChange={(newPage) => {
+                  onPageChange={newPage => {
                     setPage(newPage);
                     window.scrollTo({ top: 300, behavior: 'smooth' });
                   }}

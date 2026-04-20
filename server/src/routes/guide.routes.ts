@@ -19,8 +19,6 @@ const guideRepo = new GuideRepository();
 const guideService = new GuideService(guideRepo, userRepo);
 const guideController = new GuideController(guideService);
 
-
-
 router.post(
   API_ROUTES.GUIDE.REGISTER,
   protect,

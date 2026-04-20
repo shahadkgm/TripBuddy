@@ -13,10 +13,16 @@ export const GuideCard: React.FC<{ guide: IGuide }> = ({ guide }) => {
     <div className="bg-white p-6 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col sm:flex-row items-center sm:items-start gap-6 hover:shadow-2xl hover:shadow-indigo-100 transition-all duration-500 group relative overflow-hidden">
       {/* Background Accent */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700 opacity-50" />
-      
+
       <div className="relative">
         <img
-          src={guide.avatarURL ? (guide.avatarURL.startsWith('http') ? guide.avatarURL : `${import.meta.env.VITE_API_URL}${guide.avatarURL}`) : "https://api.dicebear.com/7.x/avataaars/svg?seed=" + (guide.userId?.name || 'guide')}
+          src={
+            guide.avatarURL
+              ? guide.avatarURL.startsWith('http')
+                ? guide.avatarURL
+                : `${import.meta.env.VITE_API_URL}${guide.avatarURL}`
+              : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (guide.userId?.name || 'guide')
+          }
           className="w-24 h-24 sm:w-28 sm:h-28 rounded-[2rem] object-cover border-4 border-white shadow-lg ring-1 ring-slate-100"
           alt="Guide"
         />
@@ -37,7 +43,9 @@ export const GuideCard: React.FC<{ guide: IGuide }> = ({ guide }) => {
           </div>
           <div className="bg-slate-900 text-white px-4 py-2 rounded-2xl flex flex-col items-center">
             <span className="text-lg font-black leading-none">₹{guide.hourlyRate}</span>
-            <span className="text-[8px] font-black uppercase tracking-widest opacity-60">per day</span>
+            <span className="text-[8px] font-black uppercase tracking-widest opacity-60">
+              per day
+            </span>
           </div>
         </div>
 
@@ -47,14 +55,17 @@ export const GuideCard: React.FC<{ guide: IGuide }> = ({ guide }) => {
 
         <div className="mt-4 flex flex-wrap justify-center sm:justify-start gap-2">
           {guide.specialties?.slice(0, 3).map((s: string) => (
-            <span key={s} className="text-[9px] uppercase tracking-widest font-black bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-xl border border-indigo-100/50">
+            <span
+              key={s}
+              className="text-[9px] uppercase tracking-widest font-black bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-xl border border-indigo-100/50"
+            >
               {s}
             </span>
           ))}
         </div>
 
         {isTraveler && (
-          <button 
+          <button
             onClick={() => setShowInviteModal(true)}
             className="w-full mt-6 py-4 bg-slate-900 text-white rounded-[1.25rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-indigo-100 hover:bg-indigo-600 transition-all active:scale-95 flex items-center justify-center gap-2 group/btn"
           >
@@ -65,10 +76,7 @@ export const GuideCard: React.FC<{ guide: IGuide }> = ({ guide }) => {
       </div>
 
       {showInviteModal && (
-        <InviteGuideModal 
-          guide={guide} 
-          onClose={() => setShowInviteModal(false)} 
-        />
+        <InviteGuideModal guide={guide} onClose={() => setShowInviteModal(false)} />
       )}
     </div>
   );

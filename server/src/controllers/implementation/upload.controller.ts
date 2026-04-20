@@ -23,11 +23,7 @@ export class UploadController extends BaseController {
       return;
     }
 
-    const kycRecord = await this._uploadService.saveKYCDocument(
-      req.file,
-      userId,
-      documentType
-    );
+    const kycRecord = await this._uploadService.saveKYCDocument(req.file, userId, documentType);
 
     this.sendCreated(res, kycRecord, 'KYC Document uploaded and pending approval');
   });

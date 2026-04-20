@@ -33,7 +33,6 @@ export interface GuideListDTO {
   currentPage: number;
 }
 
-
 export interface DashboardStatsDTO {
   totalUsers: number;
   totalGuides: number;

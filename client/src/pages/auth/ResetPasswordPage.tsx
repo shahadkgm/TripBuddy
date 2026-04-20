@@ -25,18 +25,18 @@ export const ResetPasswordPage = () => {
     const newErrors = { password: '', confirmPassword: '' };
 
     if (!password) {
-      newErrors.password = "Password is required";
+      newErrors.password = 'Password is required';
       isValid = false;
     } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+      newErrors.password = 'Password must be at least 6 characters';
       isValid = false;
     }
 
     if (!confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
+      newErrors.confirmPassword = 'Please confirm your password';
       isValid = false;
     } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
+      newErrors.confirmPassword = 'Passwords do not match';
       isValid = false;
     }
 
@@ -49,15 +49,15 @@ export const ResetPasswordPage = () => {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    const loadToast = toast.loading("Updating password...");
+    const loadToast = toast.loading('Updating password...');
 
     try {
       await api.post(`/api/users/reset-password/${token}`, { password });
 
-      toast.success("Password reset successful! Redirecting to login...", { id: loadToast });
+      toast.success('Password reset successful! Redirecting to login...', { id: loadToast });
       setTimeout(() => navigate('/login'), 3000);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Link expired or invalid", { id: loadToast });
+      toast.error(error.response?.data?.message || 'Link expired or invalid', { id: loadToast });
     } finally {
       setIsSubmitting(false);
     }
@@ -72,10 +72,11 @@ export const ResetPasswordPage = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
             <input
               type="password"
-              className={`w-full px-4 py-3 rounded-xl border ${errors.password ? 'border-red-500' : 'border-gray-200'
-                } focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
+              className={`w-full px-4 py-3 rounded-xl border ${
+                errors.password ? 'border-red-500' : 'border-gray-200'
+              } focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
               value={password}
-              onChange={(e) => {
+              onChange={e => {
                 setPassword(e.target.value);
                 if (errors.password) setErrors({ ...errors, password: '' });
               }}
@@ -85,13 +86,16 @@ export const ResetPasswordPage = () => {
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Confirm New Password
+            </label>
             <input
               type="password"
-              className={`w-full px-4 py-3 rounded-xl border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-200'
-                } focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
+              className={`w-full px-4 py-3 rounded-xl border ${
+                errors.confirmPassword ? 'border-red-500' : 'border-gray-200'
+              } focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
               value={confirmPassword}
-              onChange={(e) => {
+              onChange={e => {
                 setConfirmPassword(e.target.value);
                 if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: '' });
               }}
@@ -101,7 +105,7 @@ export const ResetPasswordPage = () => {
             )}
           </div>
           <Button type="submit" className="w-full py-3" disabled={isSubmitting}>
-            {isSubmitting ? "Resetting..." : "Update Password"}
+            {isSubmitting ? 'Resetting...' : 'Update Password'}
           </Button>
         </form>
       </div>

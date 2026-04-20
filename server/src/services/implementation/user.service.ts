@@ -13,18 +13,13 @@ export class UserService implements IUserService {
   constructor(
     private readonly _userRepository: IUserRepository,
     private readonly _mailService: IMailService
-  ) { }
+  ) {}
 
-  async registerUser(
-    userData: RegisterUserDTO
-  ): Promise<RegisterUserResponseDTO> {
+  async registerUser(userData: RegisterUserDTO): Promise<RegisterUserResponseDTO> {
     const existingUser = await this._userRepository.findByEmail(userData.email);
 
     if (existingUser) {
-      throw new AppError(
-        'User with this email already exists',
-        StatusCode.CONFLICT
-      );
+      throw new AppError('User with this email already exists', StatusCode.CONFLICT);
     }
 
     const newUser = await this._userRepository.create({
@@ -53,32 +48,19 @@ export class UserService implements IUserService {
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(resetToken)
-      .digest('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 
     const expires = Date.now() + 3600000;
 
-    await this._userRepository.updateResetToken(
-      user._id.toString(),
-      hashedToken,
-      expires
-    );
+    await this._userRepository.updateResetToken(user._id.toString(), hashedToken, expires);
 
     await this._mailService.sendResetEmail(user.email, resetToken);
 
     return { message: 'Reset link sent to email' };
   }
 
-  async resetPassword(
-    token: string,
-    newPassword: string
-  ): Promise<{ message: string }> {
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex');
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
     const user = await this._userRepository.findByResetToken(hashedToken);
 
@@ -87,10 +69,7 @@ export class UserService implements IUserService {
       !user.passwordResetExpires ||
       new Date(user.passwordResetExpires).getTime() < Date.now()
     ) {
-      throw new AppError(
-        'Token is invalid or expired',
-        StatusCode.BAD_REQUEST
-      );
+      throw new AppError('Token is invalid or expired', StatusCode.BAD_REQUEST);
     }
 
     await this._userRepository.updatePassword(user._id.toString(), newPassword);
@@ -120,7 +99,11 @@ export class UserService implements IUserService {
     return updatedUser;
   }
 
-  async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<{ message: string }> {
+  async changePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<{ message: string }> {
     const user = await this._userRepository.findById(userId);
     if (!user || !user.password) {
       throw new AppError('User not found', StatusCode.NOT_FOUND);

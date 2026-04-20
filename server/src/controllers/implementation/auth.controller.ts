@@ -38,13 +38,17 @@ export class AuthController extends BaseController implements IAuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE)
+      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
     });
 
-    this.sendSuccess(res, {
-      accessToken: result.tokens?.accessToken,
-      user: result.user,
-    }, result.message);
+    this.sendSuccess(
+      res,
+      {
+        accessToken: result.tokens?.accessToken,
+        user: result.user,
+      },
+      result.message
+    );
   });
 
   googleLogin = asyncHandler(async (req: Request, res: Response) => {
@@ -60,13 +64,17 @@ export class AuthController extends BaseController implements IAuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE)
+      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
     });
 
-    this.sendSuccess(res, {
-      accessToken: result.tokens?.accessToken,
-      user: result.user,
-    }, result.message);
+    this.sendSuccess(
+      res,
+      {
+        accessToken: result.tokens?.accessToken,
+        user: result.user,
+      },
+      result.message
+    );
   });
 
   verifyEmail = asyncHandler(async (req: Request, res: Response) => {

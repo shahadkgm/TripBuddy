@@ -2,30 +2,30 @@ import { Schema, model } from 'mongoose';
 import { IConnectionDocument } from '../types/connection.type';
 
 const connectionSchema = new Schema<IConnectionDocument>(
-    {
-        senderId: {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-            required: true,
-        },
-        receiverId: {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-            required: true,
-        },
-        tripId: {
-            type: Schema.Types.ObjectId,
-            ref: 'Trip',
-        },
-        status: {
-            type: String,
-            enum: ['pending', 'accepted', 'rejected'],
-            default: 'pending',
-        },
+  {
+    senderId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
-    {
-        timestamps: true,
-    }
+    receiverId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    tripId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Trip',
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'accepted', 'rejected'],
+      default: 'pending',
+    },
+  },
+  {
+    timestamps: true,
+  }
 );
 
 // Individual indexes for faster lookups

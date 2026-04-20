@@ -37,5 +37,4 @@ export interface IUser {
   };
 }
 
-
 // export interface IUserDocument extends IUser, Document {}

@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react"; // 1. Import useRef
-import { useSearchParams, useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-import { authService } from "../../services/c.authService";
+import { useEffect, useRef } from 'react'; // 1. Import useRef
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { authService } from '../../services/c.authService';
 
 const VerifyEmail = () => {
   const [params] = useSearchParams();
@@ -10,29 +10,29 @@ const VerifyEmail = () => {
   const hasStarted = useRef(false);
 
   useEffect(() => {
-    const token = params.get("token");
+    const token = params.get('token');
 
     if (!token) {
-      toast.error("Invalid verification link");
+      toast.error('Invalid verification link');
       return;
     }
 
     // 3. Check the ref. If true, skip the rest of the function.
     if (hasStarted.current) return;
-    
+
     // 4. Set it to true immediately
     hasStarted.current = true;
 
     const verify = async () => {
       try {
         await authService.verifyEmail(token);
-        toast.success("Email verified successfully 🎉");
-        navigate("/login");
+        toast.success('Email verified successfully 🎉');
+        navigate('/login');
       } catch (err: any) {
         // If the first one succeeded, the user is likely verified.
-        // You might want to check if the error is "INVALID_TOKEN_OR_EXPIRED" 
+        // You might want to check if the error is "INVALID_TOKEN_OR_EXPIRED"
         // and ignore it if the user is already redirected.
-        toast.error(err.response?.data?.message || "Verification failed");
+        toast.error(err.response?.data?.message || 'Verification failed');
       }
     };
 

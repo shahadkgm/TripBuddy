@@ -6,24 +6,24 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   {
     // Fix: Added eslint.config.mjs to ignores
-    ignores: ["dist/**", "node_modules/**", "build/**", "eslint.config.mjs"],
+    ignores: ['dist/**', 'node_modules/**', 'build/**', 'eslint.config.mjs'],
   },
   {
     languageOptions: {
       parserOptions: {
         // Change 'true' to your actual tsconfig path to be more explicit
-        project: './tsconfig.json', 
+        project: './tsconfig.json',
         tsconfigRootDir: import.meta.dirname,
       },
     },
     rules: {
       'no-console': 'off',
-      'semi': ['error', 'always'],
-      'quotes': ['error', 'single'],
+      semi: ['error', 'always'],
+      quotes: ['error', 'single'],
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       // Added this to allow {} which you used in controllers
-      '@typescript-eslint/no-empty-object-type': 'off' 
+      '@typescript-eslint/no-empty-object-type': 'off',
     },
   }
 );

@@ -59,13 +59,13 @@ export const GuideManagement = () => {
     try {
       setLoading(true);
       const { data } = await api.get('/api/admin/guides', {
-        params: { page: currentPage, limit, search: debouncedTerm }
+        params: { page: currentPage, limit, search: debouncedTerm },
       });
-      console.log("from g-management", data.guides);
+      console.log('from g-management', data.guides);
       setGuides(data.data.guides);
       setTotalPages(data.data.totalPages);
     } catch (err) {
-      toast.error("Failed to load applications");
+      toast.error('Failed to load applications');
     } finally {
       setLoading(false);
     }
@@ -74,10 +74,10 @@ export const GuideManagement = () => {
   const handleApprove = async (id: string) => {
     try {
       await api.patch(`/api/admin/guides/${id}/verify`);
-      toast.success("Guide approved!");
+      toast.success('Guide approved!');
       loadGuides();
     } catch (err) {
-      toast.error("Approval failed");
+      toast.error('Approval failed');
     }
   };
 
@@ -92,10 +92,10 @@ export const GuideManagement = () => {
     if (!guideToReject) return;
     try {
       await api.delete(`/api/admin/guides/${guideToReject}`);
-      toast.success("Application rejected");
+      toast.success('Application rejected');
       loadGuides();
     } catch (err) {
-      toast.error("Rejection failed");
+      toast.error('Rejection failed');
     } finally {
       setIsConfirmOpen(false);
       setGuideToReject(null);
@@ -104,58 +104,59 @@ export const GuideManagement = () => {
 
   const columns = [
     {
-      header: "No.",
-      key: "index",
-      className: "hidden md:table-cell",
+      header: 'No.',
+      key: 'index',
+      className: 'hidden md:table-cell',
       render: (_: IGuideApplication, index: number) => (
         <span className="text-xs font-mono text-gray-400">
           {(currentPage - 1) * limit + (index + 1)}
         </span>
-      )
+      ),
     },
     {
-      header: "Applicant",
-      key: "userId",
+      header: 'Applicant',
+      key: 'userId',
       render: (guide: IGuideApplication) => (
         <div className="py-1 max-w-[150px] sm:max-w-[200px]">
-          <div className="font-bold text-gray-900 truncate">{guide.user?.name || "Unknown"}</div>
+          <div className="font-bold text-gray-900 truncate">{guide.user?.name || 'Unknown'}</div>
           <div className="text-xs text-gray-500 truncate">{guide.user?.email}</div>
           <div className="text-[11px] italic text-gray-400 line-clamp-2 mt-1" title={guide.bio}>
             "{guide.bio}"
           </div>
         </div>
-      )
+      ),
     },
     {
-      header: "Exp & Area",
-      key: "yearsOfExperience",
-      className: "hidden sm:table-cell",
+      header: 'Exp & Area',
+      key: 'yearsOfExperience',
+      className: 'hidden sm:table-cell',
       render: (guide: IGuideApplication) => (
         <div className="max-w-[120px]">
           <div className="text-sm font-semibold">{guide.yearsOfExperience} years</div>
-          <div className="text-xs text-gray-500 truncate">
-            {guide.serviceArea}
-          </div>
+          <div className="text-xs text-gray-500 truncate">{guide.serviceArea}</div>
           <div className="text-xs font-bold text-emerald-600">₹{guide.hourlyRate}/hr</div>
         </div>
-      )
+      ),
     },
     {
-      header: "Status",
-      key: "isVerified",
+      header: 'Status',
+      key: 'isVerified',
       render: (guide: IGuideApplication) => (
-        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${guide.isVerified
-          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-          : 'bg-amber-50 text-amber-700 border-amber-200'
-          }`}>
+        <span
+          className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${
+            guide.isVerified
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+              : 'bg-amber-50 text-amber-700 border-amber-200'
+          }`}
+        >
           {guide.isVerified ? 'Verified' : 'Pending'}
         </span>
-      )
+      ),
     },
     {
-      header: "Details",
-      key: "details",
-      className: "hidden lg:table-cell",
+      header: 'Details',
+      key: 'details',
+      className: 'hidden lg:table-cell',
       render: (guide: IGuideApplication) => (
         <button
           onClick={() => setViewingGuide(guide)}
@@ -163,12 +164,12 @@ export const GuideManagement = () => {
         >
           <Eye size={14} className="group-hover:scale-110 transition-transform" /> View
         </button>
-      )
+      ),
     },
     {
-      header: "Actions",
-      key: "actions",
-      className: "text-right",
+      header: 'Actions',
+      key: 'actions',
+      className: 'text-right',
       render: (guide: IGuideApplication) => (
         <div className="flex justify-end gap-1">
           {!guide.isVerified && (
@@ -188,8 +189,8 @@ export const GuideManagement = () => {
             <XCircle size={18} />
           </button>
         </div>
-      )
-    }
+      ),
+    },
   ];
 
   return (
@@ -202,7 +203,7 @@ export const GuideManagement = () => {
           </div>
           <SearchBar
             placeholder="Search by name, email or area..."
-            onSearch={(val) => {
+            onSearch={val => {
               setSearchTerm(val);
               setCurrentPage(1);
             }}
@@ -222,7 +223,7 @@ export const GuideManagement = () => {
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              onPageChange={(page) => setCurrentPage(page)}
+              onPageChange={page => setCurrentPage(page)}
             />
           </div>
         </div>
@@ -236,14 +237,22 @@ export const GuideManagement = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center font-bold text-[#5537ee] border border-indigo-100 overflow-hidden">
                     {viewingGuide.avatarURL ? (
-                      <img src={viewingGuide.avatarURL} alt="" className="w-full h-full object-cover" />
+                      <img
+                        src={viewingGuide.avatarURL}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       viewingGuide.user?.name[0]
                     )}
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 leading-tight">{viewingGuide.user?.name}</h3>
-                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Guide Application Review</p>
+                    <h3 className="font-bold text-gray-900 leading-tight">
+                      {viewingGuide.user?.name}
+                    </h3>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">
+                      Guide Application Review
+                    </p>
                   </div>
                 </div>
                 <button
@@ -281,14 +290,22 @@ export const GuideManagement = () => {
                   <div className="space-y-8">
                     <div className="flex justify-between items-start">
                       <div>
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Application Status</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                          Application Status
+                        </label>
                         <div className="mt-2 text-sm font-bold flex items-center gap-2">
-                          <span className={`w-2.5 h-2.5 rounded-full ${viewingGuide.isVerified ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
-                          <span className="uppercase tracking-tight text-gray-700">{viewingGuide.status}</span>
+                          <span
+                            className={`w-2.5 h-2.5 rounded-full ${viewingGuide.isVerified ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                          ></span>
+                          <span className="uppercase tracking-tight text-gray-700">
+                            {viewingGuide.status}
+                          </span>
                         </div>
                       </div>
                       <div className="text-right">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Identification</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                          Identification
+                        </label>
                         {viewingGuide.certificateUrl ? (
                           <a
                             href={viewingGuide.certificateUrl}
@@ -299,7 +316,9 @@ export const GuideManagement = () => {
                             <Eye size={12} /> View Certificate
                           </a>
                         ) : (
-                          <p className="mt-2 text-[10px] text-red-400 font-bold">Missing Document</p>
+                          <p className="mt-2 text-[10px] text-red-400 font-bold">
+                            Missing Document
+                          </p>
                         )}
                       </div>
                     </div>
@@ -307,22 +326,36 @@ export const GuideManagement = () => {
                     {/* Basic Details */}
                     <div className="grid grid-cols-2 gap-6 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                       <div>
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Experience</label>
-                        <p className="text-sm font-bold text-gray-800">{viewingGuide.yearsOfExperience || 0} Years</p>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                          Experience
+                        </label>
+                        <p className="text-sm font-bold text-gray-800">
+                          {viewingGuide.yearsOfExperience || 0} Years
+                        </p>
                       </div>
                       <div>
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Hourly Rate</label>
-                        <p className="text-sm font-bold text-emerald-600">₹{viewingGuide.hourlyRate || 0}/hr</p>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                          Hourly Rate
+                        </label>
+                        <p className="text-sm font-bold text-emerald-600">
+                          ₹{viewingGuide.hourlyRate || 0}/hr
+                        </p>
                       </div>
                       <div className="col-span-2">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Service Area</label>
-                        <p className="text-sm font-semibold text-gray-700">{viewingGuide.serviceArea || 'Not specified'}</p>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                          Service Area
+                        </label>
+                        <p className="text-sm font-semibold text-gray-700">
+                          {viewingGuide.serviceArea || 'Not specified'}
+                        </p>
                       </div>
                     </div>
 
                     {/* Bio */}
                     <div>
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Biography</label>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">
+                        Biography
+                      </label>
                       <div className="p-4 bg-indigo-50/30 rounded-xl border border-indigo-100/50">
                         <p className="text-xs text-indigo-900 leading-relaxed italic">
                           "{viewingGuide.bio || 'No biography provided'}"
@@ -332,11 +365,16 @@ export const GuideManagement = () => {
 
                     {/* Specialties */}
                     <div>
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 block">Specialties</label>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 block">
+                        Specialties
+                      </label>
                       <div className="flex flex-wrap gap-2">
                         {viewingGuide.specialties && viewingGuide.specialties.length > 0 ? (
                           viewingGuide.specialties.map((s, i) => (
-                            <span key={i} className="px-3 py-1.5 bg-white text-indigo-700 text-[10px] font-bold rounded-lg border border-indigo-100 shadow-sm">
+                            <span
+                              key={i}
+                              className="px-3 py-1.5 bg-white text-indigo-700 text-[10px] font-bold rounded-lg border border-indigo-100 shadow-sm"
+                            >
                               {s}
                             </span>
                           ))

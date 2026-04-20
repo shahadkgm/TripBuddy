@@ -1,4 +1,12 @@
-import { IsString, IsEmail, IsOptional, IsEnum, IsBoolean, MinLength, IsNotEmpty } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsOptional,
+  IsEnum,
+  IsBoolean,
+  MinLength,
+  IsNotEmpty,
+} from 'class-validator';
 
 export class RegisterUserDTO {
   @IsString()
@@ -25,7 +33,6 @@ export class RegisterUserDTO {
   @IsOptional()
   @IsBoolean()
   isblocked?: boolean;
-
 }
 
 export class LoginDTO {
