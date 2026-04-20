@@ -12,14 +12,14 @@ export interface IItineraryItem {
 export interface IGuide {
     _id?: string;
     id?: string; // Some parts use id
-    name: string;
+    name?: string;
     bio: string;
     hourlyRate: number;
     serviceArea: string;
     avatarURL?: string;
     avatar?: string;
     specialties: string[];
-    yearsOfExperience: number;
+    yearsOfExperience?: number;
     isVerified: boolean;
     userId?: { 
         _id?: string;

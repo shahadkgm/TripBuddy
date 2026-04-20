@@ -1,4 +1,4 @@
-import mongoose, { Model, FilterQuery, UpdateQuery } from 'mongoose';
+ import mongoose, { Model, FilterQuery, UpdateQuery } from 'mongoose';
 import { IBaseRepository } from '../interface/IBaseRepository';
 
 export abstract class BaseRepository<T, DTO> implements IBaseRepository<T, DTO> {

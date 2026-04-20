@@ -4,11 +4,13 @@ import {
   CalendarCheck,
   Wallet,
   User,
-  Star
+  Star,
+  Mail
 } from "lucide-react";
 
 const menu = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/guide-dashboard" },
+  { name: "Invitations", icon: Mail, path: "/guide/invitations" },
   { name: "Bookings", icon: CalendarCheck, path: "/guide/bookings" },
   { name: "Earnings", icon: Wallet, path: "/guide/earnings" },
   { name: "Profile Edit", icon: User, path: "/guide/profile" },

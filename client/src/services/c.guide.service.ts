@@ -32,5 +32,20 @@ export const guideService = {
     async getAllGuides(params: any): Promise<{ guides: IGuide[], total: number }> {
         const response = await api.get<ApiResponse<{ guides: IGuide[], total: number }>>("/api/guides/all", { params });
         return response.data.data;
+    },
+
+    async sendInvitation(tripId: string, guideId: string): Promise<any> {
+        const response = await api.post("/api/guide-invitations/send", { tripId, guideId });
+        return response.data;
+    },
+
+    async getInboundInvitations(): Promise<any[]> {
+        const response = await api.get("/api/guide-invitations/inbound");
+        return response.data.data;
+    },
+
+    async respondToInvitation(invitationId: string, status: 'accepted' | 'rejected', reason?: string): Promise<any> {
+        const response = await api.post("/api/guide-invitations/respond", { invitationId, status, reason });
+        return response.data;
     }
 };

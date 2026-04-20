@@ -39,6 +39,8 @@ import { GuideProfilePage } from "../pages/guide/GuideProfilePage";
 import { GuideBookingsPage } from "../pages/guide/GuideBookingsPage";
 import { GuideEarningsPage } from "../pages/guide/GuideEarningsPage";
 import { GuideReviewsPage } from "../pages/guide/GuideReviewsPage";
+import { GuideInvitationsPage } from "../pages/guide/GuideInvitationsPage";
+import { GuideTripRequestDetailsPage } from "../pages/guide/GuideTripRequestDetailsPage";
 
 export default function AppRoutes() {
   return (
@@ -93,6 +95,8 @@ export default function AppRoutes() {
         <Route path="/guide/bookings" element={<GuideBookingsPage />} />
         <Route path="/guide/earnings" element={<GuideEarningsPage />} />
         <Route path="/guide/reviews" element={<GuideReviewsPage />} />
+        <Route path="/guide/invitations" element={<GuideInvitationsPage />} />
+        <Route path="/guide/trip-request/:id/:invitationId" element={<GuideTripRequestDetailsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

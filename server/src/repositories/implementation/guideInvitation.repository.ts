@@ -11,10 +11,10 @@ export class GuideInvitationRepository implements IGuideInvitationRepository {
 
     async findById(id: string): Promise<IGuideInvitationDocument | null> {
         return await GuideInvitationModel.findById(id)
-            .populate('tripId', 'title destination startDate endDate status')
-            .populate('senderId', 'name email avatarURL')
-            .populate('guideId', 'hourlyRate serviceArea bio')
-            .populate('receiverId', 'name email');
+            .populate('tripId', '_id title destination startDate endDate status')
+            .populate('senderId', '_id name email avatarURL')
+            .populate('guideId', '_id hourlyRate serviceArea bio')
+            .populate('receiverId', '_id name email');
     }
 
     async updateStatus(id: string, status: string): Promise<IGuideInvitationDocument | null> {
@@ -28,8 +28,8 @@ export class GuideInvitationRepository implements IGuideInvitationRepository {
     async findByReceiverId(receiverId: string): Promise<IGuideInvitationDocument[]> {
         return await GuideInvitationModel.find({ receiverId })
             .populate('tripId', 'title destination startDate endDate status budget')
-            .populate('senderId', 'name email avatarURL')
-            .populate('guideId', 'hourlyRate serviceArea')
+            .populate('senderId', '_id name email avatarURL')
+            .populate('guideId', '_id hourlyRate serviceArea')
             .sort({ createdAt: -1 });
     }
 

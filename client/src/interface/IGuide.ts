@@ -1,7 +1,9 @@
 export interface IGuide {
-  id: string;
+  _id?: string;
+  id?: string;
   userId?: {
-    id: string;
+    _id?: string;
+    id?: string;
     name: string;
     email: string;
   };
@@ -12,4 +14,5 @@ export interface IGuide {
   specialties: string[];
   avatarURL?: string;
   isVerified: boolean;
+  yearsOfExperience?: number;
 }

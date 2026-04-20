@@ -4,10 +4,11 @@ import {
     Calendar, MapPin, Users,
     Plus, Trash2, Save, ArrowLeft,
     Settings, Clock, Sparkles, ChevronRight,
-    Loader2, CheckCircle2, Wand2, UserSearch, Search, RotateCcw, Star, BadgeCheck
+    Loader2, CheckCircle2, Wand2, UserSearch, Search, RotateCcw, Star, BadgeCheck, Send
 } from 'lucide-react';
 import { tripService } from '../../services/c.trip.service';
 import { aiService } from '../../services/c.ai.service';
+import { guideService } from '../../services/c.guide.service';
 import type { ITrip, IItineraryItem, IGuide } from '../../interface/ITripdetails';
 import toast from 'react-hot-toast';
 import api from '../../utils/api';
@@ -30,6 +31,7 @@ const TripManagementPage = () => {
     const [guideDestination, setGuideDestination] = useState('');
     const [guideMaxPrice, setGuideMaxPrice] = useState(5000);
     const [assigningGuideId, setAssigningGuideId] = useState<string | null>(null);
+    const [invitations, setInvitations] = useState<any[]>([]);
 
     useEffect(() => {
         const loadTrip = async () => {
@@ -45,6 +47,10 @@ const TripManagementPage = () => {
                     const days = generateDefaultItinerary(data.startDate, data.endDate);
                     setItinerary(days);
                 }
+
+                // Fetch invitations for this trip
+                const invRes = await api.get('/api/guide-invitations/outbound');
+                setInvitations(invRes.data.data.filter((inv: any) => inv.tripId?._id === id));
             } catch (error) {
                 toast.error("Failed to load trip data");
                 navigate('/profile');
@@ -132,6 +138,23 @@ const TripManagementPage = () => {
             toast.success(guideId ? 'Guide assigned to trip!' : 'Guide removed from trip.');
         } catch (err: any) {
             toast.error(err?.response?.data?.message || 'Failed to update guide assignment');
+        } finally {
+            setAssigningGuideId(null);
+        }
+    };
+
+    const handleInviteGuide = async (guideId: string) => {
+        if (!id) return;
+        setAssigningGuideId(guideId);
+        try {
+            await guideService.sendInvitation(id, guideId);
+            toast.success('Trip request sent to guide!');
+            
+            // Refresh invitations
+            const invRes = await api.get('/api/guide-invitations/outbound');
+            setInvitations(invRes.data.data.filter((inv: any) => inv.tripId?._id === id));
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message || 'Failed to send invitation');
         } finally {
             setAssigningGuideId(null);
         }
@@ -642,15 +665,31 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                                             </div>
                                                         </div>
                                                         <button
-                                                            onClick={() => handleAssignGuide(isAssigned ? null : guideId)}
-                                                            disabled={isLoading}
+                                                            onClick={() => {
+                                                                if (isAssigned) {
+                                                                    handleAssignGuide(null);
+                                                                } else if (!invitations.some(inv => inv.guideId?._id === guideId && inv.status === 'pending')) {
+                                                                    handleInviteGuide(guideId);
+                                                                }
+                                                            }}
+                                                            disabled={isLoading || (invitations.some(inv => inv.guideId?._id === guideId && inv.status === 'pending'))}
                                                             className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all ${
                                                                 isAssigned
                                                                     ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
+                                                                    : invitations.some(inv => inv.guideId?._id === guideId && inv.status === 'pending')
+                                                                    ? 'bg-amber-50 text-amber-600 border border-amber-100 cursor-default'
                                                                     : 'bg-slate-100 text-slate-600 hover:bg-indigo-600 hover:text-white hover:shadow-lg hover:shadow-indigo-100'
                                                             }`}
                                                         >
-                                                            {isLoading ? <Loader2 size={14} className="animate-spin" /> : isAssigned ? <><CheckCircle2 size={13}/> Assigned</> : <><Star size={13}/> Assign</>}
+                                                            {isLoading ? (
+                                                                <Loader2 size={14} className="animate-spin" />
+                                                            ) : isAssigned ? (
+                                                                <><CheckCircle2 size={13}/> Assigned</>
+                                                            ) : invitations.some(inv => inv.guideId?._id === guideId && inv.status === 'pending') ? (
+                                                                <><Clock size={13}/> Requested</>
+                                                            ) : (
+                                                                <><Send size={13}/> Invite</>
+                                                            )}
                                                         </button>
                                                     </div>
                                                 );

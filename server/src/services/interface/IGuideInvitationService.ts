@@ -1,4 +1,4 @@
-import { IGuideInvitationDocument } from "../../types/guideInvitation.type";
+import { IGuideInvitationDocument } from '../../types/guideInvitation.type';
 
 export interface IGuideInvitationService {
     sendInvitation(tripId: string, guideId: string, senderId: string): Promise<IGuideInvitationDocument>;

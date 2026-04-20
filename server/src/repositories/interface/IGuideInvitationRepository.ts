@@ -1,4 +1,4 @@
-import { IGuideInvitationDocument } from "../../types/guideInvitation.type";
+import { IGuideInvitationDocument } from '../../types/guideInvitation.type';
 
 export interface IGuideInvitationRepository {
     create(data: Partial<IGuideInvitationDocument>): Promise<IGuideInvitationDocument>;

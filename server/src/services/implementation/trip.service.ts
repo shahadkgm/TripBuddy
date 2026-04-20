@@ -227,9 +227,16 @@ export class TripService implements ITripService {
         }
 
         // 3. Post-Trip Payout: Distribute trip pool balance to the remaining users equitably!
-        if (initialPoolBalance > 0 && trip.members.length > 0) {
-            const splitAmount = Number((initialPoolBalance / trip.members.length).toFixed(2));
-            for (const member of trip.members) {
+        // IMPORTANT: Exclude the guide from the pool split (they get their own payout)
+        const guideUserId = trip.guideId ? 
+            ((trip.guideId.userId as { _id?: mongoose.Types.ObjectId })._id?.toString() || (trip.guideId.userId as unknown as string)) 
+            : null;
+
+        const travelerMembers = trip.members.filter(m => m._id.toString() !== guideUserId);
+
+        if (initialPoolBalance > 0 && travelerMembers.length > 0) {
+            const splitAmount = Number((initialPoolBalance / travelerMembers.length).toFixed(2));
+            for (const member of travelerMembers) {
                  await this._userRepository.updateWalletBalance(member._id.toString(), splitAmount);
             }
         }
@@ -270,6 +277,19 @@ export class TripService implements ITripService {
             const guide = await guideModel.findById(guideId);
             if (!guide) throw new Error('Guide not found');
             if (!guide.isVerified) throw new Error('Only verified guides can be assigned to a trip');
+            
+            // Add guide's userId to members array for access
+            await this._tripRepository.addMember(tripId, guide.userId.toString());
+        } else if (trip.guideId) {
+            // Remove previous guide's userId from members if needed?
+            // Actually, keep it for historical reasons or if they were also a traveler?
+            // Safer to just leave it or let them leave manually.
+            // But for a pure guide assignment, we might want to remove them.
+            const guide = await guideModel.findById(trip.guideId._id);
+            if (guide) {
+                const updatedMembers = trip.members.filter(m => m._id.toString() !== guide.userId.toString());
+                await this._tripRepository.updateById(tripId, { members: updatedMembers.map(m => m._id) });
+            }
         }
 
         const updated = await this._tripRepository.assignGuide(tripId, guideId);

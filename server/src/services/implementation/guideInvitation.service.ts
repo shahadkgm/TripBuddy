@@ -1,9 +1,9 @@
-import { IGuideInvitationDocument, InvitationStatus } from "../../types/guideInvitation.type";
-import { IGuideInvitationRepository } from "../../repositories/interface/IGuideInvitationRepository";
-import { IGuideInvitationService } from "../interface/IGuideInvitationService";
-import { ITripService } from "../interface/ITripService";
-import guideModel from "../../models/guide.model";
-import { logger } from "@/utils/logger";
+import { IGuideInvitationDocument, InvitationStatus } from '../../types/guideInvitation.type';
+import { IGuideInvitationRepository } from '../../repositories/interface/IGuideInvitationRepository';
+import { IGuideInvitationService } from '../interface/IGuideInvitationService';
+import { ITripService } from '../interface/ITripService';
+import guideModel from '../../models/guide.model';
+import { logger } from '@/utils/logger';
 
 export class GuideInvitationService implements IGuideInvitationService {
     constructor(
@@ -42,23 +42,40 @@ export class GuideInvitationService implements IGuideInvitationService {
         logger.info('Responding to guide invitation', { invitationId, status, guideUserId, reason });
 
         const invitation = await this._invitationRepository.findById(invitationId);
-        if (!invitation) throw new Error('Invitation not found');
+        if (!invitation) {
+            logger.error('Invitation not found', { invitationId });
+            throw new Error('Invitation not found');
+        }
 
-        if (invitation.receiverId.toString() !== guideUserId) {
+        const receiverId = (invitation.receiverId as any)._id?.toString() || invitation.receiverId.toString();
+        logger.info('Comparing receiver and guide IDs', { receiverId, guideUserId });
+        
+        if (receiverId !== guideUserId) {
+            logger.error('Unauthorized response attempt', { receiverId, guideUserId });
             throw new Error('Unauthorized');
         }
 
         if (invitation.status !== InvitationStatus.PENDING) {
+            logger.error('Invitation already processed', { currentStatus: invitation.status });
             throw new Error('Invitation is already ' + invitation.status);
         }
 
         if (status === InvitationStatus.ACCEPTED) {
-            // Assign guide to trip
-            await this._tripService.assignGuide(
-                invitation.tripId._id.toString(), 
-                invitation.guideId._id.toString(), 
-                invitation.senderId._id.toString()
-            );
+            logger.info('Accepting invitation, assigning guide to trip', { 
+                tripId: (invitation.tripId as any)._id || invitation.tripId, 
+                guideId: (invitation.guideId as any)._id || invitation.guideId 
+            });
+            try {
+                // Assign guide to trip
+                await this._tripService.assignGuide(
+                    (invitation.tripId as any)._id?.toString() || invitation.tripId.toString(), 
+                    (invitation.guideId as any)._id?.toString() || invitation.guideId.toString(), 
+                    (invitation.senderId as any)._id?.toString() || invitation.senderId.toString()
+                );
+            } catch (assignError: any) {
+                logger.error('Error during trip service assignment', { error: assignError.message });
+                throw assignError;
+            }
         }
 
         if (status === InvitationStatus.REJECTED && reason) {
@@ -66,7 +83,9 @@ export class GuideInvitationService implements IGuideInvitationService {
         }
 
         invitation.status = status as InvitationStatus;
-        return await invitation.save();
+        const saved = await invitation.save();
+        logger.info('Invitation response saved successfully', { status: saved.status });
+        return saved;
     }
 
     async getOutboundInvitations(organizerId: string): Promise<IGuideInvitationDocument[]> {
