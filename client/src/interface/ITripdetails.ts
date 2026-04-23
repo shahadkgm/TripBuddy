@@ -28,6 +28,8 @@ export interface IGuide {
   };
 }
 
+import { TripStatus } from '../constants/TripStatus';
+
 export interface ITrip {
   _id: string;
   userId:
@@ -54,7 +56,7 @@ export interface ITrip {
     interests: string[];
   };
   depositAmount?: number;
-  status: 'planned' | 'ongoing' | 'completed' | 'cancelled' | 'finalized' | 'confirmed';
+  status: TripStatus;
   members?: {
     _id: string;
     name: string;

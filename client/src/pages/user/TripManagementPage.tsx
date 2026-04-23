@@ -27,6 +27,7 @@ import { tripService } from '../../services/c.trip.service';
 import { aiService } from '../../services/c.ai.service';
 import { guideService } from '../../services/c.guide.service';
 import { paymentService } from '../../services/c.payment.service';
+import { TripStatus } from '../../constants/TripStatus';
 import type { ITrip, IItineraryItem, IGuide } from '../../interface/ITripdetails';
 import type { IPayment } from '../../interface/IPayment';
 import toast from 'react-hot-toast';
@@ -225,9 +226,9 @@ const TripManagementPage = () => {
     if (!id) return;
     try {
       setIsSaving(true);
-      await tripService.updateTrip(id, { status: 'completed' });
+      await tripService.updateTrip(id, { status: TripStatus.COMPLETED });
       toast.success('Trip marked as completed!');
-      setTrip(prev => (prev ? { ...prev, status: 'completed' } : null));
+      setTrip(prev => (prev ? { ...prev, status: TripStatus.COMPLETED } : null));
     } catch (error) {
       toast.error('Failed to update status');
     } finally {
@@ -364,8 +365,8 @@ Do not include any other text, markdown formatting, or code blocks outside the J
       {/* Expiry Warning */}
       {trip &&
         new Date(new Date(trip.startDate).getTime() + 3 * 24 * 60 * 60 * 1000) < new Date() &&
-        trip.status !== 'confirmed' &&
-        trip.status !== 'completed' && (
+        trip.status !== TripStatus.CONFIRMED &&
+        trip.status !== TripStatus.COMPLETED && (
           <div className="bg-rose-50 border-b border-rose-100 px-6 py-3">
             <div className="max-w-6xl mx-auto flex items-center justify-between">
               <div className="flex items-center gap-3 text-rose-600">

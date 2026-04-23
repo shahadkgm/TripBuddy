@@ -3,6 +3,7 @@ import { Map, Search, XCircle, CheckCircle, Clock, Star, MessageSquare } from 'l
 import toast from 'react-hot-toast';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import api from '../../utils/api';
+import { TripStatus } from '../../constants/TripStatus';
 import { DataTable } from '../../components/DataTable';
 import { Pagination } from '../../components/Pagination';
 import { ConfirmModal } from '../../components/ConfirmModal';
@@ -51,15 +52,15 @@ interface Review {
   createdAt: string;
 }
 
-const STATUS_OPTIONS = ['planned', 'ongoing', 'completed', 'cancelled', 'finalized', 'confirmed'];
+const STATUS_OPTIONS = Object.values(TripStatus);
 
 const statusStyles: Record<string, string> = {
-  planned: 'bg-blue-100 text-blue-700',
-  ongoing: 'bg-amber-100 text-amber-700',
-  completed: 'bg-emerald-100 text-emerald-700',
-  cancelled: 'bg-red-100 text-red-700',
-  finalized: 'bg-purple-100 text-purple-700',
-  confirmed: 'bg-teal-100 text-teal-700',
+  [TripStatus.PLANNED]: 'bg-blue-100 text-blue-700',
+  [TripStatus.ONGOING]: 'bg-amber-100 text-amber-700',
+  [TripStatus.COMPLETED]: 'bg-emerald-100 text-emerald-700',
+  [TripStatus.CANCELLED]: 'bg-red-100 text-red-700',
+  [TripStatus.FINALIZED]: 'bg-purple-100 text-purple-700',
+  [TripStatus.CONFIRMED]: 'bg-teal-100 text-teal-700',
 };
 
 export const AdminTripManagementPage = () => {
@@ -233,7 +234,7 @@ export const AdminTripManagementPage = () => {
       className: 'text-right',
       render: (trip: TripData) => (
         <div className="flex justify-end gap-2">
-          {trip.status === 'completed' && (
+          {trip.status === TripStatus.COMPLETED && (
             <button
               onClick={() => openReviews(trip)}
               className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition"
@@ -242,36 +243,36 @@ export const AdminTripManagementPage = () => {
               <Star size={16} />
             </button>
           )}
-          {trip.status !== 'cancelled' && trip.status !== 'completed' && (
+          {trip.status !== TripStatus.CANCELLED && trip.status !== TripStatus.COMPLETED && (
             <button
-              onClick={() => confirmStatusUpdate(trip, 'cancelled')}
+              onClick={() => confirmStatusUpdate(trip, TripStatus.CANCELLED)}
               className="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition"
               title="Cancel Trip"
             >
               <XCircle size={16} />
             </button>
           )}
-          {trip.status === 'planned' && (
+          {trip.status === TripStatus.PLANNED && (
             <button
-              onClick={() => confirmStatusUpdate(trip, 'confirmed')}
+              onClick={() => confirmStatusUpdate(trip, TripStatus.CONFIRMED)}
               className="p-1.5 bg-teal-50 text-teal-600 rounded-lg hover:bg-teal-100 transition"
               title="Confirm Trip"
             >
               <CheckCircle size={16} />
             </button>
           )}
-          {trip.status === 'confirmed' && (
+          {trip.status === TripStatus.CONFIRMED && (
             <button
-              onClick={() => confirmStatusUpdate(trip, 'ongoing')}
+              onClick={() => confirmStatusUpdate(trip, TripStatus.ONGOING)}
               className="p-1.5 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition"
               title="Mark as Ongoing"
             >
               <Clock size={16} />
             </button>
           )}
-          {trip.status === 'ongoing' && (
+          {trip.status === TripStatus.ONGOING && (
             <button
-              onClick={() => confirmStatusUpdate(trip, 'completed')}
+              onClick={() => confirmStatusUpdate(trip, TripStatus.COMPLETED)}
               className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition"
               title="Mark as Completed"
             >
@@ -353,7 +354,7 @@ export const AdminTripManagementPage = () => {
         title="Update Trip Status"
         message={`Are you sure you want to change "${selectedAction?.title}" status to "${selectedAction?.status}"?`}
         confirmText="Yes, Update"
-        type={selectedAction?.status === 'cancelled' ? 'danger' : 'info'}
+        type={selectedAction?.status === TripStatus.CANCELLED ? 'danger' : 'info'}
       />
 
       {/* Reviews Modal */}

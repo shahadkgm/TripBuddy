@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { IGuideInvitationDocument, InvitationStatus } from '../../types/guideInvitation.type';
 import { IGuideInvitationRepository } from '../../repositories/interface/IGuideInvitationRepository';
 import { IGuideInvitationService } from '../interface/IGuideInvitationService';
@@ -28,10 +29,10 @@ export class GuideInvitationService implements IGuideInvitationService {
     if (existing) throw new Error('An invitation is already pending for this guide and trip');
 
     const invitationData: Partial<IGuideInvitationDocument> = {
-      tripId: tripId as any,
-      senderId: senderId as any,
-      guideId: guideId as any,
-      receiverId: guide.userId as any,
+      tripId: new Types.ObjectId(tripId),
+      senderId: new Types.ObjectId(senderId),
+      guideId: new Types.ObjectId(guideId),
+      receiverId: guide.userId as Types.ObjectId,
       status: InvitationStatus.PENDING,
     };
 
@@ -56,8 +57,7 @@ export class GuideInvitationService implements IGuideInvitationService {
       throw new Error('Invitation not found');
     }
 
-    const receiverId =
-      (invitation.receiverId as any)._id?.toString() || invitation.receiverId.toString();
+    const receiverId = this.extractId(invitation.receiverId);
     logger.info('Comparing receiver and guide IDs', { receiverId, guideUserId });
 
     if (receiverId !== guideUserId) {
@@ -71,17 +71,18 @@ export class GuideInvitationService implements IGuideInvitationService {
     }
 
     if (status === InvitationStatus.ACCEPTED) {
+      const tripIdStr = this.extractId(invitation.tripId);
+      const guideIdStr = this.extractId(invitation.guideId);
+      const senderIdStr = this.extractId(invitation.senderId);
+
       logger.info('Accepting invitation, assigning guide to trip', {
-        tripId: (invitation.tripId as any)._id || invitation.tripId,
-        guideId: (invitation.guideId as any)._id || invitation.guideId,
+        tripId: tripIdStr,
+        guideId: guideIdStr,
       });
+
       try {
         // Assign guide to trip
-        await this._tripService.assignGuide(
-          (invitation.tripId as any)._id?.toString() || invitation.tripId.toString(),
-          (invitation.guideId as any)._id?.toString() || invitation.guideId.toString(),
-          (invitation.senderId as any)._id?.toString() || invitation.senderId.toString()
-        );
+        await this._tripService.assignGuide(tripIdStr, guideIdStr, senderIdStr);
       } catch (assignError: any) {
         logger.error('Error during trip service assignment', { error: assignError.message });
         throw assignError;
@@ -100,5 +101,14 @@ export class GuideInvitationService implements IGuideInvitationService {
 
   async getOutboundInvitations(organizerId: string): Promise<IGuideInvitationDocument[]> {
     return await this._invitationRepository.findBySenderId(organizerId);
+  }
+
+  private extractId(field: Types.ObjectId | unknown): string {
+    if (!field) return '';
+    if (field instanceof Types.ObjectId) return field.toString();
+    if (typeof field === 'object' && field !== null && '_id' in field) {
+      return (field as { _id: Types.ObjectId | string })._id.toString();
+    }
+    return String(field);
   }
 }

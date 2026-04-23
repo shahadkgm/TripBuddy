@@ -51,6 +51,7 @@ router.patch(
   dtoValidationMiddleware(UpdatePaymentStatusDTO),
   adminController.updatePaymentStatus
 );
+router.get('/revenue/stats', adminController.getRevenueStats);
 
 // Trips
 router.get('/trips', adminController.getAllTrips);

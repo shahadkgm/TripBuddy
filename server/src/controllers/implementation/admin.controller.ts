@@ -117,4 +117,12 @@ export class AdminController extends BaseController implements IAdminController 
     const updatedTrip = await this._adminService.updateTripStatus(id, status);
     this.sendSuccess(res, updatedTrip, `Trip status updated to ${status} successfully`);
   });
+
+  getRevenueStats = asyncHandler(async (req: Request, res: Response) => {
+    const from = req.query.from ? new Date(req.query.from as string) : undefined;
+    const to = req.query.to ? new Date(req.query.to as string) : undefined;
+
+    const stats = await this._adminService.getRevenueStats(from, to);
+    this.sendSuccess(res, stats, 'Revenue stats fetched successfully');
+  });
 }

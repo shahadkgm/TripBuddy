@@ -1,4 +1,4 @@
-import { DashboardStatsDTO, GuideListDTO, UserListDTO } from '../../dto/admin.dto';
+import { DashboardStatsDTO, GuideListDTO, UserListDTO, RevenueStatsDTO } from '../../dto/admin.dto';
 import { AdminGuideResponseDTO } from '../../dto/admin.dto';
 import { UserResponseDTO } from '../../dto/user.dto';
 import { KYCStatus } from '../../types/kyc.type';
@@ -43,4 +43,5 @@ export interface IAdminService {
     totalTrips: number;
   }>;
   updateTripStatus(tripId: string, status: string): Promise<ITripDocument>;
+  getRevenueStats(from?: Date, to?: Date): Promise<RevenueStatsDTO>;
 }

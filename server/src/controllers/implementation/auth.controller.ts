@@ -5,14 +5,8 @@ import { StatusCode } from '../../constants/statusCode.enum';
 import { IAuthController } from '../interfaces/IAuthController';
 import { IAuthService } from '../../services/interface/IAuthservice';
 import { asyncHandler } from '../../utils/asyncHandler';
-import jwt from 'jsonwebtoken';
+
 import { AppError } from '../../utils/AppError';
-
-interface UserPayload extends jwt.JwtPayload {
-  id: string;
-  role: string;
-}
-
 import { BaseController } from './base.controller';
 
 export class AuthController extends BaseController implements IAuthController {

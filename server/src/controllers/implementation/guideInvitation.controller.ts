@@ -1,41 +1,42 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { IGuideInvitationService } from '../../services/interface/IGuideInvitationService';
 import { InvitationStatus } from '../../types/guideInvitation.type';
+import { AuthRequest } from '../../types/authRequest';
+import { asyncHandler } from '../../utils/asyncHandler';
+import { BaseController } from './base.controller';
 
-export class GuideInvitationController {
-  constructor(private _invitationService: IGuideInvitationService) {}
+export class GuideInvitationController extends BaseController {
+  constructor(private _invitationService: IGuideInvitationService) {
+    super();
+  }
 
-  async sendInvitation(req: Request, res: Response): Promise<void> {
-    try {
+  sendInvitation = asyncHandler(
+    async (req: AuthRequest<{}, {}, { tripId: string; guideId: string }>, res: Response) => {
       const { tripId, guideId } = req.body;
-      const senderId = (req as any).user.id;
+      const senderId = req.user?.id as string;
 
       const invitation = await this._invitationService.sendInvitation(tripId, guideId, senderId);
-      res.status(201).json({ success: true, data: invitation });
-    } catch (err: any) {
-      res.status(400).json({ success: false, message: err.message });
+      this.sendCreated(res, invitation, 'Invitation sent successfully');
     }
-  }
+  );
 
-  async getInboundInvitations(req: Request, res: Response): Promise<void> {
-    try {
-      const guideUserId = (req as any).user.id;
-      console.log('--- GET INBOUND INVITATIONS HIT ---', { guideUserId });
-      const invitations = await this._invitationService.getGuideInvitations(guideUserId);
-      res.status(200).json({ success: true, data: invitations });
-    } catch (err: any) {
-      console.error('Error in getInboundInvitations:', err);
-      res.status(400).json({ success: false, message: err.message });
-    }
-  }
+  getInboundInvitations = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const guideUserId = req.user?.id as string;
+    console.log('--- GET INBOUND INVITATIONS HIT ---', { guideUserId });
+    const invitations = await this._invitationService.getGuideInvitations(guideUserId);
+    this.sendSuccess(res, invitations, 'Inbound invitations fetched successfully');
+  });
 
-  async respondToInvitation(req: Request, res: Response): Promise<void> {
-    try {
+  respondToInvitation = asyncHandler(
+    async (
+      req: AuthRequest<{}, {}, { invitationId: string; status: string; reason?: string }>,
+      res: Response
+    ) => {
       const { invitationId, status, reason } = req.body;
-      const guideUserId = (req as any).user.id;
+      const guideUserId = req.user?.id as string;
 
-      if (![InvitationStatus.ACCEPTED, InvitationStatus.REJECTED].includes(status)) {
-        res.status(400).json({ success: false, message: 'Invalid status' });
+      if (![InvitationStatus.ACCEPTED, InvitationStatus.REJECTED].includes(status as InvitationStatus)) {
+        this.sendBadRequest(res, 'Invalid status');
         return;
       }
 
@@ -45,19 +46,13 @@ export class GuideInvitationController {
         guideUserId,
         reason
       );
-      res.status(200).json({ success: true, data: invitation });
-    } catch (err: any) {
-      res.status(400).json({ success: false, message: err.message });
+      this.sendSuccess(res, invitation, `Invitation ${status.toLowerCase()} successfully`);
     }
-  }
+  );
 
-  async getOutboundInvitations(req: Request, res: Response): Promise<void> {
-    try {
-      const organizerId = (req as any).user.id;
-      const invitations = await this._invitationService.getOutboundInvitations(organizerId);
-      res.status(200).json({ success: true, data: invitations });
-    } catch (err: any) {
-      res.status(400).json({ success: false, message: err.message });
-    }
-  }
+  getOutboundInvitations = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const organizerId = req.user?.id as string;
+    const invitations = await this._invitationService.getOutboundInvitations(organizerId);
+    this.sendSuccess(res, invitations, 'Outbound invitations fetched successfully');
+  });
 }

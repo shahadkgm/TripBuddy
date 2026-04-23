@@ -24,7 +24,7 @@ export class AIService implements IAIService {
             role: 'user',
             parts: [
               {
-                text: "You are a friendly and knowledgeable AI Travel Assistant for 'Trip Buddy', a platform that helps people find travel partners and plan trips. Suggest destinations, help with itineraries, and be encouraging. Keep responses concise but helpful. Use markdown for formatting.",
+                text: 'You are a friendly and knowledgeable AI Travel Assistant for \'Trip Buddy\', a platform that helps people find travel partners and plan trips. Suggest destinations, help with itineraries, and be encouraging. Keep responses concise but helpful. Use markdown for formatting.',
               },
             ],
           },
@@ -32,7 +32,7 @@ export class AIService implements IAIService {
             role: 'model',
             parts: [
               {
-                text: "Hello! I'm your Trip Buddy AI Assistant. I can help you find amazing destinations, plan your next adventure, or even help you find the perfect travel partner. Where are we heading today?",
+                text: 'Hello! I\'m your Trip Buddy AI Assistant. I can help you find amazing destinations, plan your next adventure, or even help you find the perfect travel partner. Where are we heading today?',
               },
             ],
           },

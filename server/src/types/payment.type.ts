@@ -45,3 +45,27 @@ export interface IPaymentPopulated extends Omit<IPayment, 'userId' | 'tripId'> {
 }
 
 export type IPaymentPopulatedDocument = IPaymentPopulated & Document;
+
+export interface IRevenueStats {
+  totalRevenue: number;
+  totalRefunds: number;
+  escrowedAmount: number;
+  totalCount: number;
+  monthlyTrend: {
+    _id: string;
+    revenue: number;
+    count: number;
+  }[];
+  byPaymentType: {
+    _id: string;
+    total: number;
+    count: number;
+  }[];
+  topTrips: {
+    _id: string;
+    revenue: number;
+    transactions: number;
+    title: string;
+    destination: string;
+  }[];
+}

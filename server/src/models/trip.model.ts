@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { ITripDocument } from '../types/trip.type';
+import { TripStatus } from '../constants/tripStatus.enum';
 
 const tripSchema = new Schema<ITripDocument>(
   {
@@ -49,8 +50,8 @@ const tripSchema = new Schema<ITripDocument>(
     },
     status: {
       type: String,
-      enum: ['planned', 'ongoing', 'completed', 'cancelled', 'finalized', 'confirmed'],
-      default: 'planned',
+      enum: Object.values(TripStatus),
+      default: TripStatus.PLANNED,
     },
     members: [
       {

@@ -6,7 +6,7 @@ export const errorMiddleware = (
   err: unknown,
   req: Request,
   res: Response,
-  next: NextFunction // 2. MUST be here, even if unused
+  _next: NextFunction // 2. MUST be here, even if unused
 ) => {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({

@@ -1,4 +1,5 @@
 import cron from 'node-cron';
+import { TripStatus } from '../constants/tripStatus.enum';
 import { TripModel } from '../models/trip.model';
 import { PaymentModel } from '../models/payment.model';
 import { PaymentStatus } from '../types/payment.type';
@@ -25,7 +26,7 @@ export const startCronJobs = () => {
 
       const pendingTrips = await TripModel.find({
         joinDeadline: { $lt: expiryDate },
-        status: { $in: ['planned', 'finalized'] },
+        status: { $in: [TripStatus.PLANNED, TripStatus.FINALIZED] },
       });
 
       for (const trip of pendingTrips) {
@@ -52,7 +53,7 @@ export const startCronJobs = () => {
           }
 
           // Safely cancel trip globally
-          await tripRepository.updateById(trip._id.toString(), { status: 'cancelled' });
+          await tripRepository.updateById(trip._id.toString(), { status: TripStatus.CANCELLED });
         }
       }
     } catch (error) {

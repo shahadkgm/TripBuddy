@@ -12,6 +12,7 @@ import {
 import type { ITrip } from '../interface/ITripdetails';
 import { connectionService } from '../services/c.connection.service';
 import { authService } from '../services/c.authService';
+import { TripStatus } from '../constants/TripStatus';
 import { useNavigate } from 'react-router-dom';
 
 interface Props {
@@ -24,12 +25,19 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
     'none' | 'pending' | 'accepted' | 'incoming_pending' | 'loading'
   >('loading');
   const currentUser = authService.getCurrentUser();
-  const isOwnTrip = currentUser?.id === trip.userId?._id;
+  
+  // Safe extraction of organizer details
+  const organizerObj = typeof trip.userId === 'object' ? trip.userId : null;
+  const organizerId = typeof trip.userId === 'string' ? trip.userId : trip.userId?._id;
+  const organizerName = organizerObj?.name || 'Unknown Traveler';
+  const organizerAvatar = organizerObj?.avatarURL || organizerObj?.avatar || `https://i.pravatar.cc/150?u=${organizerId || 'unknown'}`;
+  
+  const isOwnTrip = currentUser?.id === organizerId;
 
   const isExpired =
     new Date(trip.startDate).getTime() - 8 * 60 * 60 * 1000 < new Date().getTime() ||
-    trip.status === 'completed' ||
-    trip.status === 'cancelled';
+    trip.status === TripStatus.COMPLETED ||
+    trip.status === TripStatus.CANCELLED;
 
   useEffect(() => {
     if (!currentUser?.id || isOwnTrip) {
@@ -39,7 +47,8 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
 
     const fetchStatus = async () => {
       try {
-        const resStatus = await connectionService.getStatus(trip.userId._id, trip._id);
+        if (!organizerId) return;
+        const resStatus = await connectionService.getStatus(organizerId, trip._id);
         setStatus(resStatus);
       } catch (error) {
         console.error('Error fetching connection status:', error);
@@ -48,7 +57,7 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
     };
 
     fetchStatus();
-  }, [trip.userId?._id, trip._id, currentUser?.id, isOwnTrip]);
+  }, [organizerId, trip._id, currentUser?.id, isOwnTrip]);
 
   return (
     <div
@@ -67,12 +76,9 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
       <div className="flex items-center space-x-4 mb-6 group/header">
         <div className="relative">
           <img
-            src={
-              trip.userId?.avatarURL ||
-              `https://i.pravatar.cc/150?u=${trip.userId?._id || 'unknown'}`
-            }
+            src={organizerAvatar}
             className="w-16 h-16 rounded-2xl border-2 border-indigo-50 object-cover shadow-sm group-hover/header:border-indigo-500 transition-all duration-300"
-            alt={trip.userId?.name || 'Unknown Traveler'}
+            alt={organizerName}
           />
           {status === 'accepted' && (
             <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white p-1 rounded-full border-2 border-white shadow-sm">
@@ -86,7 +92,7 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
           </h3>
           <p className="text-slate-500 text-sm font-bold mt-0.5">
             organized by{' '}
-            <span className="text-indigo-600">{trip.userId?.name || 'Unknown Traveler'}</span>
+            <span className="text-indigo-600">{organizerName}</span>
           </p>
         </div>
       </div>

@@ -71,3 +71,29 @@ export class UpdateTripStatusDTO {
   @IsString()
   status!: string;
 }
+
+export interface RevenueStatsDTO {
+  totalRevenue: number;
+  totalRefunds: number;
+  escrowedAmount: number;
+  totalCount: number;
+  platformCommission: number;
+  netRevenue: number;
+  monthlyTrend: {
+    _id: string;
+    revenue: number;
+    count: number;
+  }[];
+  byPaymentType: {
+    _id: string;
+    total: number;
+    count: number;
+  }[];
+  topTrips: {
+    _id: string;
+    revenue: number;
+    transactions: number;
+    title: string;
+    destination: string;
+  }[];
+}

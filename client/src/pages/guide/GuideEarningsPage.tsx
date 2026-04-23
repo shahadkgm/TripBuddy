@@ -16,6 +16,7 @@ import { tripService } from '../../services/c.trip.service';
 import { GuideSidebar } from './GuideSidebar';
 import type { ITrip } from '../../interface/ITripdetails';
 import { GuideHeader } from './GuideHeader';
+import { TripStatus } from '../../constants/TripStatus';
 import toast from 'react-hot-toast';
 
 export const GuideEarningsPage = () => {
@@ -38,7 +39,7 @@ export const GuideEarningsPage = () => {
         const guideTrips = data.trips;
         setTrips(guideTrips);
 
-        const completed = guideTrips.filter(t => t.status === 'completed');
+        const completed = guideTrips.filter(t => t.status === TripStatus.COMPLETED);
         const earnings = completed.reduce((acc, trip) => {
           const days =
             Math.ceil(
@@ -49,7 +50,7 @@ export const GuideEarningsPage = () => {
         }, 0);
 
         const pending = guideTrips
-          .filter(t => t.status === 'ongoing' || t.status === 'confirmed')
+          .filter(t => t.status === TripStatus.ONGOING || t.status === TripStatus.CONFIRMED)
           .reduce((acc, trip) => {
             const days =
               Math.ceil(
@@ -160,7 +161,7 @@ export const GuideEarningsPage = () => {
                     </tr>
                   ) : (
                     trips
-                      .filter(t => t.status === 'completed' || t.status === 'ongoing')
+                      .filter(t => t.status === TripStatus.COMPLETED || t.status === TripStatus.ONGOING)
                       .map(trip => (
                         <tr key={trip._id} className="group hover:bg-slate-50/50 transition-colors">
                           <td className="px-10 py-6">
@@ -186,9 +187,9 @@ export const GuideEarningsPage = () => {
                           <td className="px-10 py-6">
                             <span
                               className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest
-                                                ${trip.status === 'completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}
+                                                ${trip.status === TripStatus.COMPLETED ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}
                             >
-                              {trip.status === 'completed' ? 'Paid' : 'Escrowed'}
+                              {trip.status === TripStatus.COMPLETED ? 'Paid' : 'Escrowed'}
                             </span>
                           </td>
                           <td className="px-10 py-6 text-right">

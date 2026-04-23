@@ -16,6 +16,7 @@ import { tripService } from '../../services/c.trip.service';
 import { GuideHeader } from './GuideHeader';
 import { GuideSidebar } from './GuideSidebar';
 import type { ITrip } from '../../interface/ITripdetails';
+import { TripStatus } from '../../constants/TripStatus';
 import toast from 'react-hot-toast';
 import { Pagination } from '../../components/Pagination';
 
@@ -24,7 +25,9 @@ export const GuideBookingsPage = () => {
   const navigate = useNavigate();
   const [trips, setTrips] = useState<ITrip[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'planned' | 'ongoing' | 'completed'>('all');
+  const [filter, setFilter] = useState<'all' | TripStatus>(
+    'all' as any
+  );
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const LIMIT = 5;
@@ -94,7 +97,7 @@ export const GuideBookingsPage = () => {
             </div>
 
             <div className="flex items-center gap-3 bg-white p-1.5 rounded-2xl border border-slate-100 shadow-sm">
-              {(['all', 'planned', 'ongoing', 'completed'] as const).map(f => (
+              {(['all', TripStatus.PLANNED, TripStatus.ONGOING, TripStatus.COMPLETED] as const).map(f => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
@@ -146,11 +149,11 @@ export const GuideBookingsPage = () => {
                           <span
                             className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm
                                                     ${
-                                                      trip.status === 'completed'
+                                                      trip.status === TripStatus.COMPLETED
                                                         ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
-                                                        : trip.status === 'ongoing'
+                                                        : trip.status === TripStatus.ONGOING
                                                           ? 'bg-blue-50 text-blue-600 border border-blue-100'
-                                                          : trip.status === 'planned'
+                                                          : trip.status === TripStatus.PLANNED
                                                             ? 'bg-amber-50 text-amber-600 border border-amber-100'
                                                             : 'bg-slate-50 text-slate-400 border border-slate-100'
                                                     }`}

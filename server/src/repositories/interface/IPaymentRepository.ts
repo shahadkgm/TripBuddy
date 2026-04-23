@@ -1,4 +1,4 @@
-import { IPaymentDocument, IPaymentCreate } from '../../types/payment.type';
+import { IPaymentDocument, IPaymentCreate, IRevenueStats } from '../../types/payment.type';
 import { IBaseRepository } from './IBaseRepository';
 
 export interface IPaymentRepository extends IBaseRepository<IPaymentDocument, IPaymentCreate> {
@@ -9,4 +9,5 @@ export interface IPaymentRepository extends IBaseRepository<IPaymentDocument, IP
     page: number,
     limit: number
   ): Promise<{ payments: IPaymentDocument[]; total: number }>;
+  getRevenueStats(from?: Date, to?: Date): Promise<IRevenueStats>;
 }

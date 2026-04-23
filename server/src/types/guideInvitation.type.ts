@@ -1,4 +1,4 @@
-import { Document, Schema } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export enum InvitationStatus {
   PENDING = 'pending',
@@ -8,10 +8,10 @@ export enum InvitationStatus {
 }
 
 export interface IGuideInvitation {
-  tripId: Schema.Types.ObjectId;
-  senderId: Schema.Types.ObjectId;
-  guideId: Schema.Types.ObjectId;
-  receiverId: Schema.Types.ObjectId;
+  tripId: Types.ObjectId;
+  senderId: Types.ObjectId;
+  guideId: Types.ObjectId;
+  receiverId: Types.ObjectId;
   status: InvitationStatus;
   message?: string;
   rejectionReason?: string;

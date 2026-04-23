@@ -18,6 +18,7 @@ import {
 import { tripService } from '../../services/c.trip.service';
 import { connectionService } from '../../services/c.connection.service';
 import { Pagination } from '../Pagination';
+import { TripStatus } from '../../constants/TripStatus';
 import type { ITrip } from '../../interface/ITripdetails';
 import type { ConnectionRequest } from '../../types/auth.dto';
 import toast from 'react-hot-toast';
@@ -132,9 +133,9 @@ export const PlannedTrips: React.FC<PlannedTripsProps> = ({ userId }) => {
                               <h4 className="font-bold text-slate-800 text-lg">{trip.title}</h4>
                               <span
                                 className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${
-                                  trip.status === 'planned'
+                                  trip.status === TripStatus.PLANNED
                                     ? 'bg-indigo-100 text-indigo-600'
-                                    : trip.status === 'completed'
+                                    : trip.status === TripStatus.COMPLETED
                                       ? 'bg-emerald-100 text-emerald-600'
                                       : 'bg-slate-100 text-slate-600'
                                 }`}

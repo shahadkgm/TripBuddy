@@ -14,6 +14,7 @@ import {
   CreditCard,
   Bell,
   Search,
+  TrendingUp,
 } from 'lucide-react';
 export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -35,6 +36,8 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         return 'Platform Escapes';
       case '/admin/payments':
         return 'Financial Escrow';
+      case '/admin/revenue':
+        return 'Revenue Management';
       default:
         return 'Control Panel';
     }
@@ -48,6 +51,7 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     // { name: 'Groups & Chat', path: '#', icon: <MessageSquare size={20} /> },
     // { name: 'Posts', path: '#', icon: <Image size={20} /> },
     { name: 'Payments', path: '/admin/payments', icon: <CreditCard size={20} /> },
+    { name: 'Revenue', path: '/admin/revenue', icon: <TrendingUp size={20} /> },
     // { name: 'Settings', path: '#', icon: <Settings size={20} /> },
   ];
 

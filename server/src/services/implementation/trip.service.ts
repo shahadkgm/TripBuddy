@@ -1,4 +1,5 @@
 import { ITripDocument, ITripFilters, ITripPopulatedDocument } from '../../types/trip.type';
+import { TripStatus } from '../../constants/tripStatus.enum';
 import { CreateTripDTO } from '../../dto/trip.dto';
 import { IMessagePopulated } from '../../models/message.model';
 import { ITripRepository } from '../../repositories/interface/ITripRepository';
@@ -15,7 +16,7 @@ export class TripService implements ITripService {
     private _tripRepository: ITripRepository,
     private _paymentRepository: IPaymentRepository,
     private _userRepository: IUserRepository
-  ) {}
+  ) { }
 
   async createTrip(data: CreateTripDTO): Promise<ITripDocument> {
     logger.info('Creating new trip in service in t-s', { data });
@@ -96,12 +97,12 @@ export class TripService implements ITripService {
 
     const ownerId = trip.userId._id.toString();
     if (ownerId !== userId) throw new Error('Unauthorized');
-    if (trip.status !== 'planned') throw new Error('Trip already finalized or in progress');
+    if (trip.status !== TripStatus.PLANNED) throw new Error('Trip already finalized or in progress');
 
     const updatedTrip = await this._tripRepository.updateById(tripId, {
       budget,
       depositAmount,
-      status: 'finalized',
+      status: TripStatus.FINALIZED,
     });
 
     if (!updatedTrip) throw new Error('Failed to update trip');
@@ -110,13 +111,13 @@ export class TripService implements ITripService {
 
   async checkAndConfirmTrip(tripId: string): Promise<ITripDocument | null> {
     const trip = await this._tripRepository.findById(tripId);
-    if (!trip || trip.status !== 'finalized') return null;
+    if (!trip || trip.status !== TripStatus.FINALIZED) return null;
 
     const payments = await this._paymentRepository.findByTripId(tripId);
     const paidCount = payments.filter(p => p.status === PaymentStatus.ESCROWED).length;
 
     if (paidCount >= (trip.minMembers || 2)) {
-      return await this._tripRepository.updateById(tripId, { status: 'confirmed' });
+      return await this._tripRepository.updateById(tripId, { status: TripStatus.CONFIRMED });
     }
 
     return trip;
@@ -134,7 +135,7 @@ export class TripService implements ITripService {
     const isMember = trip.members.some(m => m.toString() === userId);
     if (!isMember) throw new Error('You are not a member of this trip');
 
-    if (['completed', 'cancelled'].includes(trip.status)) {
+    if (trip.status === TripStatus.COMPLETED || trip.status === TripStatus.CANCELLED) {
       throw new Error('Cannot leave a trip that is already completed or cancelled.');
     }
 
@@ -158,8 +159,12 @@ export class TripService implements ITripService {
     const cancellationFee = Number((escrowedPayment.amount * deductionRate).toFixed(2));
     const refundAmount = Number((escrowedPayment.amount - cancellationFee).toFixed(2));
 
+    // Platform takes 10% of the cancellation penalty!
+    const platformCancellationCut = Number((cancellationFee * 0.1).toFixed(2));
+    const travelersShareOfPenalty = cancellationFee - platformCancellationCut;
+
     const newMembers = trip.members.filter(m => m.toString() !== userId);
-    const newPoolBalance = (trip.poolBalance || 0) + cancellationFee;
+    const newPoolBalance = (trip.poolBalance || 0) + travelersShareOfPenalty;
 
     const updatedTrip = await this._tripRepository.updateById(tripId, {
       members: newMembers,
@@ -188,7 +193,7 @@ export class TripService implements ITripService {
     if (ownerId !== userId) throw new Error('Unauthorized');
 
     // 1. Mark trip as cancelled
-    const cancelledTrip = await this._tripRepository.updateById(tripId, { status: 'cancelled' });
+    const cancelledTrip = await this._tripRepository.updateById(tripId, { status: TripStatus.CANCELLED });
     if (!cancelledTrip) throw new Error('Failed to cancel trip');
 
     // 2. Refund all escrowed deposits
@@ -219,29 +224,68 @@ export class TripService implements ITripService {
     const ownerId = trip.userId._id.toString();
     if (ownerId !== userId) throw new Error('Unauthorized');
 
-    if (!['confirmed', 'ongoing'].includes(trip.status)) {
+    if (trip.status !== TripStatus.CONFIRMED && trip.status !== TripStatus.ONGOING) {
       throw new Error('Trip must be confirmed or ongoing to be completed.');
     }
 
     // 1. Mark trip as completed and wipe pool balance
     const initialPoolBalance = trip.poolBalance || 0;
     const completedTrip = await this._tripRepository.updateById(tripId, {
-      status: 'completed',
+      status: TripStatus.COMPLETED,
       poolBalance: 0,
     });
     if (!completedTrip) throw new Error('Failed to complete trip');
 
-    // 2. Release Escrowed funds to the Trip Organizer
+    // 2. Escrow Money Math!
     const payments = await this._paymentRepository.findByTripId(tripId);
     const escrowedPayments = payments.filter(p => p.status === PaymentStatus.ESCROWED);
-
     const totalEscrowPool = escrowedPayments.reduce((acc, curr) => acc + curr.amount, 0);
 
-    if (totalEscrowPool > 0) {
-      // Transfer entire escrow pool to the organizer's wallet
-      await this._userRepository.updateWalletBalance(ownerId, totalEscrowPool);
+    // 3. Platform Commission (2%)
+    const platformCommission = Number((totalEscrowPool * 0.02).toFixed(2));
+    let guidePayout = 0;
 
-      // Mark all those payments as RELEASED
+    // 4. Guide Payout
+    let guideUserId: string | null = null;
+    if (trip.guideId) {
+      const startDate = new Date(trip.startDate);
+      const endDate = new Date(trip.endDate);
+      const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      guidePayout = days * (trip.guideId.hourlyRate || 0);
+
+      guideUserId =
+        (trip.guideId.userId as { _id?: mongoose.Types.ObjectId })._id?.toString() ||
+        (trip.guideId.userId as unknown as string);
+    }
+
+    // Checking for deficit!
+    const requiredFunds = platformCommission + guidePayout;
+    if (totalEscrowPool < requiredFunds) {
+      throw new Error(`Insufficient funds collected in Escrow. Required: ${requiredFunds}, Available: ${totalEscrowPool}. Please ensure members pay correct deposit amount.`);
+    }
+
+    // 5. Pay the Guide physically
+    if (guidePayout > 0 && guideUserId) {
+      await this._userRepository.updateWalletBalance(guideUserId, guidePayout);
+      logger.info('Guide payout released', { tripId, guideId: trip.guideId?._id, amount: guidePayout });
+    }
+
+    // 6. Remaining Balance -> Refund equally to all travelers
+    const remainingEscrow = totalEscrowPool - platformCommission - guidePayout;
+    const finalPoolToDistribute = initialPoolBalance + remainingEscrow;
+
+    const travelerMembers = trip.members.filter(m => m._id.toString() !== guideUserId);
+
+    if (finalPoolToDistribute > 0 && travelerMembers.length > 0) {
+      const splitAmount = Number((finalPoolToDistribute / travelerMembers.length).toFixed(2));
+      for (const member of travelerMembers) {
+        // Send the money straight to their wallet
+        await this._userRepository.updateWalletBalance(member._id.toString(), splitAmount);
+      }
+    }
+
+    // 7. Mark all Escrow as Released
+    if (totalEscrowPool > 0) {
       for (const payment of escrowedPayments) {
         await this._paymentRepository.updateById(payment._id.toString(), {
           status: PaymentStatus.RELEASED,
@@ -249,48 +293,7 @@ export class TripService implements ITripService {
       }
     }
 
-    // 3. Post-Trip Payout: Distribute trip pool balance to the remaining users equitably!
-    // IMPORTANT: Exclude the guide from the pool split (they get their own payout)
-    const guideUserId = trip.guideId
-      ? (trip.guideId.userId as { _id?: mongoose.Types.ObjectId })._id?.toString() ||
-        (trip.guideId.userId as unknown as string)
-      : null;
 
-    const travelerMembers = trip.members.filter(m => m._id.toString() !== guideUserId);
-
-    if (initialPoolBalance > 0 && travelerMembers.length > 0) {
-      const splitAmount = Number((initialPoolBalance / travelerMembers.length).toFixed(2));
-      for (const member of travelerMembers) {
-        await this._userRepository.updateWalletBalance(member._id.toString(), splitAmount);
-      }
-    }
-
-    // 4. Guide Payout: If a guide was assigned, pay them their daily rate * days
-    if (trip.guideId) {
-      try {
-        const startDate = new Date(trip.startDate);
-        const endDate = new Date(trip.endDate);
-        const days =
-          Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-        const totalPayout = days * (trip.guideId.hourlyRate || 0);
-
-        if (totalPayout > 0 && trip.guideId && trip.guideId.userId) {
-          const guideUserId =
-            (trip.guideId.userId as { _id?: mongoose.Types.ObjectId })._id?.toString() ||
-            (trip.guideId.userId as unknown as string);
-
-          await this._userRepository.updateWalletBalance(guideUserId, totalPayout);
-          logger.info('Guide payout released', {
-            tripId,
-            guideId: trip.guideId._id,
-            amount: totalPayout,
-          });
-        }
-      } catch (err) {
-        logger.error('Failed to process guide payout', { tripId, error: err });
-        // We don't throw here to ensure trip completion still finishes, but we log the error
-      }
-    }
 
     return completedTrip;
   }

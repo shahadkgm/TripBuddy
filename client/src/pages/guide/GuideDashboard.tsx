@@ -17,6 +17,7 @@ import { GuideSidebar } from './GuideSidebar';
 import { GuideHeader } from './GuideHeader';
 import toast from 'react-hot-toast';
 import { tripService } from '../../services/c.trip.service';
+import { TripStatus } from '../../constants/TripStatus';
 import type { ITrip } from '../../interface/ITripdetails';
 
 export const GuideDashboard = () => {
@@ -65,7 +66,7 @@ export const GuideDashboard = () => {
         setTrips(guideTrips);
 
         // Calculate stats
-        const completedTrips = guideTrips.filter(t => t.status === 'completed');
+        const completedTrips = guideTrips.filter(t => t.status === TripStatus.COMPLETED);
         const earnings = completedTrips.reduce((acc, trip) => {
           const days =
             Math.ceil(
@@ -193,11 +194,11 @@ export const GuideDashboard = () => {
                       <span
                         className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm
                                     ${
-                                      trip.status === 'completed'
+                                      trip.status === TripStatus.COMPLETED
                                         ? 'bg-emerald-50 text-emerald-600'
-                                        : trip.status === 'ongoing'
+                                        : trip.status === TripStatus.ONGOING
                                           ? 'bg-blue-50 text-blue-600'
-                                          : trip.status === 'planned'
+                                          : trip.status === TripStatus.PLANNED
                                             ? 'bg-amber-50 text-amber-600'
                                             : 'bg-slate-50 text-slate-400'
                                     }`}

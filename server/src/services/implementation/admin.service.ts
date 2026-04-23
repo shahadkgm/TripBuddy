@@ -7,6 +7,7 @@ import {
   DashboardStatsDTO,
   GuideListDTO,
   AdminGuideResponseDTO,
+  RevenueStatsDTO,
 } from '../../dto/admin.dto';
 import { UserResponseDTO } from '../../dto/user.dto';
 import { toAdminGuideResponse } from '../../utils/guide.mapper';
@@ -208,5 +209,16 @@ export class AdminService implements IAdminService {
       throw new AppError('Trip not found or failed to update', StatusCode.NOT_FOUND);
     }
     return updatedTrip;
+  }
+
+  async getRevenueStats(from?: Date, to?: Date): Promise<RevenueStatsDTO> {
+    const stats = await this.paymentRepo.getRevenueStats(from, to);
+    const PLATFORM_COMMISSION_RATE = 0.02; // 2% 
+
+    return {
+      ...stats,
+      platformCommission: stats.totalRevenue * PLATFORM_COMMISSION_RATE,
+      netRevenue: stats.totalRevenue - stats.totalRefunds,
+    };
   }
 }

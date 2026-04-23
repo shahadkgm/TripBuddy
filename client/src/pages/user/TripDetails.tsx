@@ -19,6 +19,7 @@ import { connectionService } from '../../services/c.connection.service';
 import { authService } from '../../services/c.authService';
 import { paymentService } from '../../services/c.payment.service';
 import type { ITrip } from '../../interface/ITripdetails';
+import { TripStatus } from '../../constants/TripStatus';
 import toast from 'react-hot-toast';
 
 const TripDetails = () => {
@@ -96,7 +97,7 @@ const TripDetails = () => {
       setIsCancelling(true);
       await tripService.cancelTrip(id);
       toast.success('Trip cancelled and members refunded.');
-      if (trip) setTrip({ ...trip, status: 'cancelled' });
+      if (trip) setTrip({ ...trip, status: TripStatus.CANCELLED });
       setShowCancelModal(false);
     } catch (error) {
       toast.error('Failed to cancel trip');
@@ -261,7 +262,7 @@ const TripDetails = () => {
         <div className="mt-8">
           {isOwnTrip ? (
             <div className="space-y-4">
-              {trip.status === 'cancelled' && (
+              {trip.status === TripStatus.CANCELLED && (
                 <button
                   disabled
                   className="w-full py-5 bg-rose-50 text-rose-600 border-2 border-rose-200 rounded-2xl font-black uppercase tracking-[0.2em]"
@@ -269,7 +270,7 @@ const TripDetails = () => {
                   Trip Cancelled
                 </button>
               )}
-              {(trip.status === 'finalized' || trip.status === 'confirmed') && (
+              {(trip.status === TripStatus.FINALIZED || trip.status === TripStatus.CONFIRMED) && (
                 <button
                   onClick={() => setShowCancelModal(true)}
                   className="w-full py-4 border-2 border-rose-100 text-rose-600 rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-rose-50 transition"

@@ -4,6 +4,7 @@ import { tripService } from '../services/c.trip.service';
 import { guideService } from '../services/c.guide.service';
 import { authService } from '../services/c.authService';
 import type { ITrip, IGuide } from '../interface/ITripdetails';
+import { TripStatus } from '../constants/TripStatus';
 import toast from 'react-hot-toast';
 
 interface InviteGuideModalProps {
@@ -26,7 +27,9 @@ export const InviteGuideModal: React.FC<InviteGuideModalProps> = ({ guide, onClo
         // Only show trips that are in 'planned' or 'finalized' status and don't have this guide assigned
         const eligibleTrips = data.trips.filter(
           trip =>
-            ['planned', 'finalized', 'confirmed'].includes(trip.status) &&
+            (trip.status === TripStatus.PLANNED ||
+              trip.status === TripStatus.FINALIZED ||
+              trip.status === TripStatus.CONFIRMED) &&
             trip.guideId?._id !== guide._id
         );
         setTrips(eligibleTrips);

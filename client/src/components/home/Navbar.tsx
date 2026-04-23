@@ -7,6 +7,8 @@ import { User, ArrowLeft, MessageCircle, Loader2 } from 'lucide-react';
 import { useSocketContext } from '../../context/SocketContext';
 import { tripService } from '../../services/c.trip.service';
 import type { ITrip } from '../../interface/ITripdetails';
+import { TripStatus } from '../../constants/TripStatus';
+
 
 interface NavbarProps {
   variant?: 'floating' | 'sticky';
@@ -69,7 +71,7 @@ export const Navbar = ({ variant = 'floating', showBack = false, backPath = '/' 
         setLoadingChats(true);
         const data = await tripService.getUserTrips(user.id, 1, 20);
         // Show trips that have a group chat (any status except cancelled)
-        const activeTrips = data.trips.filter(t => t.status !== 'cancelled');
+        const activeTrips = data.trips.filter(t => t.status !== TripStatus.CANCELLED);
         setChatTrips(activeTrips);
       } catch {
         setChatTrips([]);

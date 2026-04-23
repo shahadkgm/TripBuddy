@@ -3,17 +3,7 @@ import { Send, X, User } from 'lucide-react';
 import { useSocket } from '../hooks/useSocket';
 import { authService } from '../services/c.authService';
 import { tripService } from '../services/c.trip.service';
-
-interface Message {
-  _id: string;
-  senderId: {
-    _id: string;
-    name: string;
-    avatarURL?: string;
-  };
-  content: string;
-  timestamp: string;
-}
+import type { IMessage } from '../interface/IMessage';
 
 interface ChatWindowProps {
   tripId: string;
@@ -21,7 +11,7 @@ interface ChatWindowProps {
 }
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, onClose }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const socket = useSocket(tripId);
   const currentUser = authService.getCurrentUser();
@@ -35,7 +25,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, onClose }) => {
     const loadHistory = async () => {
       try {
         const history = await tripService.getChatHistory(tripId);
-        setMessages(history);
+        setMessages(history.messages);
       } catch (error) {
         console.error('Failed to load chat history:', error);
       }
@@ -46,12 +36,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, onClose }) => {
   useEffect(() => {
     if (!socket) return;
 
-    socket.on('receive_message', (message: Message) => {
+    const messageHandler = (message: IMessage) => {
       setMessages(prev => [...prev, message]);
-    });
+    };
+
+    socket.on('receive_message', messageHandler);
 
     return () => {
-      socket.off('receive_message');
+      socket.off('receive_message', messageHandler);
     };
   }, [socket]);
 

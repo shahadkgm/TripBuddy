@@ -1,6 +1,5 @@
-// backend/src/types/User.ts
-
 import { Types } from 'mongoose';
+import { IGuide } from './guide.type';
 
 export interface IUser {
   _id: Types.ObjectId;
@@ -35,6 +34,6 @@ export interface IUser {
     filePath: string;
     rejectionReason?: string | null;
   };
-}
 
-// export interface IUserDocument extends IUser, Document {}
+  guideProfile?: Partial<IGuide> | null;
+}

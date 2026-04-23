@@ -1,4 +1,5 @@
 import { ITripDocument, ITripFilters } from '../../types/trip.type';
+import { TripStatus } from '../../constants/tripStatus.enum';
 import { TripModel } from '../../models/trip.model';
 import { IMessagePopulated } from '../../models/message.model';
 import { CreateTripDTO } from '../../dto/trip.dto';
@@ -73,7 +74,7 @@ export class TripRepository
   ): Promise<{ trips: ITripDocument[]; total: number }> {
     const skip = (page - 1) * limit;
     const query: FilterQuery<ITripDocument> = {
-      status: { $in: ['planned', 'finalized', 'confirmed'] },
+      status: { $in: [TripStatus.PLANNED, TripStatus.FINALIZED, TripStatus.CONFIRMED] },
     };
 
     if (filters.destination) query.destination = { $regex: filters.destination, $options: 'i' };

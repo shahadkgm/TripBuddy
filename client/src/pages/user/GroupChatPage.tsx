@@ -32,6 +32,7 @@ import api from '../../utils/api';
 import type { ITrip, IGuide } from '../../interface/ITripdetails';
 import toast from 'react-hot-toast';
 import { paymentService } from '../../services/c.payment.service';
+import { TripStatus } from '../../constants/TripStatus';
 import type { IMessage } from '../../interface/IMessage';
 import ReviewModal from '../../components/ReviewModal';
 import { ConfirmModal } from '../../components/ConfirmModal';
@@ -186,11 +187,13 @@ const GroupChatPage = () => {
 
   useEffect(() => {
     if (!socket) return;
-    socket.on('receive_message', (message: IMessage) => {
+    const pageMessageHandler = (message: IMessage) => {
       setMessages(prev => [...prev, message]);
-    });
+    };
+
+    socket.on('receive_message', pageMessageHandler);
     return () => {
-      socket.off('receive_message');
+      socket.off('receive_message', pageMessageHandler);
     };
   }, [socket]);
 
@@ -273,7 +276,7 @@ const GroupChatPage = () => {
 
   const handlePayment = async () => {
     if (!trip || !id) return;
-    const depositAmount = trip.budget * 0.2;
+    const depositAmount = trip.depositAmount || (trip.budget * 0.2);
     try {
       setIsProcessingPayment(true);
       const { url } = await paymentService.createStripeSession(depositAmount, id);
@@ -287,7 +290,7 @@ const GroupChatPage = () => {
 
   const handleWalletPayment = async () => {
     if (!trip || !id || !currentUser) return;
-    const depositAmount = trip.budget * 0.2;
+    const depositAmount = trip.depositAmount || (trip.budget * 0.2);
 
     const currentBalance = currentUser.walletBalance || 0;
     if (currentBalance < depositAmount) {
@@ -431,7 +434,7 @@ const GroupChatPage = () => {
                 <Settings size={18} />
               </button>
             )}
-            {trip?.status === 'planned' && isOwner && (
+            {trip?.status === TripStatus.PLANNED && isOwner && (
               <button
                 onClick={() => setShowFinalizeModal(true)}
                 className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all shadow-sm"
@@ -442,32 +445,31 @@ const GroupChatPage = () => {
             {/* Trip Status Badge */}
             {new Date(new Date(trip?.startDate || '').getTime() + 3 * 24 * 60 * 60 * 1000) <
               new Date() &&
-              trip?.status !== 'confirmed' &&
-              trip?.status !== 'completed' &&
-              trip?.status !== 'cancelled' && (
+              trip?.status !== TripStatus.CONFIRMED &&
+              trip?.status !== TripStatus.COMPLETED &&
+              trip?.status !== TripStatus.CANCELLED && (
                 <div className="px-4 py-2 bg-rose-50 text-rose-600 border border-rose-100 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2">
                   <AlertCircle size={14} /> EXPIRED
                 </div>
               )}
-            {trip?.status === 'planned' && new Date(trip?.startDate || '') >= new Date() && (
+            {trip?.status === TripStatus.PLANNED && new Date(trip?.startDate || '') >= new Date() && (
               <div className="px-4 py-2 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-xl text-xs font-bold flex items-center gap-2">
                 <Sparkles size={14} /> Awaiting Finalization
               </div>
             )}
-            {trip?.status === 'finalized' && (
+            {trip?.status === TripStatus.FINALIZED && (
               <button
                 onClick={() => !hasPaidDeposit && setShowPaymentModal(true)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${
-                  hasPaidDeposit
+                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${hasPaidDeposit
                     ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
                     : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
-                }`}
+                  }`}
               >
                 {hasPaidDeposit ? <ShieldCheck size={14} /> : <AlertCircle size={14} />}
                 {hasPaidDeposit ? 'Spot Secured' : 'Secure Spot'}
               </button>
             )}
-            {trip?.status === 'confirmed' && (
+            {trip?.status === TripStatus.CONFIRMED && (
               <div className="flex items-center gap-3">
                 <div className="px-4 py-2 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl text-xs font-bold flex items-center gap-2">
                   <ShieldCheck size={14} /> Confirmed ✅
@@ -482,7 +484,7 @@ const GroupChatPage = () => {
                 )}
               </div>
             )}
-            {trip?.status === 'completed' && (
+            {trip?.status === TripStatus.COMPLETED && (
               <button
                 onClick={() => {
                   if (isOwner) {
@@ -532,7 +534,7 @@ const GroupChatPage = () => {
           }}
         >
           <div className="max-w-4xl mx-auto space-y-6">
-            {trip.status === 'completed' && (
+            {trip.status === TripStatus.COMPLETED && (
               <div className="mb-10 animate-in slide-in-from-top duration-700">
                 <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden group border border-white/10">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-xl" />
@@ -798,7 +800,7 @@ const GroupChatPage = () => {
             <div className="bg-slate-50 rounded-3xl p-6 mb-4 border border-slate-100 flex justify-between items-center">
               <span className="text-sm font-bold text-slate-500">Amount Due</span>
               <span className="text-2xl font-black text-indigo-600">
-                ₹{(trip.budget * 0.2).toLocaleString()}
+                ₹{(trip.depositAmount || trip.budget * 0.2).toLocaleString()}
               </span>
             </div>
             <div className="bg-indigo-50/50 rounded-2xl p-4 mb-8 border border-indigo-100/50 flex justify-between items-center">
@@ -813,7 +815,7 @@ const GroupChatPage = () => {
                 disabled={
                   isProcessingPayment ||
                   Math.round((currentUser?.walletBalance || 0) * 100) <
-                    Math.round(trip.budget * 0.2 * 100)
+                  Math.round((trip.depositAmount || trip.budget * 0.2) * 100)
                 }
                 className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 transition shadow-xl disabled:opacity-50 flex items-center justify-center gap-3"
               >
@@ -1209,7 +1211,7 @@ const GroupChatPage = () => {
               : trip.guideId?.name
           }
           onClose={() => setShowReviewModal(false)}
-          onSuccess={() => {}}
+          onSuccess={() => { }}
         />
       )}
 

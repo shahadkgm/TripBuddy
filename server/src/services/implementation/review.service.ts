@@ -1,4 +1,5 @@
 import { FilterQuery, Types } from 'mongoose';
+import { TripStatus } from '../../constants/tripStatus.enum';
 import { IReview, IReviewDocument } from '../../models/review.model';
 import { IReviewRepository } from '../../repositories/interface/IReviewRepository';
 import { ITripRepository } from '../../repositories/interface/ITripRepository';
@@ -34,7 +35,7 @@ export class ReviewService implements IReviewService {
     const trip = await this._tripRepository.findById(data.tripId);
     if (!trip) throw new Error('Trip not found');
 
-    if (trip.status !== 'completed') {
+    if (trip.status !== TripStatus.COMPLETED) {
       throw new Error('Can only review completed trips');
     }
 

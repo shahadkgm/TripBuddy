@@ -1,4 +1,5 @@
 import { Document, Types } from 'mongoose';
+import { TripStatus } from '../constants/tripStatus.enum';
 
 export interface ITripPreferences {
   travelers: number;
@@ -29,7 +30,7 @@ export interface ITrip {
   preferences: ITripPreferences;
   depositAmount?: number;
   minMembers: number;
-  status: 'planned' | 'ongoing' | 'completed' | 'cancelled' | 'finalized' | 'confirmed';
+  status: TripStatus;
   members: Types.ObjectId[];
   guideId?: Types.ObjectId | null;
   itinerary?: IItineraryItem[];
