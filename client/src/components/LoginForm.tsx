@@ -61,21 +61,26 @@ export const LoginForm = () => {
       } else {
         navigate('/', { replace: true });
       }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Invalid email or password.';
+    } catch (_error: unknown) {
+      const errorObj = _error as { response?: { data?: { message?: string } } };
+      const msg = errorObj.response?.data?.message || 'An unexpected error occurred.';
+      const errorMessage = msg || 'Invalid email or password.';
       toast.error(errorMessage, { id: loginToast });
     } finally {
       setIsLoading(false);
     }
   };
-  const handleGoogleSuccess = async (credentialResponse: any) => {
+  const handleGoogleSuccess = async (credentialResponse: import("@react-oauth/google").CredentialResponse) => {
     setIsLoading(true);
     try {
+      if (!credentialResponse.credential) throw new Error('No credential received');
       await authService.googleLogin(credentialResponse.credential);
       toast.success('Google Login Successful!');
       navigate('/');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Google Login failed');
+    } catch (_error: unknown) {
+      const errorObj = _error as { response?: { data?: { message?: string } } };
+      const msg = errorObj.response?.data?.message || 'Google Login failed';
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }

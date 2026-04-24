@@ -1,5 +1,5 @@
 import api from '../utils/api';
-import type { IGuide } from '../interface/ITripdetails';
+import type { IGuide, IGuideInvitation } from '../interface/ITripdetails';
 import type { ApiResponse } from '../interface/ApiResponse';
 
 export const guideService = {
@@ -31,7 +31,7 @@ export const guideService = {
     return response.data.data;
   },
 
-  async getAllGuides(params: any): Promise<{ guides: IGuide[]; total: number }> {
+  async getAllGuides(params: Record<string, string | number | boolean>): Promise<{ guides: IGuide[]; total: number }> {
     const response = await api.get<ApiResponse<{ guides: IGuide[]; total: number }>>(
       '/api/guides/all',
       { params }
@@ -39,13 +39,13 @@ export const guideService = {
     return response.data.data;
   },
 
-  async sendInvitation(tripId: string, guideId: string): Promise<any> {
-    const response = await api.post('/api/guide-invitations/send', { tripId, guideId });
+  async sendInvitation(tripId: string, guideId: string): Promise<ApiResponse<IGuideInvitation>> {
+    const response = await api.post<ApiResponse<IGuideInvitation>>('/api/guide-invitations/send', { tripId, guideId });
     return response.data;
   },
 
-  async getInboundInvitations(): Promise<any[]> {
-    const response = await api.get('/api/guide-invitations/inbound');
+  async getInboundInvitations(): Promise<IGuideInvitation[]> {
+    const response = await api.get<ApiResponse<IGuideInvitation[]>>('/api/guide-invitations/inbound');
     return response.data.data;
   },
 
@@ -53,8 +53,8 @@ export const guideService = {
     invitationId: string,
     status: 'accepted' | 'rejected',
     reason?: string
-  ): Promise<any> {
-    const response = await api.post('/api/guide-invitations/respond', {
+  ): Promise<ApiResponse<IGuideInvitation>> {
+    const response = await api.post<ApiResponse<IGuideInvitation>>('/api/guide-invitations/respond', {
       invitationId,
       status,
       reason,

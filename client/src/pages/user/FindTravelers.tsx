@@ -45,8 +45,8 @@ const FindTravelers = () => {
       const response = await tripService.getAllTrips(activeFilters);
       setTrips(response.trips);
       setTotalPages(Math.ceil(response.total / limit));
-    } catch (error) {
-      console.error('Error fetching trips:', error);
+    } catch (_error) {
+      console.error(_error);
     } finally {
       setLoading(false);
     }

@@ -30,8 +30,8 @@ const FindGuidesPage: React.FC = () => {
       });
       setGuides(res.data.data.guides);
       setTotalPages(Math.ceil(res.data.data.total / limit));
-    } catch (err) {
-      console.error('Error fetching guides', err);
+    } catch (_err) {
+      console.error('Error fetching guides', _err);
     } finally {
       setLoading(false);
     }

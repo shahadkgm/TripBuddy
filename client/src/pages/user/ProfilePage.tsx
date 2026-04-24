@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import type { AuthUser } from '../../types/auth.dto';
 import type { ConnectionRequest } from '../../types/auth.dto';
 import {
   User,
@@ -81,8 +80,8 @@ const ProfilePage = () => {
         setKycStatus(kycRes.data.data?.status || 'none');
         setRequests(reqData);
         setCurrentUser(profileData);
-      } catch (err) {
-        console.error('Data load failed', err);
+      } catch (_err) {
+        console.error('Data load failed', _err);
       }
     };
     loadInitialData();
@@ -117,10 +116,10 @@ const ProfilePage = () => {
       toast.success('Profile updated successfully');
       setIsEditing(false);
       setErrors({});
-    } catch (error: unknown) {
-      console.error('Profile update error', error);
-      const err = error as { response?: { data?: { message?: string } } };
-      const message = err.response?.data?.message || 'Failed to update profile';
+    } catch (_error: unknown) {
+      console.error(_error);
+      const _err = _error as { response?: { data?: { message?: string } } };
+      const message = _err.response?.data?.message || 'Failed to update profile';
       toast.error(message);
     } finally {
       setIsSaving(false);
@@ -139,7 +138,7 @@ const ProfilePage = () => {
       });
       await authService.updateProfile(currentUser.id, { avatarURL: res.data.data.imageUrl });
       toast.success('Profile photo updated successfully');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Upload failed');
     } finally {
       setIsUploading(false);
@@ -171,8 +170,8 @@ const ProfilePage = () => {
       setIsPasswordModalOpen(false);
       setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
       setErrors({});
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
+    } catch (_err: unknown) {
+      const error = _err as { response?: { data?: { message?: string } } };
       const message = error.response?.data?.message || 'Failed to change password';
 
       if (message.toLowerCase().includes('current password')) {
@@ -523,10 +522,25 @@ const ProfilePage = () => {
 
               {activeTab === 'planned' && (
                 <button
-                  onClick={() => navigate('/create-trip')}
-                  className="px-5 py-2 bg-indigo-50 text-indigo-600 rounded-xl font-bold text-xs hover:bg-indigo-100 transition-all flex items-center gap-2"
+                  disabled={kycStatus === 'loading'}
+                  onClick={() => {
+                    if (kycStatus === 'approved') {
+                      navigate('/create-trip');
+                    } else if (kycStatus === 'pending') {
+                      navigate('/kyc-status');
+                    } else {
+                      navigate('/kyc-verification');
+                    }
+                  }}
+                  className="px-5 py-2 bg-indigo-50 text-indigo-600 rounded-xl font-bold text-xs hover:bg-indigo-100 transition-all flex items-center gap-2 disabled:opacity-50"
                 >
-                  + New Trip
+                  {kycStatus === 'loading'
+                    ? 'Checking Status...'
+                    : kycStatus === 'approved'
+                      ? '+ New Trip'
+                      : kycStatus === 'pending'
+                        ? 'Verification pending...'
+                        : 'Complete KYC to create trip'}
                 </button>
               )}
             </div>

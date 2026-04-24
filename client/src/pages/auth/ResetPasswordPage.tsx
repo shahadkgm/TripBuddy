@@ -56,8 +56,10 @@ export const ResetPasswordPage = () => {
 
       toast.success('Password reset successful! Redirecting to login...', { id: loadToast });
       setTimeout(() => navigate('/login'), 3000);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Link expired or invalid', { id: loadToast });
+    } catch (_error: unknown) {
+      const errorObj = _error as { response?: { data?: { message?: string } } };
+      const msg = errorObj.response?.data?.message || 'An unexpected error occurred.';
+      toast.error(_error.response?.data?.message || 'Link expired or invalid', { id: loadToast });
     } finally {
       setIsSubmitting(false);
     }

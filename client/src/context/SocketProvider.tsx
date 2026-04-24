@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { authService } from '../services/c.authService';
 import { tripService } from '../services/c.trip.service';
@@ -6,16 +6,7 @@ import toast from 'react-hot-toast';
 import { MessageSquare } from 'lucide-react';
 import type { IMessage } from '../interface/IMessage';
 
-interface SocketContextType {
-  socket: Socket | null;
-  currentChatId: string | null;
-  setCurrentChatId: (id: string | null) => void;
-  unreadCounts: Record<string, number>;
-  totalUnread: number;
-  markAsRead: (tripId: string) => void;
-}
-
-const SocketContext = createContext<SocketContextType | undefined>(undefined);
+import { SocketContext } from './SocketContext';
 
 const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
@@ -28,14 +19,6 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const currentUser = authService.getCurrentUser();
   const currentChatIdRef = useRef<string | null>(null);
 
-  // Keep ref in sync for the event listener
-  useEffect(() => {
-    currentChatIdRef.current = currentChatId;
-    if (currentChatId) {
-      markAsRead(currentChatId);
-    }
-  }, [currentChatId]);
-
   const markAsRead = (tripId: string) => {
     setUnreadCounts(prev => ({
       ...prev,
@@ -43,11 +26,20 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }));
   };
 
+  // Keep ref in sync for the event listener
+  useEffect(() => {
+    currentChatIdRef.current = currentChatId;
+    if (currentChatId) {
+      // Defer to avoid synchronous setState warning
+      Promise.resolve().then(() => markAsRead(currentChatId));
+    }
+  }, [currentChatId]);
+
   useEffect(() => {
     if (!currentUser) {
       if (socket) {
         socket.disconnect();
-        setSocket(null);
+        Promise.resolve().then(() => setSocket(null));
       }
       return;
     }
@@ -57,7 +49,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       query: { userId: currentUser.id },
     });
 
-    setSocket(newSocket);
+    Promise.resolve().then(() => setSocket(newSocket));
 
     // Join all user's/guide's trip rooms for global notifications
     const joinAllRooms = async () => {
@@ -77,8 +69,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             tripTitlesRef.current[trip._id] = trip.title;
           });
         }
-      } catch (error) {
-        console.error('Error joining rooms:', error);
+      } catch (_error) {
+        console.error(_error);
       }
     };
 
@@ -176,10 +168,4 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   );
 };
 
-export const useSocketContext = () => {
-  const context = useContext(SocketContext);
-  if (context === undefined) {
-    throw new Error('useSocketContext must be used within a SocketProvider');
-  }
-  return context;
-};
+

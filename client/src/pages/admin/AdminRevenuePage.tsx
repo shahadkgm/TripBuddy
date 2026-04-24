@@ -81,7 +81,7 @@ export const AdminRevenuePage = () => {
 
       const { data } = await api.get('/api/admin/revenue/stats', { params });
       setStats(data.data);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to load revenue statistics');
     } finally {
       setLoading(false);

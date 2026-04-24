@@ -98,7 +98,7 @@ export const AdminTripManagementPage = () => {
       setTrips(data.data.trips);
       setTotalPages(data.data.totalPages);
       setTotalTrips(data.data.totalTrips);
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to load trips');
     } finally {
       setLoading(false);
@@ -122,7 +122,7 @@ export const AdminTripManagementPage = () => {
           t._id === selectedAction.tripId ? { ...t, status: selectedAction.status } : t
         )
       );
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to update trip status');
     } finally {
       setIsModalOpen(false);
@@ -137,7 +137,7 @@ export const AdminTripManagementPage = () => {
     try {
       const { data } = await api.get(`/api/reviews/trip/${trip._id}`);
       setSelectedTripReviews(data.data);
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to load reviews');
       setIsReviewModalOpen(false);
     } finally {

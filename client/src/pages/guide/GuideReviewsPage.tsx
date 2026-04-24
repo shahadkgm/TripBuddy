@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Star,
   MessageSquare,
-  User,
-  Calendar,
-  Filter,
   Loader2,
   Quote,
   ThumbsUp,
@@ -16,9 +13,20 @@ import toast from 'react-hot-toast';
 
 import { GuideHeader } from './GuideHeader';
 
+interface Review {
+  _id: string;
+  reviewerId: {
+    name: string;
+    avatarURL?: string;
+  };
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
 export const GuideReviewsPage = () => {
   const user = authService.getCurrentUser();
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     averageRating: 0,
@@ -35,11 +43,11 @@ export const GuideReviewsPage = () => {
         setReviews(reviewData);
 
         if (reviewData.length > 0) {
-          const total = reviewData.reduce((acc: number, r: any) => acc + r.rating, 0);
+          const total = reviewData.reduce((acc: number, r: { rating: number }) => acc + r.rating, 0);
           const avg = total / reviewData.length;
 
           const dist = [0, 0, 0, 0, 0];
-          reviewData.forEach((r: any) => {
+          reviewData.forEach((r: { rating: number }) => {
             if (r.rating >= 1 && r.rating <= 5) dist[r.rating - 1]++;
           });
 
@@ -49,8 +57,9 @@ export const GuideReviewsPage = () => {
             ratingDistribution: dist.reverse(), // 5 to 1
           });
         }
-      } catch (err) {
-        toast.error('Failed to load reviews');
+      } catch (_err: unknown) {
+        const errorObj = _err as { response?: { data?: { message?: string } } };
+        toast.error(errorObj?.response?.data?.message || 'Failed to update guide assignment');
       } finally {
         setLoading(false);
       }

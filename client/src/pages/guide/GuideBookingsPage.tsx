@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Filter,
-  Search,
   Loader2,
   CalendarCheck,
   MapPin,
@@ -26,7 +24,7 @@ export const GuideBookingsPage = () => {
   const [trips, setTrips] = useState<ITrip[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | TripStatus>(
-    'all' as any
+    'all' as const
   );
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -41,8 +39,8 @@ export const GuideBookingsPage = () => {
       console.log('DEBUG: Bookings: Guide profile missing. Re-syncing...');
       try {
         currentUser = await authService.getProfile(currentUser.id);
-      } catch (error) {
-        console.error('DEBUG: Failed to re-sync profile in Bookings:', error);
+      } catch (_error) {
+        console.error(_error);
       }
     }
 
@@ -66,8 +64,8 @@ export const GuideBookingsPage = () => {
 
       setTrips(data.trips);
       setTotal(data.total);
-    } catch (err) {
-      console.error('DEBUG: Error in fetchBookings:', err);
+    } catch (_err) {
+      console.error('DEBUG: Error in fetchBookings:', _err);
       toast.error('Failed to load bookings');
     } finally {
       setLoading(false);

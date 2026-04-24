@@ -6,9 +6,7 @@ import {
   ArrowRight,
   Loader2,
   Sparkles,
-  Trash2,
   Clock,
-  CheckCircle2,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { guideService } from '../../services/c.guide.service';
@@ -17,7 +15,7 @@ import { GuideHeader } from './GuideHeader';
 import toast from 'react-hot-toast';
 
 export const GuideInvitationsPage = () => {
-  const [invitations, setInvitations] = useState<any[]>([]);
+  const [invitations, setInvitations] = useState<import("../../interface/ITripdetails").IGuideInvitation[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -26,7 +24,7 @@ export const GuideInvitationsPage = () => {
       try {
         const data = await guideService.getInboundInvitations();
         setInvitations(data);
-      } catch (err) {
+      } catch (_err) {
         toast.error('Failed to load invitations');
       } finally {
         setLoading(false);
@@ -108,7 +106,7 @@ export const GuideInvitationsPage = () => {
                         Invitation from {inv.senderId?.name || 'Traveler'}
                       </p>
                       <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase leading-tight">
-                        {inv.tripId?.title || 'Adventure Trip'}
+                        {typeof inv.tripId !== 'string' ? inv.tripId?.title : 'Adventure Trip'}
                       </h3>
                     </div>
 
@@ -116,13 +114,13 @@ export const GuideInvitationsPage = () => {
                       <div className="flex items-center gap-2">
                         <MapPin size={16} className="text-indigo-400" />
                         <span className="text-xs font-bold uppercase tracking-widest">
-                          {inv.tripId?.destination}
+                          {typeof inv.tripId !== 'string' ? inv.tripId?.destination : 'N/A'}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar size={16} className="text-indigo-400" />
                         <span className="text-xs font-bold uppercase tracking-widest">
-                          {new Date(inv.tripId?.startDate).toLocaleDateString()}
+                          {typeof inv.tripId !== 'string' ? new Date(inv.tripId?.startDate).toLocaleDateString() : 'N/A'}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -137,7 +135,10 @@ export const GuideInvitationsPage = () => {
                   {/* Action */}
                   <div className="shrink-0 w-full lg:w-auto">
                     <button
-                      onClick={() => navigate(`/guide/trip-request/${inv.tripId._id}/${inv._id}`)}
+                      onClick={() => {
+                        const tId = typeof inv.tripId === 'string' ? inv.tripId : inv.tripId?._id;
+                        navigate(`/guide/trip-request/${tId}/${inv._id}`);
+                      }}
                       className="w-full lg:w-auto px-10 py-5 bg-slate-900 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-xl shadow-slate-200 hover:bg-indigo-600 transition-all flex items-center justify-center gap-3 active:scale-95 group/btn"
                     >
                       {inv.status === 'pending' ? 'Review & Respond' : 'View Details'}

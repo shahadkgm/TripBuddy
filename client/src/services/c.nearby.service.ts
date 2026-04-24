@@ -30,9 +30,9 @@ class NearByService {
         };
       }
       return null;
-    } catch (error) {
-      console.error('Error searching place:', error);
-      throw error;
+    } catch (_error) {
+      console.error(_error);
+      throw _error;
     }
   }
 
@@ -50,8 +50,8 @@ class NearByService {
         },
       });
       return response.data || [];
-    } catch (error) {
-      console.error('Error fetching suggestions:', error);
+    } catch (_error) {
+      console.error(_error);
       return [];
     }
   }
@@ -78,18 +78,32 @@ class NearByService {
         },
       });
 
+      interface OverpassElement {
+        id: number;
+        lat?: number;
+        lon?: number;
+        center?: { lat: number; lon: number };
+        tags?: {
+          name?: string;
+          amenity?: string;
+          tourism?: string;
+          leisure?: string;
+          [key: string]: string | undefined;
+        };
+      }
+
       return response.data.elements
-        .filter((el: any) => el.tags && (el.tags.name || el.tags.amenity || el.tags.tourism))
-        .map((el: any) => ({
+        .filter((el: OverpassElement) => el.tags && (el.tags.name || el.tags.amenity || el.tags.tourism))
+        .map((el: OverpassElement) => ({
           id: el.id,
-          name: el.tags.name || el.tags.amenity || el.tags.tourism || 'Unknown',
+          name: el.tags?.name || el.tags?.amenity || el.tags?.tourism || 'Unknown',
           lat: el.lat || (el.center ? el.center.lat : 0),
           lon: el.lon || (el.center ? el.center.lon : 0),
-          type: el.tags.tourism || el.tags.amenity || el.tags.leisure || 'place',
+          type: el.tags?.tourism || el.tags?.amenity || el.tags?.leisure || 'place',
         }));
-    } catch (error) {
-      console.error('Error fetching nearby places:', error);
-      throw error;
+    } catch (_error) {
+      console.error(_error);
+      throw _error;
     }
   }
 }

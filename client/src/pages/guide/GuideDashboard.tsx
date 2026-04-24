@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  User,
   Star,
   Clock,
   IndianRupee,
   Calendar,
   MessageSquare,
-  LogOut,
   MapPin,
   ChevronRight,
   Loader2,
@@ -48,8 +46,8 @@ export const GuideDashboard = () => {
           } else {
             console.warn('DEBUG: No guideProfile._id found even after re-sync attempt');
           }
-        } catch (error) {
-          console.error('DEBUG: Failed to re-sync profile:', error);
+        } catch (_error) {
+          console.error(_error);
         }
       }
 
@@ -81,8 +79,8 @@ export const GuideDashboard = () => {
           totalBookings: data.total,
           earned: earnings,
         }));
-      } catch (err) {
-        console.error('Error fetching guide trips:', err);
+      } catch (_err) {
+        console.error('Error fetching guide trips:', _err);
         toast.error('Failed to load dashboard data');
       } finally {
         setLoading(false);

@@ -4,7 +4,7 @@ import { MessageCircle, Plane, ArrowRight, Loader2 } from 'lucide-react';
 import { tripService } from '../../services/c.trip.service';
 import { Pagination } from '../Pagination';
 import type { ITrip } from '../../interface/ITripdetails';
-import { useSocketContext } from '../../context/SocketContext';
+import { useSocketContext } from '../../hooks/useSocketContext';
 
 interface LiveChatsProps {
   userId: string;
@@ -29,8 +29,8 @@ export const LiveChats: React.FC<LiveChatsProps> = ({ userId }) => {
       const data = await tripService.getUserTrips(userId, pageNum, LIMIT);
       setTrips(data.trips);
       setTotal(data.total);
-    } catch (error) {
-      console.error('Error fetching chats:', error);
+    } catch (_error) {
+      console.error(_error);
     } finally {
       setLoading(false);
       setPaginationLoading(false);

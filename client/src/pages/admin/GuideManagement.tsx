@@ -64,7 +64,7 @@ export const GuideManagement = () => {
       console.log('from g-management', data.guides);
       setGuides(data.data.guides);
       setTotalPages(data.data.totalPages);
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to load applications');
     } finally {
       setLoading(false);
@@ -76,7 +76,7 @@ export const GuideManagement = () => {
       await api.patch(`/api/admin/guides/${id}/verify`);
       toast.success('Guide approved!');
       loadGuides();
-    } catch (err) {
+    } catch (_err) {
       toast.error('Approval failed');
     }
   };
@@ -94,7 +94,7 @@ export const GuideManagement = () => {
       await api.delete(`/api/admin/guides/${guideToReject}`);
       toast.success('Application rejected');
       loadGuides();
-    } catch (err) {
+    } catch (_err) {
       toast.error('Rejection failed');
     } finally {
       setIsConfirmOpen(false);

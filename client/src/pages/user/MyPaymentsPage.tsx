@@ -40,8 +40,8 @@ const MyPaymentsPage = () => {
       try {
         const profile = await authService.getProfile(currentUser.id);
         setUserProfile(profile);
-      } catch (error) {
-        console.error('Failed to fetch profile', error);
+      } catch (_error) {
+        console.error(_error);
       }
     }
   };
@@ -51,7 +51,7 @@ const MyPaymentsPage = () => {
       setLoading(true);
       const { data } = await api.get('/api/payments/user-payments');
       setPayments(data.data);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to load your payments');
     } finally {
       setLoading(false);

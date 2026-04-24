@@ -59,7 +59,7 @@ export const GuideRegistrationPage = () => {
         } else {
           setAppStatus('none');
         }
-      } catch (err) {
+      } catch (_err) {
         setAppStatus('none');
       }
     };
@@ -184,8 +184,10 @@ export const GuideRegistrationPage = () => {
       });
       toast.success('Application submitted!', { id: t });
       setAppStatus('pending');
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Registration failed', { id: t });
+    } catch (_err: unknown) {
+      const errorObj = _err as { response?: { data?: { message?: string } } };
+      const msg = errorObj.response?.data?.message || 'An unexpected error occurred.';
+      toast.error(msg || 'Registration failed', { id: t });
     } finally {
       setIsSubmitting(false);
     }

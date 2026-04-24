@@ -51,8 +51,8 @@ const AIAssistantPage = () => {
     try {
       const response = await aiService.getChatResponse(userMessage);
       setMessages(prev => [...prev, { role: 'assistant', content: response }]);
-    } catch (error) {
-      console.error('AI Chat Error:', error);
+    } catch (_error) {
+      console.error('AI Chat Error:', _error);
       toast.error('Failed to get a response. Please try again.');
     } finally {
       setIsLoading(false);

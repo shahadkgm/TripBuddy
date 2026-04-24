@@ -19,7 +19,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({
   error,
   icon,
 }) => {
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<{ display_name: string; lat: string; lon: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -50,8 +50,8 @@ export const LocationInput: React.FC<LocationInputProps> = ({
       const data = await nearbyService.getSuggestions(query);
       setSuggestions(data);
       setShowSuggestions(true);
-    } catch (error) {
-      console.error('Error fetching suggestions:', error);
+    } catch (_error) {
+      console.error(_error);
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +70,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({
     return () => clearTimeout(timeoutId);
   }, [inputValue]);
 
-  const handleSelect = (suggestion: any) => {
+  const handleSelect = (suggestion: { display_name: string; lat: string; lon: string }) => {
     const selectedValue = suggestion.display_name;
     setInputValue(selectedValue);
     onChange(selectedValue);

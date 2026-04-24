@@ -18,7 +18,6 @@ import {
   UserSearch,
   Search,
   RotateCcw,
-  Star,
   BadgeCheck,
   Send,
   XCircle,
@@ -28,7 +27,7 @@ import { aiService } from '../../services/c.ai.service';
 import { guideService } from '../../services/c.guide.service';
 import { paymentService } from '../../services/c.payment.service';
 import { TripStatus } from '../../constants/TripStatus';
-import type { ITrip, IItineraryItem, IGuide } from '../../interface/ITripdetails';
+import type { ITrip, IItineraryItem, IGuide, IGuideInvitation } from '../../interface/ITripdetails';
 import type { IPayment } from '../../interface/IPayment';
 import toast from 'react-hot-toast';
 import api from '../../utils/api';
@@ -55,11 +54,14 @@ const TripManagementPage = () => {
   const [guideDestination, setGuideDestination] = useState('');
   const [guideMaxPrice, setGuideMaxPrice] = useState(5000);
   const [assigningGuideId, setAssigningGuideId] = useState<string | null>(null);
-  const [invitations, setInvitations] = useState<any[]>([]);
+  const [invitations, setInvitations] = useState<IGuideInvitation[]>([]);
   const [payments, setPayments] = useState<IPayment[]>([]);
 
   const getGuideInvitationStatus = (guideId: string) => {
-    return invitations.find(inv => inv.guideId?._id === guideId);
+    return invitations.find(inv => {
+      const gId = typeof inv.guideId === 'string' ? inv.guideId : inv.guideId?._id;
+      return gId === guideId;
+    });
   };
 
   useEffect(() => {
@@ -78,13 +80,16 @@ const TripManagementPage = () => {
         }
 
         // Fetch invitations for this trip
-        const invRes = await api.get('/api/guide-invitations/outbound');
-        setInvitations(invRes.data.data.filter((inv: any) => inv.tripId?._id === id));
+        const invRes = await api.get<{ data: IGuideInvitation[] }>('/api/guide-invitations/outbound');
+        setInvitations(invRes.data.data.filter((inv: IGuideInvitation) => {
+          const tId = typeof inv.tripId === 'string' ? inv.tripId : inv.tripId?._id;
+          return tId === id;
+        }));
 
         // Fetch payments for this trip
         const paymentsData = await paymentService.getTripPayments(id);
         setPayments(paymentsData);
-      } catch (error) {
+      } catch (_error) {
         toast.error('Failed to load trip data');
         navigate('/profile');
       } finally {
@@ -149,7 +154,7 @@ const TripManagementPage = () => {
       await tripService.updateTrip(id, { itinerary });
       toast.success('Itinerary saved successfully!');
       setIsSaved(true);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to save itinerary');
     } finally {
       setIsSaving(false);
@@ -178,8 +183,9 @@ const TripManagementPage = () => {
       const updatedTrip = await tripService.assignGuide(id, guideId);
       setTrip(updatedTrip);
       toast.success(guideId ? 'Guide assigned to trip!' : 'Guide removed from trip.');
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Failed to update guide assignment');
+    } catch (_err: unknown) {
+      const errorObj = _err as { response?: { data?: { message?: string } } };
+      toast.error(errorObj?.response?.data?.message || 'Failed to update guide assignment');
     } finally {
       setAssigningGuideId(null);
     }
@@ -193,10 +199,14 @@ const TripManagementPage = () => {
       toast.success('Trip request sent to guide!');
 
       // Refresh invitations
-      const invRes = await api.get('/api/guide-invitations/outbound');
-      setInvitations(invRes.data.data.filter((inv: any) => inv.tripId?._id === id));
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Failed to send invitation');
+      const invRes = await api.get<{ data: IGuideInvitation[] }>('/api/guide-invitations/outbound');
+      setInvitations(invRes.data.data.filter((inv: IGuideInvitation) => {
+        const tId = typeof inv.tripId === 'string' ? inv.tripId : inv.tripId?._id;
+        return tId === id;
+      }));
+    } catch (_err: unknown) {
+      const errorObj = _err as { response?: { data?: { message?: string } } };
+      toast.error(errorObj?.response?.data?.message || 'Failed to send invitation');
     } finally {
       setAssigningGuideId(null);
     }
@@ -215,7 +225,7 @@ const TripManagementPage = () => {
       await tripService.cancelTrip(id);
       toast.success('Trip cancelled and members refunded.');
       navigate('/profile');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to cancel trip');
     } finally {
       setIsSaving(false);
@@ -229,7 +239,7 @@ const TripManagementPage = () => {
       await tripService.updateTrip(id, { status: TripStatus.COMPLETED });
       toast.success('Trip marked as completed!');
       setTrip(prev => (prev ? { ...prev, status: TripStatus.COMPLETED } : null));
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to update status');
     } finally {
       setIsSaving(false);
@@ -265,23 +275,31 @@ Do not include any other text, markdown formatting, or code blocks outside the J
       const responseText = await aiService.getChatResponse(prompt);
 
       let jsonString = responseText;
-      if (jsonString.startsWith('\`\`\`json')) {
-        jsonString = jsonString.replace(/\`\`\`json\n/g, '').replace(/\n\`\`\`/g, '');
-      } else if (jsonString.startsWith('\`\`\`')) {
-        jsonString = jsonString.replace(/\`\`\`\n/g, '').replace(/\n\`\`\`/g, '');
+      if (jsonString.startsWith('```json')) {
+        jsonString = jsonString.replace(/```json\n/g, '').replace(/\n```/g, '');
+      } else if (jsonString.startsWith('```')) {
+        jsonString = jsonString.replace(/```\n/g, '').replace(/\n```/g, '');
       }
 
       const generatedData = JSON.parse(jsonString);
 
-      // Map the generated data to match  complete IItineraryItem structure exactly
-      const newItinerary: IItineraryItem[] = generatedData.map((dayData: any, index: number) => {
+      interface AIGeneratedDay {
+        activities?: {
+          time?: string;
+          activity?: string;
+          location?: string;
+          notes?: string;
+        }[];
+      }
+
+      const newItinerary: IItineraryItem[] = generatedData.map((dayData: AIGeneratedDay, index: number) => {
         const currentDate = new Date(trip.startDate);
         currentDate.setDate(currentDate.getDate() + index);
 
         return {
           day: index + 1,
           date: currentDate,
-          activities: dayData.activities.map((act: any) => ({
+          activities: (dayData.activities || []).map((act) => ({
             time: act.time || '10:00',
             activity: act.activity || 'Activity',
             location: act.location || '',
@@ -292,8 +310,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
 
       setItinerary(newItinerary);
       toast.success('AI generated a brilliant itinerary!');
-    } catch (error) {
-      console.error(error);
+    } catch (_error) {
       toast.error('Failed to generate itinerary. Please try again.');
     } finally {
       setIsGeneratingAI(false);
@@ -394,7 +411,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
             ].map(tab => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id as 'itinerary' | 'members' | 'settings' | 'guide')}
                 className={`w-full flex items-center justify-between p-4 rounded-3xl transition-all border-2 ${
                   activeTab === tab.id
                     ? 'bg-white border-indigo-600 shadow-xl shadow-indigo-100/20 text-indigo-700'
@@ -663,7 +680,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                               failed: 'bg-red-50 text-red-600 border-red-100',
                             };
 
-                            const statusIcons: Record<string, any> = {
+                            const statusIcons: Record<string, React.ReactNode> = {
                               escrowed: <CheckCircle2 size={10} />,
                               pending: <Clock size={10} />,
                               released: <BadgeCheck size={10} />,

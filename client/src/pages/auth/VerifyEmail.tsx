@@ -28,11 +28,13 @@ const VerifyEmail = () => {
         await authService.verifyEmail(token);
         toast.success('Email verified successfully 🎉');
         navigate('/login');
-      } catch (err: any) {
+      } catch (_err: unknown) {
+      const errorObj = _err as { response?: { data?: { message?: string } } };
+      const msg = errorObj.response?.data?.message || 'An unexpected error occurred.';
         // If the first one succeeded, the user is likely verified.
         // You might want to check if the error is "INVALID_TOKEN_OR_EXPIRED"
         // and ignore it if the user is already redirected.
-        toast.error(err.response?.data?.message || 'Verification failed');
+        toast.error(_err.response?.data?.message || 'Verification failed');
       }
     };
 

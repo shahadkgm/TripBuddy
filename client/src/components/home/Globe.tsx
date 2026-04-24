@@ -3,6 +3,17 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Float } from '@react-three/drei';
 import * as THREE from 'three';
 
+const MARKER_COUNT = 8;
+const RADIUS = 2.05;
+const STATIC_MARKERS = Array.from({ length: MARKER_COUNT }, () => {
+  const phi = Math.random() * Math.PI;
+  const theta = Math.random() * 2 * Math.PI;
+  const x = RADIUS * Math.cos(theta) * Math.sin(phi);
+  const y = RADIUS * Math.sin(theta) * Math.sin(phi);
+  const z = RADIUS * Math.cos(phi);
+  return new THREE.Vector3(x, y, z);
+});
+
 const GlobeModel = () => {
   const globeRef = useRef<THREE.Group>(null);
   const dotsRef = useRef<THREE.Points>(null);
@@ -26,24 +37,8 @@ const GlobeModel = () => {
     return new Float32Array(positions);
   }, []);
 
-  // Destination markers (randomly placed for demo)
-  const markers = useMemo(() => {
-    const markerPositions = [];
-    const count = 8;
-    const radius = 2.05; // Slightly above surface
-
-    for (let i = 0; i < count; i++) {
-      const phi = Math.random() * Math.PI;
-      const theta = Math.random() * 2 * Math.PI;
-
-      const x = radius * Math.cos(theta) * Math.sin(phi);
-      const y = radius * Math.sin(theta) * Math.sin(phi);
-      const z = radius * Math.cos(phi);
-
-      markerPositions.push(new THREE.Vector3(x, y, z));
-    }
-    return markerPositions;
-  }, []);
+  // Destination markers (static markers for demo)
+  const markers = useMemo(() => STATIC_MARKERS, []);
 
   useFrame(() => {
     if (globeRef.current) {

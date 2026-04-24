@@ -1,4 +1,5 @@
-import { Star, Trash2, MapPin, User, Calendar, MessageSquare, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Star, Trash2, MapPin, User, Calendar, MessageSquare } from 'lucide-react';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { ConfirmModal } from '../../components/ConfirmModal';
@@ -37,7 +38,7 @@ export const ReviewManagementPage: React.FC = () => {
     try {
       const res = await api.get('/api/reviews/admin/all');
       setReviews(res.data.data);
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to load reviews');
     } finally {
       setIsLoading(false);
@@ -51,7 +52,7 @@ export const ReviewManagementPage: React.FC = () => {
       await api.delete(`/api/reviews/${reviewToDeleteId}`);
       toast.success('Review deleted');
       setReviews(prev => prev.filter(r => r._id !== reviewToDeleteId));
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to delete review');
     } finally {
       setShowDeleteConfirm(false);

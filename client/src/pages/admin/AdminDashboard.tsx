@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import {
-  LayoutDashboard,
   Users,
   Clock,
   Loader2,
@@ -48,8 +47,8 @@ export const AdminDashboard = () => {
         const { data } = await api.get('/api/admin/stats');
         console.log('from dashboard', data);
         setStats(data.data);
-      } catch (error) {
-        console.error('Error fetching stats:', error);
+      } catch (_error) {
+        console.error(_error);
         toast.error('Failed to load dashboard statistics');
       } finally {
         setIsLoading(false);

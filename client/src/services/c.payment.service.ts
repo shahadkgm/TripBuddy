@@ -4,7 +4,7 @@ import type { IPayment } from '../interface/IPayment';
 
 export const paymentService = {
   async createStripeSession(amount: number, tripId: string): Promise<{ id: string; url: string }> {
-    const response = await api.post<ApiResponse<any>>(`/api/payments/create-stripe-session`, {
+    const response = await api.post<ApiResponse<{ id: string; url: string }>>(`/api/payments/create-stripe-session`, {
       amount,
       tripId,
     });

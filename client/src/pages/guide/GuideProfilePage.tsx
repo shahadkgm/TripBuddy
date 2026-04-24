@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { User, Camera, MapPin, Briefcase, Star, ArrowLeft, Loader2, Save } from 'lucide-react';
+import { Camera, MapPin, Briefcase, ArrowLeft, Loader2, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/c.authService';
 import { guideService } from '../../services/c.guide.service';
@@ -46,7 +46,7 @@ export const GuideProfilePage = () => {
 
       toast.success('Profile photo updated!');
       window.location.reload(); // Refresh to sync photo everywhere
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to upload photo');
     } finally {
       setIsUploading(false);
@@ -68,7 +68,7 @@ export const GuideProfilePage = () => {
       }
 
       toast.success('Profile updated successfully!');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to update profile');
     } finally {
       setIsSaving(false);

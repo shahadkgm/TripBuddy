@@ -13,7 +13,7 @@ export const useSocket = (tripId: string | undefined) => {
       withCredentials: true,
     });
 
-    setSocket(newSocket);
+    Promise.resolve().then(() => setSocket(newSocket));
 
     newSocket.emit('join_trip', tripId);
 

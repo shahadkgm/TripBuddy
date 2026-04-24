@@ -40,8 +40,10 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
       toast.success(`Thank you for reviewing the ${target}!`);
       onSuccess();
       onClose();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to submit review');
+    } catch (_err: unknown) {
+      const errorObj = _err as { response?: { data?: { message?: string } } };
+      const msg = errorObj.response?.data?.message || 'Failed to submit review';
+      toast.error(msg);
     } finally {
       setIsSubmitting(false);
     }

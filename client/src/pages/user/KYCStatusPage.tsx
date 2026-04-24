@@ -3,8 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { authService } from '../../services/c.authService';
 
+interface IKYCData {
+  status: string;
+  documentType?: string;
+  uploadedAt?: string | number | Date;
+  rejectionReason?: string;
+}
+
 const KYCStatusPage = () => {
-  const [kycData, setKycData] = useState<any>(null);
+  const [kycData, setKycData] = useState<IKYCData | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const user = authService.getCurrentUser();
@@ -18,8 +25,8 @@ const KYCStatusPage = () => {
           const res = await api.get(`/api/kyc-status/${userId}`);
           console.log('KYC Data from API:', res.data.data);
           setKycData(res.data.data);
-        } catch (err) {
-          console.error('Error fetching KYC details:', err);
+        } catch (_err) {
+          console.error('Error fetching KYC details:', _err);
         } finally {
           setLoading(false);
         }

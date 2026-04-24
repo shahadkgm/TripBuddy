@@ -25,7 +25,7 @@ const KYCPage = () => {
           if (status === 'pending' || status === 'approved') {
             navigate('/kyc-status');
           }
-        } catch (err) {
+        } catch (_err) {
           console.error('Error checking status on load');
         } finally {
           setChecking(false);
@@ -70,7 +70,7 @@ const KYCPage = () => {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        onUploadProgress: (progressEvent: any) => {
+        onUploadProgress: (progressEvent: import("axios").AxiosProgressEvent) => {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / (progressEvent.total || 1)
           );
@@ -82,8 +82,8 @@ const KYCPage = () => {
         toast.success('KYC submitted successfully 🎉');
         setTimeout(() => navigate('/kyc-status'), 1500);
       }
-    } catch (error) {
-      console.error('Upload failed:', error);
+    } catch (_error) {
+      console.error(_error);
       toast.error('Error uploading document. Please try again.');
     } finally {
       setIsSubmitting(false);

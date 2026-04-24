@@ -51,8 +51,8 @@ export const PlannedTrips: React.FC<PlannedTripsProps> = ({ userId }) => {
       setTrips(tripData.trips);
       setTotal(tripData.total);
       setRequests(reqData);
-    } catch (err) {
-      console.error('Failed to load planned trips', err);
+    } catch (_err) {
+      console.error('Failed to load planned trips', _err);
       toast.error('Failed to load your trips');
     } finally {
       setLoading(false);
@@ -71,7 +71,7 @@ export const PlannedTrips: React.FC<PlannedTripsProps> = ({ userId }) => {
       await connectionService.acceptRequest(requestId);
       toast.success('Request accepted!');
       loadData(); // Refresh to update members and requests
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to accept request');
     }
   };
@@ -81,7 +81,7 @@ export const PlannedTrips: React.FC<PlannedTripsProps> = ({ userId }) => {
       await connectionService.rejectRequest(requestId);
       toast.success('Request rejected');
       loadData(); // Refresh
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to reject request');
     }
   };

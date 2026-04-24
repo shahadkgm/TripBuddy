@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import type { EmojiClickData } from 'emoji-picker-react';
-import { useSocketContext } from '../../context/SocketContext';
+import { useSocketContext } from '../../hooks/useSocketContext';
 import { authService } from '../../services/c.authService';
 import { tripService } from '../../services/c.trip.service';
 import api from '../../utils/api';
@@ -133,8 +133,8 @@ const GroupChatPage = () => {
         });
 
         // Let the messages effect handle the initial scroll
-      } catch (error) {
-        console.error('Failed to load chat data:', error);
+      } catch (_error) {
+        console.error('Failed to load chat data:', _error);
         toast.error('Failed to load conversation');
         navigate('/dashboard');
       } finally {
@@ -178,7 +178,7 @@ const GroupChatPage = () => {
           }
         }, 0);
       }
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to load older messages');
     } finally {
       setIsLoadingMore(false);
@@ -218,7 +218,7 @@ const GroupChatPage = () => {
           setHasPaidDeposit(true);
           toast.success('Spot secured!');
           window.history.replaceState({}, document.title, window.location.pathname);
-        } catch (error) {
+        } catch (_error) {
           toast.error('Payment verification failed.');
           window.history.replaceState({}, document.title, window.location.pathname);
         }
@@ -266,7 +266,7 @@ const GroupChatPage = () => {
       } else {
         toast.error('Failed to upload image');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error uploading image');
     } finally {
       setIsUploading(false);
@@ -282,7 +282,7 @@ const GroupChatPage = () => {
       const { url } = await paymentService.createStripeSession(depositAmount, id);
       if (url) window.location.href = url;
       else setIsProcessingPayment(false);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Payment failed.');
       setIsProcessingPayment(false);
     }
@@ -308,7 +308,7 @@ const GroupChatPage = () => {
       setHasPaidDeposit(true);
       setShowPaymentModal(false);
       toast.success('Spot secured via wallet!');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Wallet payment failed.');
     } finally {
       setIsProcessingPayment(false);
@@ -325,7 +325,7 @@ const GroupChatPage = () => {
         setShowFinalizeModal(false);
         toast.success('Trip finalized! Members can now pay deposits.');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to finalize trip.');
     } finally {
       setIsFinalizing(false);
@@ -340,7 +340,7 @@ const GroupChatPage = () => {
       setTrip(updatedTrip);
       setIsEditingBudget(false);
       toast.success('Budget updated successfully!');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to update budget');
     } finally {
       setIsUpdatingBudget(false);
@@ -355,7 +355,7 @@ const GroupChatPage = () => {
       setTrip(updatedTrip);
       toast.success('Trip marked as completed!');
       setShowConfirmModal(false);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to complete trip');
     }
   };
@@ -372,7 +372,7 @@ const GroupChatPage = () => {
         },
       });
       setRecommendedGuides(res.data.data.guides);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to fetch recommendations');
     } finally {
       setIsRecommendationsLoading(false);

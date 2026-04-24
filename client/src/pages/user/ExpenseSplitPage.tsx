@@ -18,7 +18,7 @@ export const ExpenseSplitPage = () => {
   const [trips, setTrips] = useState<ITrip[]>([]);
   const [selectedTripId, setSelectedTripId] = useState<string>(stateTripId || '');
   const [expenses, setExpenses] = useState<IExpense[]>([]);
-  const [tripMembers, setTripMembers] = useState<any[]>([]);
+  const [tripMembers, setTripMembers] = useState<{ _id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [newExpense, setNewExpense] = useState({
     title: '',
@@ -45,7 +45,7 @@ export const ExpenseSplitPage = () => {
       } else if (data.trips.length > 0 && !selectedTripId) {
         setSelectedTripId(data.trips[0]._id);
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to load trips');
     }
   };
@@ -64,8 +64,8 @@ export const ExpenseSplitPage = () => {
       if (members.length > 0) {
         setNewExpense(prev => ({ ...prev, paidBy: members[0].name }));
       }
-    } catch (error) {
-      console.error('Failed to load trip members', error);
+    } catch (_error) {
+      console.error(_error);
     }
   };
 
@@ -74,7 +74,7 @@ export const ExpenseSplitPage = () => {
       setLoading(true);
       const data = await expenseService.getTripExpenses(selectedTripId);
       setExpenses(data);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to load expenses');
     } finally {
       setLoading(false);
@@ -107,7 +107,7 @@ export const ExpenseSplitPage = () => {
       setExpenses([savedExpense, ...expenses]);
       setNewExpense({ title: '', amount: '', paidBy: '', splitAmong: 'All' });
       toast.success('Expense added!');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to add expense');
     }
   };
@@ -117,7 +117,7 @@ export const ExpenseSplitPage = () => {
       await expenseService.deleteExpense(id);
       setExpenses(expenses.filter(e => e._id !== id));
       toast.success('Expense removed');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to remove expense');
     }
   };

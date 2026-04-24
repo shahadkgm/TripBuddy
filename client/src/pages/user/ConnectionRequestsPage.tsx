@@ -19,7 +19,7 @@ const ConnectionRequestsPage = () => {
       setLoading(true);
       const data = await connectionService.getPendingRequests();
       setRequests(data);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to load requests');
     } finally {
       setLoading(false);
@@ -36,7 +36,7 @@ const ConnectionRequestsPage = () => {
         toast.success('Request declined');
       }
       setRequests(requests.filter(req => req._id !== requestId));
-    } catch (error) {
+    } catch (_error) {
       toast.error('Action failed');
     }
   };

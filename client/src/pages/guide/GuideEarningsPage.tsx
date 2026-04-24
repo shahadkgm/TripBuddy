@@ -2,13 +2,9 @@ import React, { useState, useEffect } from 'react';
 import {
   IndianRupee,
   TrendingUp,
-  Wallet,
   ArrowUpRight,
-  Calendar,
   Loader2,
   Download,
-  Filter,
-  ArrowDownLeft,
   BarChart3,
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
@@ -66,7 +62,7 @@ export const GuideEarningsPage = () => {
           completedTrips: completed.length,
           averagePerTrip: completed.length > 0 ? earnings / completed.length : 0,
         });
-      } catch (err) {
+      } catch (_err) {
         toast.error('Failed to load earnings data');
       } finally {
         setLoading(false);
@@ -210,7 +206,7 @@ export const GuideEarningsPage = () => {
   );
 };
 
-const EarningStat = ({ label, value, icon, trend, color }: any) => (
+const EarningStat = ({ label, value, icon, trend, color }: {label:string, value:string|number, icon:React.ReactNode, trend?:string, color?:string}) => (
   <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500">
     <div
       className={`absolute top-0 right-0 w-24 h-24 bg-${color}-500/5 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-700`}
@@ -244,7 +240,7 @@ const calcDays = (start: string | Date, end: string | Date) => {
   return days;
 };
 
-const Clock = ({ size, className }: any) => (
+const Clock = ({ size, className }: {size?:number, className?:string}) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={size}

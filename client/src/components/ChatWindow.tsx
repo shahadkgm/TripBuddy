@@ -26,8 +26,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, onClose }) => {
       try {
         const history = await tripService.getChatHistory(tripId);
         setMessages(history.messages);
-      } catch (error) {
-        console.error('Failed to load chat history:', error);
+      } catch (_error) {
+        console.error(_error);
       }
     };
     loadHistory();

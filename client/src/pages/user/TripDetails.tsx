@@ -6,8 +6,6 @@ import {
   Clock,
   UserPlus,
   User,
-  Calendar,
-  Lock,
   MapPin,
   X,
   MessageCircle,
@@ -61,8 +59,8 @@ const TripDetails = () => {
         } else {
           setStatus('none');
         }
-      } catch (error) {
-        console.error('Error loading trip details:', error);
+      } catch (_error) {
+        console.error(_error);
         toast.error('Failed to load trip details');
       } finally {
         setLoading(false);
@@ -85,7 +83,7 @@ const TripDetails = () => {
       await connectionService.sendRequest(tripOrganizerId, trip._id);
       setStatus('pending');
       toast.success('Connection request sent!');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to send request');
       setStatus('none');
     }
@@ -99,7 +97,7 @@ const TripDetails = () => {
       toast.success('Trip cancelled and members refunded.');
       if (trip) setTrip({ ...trip, status: TripStatus.CANCELLED });
       setShowCancelModal(false);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to cancel trip');
     } finally {
       setIsCancelling(false);

@@ -48,7 +48,7 @@ export const UserManagement = () => {
       console.log('data from usermanagement:', data.data.users);
       setUsers(data.data.users);
       setTotalPages(data.data.totalPages);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to load users');
     } finally {
       setLoading(false);
@@ -67,7 +67,7 @@ export const UserManagement = () => {
       await api.patch(`/api/admin/users/${id}/block`, { blocked: !isBlocked });
       toast.success(isBlocked ? 'User unblocked' : 'User blocked');
       setUsers(users.map(u => (u.id === id ? { ...u, isBlocked: !isBlocked } : u)));
-    } catch (error) {
+    } catch (_error) {
       toast.error('Action failed');
     } finally {
       setIsBlockModalOpen(false);
@@ -86,7 +86,7 @@ export const UserManagement = () => {
       setUsers(users.map(u => (u.id === userId ? { ...u, kycStatus: status } : u)));
       setIsKYCModalOpen(false);
       setRejectionReason('');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to update KYC status');
     }
   };
@@ -101,7 +101,7 @@ export const UserManagement = () => {
       await api.delete(`/api/admin/users/${selectedUserId}`);
       toast.success('User deleted successfully');
       setUsers(users.filter(u => u.id !== selectedUserId));
-    } catch (error) {
+    } catch (_error) {
       toast.error('Deletion failed');
     } finally {
       setIsModalOpen(false);

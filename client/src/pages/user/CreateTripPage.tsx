@@ -6,12 +6,9 @@ import {
   Calendar,
   User,
   IndianRupee,
-  Briefcase,
-  Hotel,
   ArrowLeft,
   Plane,
   CheckCircle,
-  FileText,
   Sparkles,
   X,
   Loader2,
@@ -24,9 +21,6 @@ import {
   Sun,
   Cloud,
   CloudRain,
-  CloudLightning,
-  CloudFog,
-  CloudDrizzle,
 } from 'lucide-react';
 
 import { LocationInput } from '../../components/LocationInput';
@@ -40,14 +34,13 @@ import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as L.Icon.Default & { _getIconUrl?: string })._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
   iconUrl: markerIcon,
   shadowUrl: markerShadow,
 });
 
-import api from '../../utils/api';
 import { authService } from '../../services/c.authService';
 import { tripService } from '../../services/c.trip.service';
 import { nearbyService } from '../../services/c.nearby.service';
@@ -143,8 +136,8 @@ const CreateTripPage = () => {
               return [...prev, ...newItems];
             });
           }
-        } catch (error) {
-          console.error('Failed to fetch trip', error);
+        } catch (_error) {
+          console.error(_error);
           toast.error('Failed to load trip details');
           navigate('/profile');
         } finally {
@@ -180,7 +173,7 @@ const CreateTripPage = () => {
       setShowWeatherModal(true);
       const data = await weatherService.getWeather(formData.destination);
       setWeatherData(data);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Could not find weather for this location.');
       setShowWeatherModal(false);
     } finally {
@@ -219,8 +212,8 @@ const CreateTripPage = () => {
         setFormData(prev => ({ ...prev, destination: data.display_name }));
         setMapSearchQuery(data.display_name);
       }
-    } catch (error) {
-      console.error('Reverse geocoding error:', error);
+    } catch (_error) {
+      console.error('Reverse geocoding _error:', _error);
     } finally {
       setIsReverseGeocoding(false);
     }
@@ -231,9 +224,9 @@ const CreateTripPage = () => {
     setIsMapSearching(true);
     try {
       const data = await nearbyService.getSuggestions(query);
-      setMapSuggestions(data as any);
-    } catch (error) {
-      console.error('Map search error:', error);
+      setMapSuggestions(data as { display_name: string; lat: string; lon: string }[]);
+    } catch (_error) {
+      console.error('Map search _error:', _error);
     } finally {
       setIsMapSearching(false);
     }
@@ -320,10 +313,12 @@ const CreateTripPage = () => {
       }
       setShowSuccess(true);
       setTimeout(() => navigate('/profile'), 2000);
-    } catch (error: any) {
-      console.error('Trip operation failed:', error);
+    } catch (_error: unknown) {
+      const errorObj = _error as { response?: { data?: { message?: string } } };
+      const msg = errorObj.response?.data?.message || 'An unexpected error occurred.';
+      console.error('Trip operation failed:', _error);
       toast.error(
-        error.response?.data?.message || `Failed to ${isEditing ? 'update' : 'create'} trip`
+        msg || `Failed to ${isEditing ? 'update' : 'create'} trip`
       );
     } finally {
       setIsSubmitting(false);

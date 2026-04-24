@@ -82,3 +82,27 @@ export interface PaginatedTrips {
   trips: ITrip[];
   total: number;
 }
+
+export interface IGuideInvitation {
+  _id: string;
+  tripId: ITrip | string;
+  guideId: IGuide | string;
+  organizerId?: {
+    _id: string;
+    name: string;
+    email: string;
+    avatarURL?: string;
+  };
+  senderId?: {
+    _id: string;
+    name: string;
+    email: string;
+    avatarURL?: string;
+  };
+  status: 'pending' | 'accepted' | 'rejected';
+  rejectionReason?: string;
+  organizerMessage?: string;
+  guideMessage?: string;
+  createdAt: string;
+  updatedAt: string;
+}

@@ -28,8 +28,8 @@ export const RequestedTrips: React.FC<RequestedTripsProps> = ({ userId }) => {
       const data = await connectionService.getSentRequests(pageNum, LIMIT);
       setRequests(data.requests);
       setTotal(data.total);
-    } catch (err) {
-      console.error('Failed to load requested trips', err);
+    } catch (_err) {
+      console.error('Failed to load requested trips', _err);
       toast.error('Failed to load your trip requests');
     } finally {
       setLoading(false);
@@ -99,7 +99,7 @@ export const RequestedTrips: React.FC<RequestedTripsProps> = ({ userId }) => {
                       {req.status}
                     </span>
                     <p className="text-[9px] text-slate-400 mt-1 font-bold">
-                      sent to {(req.receiverId as any)?.name || 'Traveler'}
+                      sent to {(req.receiverId as {name?: string})?.name || 'Traveler'}
                     </p>
                     <span className="text-[8px] text-indigo-500 font-bold mt-1 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
                       View Details <Globe size={8} />

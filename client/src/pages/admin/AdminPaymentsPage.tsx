@@ -53,7 +53,7 @@ export const AdminPaymentsPage = () => {
       setPayments(data.data.payments);
       // Calculating totalPages based on backend response (assuming backend doesn't provide it yet)
       setTotalPages(Math.ceil(data.data.total / limit));
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to load payments');
     } finally {
       setLoading(false);
@@ -72,7 +72,7 @@ export const AdminPaymentsPage = () => {
           p._id === selectedPayment.id ? { ...p, status: selectedPayment.status } : p
         )
       );
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to update status');
     } finally {
       setIsModalOpen(false);

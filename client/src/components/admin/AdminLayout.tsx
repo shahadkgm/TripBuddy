@@ -5,8 +5,6 @@ import {
   LayoutDashboard,
   Users,
   Map,
-  MessageSquare,
-  Settings,
   Menu,
   X,
   ShieldCheck,

@@ -37,8 +37,8 @@ export const GuideTripRequestDetailsPage = () => {
       try {
         const data = await tripService.getTripById(id);
         setTrip(data);
-      } catch (error) {
-        console.error('Error loading trip details:', error);
+      } catch (_error) {
+        console.error(_error);
         toast.error('Failed to load trip details');
       } finally {
         setLoading(false);
@@ -58,9 +58,11 @@ export const GuideTripRequestDetailsPage = () => {
       await guideService.respondToInvitation(invitationId, 'accepted');
       toast.success('Assignment accepted! You are now part of this trip.');
       navigate('/guide/bookings');
-    } catch (error: any) {
-      console.error('Error in handleAccept:', error);
-      toast.error(error.response?.data?.message || 'Failed to accept assignment');
+    } catch (_error: unknown) {
+      const errorObj = _error as { response?: { data?: { message?: string } } };
+      const msg = errorObj.response?.data?.message || 'Failed to accept assignment';
+      console.error(_error);
+      toast.error(msg);
     } finally {
       setResponding(false);
     }
@@ -77,9 +79,11 @@ export const GuideTripRequestDetailsPage = () => {
       await guideService.respondToInvitation(invitationId, 'rejected', rejectionReason);
       toast.success('Request declined.');
       navigate('/guide-dashboard');
-    } catch (error: any) {
-      console.error('Error in handleReject:', error);
-      toast.error(error.response?.data?.message || 'Failed to reject request');
+    } catch (_error: unknown) {
+      const errorObj = _error as { response?: { data?: { message?: string } } };
+      const msg = errorObj.response?.data?.message || 'Failed to reject request';
+      console.error(_error);
+      toast.error(msg);
     } finally {
       setResponding(false);
       setShowRejectModal(false);

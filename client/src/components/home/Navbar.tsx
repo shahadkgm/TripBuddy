@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/c.authService';
 import api from '../../utils/api';
 import { User, ArrowLeft, MessageCircle, Loader2 } from 'lucide-react';
-import { useSocketContext } from '../../context/SocketContext';
+import { useSocketContext } from '../../hooks/useSocketContext';
 import { tripService } from '../../services/c.trip.service';
 import type { ITrip } from '../../interface/ITripdetails';
 import { TripStatus } from '../../constants/TripStatus';
@@ -36,7 +36,7 @@ export const Navbar = ({ variant = 'floating', showBack = false, backPath = '/' 
           if (isMounted) {
             setKycStatus(res.data.data?.status || 'none');
           }
-        } catch (err) {
+        } catch (_err) {
           if (isMounted) setKycStatus('none');
         }
       } else {
@@ -220,13 +220,26 @@ export const Navbar = ({ variant = 'floating', showBack = false, backPath = '/' 
                             No active trips
                           </p>
                           <button
+                            disabled={kycStatus === 'loading'}
                             onClick={() => {
-                              navigate('/create-trip');
+                              if (kycStatus === 'approved') {
+                                navigate('/create-trip');
+                              } else if (kycStatus === 'pending') {
+                                navigate('/kyc-status');
+                              } else {
+                                navigate('/kyc-verification');
+                              }
                               setShowChatDropdown(false);
                             }}
-                            className="mt-2 text-xs text-indigo-500 font-bold hover:text-indigo-700"
+                            className="mt-2 text-xs text-indigo-500 font-bold hover:text-indigo-700 disabled:opacity-50"
                           >
-                            Create a trip →
+                            {kycStatus === 'loading'
+                              ? 'Checking status...'
+                              : kycStatus === 'approved'
+                                ? 'Create a trip →'
+                                : kycStatus === 'pending'
+                                  ? 'Verification pending...'
+                                  : 'Complete KYC to create trip →'}
                           </button>
                         </div>
                       )}

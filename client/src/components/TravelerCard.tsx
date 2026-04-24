@@ -21,27 +21,31 @@ interface Props {
 
 export const TravelerCard: React.FC<Props> = ({ trip }) => {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<
-    'none' | 'pending' | 'accepted' | 'incoming_pending' | 'loading'
-  >('loading');
   const currentUser = authService.getCurrentUser();
   
   // Safe extraction of organizer details
-  const organizerObj = typeof trip.userId === 'object' ? trip.userId : null;
   const organizerId = typeof trip.userId === 'string' ? trip.userId : trip.userId?._id;
+  const isOwnTrip = currentUser?.id === organizerId;
+
+  const [status, setStatus] = useState<
+    'none' | 'pending' | 'accepted' | 'incoming_pending' | 'loading'
+  >(() => {
+    if (!currentUser?.id || isOwnTrip) return 'none';
+    return 'loading';
+  });
+  
+  // Safe extraction of organizer details
+  const organizerObj = typeof trip.userId === 'object' ? trip.userId : null;
   const organizerName = organizerObj?.name || 'Unknown Traveler';
   const organizerAvatar = organizerObj?.avatarURL || organizerObj?.avatar || `https://i.pravatar.cc/150?u=${organizerId || 'unknown'}`;
   
-  const isOwnTrip = currentUser?.id === organizerId;
-
   const isExpired =
     new Date(trip.startDate).getTime() - 8 * 60 * 60 * 1000 < new Date().getTime() ||
     trip.status === TripStatus.COMPLETED ||
     trip.status === TripStatus.CANCELLED;
 
   useEffect(() => {
-    if (!currentUser?.id || isOwnTrip) {
-      setStatus('none');
+    if (status === 'none') {
       return;
     }
 
@@ -50,8 +54,8 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
         if (!organizerId) return;
         const resStatus = await connectionService.getStatus(organizerId, trip._id);
         setStatus(resStatus);
-      } catch (error) {
-        console.error('Error fetching connection status:', error);
+      } catch (_error) {
+        console.error(_error);
         setStatus('none');
       }
     };

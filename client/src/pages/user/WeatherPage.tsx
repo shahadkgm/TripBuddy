@@ -34,7 +34,7 @@ export const WeatherPage = () => {
       setLoading(true);
       const data = await weatherService.getWeather(city);
       setWeather(data);
-    } catch (error) {
+    } catch (_error) {
       toast.error('City not found. Try another location.');
     } finally {
       setLoading(false);
@@ -242,7 +242,7 @@ const StatBox = ({
   value,
   color,
 }: {
-  icon: any;
+  icon: React.ReactNode;
   label: string;
   value: string;
   color: string;

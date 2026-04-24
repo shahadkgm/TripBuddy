@@ -56,8 +56,10 @@ const GalleryPage = () => {
         res = await galleryService.getUserPosts(userId!);
       }
       setPosts(res.data);
-    } catch (error: any) {
-      const message = error.response?.data?.message || 'Failed to load gallery';
+    } catch (_error: unknown) {
+      const errorObj = _error as { response?: { data?: { message?: string } } };
+      const msg = errorObj.response?.data?.message || 'An unexpected error occurred.';
+      const message = msg || 'Failed to load gallery';
       setError(message);
       toast.error(message);
     } finally {
@@ -74,7 +76,7 @@ const GalleryPage = () => {
       const res = await galleryService.uploadImage(file);
       setUploadData(prev => ({ ...prev, image: res.data.imageUrl }));
       toast.success('Photo uploaded successfully');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Upload failed');
     } finally {
       setIsUploading(false);
@@ -92,7 +94,7 @@ const GalleryPage = () => {
       setUploadData({ caption: '', tripName: '', image: '' });
       fetchPosts();
       toast.success('Memory posted to gallery!');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to post');
     } finally {
       setIsUploading(false);

@@ -43,8 +43,10 @@ export const ForgotPasswordPage = () => {
 
       toast.success('Verification email sent! Check your inbox.', { id: resetToast });
       setTimeout(() => navigate('/login'), 3000);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to send email. Try again later.', {
+    } catch (_error: unknown) {
+      const errorObj = _error as { response?: { data?: { message?: string } } };
+      const msg = errorObj.response?.data?.message || 'An unexpected error occurred.';
+      toast.error(_error.response?.data?.message || 'Failed to send email. Try again later.', {
         id: resetToast,
       });
     } finally {

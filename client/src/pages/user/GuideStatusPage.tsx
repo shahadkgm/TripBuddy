@@ -1,6 +1,6 @@
 // src/modules/auth/pages/GuideStatusPage.tsx
 import { useNavigate } from 'react-router-dom';
-import { Clock, LayoutDashboard, FileText } from 'lucide-react';
+import { Clock, LayoutDashboard } from 'lucide-react';
 
 export const GuideStatusPage = () => {
   const navigate = useNavigate();

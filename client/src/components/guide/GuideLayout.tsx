@@ -9,11 +9,10 @@ import {
   LogOut,
   Menu,
   X,
-  MapPin,
   Plane,
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
-import { useSocketContext } from '../../context/SocketContext';
+import { useSocketContext } from '../../hooks/useSocketContext';
 import toast from 'react-hot-toast';
 
 interface GuideLayoutProps {

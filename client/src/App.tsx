@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import AppRoutes from './routes/AppRoutes';
-import { SocketProvider } from './context/SocketContext';
+import { SocketProvider } from './context/SocketProvider';
 
 function App() {
   useEffect(() => {

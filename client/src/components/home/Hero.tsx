@@ -23,8 +23,8 @@ export const Hero = () => {
         const res = await api.get(`/api/kyc-status/${userId}`);
         console.log('KYC Response in Hero:', res.data);
         setKycStatus(res.data.data.status);
-      } catch (err) {
-        console.error('KYC fetch error:', err);
+      } catch (_err) {
+        console.error('KYC fetch error:', _err);
         setKycStatus('none');
         toast.error('Failed to fetch KYC status');
       }

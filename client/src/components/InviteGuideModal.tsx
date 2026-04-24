@@ -33,8 +33,8 @@ export const InviteGuideModal: React.FC<InviteGuideModalProps> = ({ guide, onClo
             trip.guideId?._id !== guide._id
         );
         setTrips(eligibleTrips);
-      } catch (err) {
-        console.error('Error fetching trips:', err);
+      } catch (_err) {
+        console.error('Error fetching trips:', _err);
         toast.error('Failed to load your trips');
       } finally {
         setLoading(false);
@@ -54,8 +54,10 @@ export const InviteGuideModal: React.FC<InviteGuideModalProps> = ({ guide, onClo
       await guideService.sendInvitation(selectedTripId, guide._id || guide.id || '');
       toast.success(`Invitation sent to ${guide.name || guide.userId?.name}!`);
       onClose();
-    } catch (err: any) {
-      const message = err.response?.data?.message || err.message || 'Failed to send invitation';
+    } catch (_err: unknown) {
+      const errorObj = _err as { response?: { data?: { message?: string } } };
+      const msg = errorObj.response?.data?.message || 'An unexpected error occurred.';
+      const message = msg || 'Failed to send invitation';
       toast.error(message);
     } finally {
       setSending(false);
