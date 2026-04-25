@@ -8,6 +8,7 @@ import { useSocketContext } from '../../hooks/useSocketContext';
 import { tripService } from '../../services/c.trip.service';
 import type { ITrip } from '../../interface/ITripdetails';
 import { TripStatus } from '../../constants/TripStatus';
+import { Logo } from '../common/Logo';
 
 
 interface NavbarProps {
@@ -104,12 +105,7 @@ export const Navbar = ({ variant = 'floating', showBack = false, backPath = '/' 
               <ArrowLeft size={18} />
             </button>
           )}
-          <div
-            className="font-black text-xl md:text-2xl cursor-pointer text-indigo-600 tracking-tighter"
-            onClick={() => navigate('/')}
-          >
-            TripBuddy
-          </div>
+          <Logo size="md" />
         </div>
 
         <div className="flex gap-2 md:gap-4 items-center">

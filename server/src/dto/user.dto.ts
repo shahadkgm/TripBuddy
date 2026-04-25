@@ -64,7 +64,8 @@ export interface UserResponseDTO {
   createdAt: string;
   avatarURL?: string;
   bio?: string;
-  hourlyRate?: number;
+  hourlyRate?: number; // Keep for legacy if needed, but dailyRate is preferred
+  dailyRate?: number;
   serviceArea?: string;
   yearsOfExperience?: number;
   kycStatus?: string;
@@ -73,7 +74,7 @@ export interface UserResponseDTO {
   walletBalance: number;
   guideProfile?: {
     _id: string;
-    hourlyRate: number;
+    dailyRate: number;
     serviceArea: string;
     bio: string;
   } | null;

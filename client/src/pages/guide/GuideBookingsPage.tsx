@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Loader2,
@@ -11,8 +11,7 @@ import {
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
 import { tripService } from '../../services/c.trip.service';
-import { GuideHeader } from './GuideHeader';
-import { GuideSidebar } from './GuideSidebar';
+import { GuideLayout } from './GuideLayout';
 import type { ITrip } from '../../interface/ITripdetails';
 import { TripStatus } from '../../constants/TripStatus';
 import toast from 'react-hot-toast';
@@ -80,12 +79,8 @@ export const GuideBookingsPage = () => {
   const filteredTrips = filter === 'all' ? trips : trips.filter(t => t.status === filter);
 
   return (
-    <div className="flex bg-slate-50 min-h-screen font-outfit">
-      <GuideSidebar />
+    <GuideLayout currentPage="Bookings">
 
-      <div className="flex-1 lg:ml-64 transition-all duration-300">
-        <GuideHeader currentPage="Bookings" />
-        <div className="p-6 lg:p-10">
           <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <h1 className="text-4xl font-black text-slate-900 tracking-tight">Your Bookings</h1>
@@ -235,9 +230,7 @@ export const GuideBookingsPage = () => {
               </div>
             )}
           </div>
-        </div>
-      </div>
-    </div>
+    </GuideLayout>
   );
 };
 

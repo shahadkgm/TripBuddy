@@ -1,6 +1,6 @@
-// server/src/utils/userMapper.ts
 import { IUser } from '../types/user.type';
 import { UserResponseDTO } from '../dto/user.dto';
+import { IGuide } from '../types/guide.type';
 
 export class UserMapper {
   static toResponseDTO(user: IUser): UserResponseDTO {
@@ -22,12 +22,12 @@ export class UserMapper {
       kycDocument: user.kyc?.filePath ? user.kyc.filePath.replace(/\\/g, '/') : '',
       kycRejectionReason: user.kyc?.rejectionReason || null,
       walletBalance: user.walletBalance || 0,
-      guideProfile: user.guideProfile
+      guideProfile: user.guideProfile && typeof user.guideProfile === 'object' && '_id' in user.guideProfile
         ? {
             _id: user.guideProfile._id?.toString() || '',
-            hourlyRate: user.guideProfile.dailyRate || 0,
-            serviceArea: user.guideProfile.serviceArea || '',
-            bio: user.guideProfile.bio || '',
+            dailyRate: (user.guideProfile as IGuide).dailyRate || 0,
+            serviceArea: (user.guideProfile as IGuide).serviceArea || '',
+            bio: (user.guideProfile as IGuide).bio || '',
           }
         : null,
     };

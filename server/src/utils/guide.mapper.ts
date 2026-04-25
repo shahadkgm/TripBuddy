@@ -3,6 +3,20 @@ import { AdminGuideResponseDTO } from '../dto/admin.dto';
 import { GuideResponseDTO } from '../dto/guide.dto';
 import { IGuide } from '../types/guide.type';
 
+interface PopulatedGuide extends IGuide {
+  userDoc?: {
+    _id: Types.ObjectId;
+    name: string;
+    email: string;
+    role: string;
+  };
+  kycData?: {
+    status: string;
+    filePath: string;
+    rejectionReason?: string | null;
+  };
+}
+
 export const toGuideResponse = (guide: IGuide): GuideResponseDTO => ({
   id: guide._id.toString(),
   name: guide.name,
@@ -13,8 +27,9 @@ export const toGuideResponse = (guide: IGuide): GuideResponseDTO => ({
   avatarURL: guide.avatarURL,
   isVerified: guide.isVerified,
 });
-export const toAdminGuideResponse = (guide: any): AdminGuideResponseDTO => {
-  const populatedUser = guide.userDoc || (guide.userId && typeof guide.userId === 'object' && 'name' in guide.userId ? guide.userId : null);
+export const toAdminGuideResponse = (guide: PopulatedGuide): AdminGuideResponseDTO => {
+  const populatedUser = guide.userDoc || (guide.userId && typeof guide.userId === 'object' && 'name' in guide.userId ? (guide.userId as unknown as PopulatedGuide['userDoc']) : null);
+
 
   return {
     id: guide._id.toString(),

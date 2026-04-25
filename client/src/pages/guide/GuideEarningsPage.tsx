@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import {
   IndianRupee,
   TrendingUp,
@@ -10,15 +10,14 @@ import {
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
 import { tripService } from '../../services/c.trip.service';
-import { GuideSidebar } from './GuideSidebar';
+import { GuideLayout } from './GuideLayout';
 import type { ITrip } from '../../interface/ITripdetails';
-import { GuideHeader } from './GuideHeader';
 import { TripStatus } from '../../constants/TripStatus';
 import { Pagination } from '../../components/Pagination';
 import toast from 'react-hot-toast';
 
 export const GuideEarningsPage = () => {
-  const user = authService.getCurrentUser();
+  const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
   const [trips, setTrips] = useState<ITrip[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -35,33 +34,59 @@ export const GuideEarningsPage = () => {
 
   useEffect(() => {
     const fetchEarnings = async () => {
-      if (!user?.guideProfile?._id) return;
+      let activeUser = currentUser;
+      
+      // Self-healing: If dailyRate is missing or 0, attempt to re-sync profile from server
+      if (activeUser?.guideProfile?._id && !activeUser.guideProfile.dailyRate) {
+        console.log('DEBUG: dailyRate missing in local state. Re-syncing profile...');
+        try {
+          activeUser = await authService.getProfile(activeUser.id);
+          setCurrentUser(activeUser);
+        } catch (_error) {
+          console.error('Failed to re-sync profile:', _error);
+        }
+      }
+
+      const activeGuideId = activeUser?.guideProfile?._id;
+      if (!activeGuideId) {
+        console.log('DEBUG: No activeGuideId found', { activeUser });
+        setLoading(false);
+        return;
+      }
+
       try {
         if (page === 1) setLoading(true);
         else setPaginationLoading(true);
 
-        const data = await tripService.getGuideTrips(user.guideProfile._id, page, LIMIT);
+        const data = await tripService.getGuideTrips(activeGuideId, page, LIMIT);
+        const currentRate = activeUser?.guideProfile?.dailyRate || 0;
+        
+        console.log('--- EARNINGS DEBUG ---', { 
+            activeGuideId,
+            guideDailyRate: currentRate,
+            tripsReturned: data.trips.length
+        });
+        
         setTrips(data.trips);
         setTotalPages(Math.ceil(data.total / LIMIT));
 
-        // For stats, we still need to calculate them based on all trips or a separate endpoint
-        // For now, we'll keep the logic consistent with what was requested
-        // Note: Realistically, stats should come from a backend meta-aggregation
         const completed = data.trips.filter(t => t.status === TripStatus.COMPLETED);
         const earnings = completed.reduce((acc, trip) => {
           const days = calcDays(trip.startDate, trip.endDate);
-          return acc + days * (user.guideProfile?.dailyRate || 0);
+          const tripEarnings = days * currentRate;
+          console.log(`COMPLETED Trip [${trip.title}]: ${days} days * ₹${currentRate} = ₹${tripEarnings}`);
+          return acc + tripEarnings;
         }, 0);
 
         const pending = data.trips
           .filter(t => t.status === TripStatus.ONGOING || t.status === TripStatus.CONFIRMED)
           .reduce((acc, trip) => {
             const days = calcDays(trip.startDate, trip.endDate);
-            return acc + days * (user.guideProfile?.dailyRate || 0);
+            return acc + days * currentRate;
           }, 0);
 
         setStats({
-          totalEarned: earnings, // In a real app, this would be global, not just current page
+          totalEarned: earnings,
           pendingPayouts: pending,
           completedTrips: completed.length,
           averagePerTrip: completed.length > 0 ? earnings / completed.length : 0,
@@ -74,15 +99,11 @@ export const GuideEarningsPage = () => {
       }
     };
     fetchEarnings();
-  }, [user?.guideProfile?._id, page]);
+  }, [currentUser?.guideProfile?._id, page]);
 
   return (
-    <div className="flex bg-slate-50 min-h-screen font-outfit">
-      <GuideSidebar />
+    <GuideLayout currentPage="Earnings">
 
-      <div className="flex-1 lg:ml-64 transition-all duration-300">
-        <GuideHeader currentPage="Earnings" />
-        <div className="p-6 md:p-10">
           <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight text-center md:text-left pt-12 md:pt-0">
@@ -185,7 +206,7 @@ export const GuideEarningsPage = () => {
                             ₹
                             {(
                               calcDays(trip.startDate, trip.endDate) *
-                              (user?.guideProfile?.dailyRate || 0)
+                              (currentUser?.guideProfile?.dailyRate || 0)
                             ).toLocaleString()}
                           </span>
                         </td>
@@ -227,9 +248,7 @@ export const GuideEarningsPage = () => {
               </div>
             )}
           </div>
-        </div>
-      </div>
-    </div>
+    </GuideLayout>
   );
 };
 
@@ -242,7 +261,7 @@ const EarningStat = ({
 }: {
   label: string;
   value: string | number;
-  icon: React.ReactNode;
+  icon: ReactNode;
   trend?: string;
   color?: string;
 }) => (
@@ -274,7 +293,6 @@ const EarningStat = ({
 );
 
 const calcDays = (start: string | Date, end: string | Date) => {
-  const days =
-    Math.ceil((new Date(end).getTime() - new Date(start).getTime()) / (1000 * 60 * 60 * 24)) + 1;
-  return days;
+  const diff = new Date(end).getTime() - new Date(start).getTime();
+  return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 };

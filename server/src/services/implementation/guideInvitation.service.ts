@@ -88,8 +88,9 @@ export class GuideInvitationService implements IGuideInvitationService {
       try {
         // Assign guide to trip
         await this._tripService.assignGuide(tripIdStr, guideIdStr, senderIdStr);
-      } catch (assignError: any) {
-        logger.error('Error during trip service assignment', { error: assignError.message });
+      } catch (assignError: unknown) {
+        const message = assignError instanceof Error ? assignError.message : 'Unknown error';
+        logger.error('Error during trip service assignment', { error: message });
         throw assignError;
       }
     }

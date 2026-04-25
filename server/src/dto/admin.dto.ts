@@ -24,7 +24,11 @@ export interface AdminGuideResponseDTO {
    status: string;
    rejectionReason?: string;
    createdAt: string;
-  kycData?: any;
+  kycData?: {
+    status: string;
+    filePath: string;
+    rejectionReason?: string | null;
+  };
   yearsOfExperience: number;
 }
 

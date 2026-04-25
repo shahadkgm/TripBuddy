@@ -711,7 +711,7 @@ const GroupChatPage = () => {
               onClick={() => scrollToBottom(true)}
               className="fixed bottom-32 right-8 md:right-auto md:left-1/2 md:-translate-x-1/2 z-40 bg-indigo-600 text-white px-6 py-3 rounded-full shadow-2xl hover:bg-indigo-700 transition-all animate-bounce flex items-center gap-2 text-xs font-black uppercase tracking-widest"
             >
-              <ChevronDown size={18} /> New Messages
+              <ChevronDown size={18} /> Scroll Down
             </button>
           )}
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type FC } from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -11,6 +11,7 @@ import {
   X
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
+import { Logo } from '../../components/common/Logo';
 
 const menu = [
   { name: 'Dashboard', icon: LayoutDashboard, path: '/guide-dashboard' },
@@ -21,25 +22,19 @@ const menu = [
   { name: 'Reviews', icon: Star, path: '/guide/reviews' },
 ];
 
-export const GuideSidebar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface GuideSidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-
+export const GuideSidebar: FC<GuideSidebarProps> = ({ isOpen, onClose }) => {
   return (
     <>
-      {/* Mobile Hamburger */}
-      <button 
-        onClick={() => setIsOpen(true)}
-        className="lg:hidden fixed top-6 left-6 z-50 p-3 bg-slate-900 text-white rounded-2xl shadow-xl active:scale-95 transition-all"
-      >
-        <Menu size={20} />
-      </button>
-
       {/* Backdrop */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] lg:hidden transition-all duration-500"
-          onClick={() => setIsOpen(false)}
+          onClick={onClose}
         />
       )}
 
@@ -50,18 +45,16 @@ export const GuideSidebar = () => {
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Brand Container */}
-        <div className="p-8 border-b border-white/5 flex items-center justify-between">
+        <div className="p-8 border-b border-white/5 flex items-center justify-between h-[89px]">
           <div>
-            <h1 className="text-2xl font-black tracking-tighter text-white">
-              trip<span className="text-indigo-500">buddy</span>
-            </h1>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mt-1">
-              Guide Portal
+            <Logo dark size="md" className="mb-0.5" />
+            <p className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-600">
+              Guide Central
             </p>
           </div>
           <button 
-            onClick={() => setIsOpen(false)}
-            className="lg:hidden p-2 hover:bg-white/10 rounded-xl transition-colors"
+            onClick={onClose}
+            className="lg:hidden p-2 hover:bg-white/10 rounded-xl transition-colors text-slate-400"
           >
             <X size={20} />
           </button>
@@ -73,17 +66,17 @@ export const GuideSidebar = () => {
             <NavLink
               key={name}
               to={path}
-              onClick={() => setIsOpen(false)}
+              onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center gap-4 px-6 py-4 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-300
+                `flex items-center gap-4 px-6 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all duration-300
                 ${isActive 
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' 
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 ring-1 ring-white/10' 
                   : 'text-slate-400 hover:bg-white/5 hover:text-white'}`
               }
             >
               {({ isActive }) => (
                 <>
-                  <Icon size={18} className={isActive ? 'animate-pulse' : ''} />
+                  <Icon size={16} className={isActive ? 'animate-pulse' : ''} />
                   {name}
                 </>
               )}
@@ -91,9 +84,9 @@ export const GuideSidebar = () => {
           ))}
         </nav>
 
-        {/* Sidebar Footer spacing if needed */}
-        <div className="absolute bottom-0 left-0 w-full p-6 text-center">
-            <p className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-700">Adventure awaits</p>
+        {/* Sidebar Footer */}
+        <div className="absolute bottom-10 left-0 w-full p-6 text-center">
+            <p className="text-[8px] font-black uppercase tracking-[0.5em] text-slate-700">Adventure awaits</p>
         </div>
       </aside>
     </>
