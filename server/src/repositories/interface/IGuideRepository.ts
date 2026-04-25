@@ -9,4 +9,5 @@ export interface IGuideRepository extends IBaseRepository<IGuide, CreateGuideDTO
     page?: number,
     limit?: number
   ): Promise<{ guides: IGuide[]; total: number }>;
+  deleteByUserId(userId: string): Promise<boolean>;
 }

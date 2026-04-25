@@ -6,12 +6,20 @@ export interface IGuideInvitationService {
     guideId: string,
     senderId: string
   ): Promise<IGuideInvitationDocument>;
-  getGuideInvitations(guideUserId: string): Promise<IGuideInvitationDocument[]>;
+  getGuideInvitations(
+    guideUserId: string,
+    page?: number,
+    limit?: number
+  ): Promise<{ invitations: IGuideInvitationDocument[]; total: number }>;
   respondToInvitation(
     invitationId: string,
     status: string,
     guideUserId: string,
     reason?: string
   ): Promise<IGuideInvitationDocument>;
-  getOutboundInvitations(organizerId: string): Promise<IGuideInvitationDocument[]>;
+  getOutboundInvitations(
+    organizerId: string,
+    page?: number,
+    limit?: number
+  ): Promise<{ invitations: IGuideInvitationDocument[]; total: number }>;
 }

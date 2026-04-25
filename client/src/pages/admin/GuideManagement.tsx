@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { AdminLayout } from '../../components/admin/AdminLayout';
-import { CheckCircle, XCircle, Eye } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, ShieldCheck } from 'lucide-react';
 import api from '../../utils/api';
 import { DataTable } from '../../components/DataTable';
 import { SearchBar } from '../../components/common/SearchBar';
 import { Pagination } from '../../components/Pagination';
-import { ConfirmModal } from '../../components/ConfirmModal';
+import { RejectionModal } from '../../components/RejectionModal';
 
 interface IGuideApplication {
   id: string;
@@ -17,15 +17,21 @@ interface IGuideApplication {
     role: string;
   };
   bio: string;
-  hourlyRate: number;
+  dailyRate: number;
   serviceArea: string;
   specialties: string[];
   avatarURL?: string;
-  certificateUrl?: string;
-  yearsOfExperience: number;
   isVerified: boolean;
   status: string;
+  rejectionReason?: string;
+  yearsOfExperience: number;
   createdAt: string;
+  kycData?: {
+    uploadedAt: string;
+    status: string;
+    documentType: string;
+    documentUrl: string;
+  };
 }
 
 export const GuideManagement = () => {
@@ -81,17 +87,15 @@ export const GuideManagement = () => {
     }
   };
 
-  // Triggered when clicking the X button
   const initiateReject = (id: string) => {
     setGuideToReject(id);
     setIsConfirmOpen(true);
   };
 
-  // Triggered when Confirm button inside modal is clicked
-  const handleConfirmReject = async () => {
+  const handleRejectAction = async (reason: string) => {
     if (!guideToReject) return;
     try {
-      await api.delete(`/api/admin/guides/${guideToReject}`);
+      await api.patch(`/api/admin/guides/${guideToReject}`, { reason });
       toast.success('Application rejected');
       loadGuides();
     } catch (_err) {
@@ -101,6 +105,12 @@ export const GuideManagement = () => {
       setGuideToReject(null);
     }
   };
+
+  // Triggered when Confirm button inside modal is clicked
+  const handleConfirmReject = async () => {
+    // This is now handled by the Modal's onConfirm with reason
+  };
+
 
   const columns = [
     {
@@ -134,7 +144,7 @@ export const GuideManagement = () => {
         <div className="max-w-[120px]">
           <div className="text-sm font-semibold">{guide.yearsOfExperience} years</div>
           <div className="text-xs text-gray-500 truncate">{guide.serviceArea}</div>
-          <div className="text-xs font-bold text-emerald-600">₹{guide.hourlyRate}/hr</div>
+          <div className="text-xs font-bold text-emerald-600">₹{guide.dailyRate}/day</div>
         </div>
       ),
     },
@@ -142,15 +152,23 @@ export const GuideManagement = () => {
       header: 'Status',
       key: 'isVerified',
       render: (guide: IGuideApplication) => (
-        <span
-          className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${
-            guide.isVerified
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-              : 'bg-amber-50 text-amber-700 border-amber-200'
-          }`}
-        >
-          {guide.isVerified ? 'Verified' : 'Pending'}
-        </span>
+        <div>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${guide.status === 'verified'
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : guide.status === 'rejected'
+                  ? 'bg-red-50 text-red-700 border-red-200'
+                  : 'bg-amber-50 text-amber-700 border-amber-200'
+              }`}
+          >
+            {guide.status}
+          </span>
+          {guide.status === 'rejected' && guide.rejectionReason && (
+            <div className="text-[10px] text-red-500 font-medium mt-1 max-w-[100px] leading-tight">
+              Reason: {guide.rejectionReason}
+            </div>
+          )}
+        </div>
       ),
     },
     {
@@ -172,7 +190,7 @@ export const GuideManagement = () => {
       className: 'text-right',
       render: (guide: IGuideApplication) => (
         <div className="flex justify-end gap-1">
-          {!guide.isVerified && (
+          {guide.status === 'pending' && (
             <button
               onClick={() => handleApprove(guide.id)}
               className="p-1.5 text-green-600 hover:bg-green-100 rounded-lg transition"
@@ -181,13 +199,15 @@ export const GuideManagement = () => {
               <CheckCircle size={18} />
             </button>
           )}
-          <button
-            onClick={() => initiateReject(guide.id)}
-            className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition"
-            title="Reject/Remove"
-          >
-            <XCircle size={18} />
-          </button>
+          {guide.status !== 'rejected' && (
+            <button
+              onClick={() => initiateReject(guide.id)}
+              className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition"
+              title="Reject/Remove"
+            >
+              <XCircle size={18} />
+            </button>
+          )}
         </div>
       ),
     },
@@ -304,22 +324,11 @@ export const GuideManagement = () => {
                       </div>
                       <div className="text-right">
                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                          Identification
+                          Joined At
                         </label>
-                        {viewingGuide.certificateUrl ? (
-                          <a
-                            href={viewingGuide.certificateUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-[#5537ee] hover:underline"
-                          >
-                            <Eye size={12} /> View Certificate
-                          </a>
-                        ) : (
-                          <p className="mt-2 text-[10px] text-red-400 font-bold">
-                            Missing Document
-                          </p>
-                        )}
+                        <p className="mt-2 text-[10px] text-slate-500 font-bold">
+                          {new Date(viewingGuide.createdAt).toLocaleDateString()}
+                        </p>
                       </div>
                     </div>
 
@@ -335,10 +344,10 @@ export const GuideManagement = () => {
                       </div>
                       <div>
                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                          Hourly Rate
+                          Daily Rate
                         </label>
                         <p className="text-sm font-bold text-emerald-600">
-                          ₹{viewingGuide.hourlyRate || 0}/hr
+                          ₹{viewingGuide.dailyRate || 0}/day
                         </p>
                       </div>
                       <div className="col-span-2">
@@ -383,10 +392,43 @@ export const GuideManagement = () => {
                         )}
                       </div>
                     </div>
+                    {/* KYC Section */}
+                    {viewingGuide.kycData && (
+                      <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-3">
+                          Verified Identity (KYC)
+                        </label>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600">
+                              <ShieldCheck size={16} />
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-gray-900">
+                                {viewingGuide.kycData.documentType}
+                              </p>
+                              <p className="text-[10px] text-gray-400 font-medium">
+                                Status: {viewingGuide.kycData.status}
+                              </p>
+                            </div>
+                          </div>
+                          {viewingGuide.kycData.documentUrl && (
+                            <a
+                              href={viewingGuide.kycData.documentUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[10px] font-bold text-indigo-600 hover:underline"
+                            >
+                              View Document
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-3 pt-8 border-t border-gray-100 mt-8">
-                    {!viewingGuide.isVerified && (
+                    {viewingGuide.status === 'pending' && (
                       <button
                         onClick={() => {
                           handleApprove(viewingGuide.id);
@@ -397,15 +439,17 @@ export const GuideManagement = () => {
                         <CheckCircle size={18} /> Approve Application
                       </button>
                     )}
-                    <button
-                      onClick={() => {
-                        initiateReject(viewingGuide.id);
-                        setViewingGuide(null);
-                      }}
-                      className="w-full bg-red-50 hover:bg-red-100 text-red-600 py-4 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-2"
-                    >
-                      <XCircle size={18} /> Reject Application
-                    </button>
+                    {viewingGuide.status !== 'rejected' && viewingGuide.status !== 'verified' && (
+                      <button
+                        onClick={() => {
+                          initiateReject(viewingGuide.id);
+                          setViewingGuide(null);
+                        }}
+                        className="w-full bg-red-50 hover:bg-red-100 text-red-600 py-4 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-2"
+                      >
+                        <XCircle size={18} /> Reject Application
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -414,17 +458,15 @@ export const GuideManagement = () => {
         )}
 
         {/* Reusable ConfirmModal for Rejection */}
-        <ConfirmModal
+        <RejectionModal
           isOpen={isConfirmOpen}
           onClose={() => {
             setIsConfirmOpen(false);
             setGuideToReject(null);
           }}
-          onConfirm={handleConfirmReject}
-          title="Reject Application"
-          message="Are you sure you want to reject this guide application? This will permanently delete their guide profile data."
-          confirmText="Reject Application"
-          type="danger"
+          onConfirm={handleRejectAction}
+          title="Reject Guide Application"
+          message="Please provide a reason for rejecting this guide application. This info will be shown to the applicant."
         />
       </div>
     </AdminLayout>

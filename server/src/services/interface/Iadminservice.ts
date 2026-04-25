@@ -22,7 +22,7 @@ export interface IAdminService {
 
   fetchAllGuides(page: number, limit: number, search: string): Promise<GuideListDTO>;
 
-  rejectApplication(guideId: string): Promise<boolean>;
+  rejectApplication(guideId: string, reason: string): Promise<boolean>;
   approveKYC(userId: string, status: KYCStatus, reason?: string): Promise<boolean>;
   getDashboardStats(): Promise<DashboardStatsDTO>;
   getAllPayments(

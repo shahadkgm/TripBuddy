@@ -39,8 +39,13 @@ export class GuideInvitationService implements IGuideInvitationService {
     return await this._invitationRepository.create(invitationData);
   }
 
-  async getGuideInvitations(guideUserId: string): Promise<IGuideInvitationDocument[]> {
-    return await this._invitationRepository.findByReceiverId(guideUserId);
+  async getGuideInvitations(
+    guideUserId: string,
+    page = 1,
+    limit = 10
+  ): Promise<{ invitations: IGuideInvitationDocument[]; total: number }> {
+    const skip = (page - 1) * limit;
+    return await this._invitationRepository.findByReceiverId(guideUserId, skip, limit);
   }
 
   async respondToInvitation(
@@ -99,8 +104,13 @@ export class GuideInvitationService implements IGuideInvitationService {
     return saved;
   }
 
-  async getOutboundInvitations(organizerId: string): Promise<IGuideInvitationDocument[]> {
-    return await this._invitationRepository.findBySenderId(organizerId);
+  async getOutboundInvitations(
+    organizerId: string,
+    page = 1,
+    limit = 10
+  ): Promise<{ invitations: IGuideInvitationDocument[]; total: number }> {
+    const skip = (page - 1) * limit;
+    return await this._invitationRepository.findBySenderId(organizerId, skip, limit);
   }
 
   private extractId(field: Types.ObjectId | unknown): string {

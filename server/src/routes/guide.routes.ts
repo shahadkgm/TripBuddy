@@ -38,4 +38,6 @@ router.put(
   guideController.updateProfile
 );
 
+router.patch(API_ROUTES.GUIDE.RESET, protect, guideController.resetApplication);
+
 export default router;

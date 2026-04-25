@@ -44,8 +44,10 @@ export const guideService = {
     return response.data;
   },
 
-  async getInboundInvitations(): Promise<IGuideInvitation[]> {
-    const response = await api.get<ApiResponse<IGuideInvitation[]>>('/api/guide-invitations/inbound');
+  async getInboundInvitations(page = 1, limit = 5): Promise<{ invitations: IGuideInvitation[]; total: number }> {
+    const response = await api.get<ApiResponse<{ invitations: IGuideInvitation[]; total: number }>>('/api/guide-invitations/inbound', {
+      params: { page, limit }
+    });
     return response.data.data;
   },
 

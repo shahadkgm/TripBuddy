@@ -35,7 +35,7 @@ export class GuideService implements IGuideService {
       userId,
       name: user?.name ? user.name : '',
       bio: data.bio,
-      hourlyRate: Number(data.hourlyRate),
+      dailyRate: Number(data.dailyRate),
       serviceArea: data.serviceArea,
       yearsOfExperience: Number(data.yearsOfExperience) || 0,
       specialties: data.specialties,
@@ -58,6 +58,8 @@ export class GuideService implements IGuideService {
     return {
       exists: true,
       isVerified: profile.isVerified,
+      status: profile.status,
+      rejectionReason: profile.rejectionReason,
     };
   }
 
@@ -72,7 +74,7 @@ export class GuideService implements IGuideService {
     }
 
     if (query.maxPrice) {
-      filters.hourlyRate = { $lte: Number(query.maxPrice) };
+      filters.dailyRate = { $lte: Number(query.maxPrice) };
     }
 
     const page = Number(query.page) || 1;
@@ -109,5 +111,10 @@ export class GuideService implements IGuideService {
     }
 
     return updated;
+  }
+
+  async resetStatus(userId: string): Promise<boolean> {
+    logger.info(`Resetting guide application for user: ${userId}`);
+    return await this._guideRepository.deleteByUserId(userId);
   }
 }

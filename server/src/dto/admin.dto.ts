@@ -15,14 +15,16 @@ export interface AdminGuideResponseDTO {
     role: string;
   };
   bio: string;
-  hourlyRate: number;
+  dailyRate: number;
   serviceArea: string;
   specialties: string[];
   avatarURL?: string;
   certificateUrl?: string;
-  status: string;
-  isVerified: boolean;
-  createdAt: string;
+   isVerified: boolean;
+   status: string;
+   rejectionReason?: string;
+   createdAt: string;
+  kycData?: any;
   yearsOfExperience: number;
 }
 
@@ -58,6 +60,12 @@ export class ApproveKYCDTO {
   @IsOptional()
   @IsString()
   reason?: string;
+}
+
+export class RejectGuideDTO {
+  @IsNotEmpty({ message: 'Reason is required' })
+  @IsString()
+  reason!: string;
 }
 
 export class UpdatePaymentStatusDTO {

@@ -9,7 +9,7 @@ export interface IGuide {
   };
   name?: string;
   bio: string;
-  hourlyRate: number;
+  dailyRate: number;
   serviceArea: string;
   specialties: string[];
   avatarURL?: string;

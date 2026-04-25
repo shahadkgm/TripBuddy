@@ -83,7 +83,7 @@ export const GuideBookingsPage = () => {
     <div className="flex bg-slate-50 min-h-screen font-outfit">
       <GuideSidebar />
 
-      <div className="flex-1 ml-64 transition-all duration-300">
+      <div className="flex-1 lg:ml-64 transition-all duration-300">
         <GuideHeader currentPage="Bookings" />
         <div className="p-10">
           <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -99,11 +99,10 @@ export const GuideBookingsPage = () => {
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                    filter === f
+                  className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filter === f
                       ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
                       : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
-                  }`}
+                    }`}
                 >
                   {f}
                 </button>
@@ -146,15 +145,14 @@ export const GuideBookingsPage = () => {
                         <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-3">
                           <span
                             className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm
-                                                    ${
-                                                      trip.status === TripStatus.COMPLETED
-                                                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
-                                                        : trip.status === TripStatus.ONGOING
-                                                          ? 'bg-blue-50 text-blue-600 border border-blue-100'
-                                                          : trip.status === TripStatus.PLANNED
-                                                            ? 'bg-amber-50 text-amber-600 border border-amber-100'
-                                                            : 'bg-slate-50 text-slate-400 border border-slate-100'
-                                                    }`}
+                                                    ${trip.status === TripStatus.COMPLETED
+                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                                : trip.status === TripStatus.ONGOING
+                                  ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                                  : trip.status === TripStatus.PLANNED
+                                    ? 'bg-amber-50 text-amber-600 border border-amber-100'
+                                    : 'bg-slate-50 text-slate-400 border border-slate-100'
+                              }`}
                           >
                             {trip.status}
                           </span>
@@ -196,7 +194,7 @@ export const GuideBookingsPage = () => {
                             ₹
                             {(
                               calcDays(trip.startDate, trip.endDate) *
-                              (user?.guideProfile?.hourlyRate || 0)
+                              (user?.guideProfile?.dailyRate || 0)
                             ).toLocaleString()}
                           </p>
                         </div>

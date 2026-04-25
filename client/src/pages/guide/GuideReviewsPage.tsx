@@ -71,7 +71,7 @@ export const GuideReviewsPage = () => {
     <div className="flex bg-slate-50 min-h-screen font-outfit">
       <GuideSidebar />
 
-      <div className="flex-1 ml-64 transition-all duration-300">
+      <div className="flex-1 lg:ml-64 transition-all duration-300">
         <GuideHeader currentPage="Reviews" />
         <div className="p-10">
           <header className="mb-10">

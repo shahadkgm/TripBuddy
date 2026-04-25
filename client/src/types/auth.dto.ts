@@ -27,7 +27,7 @@ export interface AuthUser {
   walletBalance?: number;
   guideProfile?: {
     _id: string;
-    hourlyRate: number;
+    dailyRate: number;
     serviceArea?: string;
     bio?: string;
     yearsOfExperience?: number;

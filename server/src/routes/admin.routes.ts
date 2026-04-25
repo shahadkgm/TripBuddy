@@ -12,6 +12,7 @@ import {
   ApproveKYCDTO,
   UpdatePaymentStatusDTO,
   UpdateTripStatusDTO,
+  RejectGuideDTO,
 } from '../dto/admin.dto';
 
 const router = express.Router();
@@ -37,7 +38,11 @@ router.delete(API_ROUTES.ADMIN.USER_DELETE, adminController.deleteUser);
 router.get(API_ROUTES.ADMIN.GUIDES_PENDING, adminController.getPendingGuides);
 router.patch(API_ROUTES.ADMIN.GUIDE_VERIFY, adminController.handleVerifyGuide);
 router.get(API_ROUTES.ADMIN.GUIDES_ALL, adminController.getAllGuides);
-router.delete(API_ROUTES.ADMIN.GUIDE_REJECT, protect, isAdmin, adminController.rejectGuide);
+router.patch(
+  API_ROUTES.ADMIN.GUIDE_REJECT,
+  dtoValidationMiddleware(RejectGuideDTO),
+  adminController.rejectGuide
+);
 router.patch(
   '/kyc/:id/approve',
   dtoValidationMiddleware(ApproveKYCDTO),

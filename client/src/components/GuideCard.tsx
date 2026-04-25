@@ -42,9 +42,9 @@ export const GuideCard: React.FC<{ guide: IGuide }> = ({ guide }) => {
             </p>
           </div>
           <div className="bg-slate-900 text-white px-4 py-2 rounded-2xl flex flex-col items-center">
-            <span className="text-lg font-black leading-none">₹{guide.hourlyRate}</span>
-            <span className="text-[8px] font-black uppercase tracking-widest opacity-60">
-              per day
+            <span className="text-lg font-black leading-none">₹{guide.dailyRate}</span>
+            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">
+              / Day
             </span>
           </div>
         </div>

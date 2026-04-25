@@ -14,4 +14,5 @@ export interface IGuideService {
     query: GuideQueryDTO
   ): Promise<{ guides: GuideResponseDTO[]; total: number }>;
   updateProfile(userId: string, data: GuideUpdateDTO): Promise<IGuide | null>;
+  resetStatus(userId: string): Promise<boolean>;
 }

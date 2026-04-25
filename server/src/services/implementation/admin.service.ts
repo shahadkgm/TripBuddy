@@ -119,10 +119,10 @@ export class AdminService implements IAdminService {
     };
   }
 
-  async rejectApplication(guideId: string): Promise<boolean> {
-    const deleted = await this.adminRepo.deleteGuide(guideId);
+  async rejectApplication(guideId: string, reason: string): Promise<boolean> {
+    const rejected = await this.adminRepo.rejectGuide(guideId, reason);
 
-    if (!deleted) {
+    if (!rejected) {
       throw new AppError('Guide application not found', StatusCode.NOT_FOUND);
     }
 

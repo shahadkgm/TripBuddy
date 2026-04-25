@@ -48,6 +48,7 @@ export const API_ROUTES = {
     STATUS: '/status/:userId',
     GET_ALL: '/all',
     UPDATE: '/profile',
+    RESET: '/reset-status',
   },
 
   TRIP: {

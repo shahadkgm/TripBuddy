@@ -12,26 +12,36 @@ import { useNavigate } from 'react-router-dom';
 import { guideService } from '../../services/c.guide.service';
 import { GuideSidebar } from './GuideSidebar';
 import { GuideHeader } from './GuideHeader';
+import { Pagination } from '../../components/Pagination';
 import toast from 'react-hot-toast';
 
 export const GuideInvitationsPage = () => {
   const [invitations, setInvitations] = useState<import("../../interface/ITripdetails").IGuideInvitation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [paginationLoading, setPaginationLoading] = useState(false);
+  const LIMIT = 5;
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchInvitations = async () => {
       try {
-        const data = await guideService.getInboundInvitations();
-        setInvitations(data);
+        if (page === 1) setLoading(true);
+        else setPaginationLoading(true);
+
+        const data = await guideService.getInboundInvitations(page, LIMIT);
+        setInvitations(data.invitations);
+        setTotalPages(Math.ceil(data.total / LIMIT));
       } catch (_err) {
         toast.error('Failed to load invitations');
       } finally {
         setLoading(false);
+        setPaginationLoading(false);
       }
     };
     fetchInvitations();
-  }, []);
+  }, [page]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -50,7 +60,7 @@ export const GuideInvitationsPage = () => {
     <div className="flex bg-slate-50 min-h-screen font-outfit">
       <GuideSidebar />
 
-      <div className="flex-1 ml-64 transition-all duration-300">
+      <div className="flex-1 lg:ml-64 transition-all duration-300">
         <GuideHeader currentPage="New Invitations" />
         <div className="p-10">
           <header className="mb-10">
@@ -68,7 +78,12 @@ export const GuideInvitationsPage = () => {
               </p>
             </div>
           ) : invitations.length > 0 ? (
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 gap-6 relative">
+              {paginationLoading && (
+                <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] z-10 flex items-center justify-center rounded-[3rem]">
+                  <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+                </div>
+              )}
               {invitations.map(inv => (
                 <div
                   key={inv._id}
@@ -150,6 +165,14 @@ export const GuideInvitationsPage = () => {
                   </div>
                 </div>
               ))}
+
+              <div className="mt-8">
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                />
+              </div>
             </div>
           ) : (
             <div className="py-32 bg-white rounded-[3rem] border-2 border-dashed border-slate-100 flex flex-col items-center justify-center text-center px-6">

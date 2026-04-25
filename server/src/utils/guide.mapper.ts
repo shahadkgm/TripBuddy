@@ -7,17 +7,14 @@ export const toGuideResponse = (guide: IGuide): GuideResponseDTO => ({
   id: guide._id.toString(),
   name: guide.name,
   bio: guide.bio,
-  hourlyRate: guide.hourlyRate,
+  dailyRate: guide.dailyRate,
   serviceArea: guide.serviceArea,
   specialties: guide.specialties,
   avatarURL: guide.avatarURL,
   isVerified: guide.isVerified,
 });
-export const toAdminGuideResponse = (guide: IGuide): AdminGuideResponseDTO => {
-  const populatedUser =
-    guide.userId && typeof guide.userId === 'object' && 'name' in guide.userId
-      ? (guide.userId as { _id: Types.ObjectId; name: string; email: string; role: string })
-      : null;
+export const toAdminGuideResponse = (guide: any): AdminGuideResponseDTO => {
+  const populatedUser = guide.userDoc || (guide.userId && typeof guide.userId === 'object' && 'name' in guide.userId ? guide.userId : null);
 
   return {
     id: guide._id.toString(),
@@ -28,14 +25,16 @@ export const toAdminGuideResponse = (guide: IGuide): AdminGuideResponseDTO => {
       role: populatedUser?.role || 'guide',
     },
     bio: guide.bio,
-    hourlyRate: guide.hourlyRate,
+    dailyRate: guide.dailyRate,
     serviceArea: guide.serviceArea,
     specialties: guide.specialties || [],
     avatarURL: guide.avatarURL,
     certificateUrl: guide.certificateUrl,
     yearsOfExperience: guide.yearsOfExperience,
-    status: guide.isVerified ? 'Verified' : 'Pending',
+    status: guide.status || (guide.isVerified ? 'verified' : 'pending'),
     isVerified: guide.isVerified,
-    createdAt: guide.createdAt?.toISOString() || new Date().toISOString(),
+    rejectionReason: guide.rejectionReason,
+    kycData: guide.kycData,
+    createdAt: guide.createdAt instanceof Date ? guide.createdAt.toISOString() : guide.createdAt,
   };
 };

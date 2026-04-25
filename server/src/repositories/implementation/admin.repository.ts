@@ -119,12 +119,47 @@ export class AdminRepository
       {
         $lookup: {
           from: 'users',
-          localField: 'userId',
-          foreignField: '_id',
+          let: { guideUserId: '$userId' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', { $toObjectId: '$$guideUserId' }],
+                },
+              },
+            },
+          ],
           as: 'user',
         },
       },
-      { $unwind: '$user' },
+      {
+        $unwind: {
+          path: '$user',
+          preserveNullAndEmptyArrays: true, // Don't drop guides even if user found is missing (though shouldn't happen)
+        },
+      },
+      {
+        $lookup: {
+          from: 'kycs',
+          let: { userIdStr: { $toString: '$userId' } },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$userId', '$$userIdStr'] } } },
+            { $sort: { uploadedAt: -1 } },
+            { $limit: 1 },
+          ],
+          as: 'kyc',
+        },
+      },
+      {
+        $addFields: {
+          kycData: { $arrayElemAt: ['$kyc', 0] },
+        },
+      },
+      {
+        $project: {
+          kyc: 0,
+        },
+      },
     ];
 
     if (search) {
@@ -153,18 +188,22 @@ export class AdminRepository
         {
           $project: {
             _id: 1,
-            userId: '$user',
+            userDoc: '$user', // rename joined user to avoid collision
+            userId: 1,
             name: 1,
             bio: 1,
-            hourlyRate: 1,
+            dailyRate: 1,
             serviceArea: 1,
             certificateUrl: 1,
             yearsOfExperience: 1,
             avatarURL: 1,
             specialties: 1,
             isVerified: 1,
+            status: 1,
+            rejectionReason: 1,
             createdAt: 1,
             updatedAt: 1,
+            kycData: 1,
           },
         },
       ]),
@@ -184,12 +223,20 @@ export class AdminRepository
   async verifyGuide(guideId: string): Promise<IGuide | null> {
     return await GuideProfile.findByIdAndUpdate(
       guideId,
-      { isVerified: true },
+      { isVerified: true, status: 'verified', rejectionReason: '' },
       { new: true }
     ).lean<IGuide>();
   }
+
+  async rejectGuide(guideId: string, reason: string): Promise<IGuide | null> {
+    return await GuideProfile.findByIdAndUpdate(
+      guideId,
+      { isVerified: false, status: 'rejected', rejectionReason: reason },
+      { new: true }
+    ).lean<IGuide>();
+  }
+
   async deleteGuide(id: string): Promise<IGuide | null> {
-    await GuideProfile.deleteMany({ userId: id });
     return await GuideProfile.findByIdAndDelete(id).lean<IGuide>();
   }
 

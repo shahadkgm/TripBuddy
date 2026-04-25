@@ -20,12 +20,17 @@ export class GuideInvitationController extends BaseController {
     }
   );
 
-  getInboundInvitations = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const guideUserId = req.user?.id as string;
-    console.log('--- GET INBOUND INVITATIONS HIT ---', { guideUserId });
-    const invitations = await this._invitationService.getGuideInvitations(guideUserId);
-    this.sendSuccess(res, invitations, 'Inbound invitations fetched successfully');
-  });
+  getInboundInvitations = asyncHandler(
+    async (req: AuthRequest<{}, {}, {}, { page?: string; limit?: string }>, res: Response) => {
+      const guideUserId = req.user?.id as string;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+
+      console.log('--- GET INBOUND INVITATIONS HIT ---', { guideUserId, page, limit });
+      const result = await this._invitationService.getGuideInvitations(guideUserId, page, limit);
+      this.sendSuccess(res, result, 'Inbound invitations fetched successfully');
+    }
+  );
 
   respondToInvitation = asyncHandler(
     async (
@@ -50,9 +55,14 @@ export class GuideInvitationController extends BaseController {
     }
   );
 
-  getOutboundInvitations = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const organizerId = req.user?.id as string;
-    const invitations = await this._invitationService.getOutboundInvitations(organizerId);
-    this.sendSuccess(res, invitations, 'Outbound invitations fetched successfully');
-  });
+  getOutboundInvitations = asyncHandler(
+    async (req: AuthRequest<{}, {}, {}, { page?: string; limit?: string }>, res: Response) => {
+      const organizerId = req.user?.id as string;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+
+      const result = await this._invitationService.getOutboundInvitations(organizerId, page, limit);
+      this.sendSuccess(res, result, 'Outbound invitations fetched successfully');
+    }
+  );
 }

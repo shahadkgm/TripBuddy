@@ -315,7 +315,7 @@ export const GuideTripRequestDetailsPage = () => {
                           ₹
                           {(
                             calcDays(trip.startDate, trip.endDate) *
-                            (authService.getCurrentUser()?.guideProfile?.hourlyRate || 0)
+                            (authService.getCurrentUser()?.guideProfile?.dailyRate || 0)
                           ).toLocaleString()}
                         </p>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
@@ -324,7 +324,7 @@ export const GuideTripRequestDetailsPage = () => {
                       </div>
                       <p className="text-[10px] font-bold text-slate-400 mt-2">
                         Based on your rate: ₹
-                        {authService.getCurrentUser()?.guideProfile?.hourlyRate}/day
+                        {authService.getCurrentUser()?.guideProfile?.dailyRate}/day
                       </p>
                     </div>
                   </div>

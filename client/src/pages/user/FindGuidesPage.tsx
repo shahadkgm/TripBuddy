@@ -4,6 +4,7 @@ import api from '../../utils/api';
 import { GuideCard } from '../../components/GuideCard';
 import { Pagination } from '../../components/Pagination';
 import { Navbar } from '../../components/home/Navbar';
+import { LocationInput } from '../../components/LocationInput';
 
 import type { IGuide } from '../../interface/IGuide';
 
@@ -70,16 +71,13 @@ const FindGuidesPage: React.FC = () => {
 
           <div className="bg-slate-50 p-4 rounded-[32px] border border-slate-200 flex flex-col md:flex-row items-center gap-4">
             {/* Destination */}
-            <div className="flex-1 w-full relative group">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-tb-purple transition-colors">
-                <MapPin className="w-5 h-5" />
-              </div>
-              <input
-                type="text"
-                placeholder="Where do you need a guide?"
-                className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 focus:border-tb-purple rounded-2xl outline-none transition-all font-semibold text-slate-700 shadow-sm"
+            <div className="flex-1 w-full relative">
+              <LocationInput
                 value={destination}
-                onChange={e => setDestination(e.target.value)}
+                onChange={val => setDestination(val)}
+                placeholder="Where do you need a guide?"
+                className="bg-white border-slate-200 focus:border-tb-purple rounded-[28px]"
+                icon={<MapPin className="w-5 h-5" />}
               />
             </div>
 

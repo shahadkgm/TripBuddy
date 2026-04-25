@@ -11,13 +11,15 @@ export interface IGuide {
       };
   name: string;
   bio: string;
-  hourlyRate: number;
+  dailyRate: number;
   serviceArea: string;
   certificateUrl?: string;
   yearsOfExperience: number;
   specialties: string[];
   avatarURL?: string;
   isVerified: boolean;
+  status: 'pending' | 'verified' | 'rejected';
+  rejectionReason?: string;
   lastUpdated: Date;
   createdAt: Date;
   updatedAt: Date;

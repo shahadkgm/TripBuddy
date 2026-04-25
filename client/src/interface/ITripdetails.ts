@@ -14,7 +14,7 @@ export interface IGuide {
   id?: string; // Some parts use id
   name?: string;
   bio: string;
-  hourlyRate: number;
+  dailyRate: number;
   serviceArea: string;
   avatarURL?: string;
   avatar?: string;

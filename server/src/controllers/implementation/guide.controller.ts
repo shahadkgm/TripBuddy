@@ -62,4 +62,15 @@ export class GuideController extends BaseController {
       this.sendSuccess(res, updated, 'Profile updated successfully');
     }
   );
+
+  resetApplication = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
+    const userId = req.user?.id;
+    if (!userId) {
+      this.sendError(res, 'User not authenticated', StatusCode.UNAUTHORIZED);
+      return;
+    }
+
+    const result = await this._guideService.resetStatus(userId);
+    this.sendSuccess(res, { success: result }, 'Guide application reset successfully');
+  });
 }

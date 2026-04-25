@@ -18,7 +18,7 @@ export const GuideProfilePage = () => {
   const [formData, setFormData] = useState({
     bio: user?.guideProfile?.bio || '',
     serviceArea: user?.guideProfile?.serviceArea || '',
-    hourlyRate: user?.guideProfile?.hourlyRate || 0,
+    dailyRate: user?.guideProfile?.dailyRate || 0,
     yearsOfExperience: user?.guideProfile?.yearsOfExperience || 0,
     specialties: user?.guideProfile?.specialties || [],
   });
@@ -79,7 +79,7 @@ export const GuideProfilePage = () => {
     <div className="flex bg-slate-50 min-h-screen font-outfit">
       <GuideSidebar />
 
-      <div className="flex-1 ml-64 transition-all duration-300">
+      <div className="flex-1 lg:ml-64 transition-all duration-300">
         <GuideHeader currentPage="Profile Edit" />
         <div className="p-10">
           <header className="mb-10 flex items-center justify-between">
@@ -188,9 +188,9 @@ export const GuideProfilePage = () => {
                         <div className="relative">
                           <input
                             type="number"
-                            value={formData.hourlyRate}
+                            value={formData.dailyRate}
                             onChange={e =>
-                              setFormData({ ...formData, hourlyRate: Number(e.target.value) })
+                              setFormData({ ...formData, dailyRate: Number(e.target.value) })
                             }
                             className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-black text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                           />

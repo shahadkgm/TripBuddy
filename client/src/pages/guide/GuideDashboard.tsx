@@ -69,9 +69,9 @@ export const GuideDashboard = () => {
           const days =
             Math.ceil(
               (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
-                (1000 * 60 * 60 * 24)
+              (1000 * 60 * 60 * 24)
             ) + 1;
-          return acc + days * (currentUser?.guideProfile?.hourlyRate || 0);
+          return acc + days * (currentUser?.guideProfile?.dailyRate || 0);
         }, 0);
 
         setStats(prev => ({
@@ -95,7 +95,7 @@ export const GuideDashboard = () => {
       <GuideSidebar />
 
       {/* Main Content */}
-      <div className="flex-1 ml-64 transition-all duration-300">
+      <div className="flex-1 lg:ml-64 transition-all duration-300">
         {/* Top Bar */}
         <GuideHeader currentPage="Dashboard" />
 
@@ -191,15 +191,14 @@ export const GuideDashboard = () => {
                     <div className="flex flex-col items-center md:items-end gap-2">
                       <span
                         className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm
-                                    ${
-                                      trip.status === TripStatus.COMPLETED
-                                        ? 'bg-emerald-50 text-emerald-600'
-                                        : trip.status === TripStatus.ONGOING
-                                          ? 'bg-blue-50 text-blue-600'
-                                          : trip.status === TripStatus.PLANNED
-                                            ? 'bg-amber-50 text-amber-600'
-                                            : 'bg-slate-50 text-slate-400'
-                                    }`}
+                                    ${trip.status === TripStatus.COMPLETED
+                            ? 'bg-emerald-50 text-emerald-600'
+                            : trip.status === TripStatus.ONGOING
+                              ? 'bg-blue-50 text-blue-600'
+                              : trip.status === TripStatus.PLANNED
+                                ? 'bg-amber-50 text-amber-600'
+                                : 'bg-slate-50 text-slate-400'
+                          }`}
                       >
                         {trip.status}
                       </span>

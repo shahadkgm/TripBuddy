@@ -20,12 +20,23 @@ export class GuideInvitationRepository implements IGuideInvitationRepository {
     return await GuideInvitationModel.findByIdAndUpdate(id, { status }, { new: true });
   }
 
-  async findByReceiverId(receiverId: string): Promise<IGuideInvitationDocument[]> {
-    return await GuideInvitationModel.find({ receiverId })
-      .populate('tripId', 'title destination startDate endDate status budget')
-      .populate('senderId', '_id name email avatarURL')
-      .populate('guideId', '_id hourlyRate serviceArea')
-      .sort({ createdAt: -1 });
+  async findByReceiverId(
+    receiverId: string,
+    skip = 0,
+    limit = 10
+  ): Promise<{ invitations: IGuideInvitationDocument[]; total: number }> {
+    const [invitations, total] = await Promise.all([
+      GuideInvitationModel.find({ receiverId })
+        .populate('tripId', 'title destination startDate endDate status budget')
+        .populate('senderId', '_id name email avatarURL')
+        .populate('guideId', '_id hourlyRate serviceArea')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      GuideInvitationModel.countDocuments({ receiverId }),
+    ]);
+
+    return { invitations, total };
   }
 
   async findByTripAndGuide(
@@ -35,11 +46,22 @@ export class GuideInvitationRepository implements IGuideInvitationRepository {
     return await GuideInvitationModel.findOne({ tripId, guideId, status: 'pending' });
   }
 
-  async findBySenderId(senderId: string): Promise<IGuideInvitationDocument[]> {
-    return await GuideInvitationModel.find({ senderId })
-      .populate('tripId', 'title destination startDate endDate status')
-      .populate('guideId', 'hourlyRate serviceArea')
-      .populate('receiverId', 'name email avatarURL')
-      .sort({ createdAt: -1 });
+  async findBySenderId(
+    senderId: string,
+    skip = 0,
+    limit = 10
+  ): Promise<{ invitations: IGuideInvitationDocument[]; total: number }> {
+    const [invitations, total] = await Promise.all([
+      GuideInvitationModel.find({ senderId })
+        .populate('tripId', 'title destination startDate endDate status')
+        .populate('guideId', 'hourlyRate serviceArea')
+        .populate('receiverId', 'name email avatarURL')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      GuideInvitationModel.countDocuments({ senderId }),
+    ]);
+
+    return { invitations, total };
   }
 }

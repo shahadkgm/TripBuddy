@@ -17,7 +17,7 @@ export class GuideRegisterDTO {
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  hourlyRate!: number;
+  dailyRate!: number;
 
   @IsString()
   serviceArea!: string;
@@ -54,7 +54,7 @@ export class GuideUpdateDTO {
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  hourlyRate?: number;
+  dailyRate?: number;
 
   @IsOptional()
   @IsString()
@@ -101,7 +101,7 @@ export class CreateGuideDTO {
 
   @IsNumber()
   @Min(0)
-  hourlyRate!: number;
+  dailyRate!: number;
 
   @IsString()
   serviceArea!: string;
@@ -155,7 +155,7 @@ export interface GuideResponseDTO {
   id: string;
   name?: string;
   bio: string;
-  hourlyRate: number;
+  dailyRate: number;
   serviceArea: string;
   specialties: string[];
   avatarURL?: string;

@@ -67,8 +67,9 @@ export class AdminController extends BaseController implements IAdminController 
 
   rejectGuide = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
+    const { reason } = req.body;
 
-    await this._adminService.rejectApplication(id);
+    await this._adminService.rejectApplication(id, reason);
 
     this.sendSuccess(res, null, 'Guide application rejected successfully');
   });

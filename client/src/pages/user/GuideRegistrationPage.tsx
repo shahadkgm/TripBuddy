@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { authService } from '../../services/c.authService';
-import { Camera, MapPin, IndianRupee, ArrowLeft, Loader2 } from 'lucide-react';
+import { Camera, MapPin, IndianRupee, ArrowLeft, Loader2, Plus, X } from 'lucide-react';
+import { LocationInput } from '../../components/LocationInput';
 import { GuideStatusPage } from './GuideStatusPage';
 import { Navigate } from 'react-router-dom';
 import api from '../../utils/api';
@@ -24,22 +25,26 @@ export const GuideRegistrationPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
-  const [appStatus, setAppStatus] = useState<'none' | 'pending' | 'verified' | 'loading'>(
+  const [appStatus, setAppStatus] = useState<'none' | 'pending' | 'verified' | 'rejected' | 'loading'>(
     'loading'
   );
+  const [rejectionReason, setRejectionReason] = useState('');
 
   const [formData, setFormData] = useState({
     bio: '',
-    hourlyRate: '',
+    dailyRate: '',
     serviceArea: '',
     specialties: [] as string[],
     avatarFile: null as File | null,
     yearsOfExperience: '',
   });
 
+  const [newSpecialty, setNewSpecialty] = useState('');
+  const [isAddingSpecialty, setIsAddingSpecialty] = useState(false);
+
   const [errors, setErrors] = useState({
     bio: '',
-    hourlyRate: '',
+    dailyRate: '',
     serviceArea: '',
     specialties: '',
     avatarFile: '',
@@ -55,7 +60,8 @@ export const GuideRegistrationPage = () => {
       try {
         const res = await api.get(`/api/guides/status/${user.id}`);
         if (res.data.data.exists) {
-          setAppStatus(res.data.data.isVerified ? 'verified' : 'pending');
+          setAppStatus(res.data.data.status); // uses the status string from backend
+          if (res.data.data.rejectionReason) setRejectionReason(res.data.data.rejectionReason);
         } else {
           setAppStatus('none');
         }
@@ -75,7 +81,9 @@ export const GuideRegistrationPage = () => {
     );
   }
 
-  if (appStatus === 'pending') return <GuideStatusPage />;
+  if (appStatus === 'pending') return <GuideStatusPage status="pending" />;
+  if (appStatus === 'rejected') 
+    return <GuideStatusPage status="rejected" reason={rejectionReason} onReapply={() => setAppStatus('none')} />;
   if (appStatus === 'verified') return <Navigate to="/guide-dashboard" replace />;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,26 +110,23 @@ export const GuideRegistrationPage = () => {
     let isValid = true;
     const newErrors = {
       bio: '',
-      hourlyRate: '',
+      dailyRate: '',
       serviceArea: '',
       specialties: '',
       avatarFile: '',
       yearsOfExperience: '',
     };
 
-    if (!formData.bio.trim()) {
-      newErrors.bio = 'Summary is required';
-      isValid = false;
-    } else if (formData.bio.length < 50) {
-      newErrors.bio = 'Summary must be at least 50 characters';
+    if (!formData.bio) {
+      newErrors.bio = 'Bio is required';
       isValid = false;
     }
 
-    if (!formData.hourlyRate) {
-      newErrors.hourlyRate = 'Hourly rate is required';
+    if (!formData.dailyRate) {
+      newErrors.dailyRate = 'Daily rate is required';
       isValid = false;
-    } else if (Number(formData.hourlyRate) <= 0) {
-      newErrors.hourlyRate = 'Rate must be greater than 0';
+    } else if (Number(formData.dailyRate) <= 0) {
+      newErrors.dailyRate = 'Rate must be greater than 0';
       isValid = false;
     }
 
@@ -170,7 +175,7 @@ export const GuideRegistrationPage = () => {
       }
       data.append('userId', user.id);
       data.append('bio', formData.bio);
-      data.append('hourlyRate', formData.hourlyRate);
+      data.append('dailyRate', formData.dailyRate);
       data.append('serviceArea', formData.serviceArea);
       data.append('specialties', JSON.stringify(formData.specialties));
       data.append('yearsOfExperience', formData.yearsOfExperience);
@@ -260,6 +265,7 @@ export const GuideRegistrationPage = () => {
             </div>
 
             <div className="grid gap-6">
+              {/* Removed Certificate Upload Section as it is no longer required */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Guiding Summary
@@ -283,46 +289,40 @@ export const GuideRegistrationPage = () => {
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Hourly Rate (INR)
+                    Daily Rate (INR)
                   </label>
                   <div className="relative">
                     <IndianRupee className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                     <input
                       type="number"
                       className={`w-full pl-10 pr-4 py-3 border ${
-                        errors.hourlyRate ? 'border-red-500' : 'border-gray-200'
+                        errors.dailyRate ? 'border-red-500' : 'border-gray-200'
                       } rounded-xl`}
-                      placeholder="500"
-                      value={formData.hourlyRate}
+                      placeholder="2000"
+                      value={formData.dailyRate}
                       onChange={e => {
-                        setFormData({ ...formData, hourlyRate: e.target.value });
-                        if (errors.hourlyRate) setErrors({ ...errors, hourlyRate: '' });
+                        setFormData({ ...formData, dailyRate: e.target.value });
+                        if (errors.dailyRate) setErrors({ ...errors, dailyRate: '' });
                       }}
                     />
                   </div>
-                  {errors.hourlyRate && (
-                    <p className="mt-1 text-xs text-red-500 font-medium">{errors.hourlyRate}</p>
+                  {errors.dailyRate && (
+                    <p className="mt-1 text-xs text-red-500 font-medium">{errors.dailyRate}</p>
                   )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Service Area
                   </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                    <input
-                      type="text"
-                      className={`w-full pl-10 pr-4 py-3 border ${
-                        errors.serviceArea ? 'border-red-500' : 'border-gray-200'
-                      } rounded-xl`}
-                      placeholder="e.g. South Goa"
-                      value={formData.serviceArea}
-                      onChange={e => {
-                        setFormData({ ...formData, serviceArea: e.target.value });
-                        if (errors.serviceArea) setErrors({ ...errors, serviceArea: '' });
-                      }}
-                    />
-                  </div>
+                  <LocationInput
+                    value={formData.serviceArea}
+                    onChange={val => {
+                      setFormData({ ...formData, serviceArea: val });
+                      if (errors.serviceArea) setErrors({ ...errors, serviceArea: '' });
+                    }}
+                    placeholder="e.g. South Goa"
+                    className={errors.serviceArea ? 'border-red-500' : 'border-gray-200'}
+                  />
                   {errors.serviceArea && (
                     <p className="mt-1 text-xs text-red-500 font-medium">{errors.serviceArea}</p>
                   )}
@@ -385,6 +385,65 @@ export const GuideRegistrationPage = () => {
                   {s.label}
                 </button>
               ))}
+              {formData.specialties.filter(s => !SPECIALTIES.find(spec => spec.id === s)).map(s => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => handleSpecialtyChange(s)}
+                  className="px-4 py-2 rounded-full border bg-tb-purple text-white border-tb-purple group flex items-center gap-2"
+                >
+                  {s} <X size={14} className="opacity-50 group-hover:opacity-100" />
+                </button>
+              ))}
+
+              {isAddingSpecialty ? (
+                <div className="flex gap-2 animate-in slide-in-from-left-2 transition-all">
+                  <input
+                    autoFocus
+                    type="text"
+                    value={newSpecialty}
+                    onChange={e => setNewSpecialty(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (newSpecialty.trim()) {
+                          handleSpecialtyChange(newSpecialty.trim());
+                          setNewSpecialty('');
+                          setIsAddingSpecialty(false);
+                        }
+                      }
+                    }}
+                    className="px-4 py-2 text-xs border border-tb-purple rounded-xl outline-none"
+                    placeholder="Custom specialty..."
+                  />
+                  <button
+                    onClick={() => {
+                      if (newSpecialty.trim()) {
+                        handleSpecialtyChange(newSpecialty.trim());
+                        setNewSpecialty('');
+                        setIsAddingSpecialty(false);
+                      }
+                    }}
+                    className="p-2 bg-tb-purple text-white rounded-xl"
+                  >
+                    <Plus size={16} />
+                  </button>
+                  <button
+                    onClick={() => setIsAddingSpecialty(false)}
+                    className="p-2 bg-slate-100 text-slate-400 rounded-xl"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsAddingSpecialty(true)}
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-slate-900 text-white flex items-center gap-2 hover:bg-slate-800 transition-all shadow-sm"
+                >
+                  <Plus size={14} /> Add Specification
+                </button>
+              )}
             </div>
             {errors.specialties && (
               <p className="mt-3 text-xs text-red-500 font-medium text-center">

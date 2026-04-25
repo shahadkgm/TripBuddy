@@ -34,4 +34,8 @@ export class GuideRepository
 
     return { guides, total };
   }
+  async deleteByUserId(userId: string): Promise<boolean> {
+    const result = await this._model.deleteOne({ userId });
+    return result.deletedCount > 0;
+  }
 }

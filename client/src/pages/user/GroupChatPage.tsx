@@ -1172,7 +1172,7 @@ const GroupChatPage = () => {
                           {guide.userId?.name || guide.name}
                         </h4>
                         <p className="font-black text-indigo-600 text-xs">
-                          ₹{guide.hourlyRate}
+                          ₹{guide.dailyRate}
                           <small className="text-slate-400 text-[10px] font-medium">/day</small>
                         </p>
                       </div>

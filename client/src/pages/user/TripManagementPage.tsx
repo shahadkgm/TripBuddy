@@ -31,6 +31,7 @@ import type { ITrip, IItineraryItem, IGuide, IGuideInvitation } from '../../inte
 import type { IPayment } from '../../interface/IPayment';
 import toast from 'react-hot-toast';
 import api from '../../utils/api';
+import { ConfirmModal } from '../../components/ConfirmModal';
 
 const TripManagementPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -56,6 +57,9 @@ const TripManagementPage = () => {
   const [assigningGuideId, setAssigningGuideId] = useState<string | null>(null);
   const [invitations, setInvitations] = useState<IGuideInvitation[]>([]);
   const [payments, setPayments] = useState<IPayment[]>([]);
+
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const getGuideInvitationStatus = (guideId: string) => {
     return invitations.find(inv => {
@@ -213,13 +217,7 @@ const TripManagementPage = () => {
   };
 
   const handleCancelTrip = async () => {
-    if (
-      !id ||
-      !window.confirm(
-        'Are you sure you want to cancel this trip? This will refund all members 100% and cannot be undone.'
-      )
-    )
-      return;
+    if (!id) return;
     try {
       setIsSaving(true);
       await tripService.cancelTrip(id);
@@ -738,7 +736,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                             </p>
                           </div>
                           <span className="text-xl font-black text-indigo-600">
-                            ₹{trip.guideId.hourlyRate}
+                            ₹{trip.guideId.dailyRate}
                             <small className="text-xs text-slate-400 font-normal">/day</small>
                           </span>
                         </div>
@@ -813,7 +811,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                     {guide.userId?.name || guide.name}
                                   </h5>
                                   <p className="text-[9px] font-bold text-indigo-500 uppercase mt-1">
-                                    ₹{guide.hourlyRate}/day
+                                    ₹{guide.dailyRate}/day
                                   </p>
                                 </div>
                               </div>
@@ -963,7 +961,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                   </p>
                                 </div>
                                 <span className="font-black text-indigo-600 text-base whitespace-nowrap">
-                                  ₹{guide.hourlyRate}
+                                  ₹{guide.dailyRate}
                                   <small className="text-slate-400 text-xs font-normal">/day</small>
                                 </span>
                               </div>
@@ -1056,13 +1054,23 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                         </p>
                       </div>
                       <button
-                        onClick={handleCancelTrip}
+                        onClick={() => setShowCancelConfirm(true)}
                         disabled={isSaving}
                         className="px-8 py-3.5 bg-rose-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-rose-100 hover:bg-slate-900 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
                       >
                         Cancel Trip
                       </button>
                     </div>
+
+                    <ConfirmModal
+                      isOpen={showCancelConfirm}
+                      onClose={() => setShowCancelConfirm(false)}
+                      onConfirm={handleCancelTrip}
+                      title="Cancel Entire Trip"
+                      message="Are you sure you want to cancel this trip? This will refund all members 100% and cannot be undone."
+                      confirmText="Yes, Cancel Trip"
+                      type="danger"
+                    />
 
                     <div className="p-8 rounded-[2rem] border-2 border-dashed border-slate-200 bg-slate-50/50 flex flex-col md:flex-row items-center justify-between gap-6">
                       <div>

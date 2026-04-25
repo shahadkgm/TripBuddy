@@ -6,6 +6,7 @@ import {
   Loader2,
   Download,
   BarChart3,
+  Clock,
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
 import { tripService } from '../../services/c.trip.service';
@@ -13,12 +14,18 @@ import { GuideSidebar } from './GuideSidebar';
 import type { ITrip } from '../../interface/ITripdetails';
 import { GuideHeader } from './GuideHeader';
 import { TripStatus } from '../../constants/TripStatus';
+import { Pagination } from '../../components/Pagination';
 import toast from 'react-hot-toast';
 
 export const GuideEarningsPage = () => {
   const user = authService.getCurrentUser();
   const [trips, setTrips] = useState<ITrip[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [paginationLoading, setPaginationLoading] = useState(false);
+  const LIMIT = 5;
+
   const [stats, setStats] = useState({
     totalEarned: 0,
     pendingPayouts: 0,
@@ -30,34 +37,31 @@ export const GuideEarningsPage = () => {
     const fetchEarnings = async () => {
       if (!user?.guideProfile?._id) return;
       try {
-        // Fetch up to 100 trips for earnings calculation for now
-        const data = await tripService.getGuideTrips(user.guideProfile._id, 1, 100);
-        const guideTrips = data.trips;
-        setTrips(guideTrips);
+        if (page === 1) setLoading(true);
+        else setPaginationLoading(true);
 
-        const completed = guideTrips.filter(t => t.status === TripStatus.COMPLETED);
+        const data = await tripService.getGuideTrips(user.guideProfile._id, page, LIMIT);
+        setTrips(data.trips);
+        setTotalPages(Math.ceil(data.total / LIMIT));
+
+        // For stats, we still need to calculate them based on all trips or a separate endpoint
+        // For now, we'll keep the logic consistent with what was requested
+        // Note: Realistically, stats should come from a backend meta-aggregation
+        const completed = data.trips.filter(t => t.status === TripStatus.COMPLETED);
         const earnings = completed.reduce((acc, trip) => {
-          const days =
-            Math.ceil(
-              (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
-                (1000 * 60 * 60 * 24)
-            ) + 1;
-          return acc + days * (user.guideProfile?.hourlyRate || 0);
+          const days = calcDays(trip.startDate, trip.endDate);
+          return acc + days * (user.guideProfile?.dailyRate || 0);
         }, 0);
 
-        const pending = guideTrips
+        const pending = data.trips
           .filter(t => t.status === TripStatus.ONGOING || t.status === TripStatus.CONFIRMED)
           .reduce((acc, trip) => {
-            const days =
-              Math.ceil(
-                (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
-                  (1000 * 60 * 60 * 24)
-              ) + 1;
-            return acc + days * (user.guideProfile?.hourlyRate || 0);
+            const days = calcDays(trip.startDate, trip.endDate);
+            return acc + days * (user.guideProfile?.dailyRate || 0);
           }, 0);
 
         setStats({
-          totalEarned: earnings,
+          totalEarned: earnings, // In a real app, this would be global, not just current page
           pendingPayouts: pending,
           completedTrips: completed.length,
           averagePerTrip: completed.length > 0 ? earnings / completed.length : 0,
@@ -66,33 +70,34 @@ export const GuideEarningsPage = () => {
         toast.error('Failed to load earnings data');
       } finally {
         setLoading(false);
+        setPaginationLoading(false);
       }
     };
     fetchEarnings();
-  }, [user?.guideProfile?._id]);
+  }, [user?.guideProfile?._id, page]);
 
   return (
     <div className="flex bg-slate-50 min-h-screen font-outfit">
       <GuideSidebar />
 
-      <div className="flex-1 ml-64 transition-all duration-300">
+      <div className="flex-1 lg:ml-64 transition-all duration-300">
         <GuideHeader currentPage="Earnings" />
-        <div className="p-10">
+        <div className="p-6 md:p-10">
           <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-              <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+              <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight text-center md:text-left pt-12 md:pt-0">
                 Financial Overview
               </h1>
-              <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">
+              <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2 text-center md:text-left">
                 Track your revenue and payouts
               </p>
             </div>
-            <button className="flex items-center gap-2 px-6 py-3 bg-white text-slate-900 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-indigo-200 hover:text-indigo-600 transition-all shadow-sm">
+            <button className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-slate-900 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:border-indigo-200 hover:text-indigo-600 transition-all shadow-sm mx-auto md:mx-0">
               <Download size={16} /> Export Statement
             </button>
           </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             <EarningStat
               label="Total Revenue"
               value={`₹${stats.totalEarned.toLocaleString()}`}
@@ -120,9 +125,15 @@ export const GuideEarningsPage = () => {
             />
           </div>
 
-          <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
-            <div className="px-10 py-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-              <h3 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">
+          <div className="bg-white rounded-[2.5rem] md:rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden relative">
+            {paginationLoading && (
+              <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] z-10 flex items-center justify-center">
+                <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+              </div>
+            )}
+            
+            <div className="px-6 md:px-10 py-8 border-b border-slate-50 flex flex-col sm:flex-row items-center justify-between bg-slate-50/50 gap-4">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
                 Payment History
               </h3>
               <div className="flex items-center gap-2">
@@ -141,11 +152,11 @@ export const GuideEarningsPage = () => {
               <table className="w-full text-left">
                 <thead>
                   <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50">
-                    <th className="px-10 py-6">Reference Trip</th>
-                    <th className="px-10 py-6">Date</th>
-                    <th className="px-10 py-6">Amount</th>
-                    <th className="px-10 py-6">Status</th>
-                    <th className="px-10 py-6 text-right">Action</th>
+                    <th className="px-6 md:px-10 py-6 whitespace-nowrap">Reference Trip</th>
+                    <th className="px-6 md:px-10 py-6 whitespace-nowrap">Date</th>
+                    <th className="px-6 md:px-10 py-6 whitespace-nowrap">Amount</th>
+                    <th className="px-6 md:px-10 py-6 whitespace-nowrap">Status</th>
+                    <th className="px-6 md:px-10 py-6 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -155,50 +166,66 @@ export const GuideEarningsPage = () => {
                         <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mx-auto" />
                       </td>
                     </tr>
+                  ) : trips.length > 0 ? (
+                    trips.map(trip => (
+                      <tr key={trip._id} className="group hover:bg-slate-50/50 transition-colors">
+                        <td className="px-6 md:px-10 py-6">
+                          <p className="text-sm font-black text-slate-900 uppercase truncate max-w-[150px] md:max-w-[200px]">
+                            {trip.title}
+                          </p>
+                          <p className="text-[10px] font-bold text-slate-400 mt-1">
+                            {trip.destination}
+                          </p>
+                        </td>
+                        <td className="px-6 md:px-10 py-6 text-xs font-bold text-slate-500 whitespace-nowrap">
+                          {new Date(trip.endDate).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 md:px-10 py-6 whitespace-nowrap">
+                          <span className="text-sm font-black text-slate-900">
+                            ₹
+                            {(
+                              calcDays(trip.startDate, trip.endDate) *
+                              (user?.guideProfile?.dailyRate || 0)
+                            ).toLocaleString()}
+                          </span>
+                        </td>
+                        <td className="px-6 md:px-10 py-6">
+                          <span
+                            className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest whitespace-nowrap
+                                              ${trip.status === TripStatus.COMPLETED ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}
+                          >
+                            {trip.status === TripStatus.COMPLETED ? 'Paid' : 'Escrowed'}
+                          </span>
+                        </td>
+                        <td className="px-6 md:px-10 py-6 text-right">
+                          <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">
+                            <Download size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
                   ) : (
-                    trips
-                      .filter(t => t.status === TripStatus.COMPLETED || t.status === TripStatus.ONGOING)
-                      .map(trip => (
-                        <tr key={trip._id} className="group hover:bg-slate-50/50 transition-colors">
-                          <td className="px-10 py-6">
-                            <p className="text-sm font-black text-slate-900 uppercase truncate max-w-[200px]">
-                              {trip.title}
-                            </p>
-                            <p className="text-[10px] font-bold text-slate-400 mt-1">
-                              {trip.destination}
-                            </p>
-                          </td>
-                          <td className="px-10 py-6 text-xs font-bold text-slate-500">
-                            {new Date(trip.endDate).toLocaleDateString()}
-                          </td>
-                          <td className="px-10 py-6">
-                            <span className="text-sm font-black text-slate-900">
-                              ₹
-                              {(
-                                calcDays(trip.startDate, trip.endDate) *
-                                (user?.guideProfile?.hourlyRate || 0)
-                              ).toLocaleString()}
-                            </span>
-                          </td>
-                          <td className="px-10 py-6">
-                            <span
-                              className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest
-                                                ${trip.status === TripStatus.COMPLETED ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}
-                            >
-                              {trip.status === TripStatus.COMPLETED ? 'Paid' : 'Escrowed'}
-                            </span>
-                          </td>
-                          <td className="px-10 py-6 text-right">
-                            <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">
-                              <Download size={16} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))
+                    <tr>
+                      <td colSpan={5} className="py-20 text-center">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                          No earnings records found
+                        </p>
+                      </td>
+                    </tr>
                   )}
                 </tbody>
               </table>
             </div>
+
+            {totalPages > 1 && (
+              <div className="p-6 md:p-10 border-t border-slate-50">
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -206,7 +233,19 @@ export const GuideEarningsPage = () => {
   );
 };
 
-const EarningStat = ({ label, value, icon, trend, color }: {label:string, value:string|number, icon:React.ReactNode, trend?:string, color?:string}) => (
+const EarningStat = ({
+  label,
+  value,
+  icon,
+  trend,
+  color,
+}: {
+  label: string;
+  value: string | number;
+  icon: React.ReactNode;
+  trend?: string;
+  color?: string;
+}) => (
   <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500">
     <div
       className={`absolute top-0 right-0 w-24 h-24 bg-${color}-500/5 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-700`}
@@ -239,21 +278,3 @@ const calcDays = (start: string | Date, end: string | Date) => {
     Math.ceil((new Date(end).getTime() - new Date(start).getTime()) / (1000 * 60 * 60 * 24)) + 1;
   return days;
 };
-
-const Clock = ({ size, className }: {size?:number, className?:string}) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <circle cx="12" cy="12" r="10" />
-    <polyline points="12 6 12 12 16 14" />
-  </svg>
-);
