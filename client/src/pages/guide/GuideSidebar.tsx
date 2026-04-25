@@ -8,8 +8,7 @@ import {
   Star, 
   Mail, 
   Menu, 
-  X,
-  LogOut
+  X
 } from 'lucide-react';
 import { authService } from '../../services/c.authService';
 
@@ -25,10 +24,6 @@ const menu = [
 export const GuideSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleLogout = () => {
-    authService.logout();
-    window.location.href = '/login';
-  };
 
   return (
     <>
@@ -86,21 +81,19 @@ export const GuideSidebar = () => {
                   : 'text-slate-400 hover:bg-white/5 hover:text-white'}`
               }
             >
-              <Icon size={18} className={({ isActive }: any) => isActive ? 'animate-pulse' : ''} />
-              {name}
+              {({ isActive }) => (
+                <>
+                  <Icon size={18} className={isActive ? 'animate-pulse' : ''} />
+                  {name}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
 
-        {/* Bottom Profile / Logout */}
-        <div className="absolute bottom-0 left-0 w-full p-6 border-t border-white/5 bg-slate-900/50 backdrop-blur-md">
-          <button 
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest text-rose-400 hover:bg-rose-500/10 transition-all border border-rose-500/20 group"
-          >
-            <LogOut size={16} className="group-hover:-translate-x-1 transition-transform" />
-            Sign Out
-          </button>
+        {/* Sidebar Footer spacing if needed */}
+        <div className="absolute bottom-0 left-0 w-full p-6 text-center">
+            <p className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-700">Adventure awaits</p>
         </div>
       </aside>
     </>

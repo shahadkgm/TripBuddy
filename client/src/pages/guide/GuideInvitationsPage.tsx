@@ -62,7 +62,7 @@ export const GuideInvitationsPage = () => {
 
       <div className="flex-1 lg:ml-64 transition-all duration-300">
         <GuideHeader currentPage="New Invitations" />
-        <div className="p-10">
+        <div className="p-6 lg:p-10">
           <header className="mb-10">
             <h1 className="text-4xl font-black text-slate-900 tracking-tight">Trip Invitations</h1>
             <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">

@@ -25,7 +25,7 @@ export class UserMapper {
       guideProfile: user.guideProfile
         ? {
             _id: user.guideProfile._id?.toString() || '',
-            hourlyRate: user.guideProfile.hourlyRate || 0,
+            hourlyRate: user.guideProfile.dailyRate || 0,
             serviceArea: user.guideProfile.serviceArea || '',
             bio: user.guideProfile.bio || '',
           }

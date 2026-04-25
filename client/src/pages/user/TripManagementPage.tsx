@@ -84,8 +84,8 @@ const TripManagementPage = () => {
         }
 
         // Fetch invitations for this trip
-        const invRes = await api.get<{ data: IGuideInvitation[] }>('/api/guide-invitations/outbound');
-        setInvitations(invRes.data.data.filter((inv: IGuideInvitation) => {
+        const invRes = await api.get<{ data: { invitations: IGuideInvitation[] } }>('/api/guide-invitations/outbound');
+        setInvitations(invRes.data.data.invitations.filter((inv: IGuideInvitation) => {
           const tId = typeof inv.tripId === 'string' ? inv.tripId : inv.tripId?._id;
           return tId === id;
         }));
@@ -203,8 +203,8 @@ const TripManagementPage = () => {
       toast.success('Trip request sent to guide!');
 
       // Refresh invitations
-      const invRes = await api.get<{ data: IGuideInvitation[] }>('/api/guide-invitations/outbound');
-      setInvitations(invRes.data.data.filter((inv: IGuideInvitation) => {
+      const invRes = await api.get<{ data: { invitations: IGuideInvitation[] } }>('/api/guide-invitations/outbound');
+      setInvitations(invRes.data.data.invitations.filter((inv: IGuideInvitation) => {
         const tId = typeof inv.tripId === 'string' ? inv.tripId : inv.tripId?._id;
         return tId === id;
       }));

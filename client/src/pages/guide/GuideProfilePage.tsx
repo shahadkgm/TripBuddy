@@ -81,7 +81,7 @@ export const GuideProfilePage = () => {
 
       <div className="flex-1 lg:ml-64 transition-all duration-300">
         <GuideHeader currentPage="Profile Edit" />
-        <div className="p-10">
+        <div className="p-6 lg:p-10">
           <header className="mb-10 flex items-center justify-between">
             <div>
               <button

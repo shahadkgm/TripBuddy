@@ -99,7 +99,7 @@ export const GuideDashboard = () => {
         {/* Top Bar */}
         <GuideHeader currentPage="Dashboard" />
 
-        <main className="p-10 max-w-6xl mx-auto">
+        <main className="p-6 lg:p-10 max-w-6xl mx-auto">
           <div className="mb-12 relative">
             <div className="relative z-10">
               <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-none">

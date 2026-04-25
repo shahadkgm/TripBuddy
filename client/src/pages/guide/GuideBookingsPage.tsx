@@ -85,7 +85,7 @@ export const GuideBookingsPage = () => {
 
       <div className="flex-1 lg:ml-64 transition-all duration-300">
         <GuideHeader currentPage="Bookings" />
-        <div className="p-10">
+        <div className="p-6 lg:p-10">
           <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <h1 className="text-4xl font-black text-slate-900 tracking-tight">Your Bookings</h1>
