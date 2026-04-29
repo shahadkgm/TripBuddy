@@ -53,7 +53,7 @@ const AIAssistantPage = () => {
       setMessages(prev => [...prev, { role: 'assistant', content: response }]);
     } catch (_error) {
       console.error('AI Chat Error:', _error);
-      toast.error('Failed to get a response. Please try again.');
+      toast.error('Failed to get a response beacuse ofThis model is currently experiencing high demand . Please try manual way.');
     } finally {
       setIsLoading(false);
     }

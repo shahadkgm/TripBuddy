@@ -10,8 +10,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { guideService } from '../../services/c.guide.service';
-import { GuideSidebar } from './GuideSidebar';
-import { GuideHeader } from './GuideHeader';
+import { GuideLayout } from './GuideLayout';
 import { Pagination } from '../../components/Pagination';
 import toast from 'react-hot-toast';
 
@@ -57,13 +56,9 @@ export const GuideInvitationsPage = () => {
   };
 
   return (
-    <div className="flex bg-slate-50 min-h-screen font-outfit">
-      <GuideSidebar />
-
-      <div className="flex-1 lg:ml-64 transition-all duration-300">
-        <GuideHeader currentPage="New Invitations" />
-        <div className="p-6 lg:p-10">
-          <header className="mb-10">
+    <GuideLayout currentPage="New Invitations">
+      <div className="p-0">
+        <header className="mb-10">
             <h1 className="text-4xl font-black text-slate-900 tracking-tight">Trip Invitations</h1>
             <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">
               Opportunities from travelers around the world
@@ -191,8 +186,7 @@ export const GuideInvitationsPage = () => {
               </p>
             </div>
           )}
-        </div>
       </div>
-    </div>
+    </GuideLayout>
   );
 };

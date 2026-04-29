@@ -24,11 +24,11 @@ export class UserMapper {
       walletBalance: user.walletBalance || 0,
       guideProfile: user.guideProfile && typeof user.guideProfile === 'object' && '_id' in user.guideProfile
         ? {
-            _id: user.guideProfile._id?.toString() || '',
-            dailyRate: (user.guideProfile as IGuide).dailyRate || 0,
-            serviceArea: (user.guideProfile as IGuide).serviceArea || '',
-            bio: (user.guideProfile as IGuide).bio || '',
-          }
+          _id: user.guideProfile._id?.toString() || '',
+          dailyRate: (user.guideProfile as IGuide).dailyRate || 0,
+          serviceArea: (user.guideProfile as IGuide).serviceArea || '',
+          bio: (user.guideProfile as IGuide).bio || '',
+        }
         : null,
     };
   }

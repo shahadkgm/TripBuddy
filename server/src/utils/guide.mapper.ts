@@ -26,6 +26,8 @@ export const toGuideResponse = (guide: IGuide): GuideResponseDTO => ({
   specialties: guide.specialties,
   avatarURL: guide.avatarURL,
   isVerified: guide.isVerified,
+  averageRating: guide.averageRating,
+  reviewCount: guide.reviewCount,
 });
 export const toAdminGuideResponse = (guide: PopulatedGuide): AdminGuideResponseDTO => {
   const populatedUser = guide.userDoc || (guide.userId && typeof guide.userId === 'object' && 'name' in guide.userId ? (guide.userId as unknown as PopulatedGuide['userDoc']) : null);

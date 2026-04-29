@@ -34,6 +34,7 @@ import { GuideManagement } from '../pages/admin/GuideManagement';
 import { AdminPaymentsPage } from '../pages/admin/AdminPaymentsPage';
 import { AdminTripManagementPage } from '../pages/admin/AdminTripManagementPage';
 import { AdminRevenuePage } from '../pages/admin/AdminRevenuePage';
+import ReportManagementPage from '../pages/admin/ReportManagementPage';
 
 import { GuideDashboard } from '../pages/guide/GuideDashboard';
 import { GuideProfilePage } from '../pages/guide/GuideProfilePage';
@@ -61,11 +62,7 @@ export default function AppRoutes() {
         <Route path="/kyc-status" element={<KYCStatusPage />} />
         <Route path="/kyc-verification" element={<KYCPage />} />
         <Route path="/join-guide" element={<GuideRegistrationPage />} />
-        <Route path="/create-trip" element={<CreateTripPage />} />
-        <Route path="/edit-trip/:id" element={<CreateTripPage />} />
-        <Route path="/find-travelers" element={<FindTravelers />} />
         <Route path="/trip-details/:id" element={<TripDetails />} />
-        <Route path="/connection-requests" element={<ConnectionRequestsPage />} />
         <Route path="/expenses" element={<ExpenseSplitPage />} />
         <Route path="/weather" element={<WeatherPage />} />
         <Route path="/gallery" element={<GalleryPage />} />
@@ -75,6 +72,14 @@ export default function AppRoutes() {
         <Route path="/nearby" element={<NearByPlacesPage />} />
         <Route path="/find-guides" element={<FindGuidesPage />} />
         <Route path="/my-payments" element={<MyPaymentsPage />} />
+      </Route>
+
+      {/* User KYC Required */}
+      <Route element={<ProtectedRoute allowedRoles="user" requireKyc={true} />}>
+        <Route path="/create-trip" element={<CreateTripPage />} />
+        <Route path="/edit-trip/:id" element={<CreateTripPage />} />
+        <Route path="/find-travelers" element={<FindTravelers />} />
+        <Route path="/connection-requests" element={<ConnectionRequestsPage />} />
       </Route>
 
       {/* Shared: User + Guide (group chat) */}
@@ -90,6 +95,7 @@ export default function AppRoutes() {
         <Route path="/admin/payments" element={<AdminPaymentsPage />} />
         <Route path="/admin/trips" element={<AdminTripManagementPage />} />
         <Route path="/admin/revenue" element={<AdminRevenuePage />} />
+        <Route path="/admin/reports" element={<ReportManagementPage />} />
       </Route>
 
       {/* Guide */}

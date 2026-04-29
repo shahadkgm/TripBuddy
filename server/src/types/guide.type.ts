@@ -20,6 +20,8 @@ export interface IGuide {
   isVerified: boolean;
   status: 'pending' | 'verified' | 'rejected';
   rejectionReason?: string;
+  averageRating?: number;
+  reviewCount?: number;
   lastUpdated: Date;
   createdAt: Date;
   updatedAt: Date;

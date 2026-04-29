@@ -13,14 +13,15 @@ import {
   Sparkles,
   ChevronRight,
   Loader2,
-  CheckCircle2,
+  CheckCircle,
   Wand2,
-  UserSearch,
   Search,
   RotateCcw,
   BadgeCheck,
   Send,
   XCircle,
+  Star,
+  AlertTriangle,
 } from 'lucide-react';
 import { tripService } from '../../services/c.trip.service';
 import { aiService } from '../../services/c.ai.service';
@@ -32,6 +33,7 @@ import type { IPayment } from '../../interface/IPayment';
 import toast from 'react-hot-toast';
 import api from '../../utils/api';
 import { ConfirmModal } from '../../components/ConfirmModal';
+import { ReportModal, ReviewModal } from '../../components/guide';
 
 const TripManagementPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -58,8 +60,9 @@ const TripManagementPage = () => {
   const [invitations, setInvitations] = useState<IGuideInvitation[]>([]);
   const [payments, setPayments] = useState<IPayment[]>([]);
 
-  const [isCancelling, setIsCancelling] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   const getGuideInvitationStatus = (guideId: string) => {
     return invitations.find(inv => {
@@ -230,20 +233,6 @@ const TripManagementPage = () => {
     }
   };
 
-  const handleMarkCompleted = async () => {
-    if (!id) return;
-    try {
-      setIsSaving(true);
-      await tripService.updateTrip(id, { status: TripStatus.COMPLETED });
-      toast.success('Trip marked as completed!');
-      setTrip(prev => (prev ? { ...prev, status: TripStatus.COMPLETED } : null));
-    } catch (_error) {
-      toast.error('Failed to update status');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   const handleAIGenerateItinerary = async () => {
     if (!trip) return;
 
@@ -309,7 +298,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
       setItinerary(newItinerary);
       toast.success('AI generated a brilliant itinerary!');
     } catch (_error) {
-      toast.error('Failed to generate itinerary. Please try again.');
+      toast.error('Failed to generate itinerary becase Model is experiencing high demand . Please try manual way.');
     } finally {
       setIsGeneratingAI(false);
     }
@@ -367,7 +356,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
               {isSaving ? (
                 <Loader2 size={14} className="animate-spin" />
               ) : isSaved && !isHovering ? (
-                <CheckCircle2 size={14} className="animate-in zoom-in duration-300" />
+                <CheckCircle size={14} className="animate-in zoom-in duration-300" />
               ) : (
                 <Save size={14} />
               )}
@@ -404,7 +393,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
             {[
               { id: 'itinerary', label: 'Itinerary Builder', icon: Calendar },
               { id: 'members', label: 'Trip Members', icon: Users },
-              { id: 'guide', label: 'Find Guide', icon: UserSearch },
+              { id: 'guide', label: 'Find Guide', icon: Search },
               { id: 'settings', label: 'Management', icon: Settings },
             ].map(tab => (
               <button
@@ -679,7 +668,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                             };
 
                             const statusIcons: Record<string, React.ReactNode> = {
-                              escrowed: <CheckCircle2 size={10} />,
+                              escrowed: <CheckCircle size={10} />,
                               pending: <Clock size={10} />,
                               released: <BadgeCheck size={10} />,
                               refunded: <RotateCcw size={10} />,
@@ -706,70 +695,155 @@ Do not include any other text, markdown formatting, or code blocks outside the J
             {activeTab === 'guide' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
                 {/* Assigned Guide Card */}
-                {trip.guideId && (
-                  <div className="bg-white rounded-[3rem] border-2 border-indigo-100 shadow-xl p-8">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
-                        <BadgeCheck size={22} />
-                      </div>
-                      <h3 className="text-xl font-black text-slate-900 tracking-tighter">
-                        Assigned Guide
-                      </h3>
-                    </div>
-                    <div className="flex items-start gap-5">
-                      <img
-                        src={
-                          trip.guideId.avatarURL ||
-                          `https://api.dicebear.com/7.x/avataaars/svg?seed=${trip.guideId.name}`
-                        }
-                        alt={trip.guideId.name}
-                        className="w-20 h-20 rounded-2xl object-cover border-4 border-indigo-100 shadow-md flex-shrink-0"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <h4 className="font-black text-slate-900 text-lg tracking-tight">
-                              {trip.guideId.name}
-                            </h4>
-                            <p className="text-indigo-600 font-bold text-sm flex items-center gap-1 mt-0.5">
-                              <MapPin size={12} /> {trip.guideId.serviceArea}
-                            </p>
-                          </div>
-                          <span className="text-xl font-black text-indigo-600">
-                            ₹{trip.guideId.dailyRate}
-                            <small className="text-xs text-slate-400 font-normal">/day</small>
-                          </span>
+                {trip.guideId ? (
+                  <>
+                    <div className="bg-white rounded-[3rem] border-2 border-indigo-100 shadow-xl p-8">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
+                          <BadgeCheck size={22} />
                         </div>
-                        <p className="text-sm text-slate-500 mt-2 line-clamp-2">
-                          {trip.guideId.bio}
-                        </p>
-                        <div className="flex flex-wrap gap-2 mt-3">
-                          {trip.guideId.specialties?.map(s => (
-                            <span
-                              key={s}
-                              className="text-[10px] uppercase tracking-wider font-bold bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg border border-indigo-100"
-                            >
-                              {s}
+                        <h3 className="text-xl font-black text-slate-900 tracking-tighter">
+                          Assigned Guide
+                        </h3>
+                      </div>
+                      <div className="flex items-start gap-5">
+                        <img
+                          src={
+                            trip.guideId.avatarURL ||
+                            `https://api.dicebear.com/7.x/avataaars/svg?seed=${trip.guideId.name}`
+                          }
+                          alt={trip.guideId.name}
+                          className="w-20 h-20 rounded-2xl object-cover border-4 border-indigo-100 shadow-md flex-shrink-0"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <h4 className="font-black text-slate-900 text-lg tracking-tight">
+                                {trip.guideId.name}
+                              </h4>
+                              <div className="flex items-center gap-3 mt-0.5">
+                                <p className="text-indigo-600 font-bold text-sm flex items-center gap-1">
+                                  <MapPin size={12} /> {trip.guideId.serviceArea}
+                                </p>
+                                <span className="h-1 w-1 bg-slate-300 rounded-full" />
+                                <div className="flex items-center gap-1">
+                                  <Star size={12} className="text-amber-400 fill-amber-400" />
+                                  <span className="text-[11px] font-black text-slate-700">
+                                    {trip.guideId.averageRating?.toFixed(1) || '0.0'}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400 font-medium">
+                                    ({trip.guideId.reviewCount || 0})
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <span className="text-xl font-black text-indigo-600">
+                              ₹{trip.guideId.dailyRate}
+                              <small className="text-xs text-slate-400 font-normal">/day</small>
                             </span>
-                          ))}
+                          </div>
+                          <p className="text-sm text-slate-500 mt-2 line-clamp-2">
+                            {trip.guideId.bio}
+                          </p>
+                          <div className="flex flex-wrap gap-2 mt-3">
+                            {trip.guideId.specialties?.map(s => (
+                              <span
+                                key={s}
+                                className="text-[10px] uppercase tracking-wider font-bold bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg border border-indigo-100"
+                              >
+                                {s}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       </div>
+
+                      {trip.status === TripStatus.COMPLETED && (
+                        <div className="mt-8 pt-8 border-t border-slate-100">
+                          <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-8 bg-indigo-50/50 rounded-[2.5rem] border border-indigo-100">
+                            <div>
+                              <h4 className="text-lg font-black text-slate-900 tracking-tight">Trip Completed!</h4>
+                              <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Share your experience or report issues</p>
+                            </div>
+                            <div className="flex gap-3">
+                              <button
+                                onClick={() => setShowReviewModal(true)}
+                                className="bg-indigo-600 text-white rounded-2xl px-8 py-3.5 font-black uppercase tracking-widest text-[10px] shadow-lg shadow-indigo-100 hover:bg-slate-900 transition-all"
+                              >
+                                Add Review
+                              </button>
+                              <button
+                                onClick={() => setShowReportModal(true)}
+                                className="bg-white text-rose-500 border-2 border-rose-100 rounded-2xl px-8 py-3.5 font-black uppercase tracking-widest text-[10px] shadow-lg shadow-rose-50 hover:bg-rose-50 transition-all flex items-center gap-2"
+                              >
+                                <AlertTriangle size={14} /> Report Guide
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {showReviewModal && (
+                        <ReviewModal
+                          tripId={trip._id}
+                          target="guide"
+                          targetName={trip.guideId?.name || 'Guide'}
+                          onClose={() => setShowReviewModal(false)}
+                          onSuccess={() => {
+                            toast.success('Review submitted!');
+                            const loadTrip = async () => {
+                              if (!id) return;
+                              const data = await tripService.getTripById(id);
+                              setTrip(data);
+                            };
+                            loadTrip();
+                          }}
+                        />
+                      )}
+
+                      {showReportModal && (
+                        <ReportModal
+                          tripId={trip._id}
+                          targetId={typeof trip.guideId?.userId === 'string' ? trip.guideId.userId : trip.guideId?.userId?._id || ''}
+                          targetType="guide"
+                          targetName={trip.guideId?.name || 'Guide'}
+                          onClose={() => setShowReportModal(false)}
+                        />
+                      )}
+
+                      <button
+                        onClick={() => handleAssignGuide(null)}
+                        disabled={assigningGuideId === null && assigningGuideId !== undefined}
+                        className="mt-6 w-full py-3 rounded-2xl border-2 border-dashed border-rose-200 text-rose-400 hover:bg-rose-50 hover:border-rose-400 font-black uppercase tracking-widest text-[11px] transition-all"
+                      >
+                        Remove Guide from Trip
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleAssignGuide(null)}
-                      disabled={assigningGuideId === null && assigningGuideId !== undefined}
-                      className="mt-6 w-full py-3 rounded-2xl border-2 border-dashed border-rose-200 text-rose-400 hover:bg-rose-50 hover:border-rose-400 font-black uppercase tracking-widest text-[11px] transition-all"
-                    >
-                      Remove Guide from Trip
-                    </button>
+                  </>
+                ) : (
+                  <div className="bg-indigo-600 rounded-[3rem] p-10 text-white shadow-2xl shadow-indigo-200 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32 transition-transform duration-700 group-hover:scale-110"></div>
+                    <div className="relative z-10">
+                      <h3 className="text-2xl font-black tracking-tighter mb-2">No Guide Assigned</h3>
+                      <p className="text-indigo-100 text-sm font-medium mb-8 max-w-md">Find a local expert to lead your group and handle the navigation. Browse our verified guides below.</p>
+                      <button
+                        onClick={() => {
+                          const element = document.getElementById('guide-search-area');
+                          element?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className="bg-white text-indigo-600 px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-50 transition-all shadow-xl"
+                      >
+                        Find a Local Expert
+                      </button>
+                    </div>
                   </div>
                 )}
 
-                {/* Guide Search */}
-                <div className="bg-white rounded-[3rem] border border-slate-100 shadow-xl p-8">
+                {/* Guide Search Area */}
+                <div id="guide-search-area" className="bg-white rounded-[3rem] border border-slate-100 shadow-xl p-8">
                   <h3 className="text-xl font-black text-slate-900 tracking-tighter mb-6 flex items-center gap-3">
                     <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
-                      <UserSearch size={22} />
+                      <Search size={22} />
                     </div>
                     Available Local Guides
                   </h3>
@@ -810,9 +884,21 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                   <h5 className="text-xs font-black text-slate-900 leading-none">
                                     {guide.userId?.name || guide.name}
                                   </h5>
-                                  <p className="text-[9px] font-bold text-indigo-500 uppercase mt-1">
-                                    ₹{guide.dailyRate}/day
-                                  </p>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <p className="text-[9px] font-bold text-indigo-500 uppercase">
+                                      ₹{guide.dailyRate}/day
+                                    </p>
+                                    <span className="h-0.5 w-0.5 bg-slate-300 rounded-full" />
+                                    <div className="flex items-center gap-1">
+                                      <Star size={8} className="text-amber-400 fill-amber-400" />
+                                      <span className="text-[9px] font-black text-slate-700">
+                                        {guide.averageRating?.toFixed(1) || '0.0'}
+                                      </span>
+                                      <span className="text-[8px] text-slate-400 font-medium ml-0.5">
+                                        ({guide.reviewCount || 0})
+                                      </span>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
 
@@ -912,7 +998,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                   {/* Lazy load guides on tab open */}
                   {guides.length === 0 && !guideLoading && (
                     <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 rounded-3xl">
-                      <UserSearch className="text-slate-200 w-12 h-12 mb-3" />
+                      <Search className="text-slate-200 w-12 h-12 mb-3" />
                       <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">
                         Click Search to find guides
                       </p>
@@ -935,7 +1021,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
 
                         return (
                           <div
-                            key={guide._id || guide.id}
+                            key={guideId}
                             className={`flex items-start gap-5 p-6 rounded-3xl border-2 transition-all ${isAssigned ? 'border-indigo-200 bg-indigo-50/40' : 'border-slate-100 bg-white hover:border-indigo-100 hover:shadow-md'}`}
                           >
                             <img
@@ -955,15 +1041,27 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                   <h4 className="font-black text-slate-900 tracking-tight">
                                     {guide.userId?.name || guide.name}
                                   </h4>
-                                  <p className="text-indigo-600 font-bold text-xs flex items-center gap-1 mt-0.5">
-                                    <MapPin size={11} />
-                                    {guide.serviceArea}
-                                  </p>
                                 </div>
                                 <span className="font-black text-indigo-600 text-base whitespace-nowrap">
                                   ₹{guide.dailyRate}
                                   <small className="text-slate-400 text-xs font-normal">/day</small>
                                 </span>
+                              </div>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <p className="text-indigo-600 font-bold text-xs flex items-center gap-1">
+                                  <MapPin size={11} />
+                                  {guide.serviceArea}
+                                </p>
+                                <span className="h-0.5 w-0.5 bg-slate-300 rounded-full" />
+                                <div className="flex items-center gap-1">
+                                  <Star size={10} className="text-amber-400 fill-amber-400" />
+                                  <span className="text-[10px] font-black text-slate-700">
+                                    {guide.averageRating?.toFixed(1) || '0.0'}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400 font-medium">
+                                    ({guide.reviewCount || 0})
+                                  </span>
+                                </div>
                               </div>
                               <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">
                                 {guide.bio}
@@ -1012,7 +1110,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                 <Loader2 size={14} className="animate-spin" />
                               ) : isAssigned ? (
                                 <>
-                                  <CheckCircle2 size={13} /> Assigned
+                                  <CheckCircle size={13} /> Assigned
                                 </>
                               ) : latestInv?.status === 'pending' ? (
                                 <>
@@ -1036,7 +1134,6 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                 </div>
               </div>
             )}
-
             {activeTab === 'settings' && (
               <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
                 <div className="bg-white rounded-[3rem] border border-slate-100 shadow-xl p-10">
@@ -1071,22 +1168,6 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                       confirmText="Yes, Cancel Trip"
                       type="danger"
                     />
-
-                    {/* <div className="p-8 rounded-[2rem] border-2 border-dashed border-slate-200 bg-slate-50/50 flex flex-col md:flex-row items-center justify-between gap-6">
-                      <div>
-                        <h4 className="text-lg font-black text-slate-800 tracking-tight">Post-Trip Archive</h4>
-                        <p className="text-xs text-slate-500 font-medium mt-1">
-                          Mark this trip as completed to move it to history.
-                        </p>
-                      </div>
-                      <button 
-                                                onClick={handleMarkCompleted}
-                                                disabled={isSaving}
-                                                className="px-8 py-3.5 bg-slate-800 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-slate-100 transition-all hover:bg-emerald-600 disabled:opacity-50"
-                                            >
-                                                Mark Completed
-                                            </button>
-                    </div> */}
                   </div>
                 </div>
               </div>

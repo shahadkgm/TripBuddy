@@ -13,6 +13,7 @@ import {
   Bell,
   Search,
   TrendingUp,
+  ShieldAlert,
 } from 'lucide-react';
 export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -36,6 +37,8 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         return 'Financial Escrow';
       case '/admin/revenue':
         return 'Revenue Management';
+      case '/admin/reports':
+        return 'Safety Reports';
       default:
         return 'Control Panel';
     }
@@ -50,6 +53,7 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     // { name: 'Posts', path: '#', icon: <Image size={20} /> },
     { name: 'Payments', path: '/admin/payments', icon: <CreditCard size={20} /> },
     { name: 'Revenue', path: '/admin/revenue', icon: <TrendingUp size={20} /> },
+    { name: 'Safety Reports', path: '/admin/reports', icon: <ShieldAlert size={20} /> },
     // { name: 'Settings', path: '#', icon: <Settings size={20} /> },
   ];
 

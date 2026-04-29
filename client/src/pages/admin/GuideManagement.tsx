@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { AdminLayout } from '../../components/admin/AdminLayout';
-import { CheckCircle, XCircle, Eye, ShieldCheck } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, ShieldCheck, ShieldAlert, Clock, MapPin } from 'lucide-react';
 import api from '../../utils/api';
 import { DataTable } from '../../components/DataTable';
 import { SearchBar } from '../../components/common/SearchBar';
 import { Pagination } from '../../components/Pagination';
 import { RejectionModal } from '../../components/RejectionModal';
+import { reportService } from '../../services/c.report.service';
+import type { IReport } from '../../services/c.report.service';
 
 interface IGuideApplication {
   id: string;
@@ -46,6 +48,24 @@ export const GuideManagement = () => {
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [guideToReject, setGuideToReject] = useState<string | null>(null);
+
+  // Reports modal state
+  const [reportModalGuide, setReportModalGuide] = useState<IGuideApplication | null>(null);
+  const [guideReports, setGuideReports] = useState<IReport[]>([]);
+  const [reportsLoading, setReportsLoading] = useState(false);
+
+  const openReportsModal = async (guide: IGuideApplication) => {
+    setReportModalGuide(guide);
+    setReportsLoading(true);
+    try {
+      const data = await reportService.getReportsByTarget(guide.user.id);
+      setGuideReports(data || []);
+    } catch {
+      toast.error('Failed to load reports');
+    } finally {
+      setReportsLoading(false);
+    }
+  };
 
   // Debounce search term
   useEffect(() => {
@@ -104,11 +124,6 @@ export const GuideManagement = () => {
       setIsConfirmOpen(false);
       setGuideToReject(null);
     }
-  };
-
-  // Triggered when Confirm button inside modal is clicked
-  const handleConfirmReject = async () => {
-    // This is now handled by the Modal's onConfirm with reason
   };
 
 
@@ -181,6 +196,19 @@ export const GuideManagement = () => {
           className="flex items-center gap-1.5 text-[11px] font-bold text-[#5537ee] hover:text-white hover:bg-[#5537ee] bg-indigo-50/50 px-3 py-1.5 rounded-full border border-indigo-100 transition-all active:scale-95 group"
         >
           <Eye size={14} className="group-hover:scale-110 transition-transform" /> View
+        </button>
+      ),
+    },
+    {
+      header: 'Reports',
+      key: 'reports',
+      render: (guide: IGuideApplication) => (
+        <button
+          onClick={() => openReportsModal(guide)}
+          className="flex items-center gap-1.5 text-[11px] font-bold text-rose-600 hover:text-white hover:bg-rose-500 bg-rose-50 px-3 py-1.5 rounded-full border border-rose-100 transition-all active:scale-95 group"
+        >
+          <ShieldAlert size={14} className="group-hover:scale-110 transition-transform" />
+          View Reports
         </button>
       ),
     },
@@ -468,6 +496,111 @@ export const GuideManagement = () => {
           title="Reject Guide Application"
           message="Please provide a reason for rejecting this guide application. This info will be shown to the applicant."
         />
+
+        {/* Reports Slide-Over Modal */}
+        {reportModalGuide && (
+          <div className="fixed inset-0 z-50 flex justify-end animate-in fade-in duration-300">
+            <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setReportModalGuide(null)} />
+            <div className="relative w-full max-w-md bg-white shadow-2xl h-full flex flex-col animate-in slide-in-from-right duration-400">
+              {/* Header */}
+              <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-rose-50/40">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-rose-100 rounded-xl text-rose-600">
+                    <ShieldAlert size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 tracking-tight">Community Reports</h3>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+                      Against {reportModalGuide.user?.name}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setReportModalGuide(null)}
+                  className="p-2 hover:bg-rose-100 rounded-xl text-slate-300 hover:text-rose-600 transition-all"
+                >
+                  <XCircle size={22} />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                {reportsLoading ? (
+                  [1,2,3].map(i => (
+                    <div key={i} className="h-28 bg-slate-100 rounded-2xl animate-pulse" />
+                  ))
+                ) : guideReports.length === 0 ? (
+                  <div className="py-20 flex flex-col items-center justify-center text-center">
+                    <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mb-4">
+                      <CheckCircle size={32} className="text-emerald-400" />
+                    </div>
+                    <p className="text-slate-400 font-black uppercase tracking-widest text-xs">No reports filed</p>
+                    <p className="text-slate-300 text-[10px] font-medium mt-1">This guide has a clean record</p>
+                  </div>
+                ) : (
+                  guideReports.map(report => (
+                    <div key={report._id} className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-3 hover:shadow-md transition-shadow">
+                      {/* Reporter */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <img
+                            src={report.reporterId?.avatarURL || `https://ui-avatars.com/api/?name=${report.reporterId?.name}`}
+                            className="w-8 h-8 rounded-xl object-cover shadow-sm"
+                            alt=""
+                          />
+                          <div>
+                            <p className="text-xs font-black text-slate-800 tracking-tight">{report.reporterId?.name}</p>
+                            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Reporter</p>
+                          </div>
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border flex items-center gap-1.5 ${
+                          report.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                          report.status === 'resolved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                          'bg-slate-50 text-slate-400 border-slate-100'
+                        }`}>
+                          {report.status === 'pending' && <Clock size={10}/>}
+                          {report.status === 'resolved' && <CheckCircle size={10}/>}
+                          {report.status}
+                        </span>
+                      </div>
+
+                      {/* Reason */}
+                      <div className="bg-rose-50/50 p-3 rounded-xl border border-rose-100/50">
+                        <p className="text-[10px] font-black text-rose-700 uppercase tracking-widest mb-1">{report.reason}</p>
+                        <p className="text-[11px] text-slate-600 font-medium italic leading-relaxed">"{report.description}"</p>
+                      </div>
+
+                      {/* Trip + Date */}
+                      <div className="flex items-center justify-between text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                        <div className="flex items-center gap-1">
+                          <MapPin size={10} /> {report.tripId?.destination}
+                        </div>
+                        <span>{new Date(report.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Footer */}
+              {guideReports.length > 0 && (
+                <div className="p-6 border-t border-slate-100 bg-slate-50/50">
+                  <div className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-100">
+                    <div className="p-2 bg-rose-50 rounded-xl text-rose-500">
+                      <ShieldAlert size={16} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-slate-800">{guideReports.length} Total Report{guideReports.length > 1 ? 's' : ''}</p>
+                      <p className="text-[10px] text-slate-400 font-medium">
+                        {guideReports.filter(r => r.status === 'pending').length} pending review
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

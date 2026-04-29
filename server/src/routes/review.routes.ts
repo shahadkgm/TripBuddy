@@ -3,13 +3,15 @@ import { ReviewController } from '../controllers/implementation/review.controlle
 import { ReviewService } from '../services/implementation/review.service';
 import { ReviewRepository } from '../repositories/implementation/review.repository';
 import { TripRepository } from '../repositories/implementation/trip.repository';
+import { GuideRepository } from '../repositories/implementation/guide.repository';
 import { protect } from '../middleware/authMiddleware';
 
 const router = Router();
 
 const reviewRepository = new ReviewRepository();
 const tripRepository = new TripRepository();
-const reviewService = new ReviewService(reviewRepository, tripRepository);
+const guideRepository = new GuideRepository();
+const reviewService = new ReviewService(reviewRepository, tripRepository, guideRepository);
 const reviewController = new ReviewController(reviewService);
 
 // Public routes (or just for members/authenticated users)

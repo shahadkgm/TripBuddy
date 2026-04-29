@@ -3,10 +3,8 @@ import { Camera, MapPin, Briefcase, ArrowLeft, Loader2, Save } from 'lucide-reac
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/c.authService';
 import { guideService } from '../../services/c.guide.service';
-import { GuideSidebar } from './GuideSidebar';
+import { GuideLayout } from './GuideLayout';
 import toast from 'react-hot-toast';
-
-import { GuideHeader } from './GuideHeader';
 
 export const GuideProfilePage = () => {
   const user = authService.getCurrentUser();
@@ -76,12 +74,8 @@ export const GuideProfilePage = () => {
   };
 
   return (
-    <div className="flex bg-slate-50 min-h-screen font-outfit">
-      <GuideSidebar />
-
-      <div className="flex-1 lg:ml-64 transition-all duration-300">
-        <GuideHeader currentPage="Profile Edit" />
-        <div className="p-6 lg:p-10">
+    <GuideLayout currentPage="Profile Edit">
+      <div className="p-0">
           <header className="mb-10 flex items-center justify-between">
             <div>
               <button
@@ -289,7 +283,6 @@ export const GuideProfilePage = () => {
             </form>
           </div>
         </div>
-      </div>
-    </div>
+    </GuideLayout>
   );
 };

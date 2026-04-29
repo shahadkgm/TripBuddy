@@ -16,6 +16,8 @@ const GuideProfileSchema = new Schema<IGuide>(
     status: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
     rejectionReason: { type: String },
     lastUpdated: { type: Date, default: Date.now },
+    averageRating: { type: Number, default: 0 },
+    reviewCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

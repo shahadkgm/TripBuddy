@@ -15,4 +15,6 @@ export interface IGuide {
   avatarURL?: string;
   isVerified: boolean;
   yearsOfExperience?: number;
+  averageRating?: number;
+  reviewCount?: number;
 }

@@ -21,6 +21,8 @@ export interface IGuide {
   specialties: string[];
   yearsOfExperience?: number;
   isVerified: boolean;
+  averageRating?: number;
+  reviewCount?: number;
   userId?: {
     _id?: string;
     name: string;

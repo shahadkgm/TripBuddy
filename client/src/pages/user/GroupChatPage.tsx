@@ -34,7 +34,7 @@ import toast from 'react-hot-toast';
 import { paymentService } from '../../services/c.payment.service';
 import { TripStatus } from '../../constants/TripStatus';
 import type { IMessage } from '../../interface/IMessage';
-import ReviewModal from '../../components/ReviewModal';
+import { ReviewModal, ReportModal } from '../../components/guide';
 import { ConfirmModal } from '../../components/ConfirmModal';
 
 const GroupChatPage = () => {
@@ -62,6 +62,9 @@ const GroupChatPage = () => {
   const [isRecommendationsLoading, setIsRecommendationsLoading] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewTarget, setReviewTarget] = useState<'organizer' | 'guide'>('organizer');
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportTarget, setReportTarget] = useState<{ id: string; name: string; type: 'guide' | 'organizer' } | null>(null);
+  const [reportedTypes, setReportedTypes] = useState<Set<'guide' | 'organizer'>>(new Set());
 
   const [chatPage, setChatPage] = useState(1);
   const [hasMoreMessages, setHasMoreMessages] = useState(false);
@@ -316,7 +319,20 @@ const GroupChatPage = () => {
   };
 
   const handleFinalizeTrip = async () => {
-    if (!id) return;
+    if (!id || !trip) return;
+
+    // Guide fee validation — guide is NOT a member, so only count trip.members
+    const memberCount = trip.members?.length || 1;
+    const guideRate = trip.guideId?.dailyRate || 0;
+    const minDepositPerMember = guideRate > 0 ? Math.ceil(guideRate / memberCount) : 0;
+
+    if (minDepositPerMember > 0 && finalizeData.depositAmount < minDepositPerMember) {
+      toast.error(
+        `Deposit must be at least ₹${minDepositPerMember} per member to cover the guide fee (₹${guideRate} ÷ ${memberCount} members).`
+      );
+      return;
+    }
+
     try {
       setIsFinalizing(true);
       const response = await api.post(`/api/plantrips/${id}/finalize`, finalizeData);
@@ -457,7 +473,7 @@ const GroupChatPage = () => {
                 <Sparkles size={14} /> Awaiting Finalization
               </div>
             )}
-            {trip?.status === TripStatus.FINALIZED && (
+            {trip?.status === TripStatus.FINALIZED && !isGuide && (
               <button
                 onClick={() => !hasPaidDeposit && setShowPaymentModal(true)}
                 className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${hasPaidDeposit
@@ -553,7 +569,8 @@ const GroupChatPage = () => {
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-3">
-                      {!isOwner && (
+                      {/* Review buttons */}
+                      {!isOwner && !isGuide && (
                         <button
                           onClick={() => {
                             setReviewTarget('organizer');
@@ -564,7 +581,7 @@ const GroupChatPage = () => {
                           Review Trip
                         </button>
                       )}
-                      {trip.guideId && (
+                      {trip.guideId && !isGuide && (
                         <button
                           onClick={() => {
                             setReviewTarget('guide');
@@ -575,6 +592,61 @@ const GroupChatPage = () => {
                           Review Guide
                         </button>
                       )}
+
+                      {/* Report buttons — only after trip is completed */}
+                      {trip.guideId && !isGuide && (() => {
+                        const guideUserId = typeof trip.guideId?.userId === 'object'
+                          ? trip.guideId.userId?._id
+                          : trip.guideId?.userId;
+                        const alreadyReported = reportedTypes.has('guide');
+                        return (
+                          <button
+                            disabled={alreadyReported}
+                            onClick={() => {
+                              if (alreadyReported) return;
+                              setReportTarget({
+                                id: guideUserId || '',
+                                name: trip.guideId?.name || 'Guide',
+                                type: 'guide',
+                              });
+                              setShowReportModal(true);
+                            }}
+                            className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] border transition shadow-lg active:scale-95 flex items-center gap-2 ${
+                              alreadyReported
+                                ? 'bg-slate-500/20 text-slate-300 border-slate-400/20 cursor-not-allowed opacity-60'
+                                : 'bg-rose-500/20 text-rose-200 border border-rose-400/30 hover:bg-rose-600 hover:text-white'
+                            }`}
+                          >
+                            {alreadyReported ? 'Reported ✓' : 'Report Guide'}
+                          </button>
+                        );
+                      })()}
+                      {!isOwner && (() => {
+                        const alreadyReported = reportedTypes.has('organizer');
+                        return (
+                          <button
+                            disabled={alreadyReported}
+                            onClick={() => {
+                              if (alreadyReported) return;
+                              const ownerId = typeof trip.userId === 'string' ? trip.userId : trip.userId?._id;
+                              const ownerName = typeof trip.userId !== 'string' ? trip.userId?.name : 'Organizer';
+                              setReportTarget({
+                                id: ownerId || '',
+                                name: ownerName || 'Organizer',
+                                type: 'organizer',
+                              });
+                              setShowReportModal(true);
+                            }}
+                            className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] border transition shadow-lg active:scale-95 flex items-center gap-2 ${
+                              alreadyReported
+                                ? 'bg-slate-500/20 text-slate-300 border-slate-400/20 cursor-not-allowed opacity-60'
+                                : 'bg-rose-500/20 text-rose-200 border border-rose-400/30 hover:bg-rose-600 hover:text-white'
+                            }`}
+                          >
+                            {alreadyReported ? 'Reported ✓' : 'Report User'}
+                          </button>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -865,8 +937,15 @@ const GroupChatPage = () => {
                   />
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-bold text-slate-900 truncate">{member.name}</h3>
-                    <p className="text-[10px] text-slate-500 font-black uppercase">
-                      {member._id === organizerId ? 'Admin' : 'Member'}
+                    <p className="text-[10px] font-black uppercase tracking-widest">
+                      {(() => {
+                        const guideUserId = typeof trip.guideId?.userId === 'object'
+                          ? trip.guideId.userId?._id
+                          : trip.guideId?.userId;
+                        if (member._id === organizerId) return <span className="text-indigo-500">Admin</span>;
+                        if (guideUserId && member._id === guideUserId) return <span className="text-amber-500">Guide</span>;
+                        return <span className="text-slate-400">Member</span>;
+                      })()}
                     </p>
                   </div>
                 </div>
@@ -929,6 +1008,26 @@ const GroupChatPage = () => {
                   className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-indigo-500 transition-all font-bold text-slate-700 outline-none"
                   placeholder="e.g. 2000"
                 />
+                {/* Guide fee hint */}
+                {trip?.guideId && (() => {
+                  const memberCount = trip.members?.length || 1;
+                  const guideRate = trip.guideId?.dailyRate || 0;
+                  const minPerMember = Math.ceil(guideRate / memberCount);
+                  const isValid = finalizeData.depositAmount >= minPerMember;
+                  return (
+                    <div className={`mt-3 px-4 py-3 rounded-xl text-xs font-bold flex items-start gap-2 ${
+                      isValid ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-amber-50 text-amber-700 border border-amber-100'
+                    }`}>
+                      <span className="mt-0.5">{isValid ? '✅' : '⚠️'}</span>
+                      <span>
+                        Guide <strong>{trip.guideId.name}</strong> charges ₹{guideRate}/day.
+                        With <strong>{memberCount} member{memberCount !== 1 ? 's' : ''}</strong>,
+                        minimum deposit is <strong>₹{minPerMember}</strong>.
+                        {!isValid && <span className="block mt-0.5 text-amber-600">Current amount is below this minimum.</span>}
+                      </span>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
@@ -1212,6 +1311,24 @@ const GroupChatPage = () => {
           }
           onClose={() => setShowReviewModal(false)}
           onSuccess={() => { }}
+        />
+      )}
+
+      {showReportModal && trip && reportTarget && (
+        <ReportModal
+          tripId={trip._id}
+          targetId={reportTarget.id}
+          targetType={reportTarget.type}
+          targetName={reportTarget.name}
+          onClose={() => {
+            setShowReportModal(false);
+            setReportTarget(null);
+          }}
+          onSuccess={() => {
+            setReportedTypes(prev => new Set(prev).add(reportTarget.type));
+            setShowReportModal(false);
+            setReportTarget(null);
+          }}
         />
       )}
 

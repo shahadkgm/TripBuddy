@@ -3,13 +3,15 @@ import { TripStatus } from '../../constants/tripStatus.enum';
 import { IReview, IReviewDocument } from '../../models/review.model';
 import { IReviewRepository } from '../../repositories/interface/IReviewRepository';
 import { ITripRepository } from '../../repositories/interface/ITripRepository';
+import { IGuideRepository } from '../../repositories/interface/IGuideRepository';
 import { IReviewService } from '../interface/IReviewService';
 import { logger } from '@/utils/logger';
 
 export class ReviewService implements IReviewService {
   constructor(
     private _reviewRepository: IReviewRepository,
-    private _tripRepository: ITripRepository
+    private _tripRepository: ITripRepository,
+    private _guideRepository: IGuideRepository
   ) {}
 
   private _getId(
@@ -80,7 +82,17 @@ export class ReviewService implements IReviewService {
       reviewData.guideId = trip.guideId as unknown as Types.ObjectId;
     }
 
-    return await this._reviewRepository.create(reviewData as Partial<IReviewDocument>);
+    const savedReview = await this._reviewRepository.create(reviewData as Partial<IReviewDocument>);
+
+    // Update guide stats if this was a guide review
+    if (data.target === 'guide' && trip.guideId) {
+      const gId = this._getId(trip.guideId as unknown as Record<string, unknown>);
+      if (gId) {
+        await this._guideRepository.updateStats(gId);
+      }
+    }
+
+    return savedReview;
   }
 
   async getTripReviews(tripId: string): Promise<IReviewDocument[]> {

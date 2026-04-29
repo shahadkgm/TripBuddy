@@ -107,4 +107,11 @@ export const API_ROUTES = {
     INBOUND: '/inbound',
     OUTBOUND: '/outbound',
   },
+  REPORT: {
+    BASE: '/api/reports',
+    CREATE: '/',
+    GET_ALL: '/all',
+    GET_BY_TARGET: '/target/:targetId',
+    UPDATE_STATUS: '/:id/status',
+  },
 };

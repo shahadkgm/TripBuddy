@@ -25,6 +25,9 @@ export interface AuthUser {
   bio?: string;
   avatarURL?: string;
   walletBalance?: number;
+  kycStatus?: 'none' | 'pending' | 'approved' | 'rejected';
+  kycDocument?: string;
+  kycRejectionReason?: string | null;
   guideProfile?: {
     _id: string;
     dailyRate: number;

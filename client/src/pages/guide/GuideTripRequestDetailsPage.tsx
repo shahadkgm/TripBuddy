@@ -18,8 +18,7 @@ import { guideService } from '../../services/c.guide.service';
 import { authService } from '../../services/c.authService';
 import type { ITrip } from '../../interface/ITripdetails';
 import toast from 'react-hot-toast';
-import { GuideSidebar } from './GuideSidebar';
-import { GuideHeader } from './GuideHeader';
+import { GuideLayout } from './GuideLayout';
 
 export const GuideTripRequestDetailsPage = () => {
   const { id, invitationId } = useParams<{ id: string; invitationId: string }>();
@@ -92,37 +91,30 @@ export const GuideTripRequestDetailsPage = () => {
 
   if (loading) {
     return (
-      <div className="flex bg-slate-50 min-h-screen font-outfit">
-        <GuideSidebar />
-        <div className="flex-1 ml-64 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-              Loading Trip Details...
-            </p>
-          </div>
+      <GuideLayout currentPage="Request Details">
+        <div className="flex flex-col items-center justify-center py-40">
+          <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+            Loading Trip Details...
+          </p>
         </div>
-      </div>
+      </GuideLayout>
     );
   }
 
   if (!trip) return null;
 
   return (
-    <div className="flex bg-slate-50 min-h-screen font-outfit">
-      <GuideSidebar />
+    <GuideLayout currentPage="Request Details">
+      <div>
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-600 transition-colors mb-8 group"
+        >
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back
+        </button>
 
-      <div className="flex-1 ml-64 transition-all duration-300">
-        <GuideHeader currentPage="Request Details" />
-        <div className="p-10">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-600 transition-colors mb-8 group"
-          >
-            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Back
-          </button>
-
-          <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto">
             {/* Hero Section */}
             <div className="bg-white rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden shadow-2xl shadow-slate-200/50 border border-slate-100 mb-10">
               <div className="bg-gradient-to-br from-slate-900 to-indigo-900 p-8 lg:p-12 text-white relative overflow-hidden">
@@ -333,7 +325,6 @@ export const GuideTripRequestDetailsPage = () => {
             </div>
           </div>
         </div>
-      </div>
 
       {/* Reject Modal */}
       {showRejectModal && (
@@ -391,7 +382,7 @@ export const GuideTripRequestDetailsPage = () => {
           </div>
         </div>
       )}
-    </div>
+    </GuideLayout>
   );
 };
 

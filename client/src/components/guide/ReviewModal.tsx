@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Star, Send, X } from 'lucide-react';
 import toast from 'react-hot-toast';
-import api from '../utils/api';
+import api from '../../utils/api';
 
 interface ReviewModalProps {
   tripId: string;
@@ -11,7 +11,7 @@ interface ReviewModalProps {
   targetName?: string;
 }
 
-const ReviewModal: React.FC<ReviewModalProps> = ({
+export const ReviewModal: React.FC<ReviewModalProps> = ({
   tripId,
   onClose,
   onSuccess,
@@ -142,4 +142,4 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
   );
 };
 
-export default ReviewModal;
+

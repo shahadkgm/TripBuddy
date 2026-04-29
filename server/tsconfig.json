@@ -15,13 +15,21 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ]
     },
     "sourceMap": true,
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo",
     "noEmitOnError": false
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", ".tsbuildinfo"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".tsbuildinfo"
+  ]
 }

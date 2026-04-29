@@ -17,38 +17,17 @@ interface NavbarProps {
   backPath?: string;
 }
 
+import { useKycStatus } from '../../hooks/useKycStatus';
+
 export const Navbar = ({ variant = 'floating', showBack = false, backPath = '/' }: NavbarProps) => {
   const navigate = useNavigate();
   const user = authService.getCurrentUser();
   const { totalUnread, unreadCounts } = useSocketContext();
-  const [kycStatus, setKycStatus] = useState<string>('loading');
+  const { kycStatus, isLoading } = useKycStatus();
   const [showChatDropdown, setShowChatDropdown] = useState(false);
   const [chatTrips, setChatTrips] = useState<ITrip[]>([]);
   const [loadingChats, setLoadingChats] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-    const checkStatus = async () => {
-      const userId = user?.id;
-      if (userId) {
-        try {
-          const res = await api.get(`/api/kyc-status/${userId}`);
-          if (isMounted) {
-            setKycStatus(res.data.data?.status || 'none');
-          }
-        } catch (_err) {
-          if (isMounted) setKycStatus('none');
-        }
-      } else {
-        if (isMounted) setKycStatus('loading');
-      }
-    };
-    checkStatus();
-    return () => {
-      isMounted = false;
-    };
-  }, [user?.id]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -111,7 +90,7 @@ export const Navbar = ({ variant = 'floating', showBack = false, backPath = '/' 
         <div className="flex gap-2 md:gap-4 items-center">
           {user ? (
             <div className="flex items-center gap-2 md:gap-4">
-              {kycStatus !== 'loading' && (
+              {!isLoading && (
                 <div className="hidden sm:block">
                   {kycStatus === 'none' ? (
                     <button
@@ -216,7 +195,7 @@ export const Navbar = ({ variant = 'floating', showBack = false, backPath = '/' 
                             No active trips
                           </p>
                           <button
-                            disabled={kycStatus === 'loading'}
+                            disabled={isLoading}
                             onClick={() => {
                               if (kycStatus === 'approved') {
                                 navigate('/create-trip');
@@ -229,7 +208,7 @@ export const Navbar = ({ variant = 'floating', showBack = false, backPath = '/' 
                             }}
                             className="mt-2 text-xs text-indigo-500 font-bold hover:text-indigo-700 disabled:opacity-50"
                           >
-                            {kycStatus === 'loading'
+                            {isLoading
                               ? 'Checking status...'
                               : kycStatus === 'approved'
                                 ? 'Create a trip →'

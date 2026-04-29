@@ -160,4 +160,6 @@ export interface GuideResponseDTO {
   specialties: string[];
   avatarURL?: string;
   isVerified: boolean;
+  averageRating?: number;
+  reviewCount?: number;
 }

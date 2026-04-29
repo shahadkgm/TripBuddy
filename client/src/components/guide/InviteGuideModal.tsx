@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { X, Calendar, MapPin, Loader2, Sparkles, Send } from 'lucide-react';
-import { tripService } from '../services/c.trip.service';
-import { guideService } from '../services/c.guide.service';
-import { authService } from '../services/c.authService';
-import type { ITrip, IGuide } from '../interface/ITripdetails';
-import { TripStatus } from '../constants/TripStatus';
+import { tripService } from '../../services/c.trip.service';
+import { guideService } from '../../services/c.guide.service';
+import { authService } from '../../services/c.authService';
+import type { ITrip, IGuide } from '../../interface/ITripdetails';
+import { TripStatus } from '../../constants/TripStatus';
 import toast from 'react-hot-toast';
 
 interface InviteGuideModalProps {

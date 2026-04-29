@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Search, MapPin, RotateCcw, SlidersHorizontal } from 'lucide-react';
 import api from '../../utils/api';
-import { GuideCard } from '../../components/GuideCard';
+import { GuideCard } from '../../components/guide';
 import { Pagination } from '../../components/Pagination';
 import { Navbar } from '../../components/home/Navbar';
 import { LocationInput } from '../../components/LocationInput';

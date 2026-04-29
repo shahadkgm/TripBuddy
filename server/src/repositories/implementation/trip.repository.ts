@@ -152,7 +152,7 @@ export class TripRepository
       .findByIdAndUpdate(tripId, update, { new: true })
       .populate(
         'guideId',
-        'name bio hourlyRate serviceArea avatarURL specialties isVerified userId'
+        'name bio dailyRate serviceArea avatarURL specialties isVerified userId averageRating reviewCount'
       );
   }
 
