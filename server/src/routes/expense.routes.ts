@@ -17,19 +17,13 @@ const expenseController = new ExpenseController(expenseService);
 router.use(protect);
 
 router.post(
-    API_ROUTES.EXPENSE.ADD,
-    dtoValidationMiddleware(CreateExpenseDTO),
-    expenseController.addExpense
+  API_ROUTES.EXPENSE.ADD,
+  dtoValidationMiddleware(CreateExpenseDTO),
+  expenseController.addExpense
 );
 
-router.get(
-    API_ROUTES.EXPENSE.GET_BY_TRIP,
-    expenseController.getTripExpenses
-);
+router.get(API_ROUTES.EXPENSE.GET_BY_TRIP, expenseController.getTripExpenses);
 
-router.delete(
-    API_ROUTES.EXPENSE.DELETE,
-    expenseController.deleteExpense
-);
+router.delete(API_ROUTES.EXPENSE.DELETE, expenseController.deleteExpense);
 
 export default router;

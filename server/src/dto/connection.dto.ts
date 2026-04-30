@@ -1,6 +1,19 @@
+import { IsString, IsNotEmpty, IsOptional, IsEnum } from 'class-validator';
+
 export class CreateConnectionDTO {
-    senderId!: string;
-    receiverId!: string;
-    tripId?: string;
-    status?: 'pending' | 'accepted' | 'rejected';
+  @IsOptional()
+  @IsString()
+  senderId?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  receiverId!: string;
+
+  @IsOptional()
+  @IsString()
+  tripId?: string;
+
+  @IsOptional()
+  @IsEnum(['pending', 'accepted', 'rejected'])
+  status?: 'pending' | 'accepted' | 'rejected';
 }

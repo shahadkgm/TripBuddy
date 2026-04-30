@@ -1,67 +1,134 @@
-import { IsString, IsNotEmpty, IsDateString, IsOptional, IsNumber, IsArray, ValidateNested } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsDateString,
+  IsOptional,
+  IsNumber,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
 export class TripPreferencesDTO {
-    @Transform(({ value }) => Number(value))
-    @IsNumber({}, { message: 'Number of travelers must be a number' })
-    @Type(() => Number)
-    travelers!: number;
+  @Transform(({ value }) => Number(value))
+  @IsNumber({}, { message: 'Number of travelers must be a number' })
+  @Type(() => Number)
+  travelers!: number;
 
-    @IsString()
-    accommodation!: string;
+  @IsString()
+  accommodation!: string;
 
-    @IsString()
-    transport!: string;
+  @IsString()
+  transport!: string;
 
-    @IsArray()
-    @IsString({ each: true })
-    interests!: string[];
+  @IsArray()
+  @IsString({ each: true })
+  interests!: string[];
+}
+
+export class ItineraryActivityDTO {
+  @IsString()
+  time!: string;
+
+  @IsString()
+  activity!: string;
+
+  @IsOptional()
+  @IsString()
+  location?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
+export class ItineraryDayDTO {
+  @IsNumber()
+  day!: number;
+
+  @IsDateString()
+  date!: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ItineraryActivityDTO)
+  activities!: ItineraryActivityDTO[];
 }
 
 export class CreateTripDTO {
-    @IsString()
-    @IsNotEmpty()
-    userId!: string;
+  @IsString()
+  @IsNotEmpty()
+  userId!: string;
 
-    @IsString()
-    @IsNotEmpty()
-    title!: string;
+  @IsString()
+  @IsNotEmpty()
+  title!: string;
 
-    @IsString()
-    @IsNotEmpty()
-    destination!: string;
+  @IsString()
+  @IsNotEmpty()
+  destination!: string;
 
-    @IsDateString()
-    startDate!: string;
+  @IsDateString()
+  startDate!: string;
 
-    @IsDateString()
-    endDate!: string;
+  @IsDateString()
+  endDate!: string;
 
-    @IsOptional()
-    @Transform(({ value }) => {
-        if (value === '' || value === null || value === undefined) return undefined;
-        return Number(value);
-    })
-    @IsNumber({}, { message: 'Estimated budget must be a number' })
-    budget?: number;
+  @IsOptional()
+  @IsDateString()
+  joinDeadline?: string;
 
-    @IsOptional()
-    @IsString()
-    description?: string;
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    return Number(value);
+  })
+  @IsNumber({}, { message: 'Estimated budget must be a number' })
+  budget?: number;
 
-    @IsNotEmpty()
-    @Transform(({ value }) => {
-        if (typeof value === 'string') {
-            try {
-                return JSON.parse(value);
-            } catch (e) {
-                console.log(e);
-                return value;
-            }
-        }
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsNotEmpty()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        console.log(e);
         return value;
-    })
-    @ValidateNested()
-    @Type(() => TripPreferencesDTO)
-    preferences!: TripPreferencesDTO;
+      }
+    }
+    return value;
+  })
+  @ValidateNested()
+  @Type(() => TripPreferencesDTO)
+  preferences!: TripPreferencesDTO;
+
+  @IsOptional()
+  @IsArray()
+  members?: string[];
+
+  @IsOptional()
+  @IsString()
+  status?: string;
+
+  @IsOptional()
+  @IsNumber()
+  depositAmount?: number;
+
+  @IsOptional()
+  @IsNumber()
+  minMembers?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ItineraryDayDTO)
+  itinerary?: ItineraryDayDTO[];
+
+  @IsOptional()
+  @IsString()
+  guideId?: string | null;
 }

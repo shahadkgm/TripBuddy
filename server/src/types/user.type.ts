@@ -1,6 +1,5 @@
-// backend/src/types/User.ts
-
 import { Types } from 'mongoose';
+import { IGuide } from './guide.type';
 
 export interface IUser {
   _id: Types.ObjectId;
@@ -14,6 +13,7 @@ export interface IUser {
 
   isBlocked: boolean;
   isVerified: boolean;
+  walletBalance: number;
 
   verificationToken?: string;
   verificationTokenExpires?: Date;
@@ -32,8 +32,8 @@ export interface IUser {
   kyc?: {
     status: string;
     filePath: string;
+    rejectionReason?: string | null;
   };
+
+  guideProfile?: Partial<IGuide> | null;
 }
-
-
-// export interface IUserDocument extends IUser, Document {}

@@ -67,17 +67,18 @@ export class AdminController extends BaseController implements IAdminController 
 
   rejectGuide = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
+    const { reason } = req.body;
 
-    await this._adminService.rejectApplication(id);
+    await this._adminService.rejectApplication(id, reason);
 
     this.sendSuccess(res, null, 'Guide application rejected successfully');
   });
 
   handleApproveKYC = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, reason } = req.body;
 
-    await this._adminService.approveKYC(id, status);
+    await this._adminService.approveKYC(id, status, reason);
 
     this.sendSuccess(res, null, `KYC status updated to ${status} successfully`);
   });
@@ -86,5 +87,43 @@ export class AdminController extends BaseController implements IAdminController 
     logger.info('call come from admin dashboard ,controller');
     const stats = await this._adminService.getDashboardStats();
     this.sendSuccess(res, stats, 'Dashboard stats fetched successfully');
+  });
+
+  getAllPayments = asyncHandler(async (req: Request, res: Response) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const data = await this._adminService.getAllPayments(page, limit);
+    this.sendSuccess(res, data, 'Payments fetched successfully');
+  });
+
+  updatePaymentStatus = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const updatedPayment = await this._adminService.updatePaymentStatus(id, status);
+    this.sendSuccess(res, updatedPayment, `Payment status updated to ${status} successfully`);
+  });
+
+  // Trips
+  getAllTrips = asyncHandler(async (req: Request, res: Response) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search = String(req.query.search || '');
+    const data = await this._adminService.getAllTrips(page, limit, search);
+    this.sendSuccess(res, data, 'Trips fetched successfully');
+  });
+
+  updateTripStatus = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const updatedTrip = await this._adminService.updateTripStatus(id, status);
+    this.sendSuccess(res, updatedTrip, `Trip status updated to ${status} successfully`);
+  });
+
+  getRevenueStats = asyncHandler(async (req: Request, res: Response) => {
+    const from = req.query.from ? new Date(req.query.from as string) : undefined;
+    const to = req.query.to ? new Date(req.query.to as string) : undefined;
+
+    const stats = await this._adminService.getRevenueStats(from, to);
+    this.sendSuccess(res, stats, 'Revenue stats fetched successfully');
   });
 }

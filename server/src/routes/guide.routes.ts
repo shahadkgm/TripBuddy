@@ -19,8 +19,6 @@ const guideRepo = new GuideRepository();
 const guideService = new GuideService(guideRepo, userRepo);
 const guideController = new GuideController(guideService);
 
-
-
 router.post(
   API_ROUTES.GUIDE.REGISTER,
   protect,
@@ -32,5 +30,14 @@ router.post(
 router.get(API_ROUTES.GUIDE.STATUS, protect, guideController.getGuideStatus);
 
 router.get(API_ROUTES.GUIDE.GET_ALL, protect, guideController.getAllGuides);
+
+router.put(
+  API_ROUTES.GUIDE.UPDATE,
+  protect,
+  upload.single('avatar'),
+  guideController.updateProfile
+);
+
+router.patch(API_ROUTES.GUIDE.RESET, protect, guideController.resetApplication);
 
 export default router;

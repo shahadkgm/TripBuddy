@@ -40,7 +40,7 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
     req.user = {
       id: user._id.toString(),
       role: user.role,
-      email: user.email
+      email: user.email,
     };
     next();
   } catch (error) {

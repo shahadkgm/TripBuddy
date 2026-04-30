@@ -1,48 +1,77 @@
-import axios from "axios";
-import { authService } from "../services/c.authService";
+import axios from 'axios';
+import { authService } from '../services/c.authService';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
-  withCredentials: true //4 cookie
+  withCredentials: true, //4 cookie
 });
-
 
 // ==========================
 // REQUEST → attach access token
 // ==========================
 
-api.interceptors.request.use(
-  (config) => {
-    const token = authService.getToken();
+api.interceptors.request.use(config => {
+  const token = authService.getToken();
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-);
 
+  return config;
+});
+
+interface QueueItem {
+  resolve: (token: string | null) => void;
+  reject: (error: Error | null) => void;
+}
+
+let isRefreshing = false;
+let failedQueue: QueueItem[] = [];
+
+const processQueue = (error: Error | null, token: string | null = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
 
 // ==========================
 // RESPONSE --> refresh logic
 // ==========================
 api.interceptors.response.use(
-  (response) => response,
+  response => response,
 
-  async (error) => {
+  async error => {
     const originalRequest = error.config;
     const isAuthRoute =
       originalRequest.url?.includes('/auth/login') ||
       originalRequest.url?.includes('/auth/register') ||
       originalRequest.url?.includes('/auth/refresh');
 
-    //  access expired --> try refresh (but NOT for login/register/refresh)
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthRoute) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(token => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return api(originalRequest);
+          })
+          .catch(err => {
+            return Promise.reject(err);
+          });
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
 
       try {
         const res = await axios.post(
@@ -52,28 +81,26 @@ api.interceptors.response.use(
         );
 
         const newAccessToken = res.data.data.accessToken;
-
         authService.setToken(newAccessToken);
+        processQueue(null, newAccessToken);
 
-        // Ensure headers exist and attach the new token
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
         return api(originalRequest);
       } catch (refreshError) {
+        processQueue(refreshError as Error, null);
         console.error('Refresh token failed:', refreshError);
         localStorage.clear();
-        window.location.replace("/login");
+        window.location.replace('/login');
         return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 
     //  blocked user
-    if (
-      error.response?.status === 403 &&
-      error.response.data?.message === "User blocked"
-    ) {
+    if (error.response?.status === 403 && error.response.data?.message === 'User blocked') {
       localStorage.clear();
-      window.location.replace("/login?blocked=true");
+      window.location.replace('/login?blocked=true');
     }
 
     return Promise.reject(error);

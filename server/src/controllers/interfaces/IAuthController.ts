@@ -1,4 +1,4 @@
-import {  RequestHandler } from 'express';
+import { RequestHandler } from 'express';
 
 export interface IAuthController {
   register: ControllerFn;
@@ -8,4 +8,4 @@ export interface IAuthController {
   refreshToken: ControllerFn;
 }
 
-type ControllerFn = RequestHandler
+type ControllerFn = RequestHandler;

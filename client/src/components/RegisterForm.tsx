@@ -1,16 +1,16 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { authService } from "../services/c.authService";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { authService } from '../services/c.authService';
 import { GoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
 
 // --- Validation Constants ---
 const nameRegex = /^[A-Za-z\s]*$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).+$/;
-const strengthLabels = ["Too weak", "Weak", "Fair", "Good", "Strong", "Very Strong"];
-const strengthColors = ["#e74c3c", "#e67e22", "#f1c40f", "#2ecc71", "#27ae60", "#2c3e50"];
+const strengthLabels = ['Too weak', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
+const strengthColors = ['#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#27ae60', '#2c3e50'];
 
 const calculatePasswordStrength = (password: string) => {
   let score = 0;
@@ -25,16 +25,16 @@ const calculatePasswordStrength = (password: string) => {
 const RegisterForm = () => {
   const [isVerificationSent, setIsVerificationSent] = useState(false);
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
   });
   const [errors, setErrors] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -50,49 +50,49 @@ const RegisterForm = () => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
     if (errors[name as keyof typeof errors]) {
-      setErrors({ ...errors, [name]: "" });
+      setErrors({ ...errors, [name]: '' });
     }
   };
 
   const validateForm = () => {
     let isValid = true;
-    const newErrors = { name: "", email: "", password: "", confirmPassword: "" };
+    const newErrors = { name: '', email: '', password: '', confirmPassword: '' };
 
     if (!form.name.trim()) {
-      newErrors.name = "Name is required";
+      newErrors.name = 'Name is required';
       isValid = false;
     } else if (form.name.length > 20) {
-      newErrors.name = "Name cannot exceed 20 characters";
+      newErrors.name = 'Name cannot exceed 20 characters';
       isValid = false;
     } else if (!nameRegex.test(form.name)) {
-      newErrors.name = "Name must contain only alphabets";
+      newErrors.name = 'Name must contain only alphabets';
       isValid = false;
     }
 
     if (!form.email.trim()) {
-      newErrors.email = "Email is required";
+      newErrors.email = 'Email is required';
       isValid = false;
     } else if (!emailRegex.test(form.email)) {
-      newErrors.email = "Please enter a valid email address";
+      newErrors.email = 'Please enter a valid email address';
       isValid = false;
     }
 
     if (!form.password) {
-      newErrors.password = "Password is required";
+      newErrors.password = 'Password is required';
       isValid = false;
     } else if (!passwordRegex.test(form.password)) {
-      newErrors.password = "Password must include at least one letter and one number";
+      newErrors.password = 'Password must include at least one letter and one number';
       isValid = false;
     } else if (passwordScore < 3) {
-      newErrors.password = "Your password is too weak";
+      newErrors.password = 'Your password is too weak';
       isValid = false;
     }
 
     if (!form.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
+      newErrors.confirmPassword = 'Please confirm your password';
       isValid = false;
     } else if (form.password !== form.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
+      newErrors.confirmPassword = 'Passwords do not match';
       isValid = false;
     }
 
@@ -105,28 +105,33 @@ const RegisterForm = () => {
     if (!validateForm()) return;
 
     setIsLoading(true);
-    const loadingToast = toast.loading("Creating account...");
+    const loadingToast = toast.loading('Creating account...');
 
     try {
-      const { confirmPassword, ...registerData } = form;
+      const { confirmPassword: _confirmPassword, ...registerData } = form;
       await authService.register(registerData);
-      toast.success("Verification email sent", { id: loadingToast });
+      toast.success('Verification email sent', { id: loadingToast });
       setIsVerificationSent(true);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Registration failed", { id: loadingToast });
+    } catch (_error: unknown) {
+      const errorObj = _error as { response?: { data?: { message?: string } } };
+      const msg = errorObj.response?.data?.message || 'Registration failed';
+      toast.error(msg, { id: loadingToast });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse: any) => {
+  const handleGoogleSuccess = async (credentialResponse: import("@react-oauth/google").CredentialResponse) => {
     setIsLoading(true);
     try {
+      if (!credentialResponse.credential) throw new Error('No credential received');
       await authService.googleLogin(credentialResponse.credential);
-      toast.success("Google Login Successful!");
-      navigate("/");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Google Login failed");
+      toast.success('Google Login Successful!');
+      navigate('/');
+    } catch (_error: unknown) {
+      const errorObj = _error as { response?: { data?: { message?: string } } };
+      const msg = errorObj.response?.data?.message || 'Google Login failed';
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -140,8 +145,18 @@ const RegisterForm = () => {
         className="text-center space-y-4 py-8"
       >
         <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-          <svg className="w-10 h-10 text-[#5537ee]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          <svg
+            className="w-10 h-10 text-[#5537ee]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            />
           </svg>
         </div>
         <h2 className="text-2xl font-bold text-gray-800">Verify your email</h2>
@@ -174,9 +189,7 @@ const RegisterForm = () => {
             className={`mt-1 w-full px-4 py-2.5 border ${errors.name ? 'border-red-500' : 'border-gray-200'
               } rounded-xl focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
           />
-          {errors.name && (
-            <p className="mt-1 text-xs text-red-500 font-medium">{errors.name}</p>
-          )}
+          {errors.name && <p className="mt-1 text-xs text-red-500 font-medium">{errors.name}</p>}
         </div>
 
         {/* Email Input */}
@@ -191,9 +204,7 @@ const RegisterForm = () => {
             className={`mt-1 w-full px-4 py-2.5 border ${errors.email ? 'border-red-500' : 'border-gray-200'
               } rounded-xl focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
           />
-          {errors.email && (
-            <p className="mt-1 text-xs text-red-500 font-medium">{errors.email}</p>
-          )}
+          {errors.email && <p className="mt-1 text-xs text-red-500 font-medium">{errors.email}</p>}
         </div>
 
         {/* Password Input & Strength Meter */}
@@ -247,10 +258,10 @@ const RegisterForm = () => {
         <button
           type="submit"
           disabled={isLoading}
-          className={`w-full py-3 rounded-xl bg-[#5537ee] text-white font-semibold transition-all shadow-md ${isLoading ? "opacity-70 cursor-not-allowed" : "hover:bg-[#442cd1] active:scale-95"
+          className={`w-full py-3 rounded-xl bg-[#5537ee] text-white font-semibold transition-all shadow-md ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-[#442cd1] active:scale-95'
             }`}
         >
-          {isLoading ? "Processing..." : "Sign up"}
+          {isLoading ? 'Processing...' : 'Sign up'}
         </button>
       </form>
 
@@ -263,7 +274,7 @@ const RegisterForm = () => {
       <div className="w-full flex justify-center">
         <GoogleLogin
           onSuccess={handleGoogleSuccess}
-          onError={() => toast.error("Google Login Failed")}
+          onError={() => toast.error('Google Login Failed')}
           useOneTap
           theme="outline"
           shape="pill"

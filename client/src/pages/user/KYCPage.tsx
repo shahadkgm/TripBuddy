@@ -25,8 +25,8 @@ const KYCPage = () => {
           if (status === 'pending' || status === 'approved') {
             navigate('/kyc-status');
           }
-        } catch (err) {
-          console.error("Error checking status on load");
+        } catch (_err) {
+          console.error('Error checking status on load');
         } finally {
           setChecking(false);
         }
@@ -47,17 +47,17 @@ const KYCPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
-      setError("Please upload a document to proceed");
+      setError('Please upload a document to proceed');
       return;
     }
 
     const userId = user?.id;
     if (!userId) {
-      toast.error("User session not found. Please log in again.");
+      toast.error('User session not found. Please log in again.');
       return;
     }
 
-    console.log("Submitting KYC:", { userId, documentType: docType, fileName: file.name });
+    console.log('Submitting KYC:', { userId, documentType: docType, fileName: file.name });
 
     setIsSubmitting(true);
     const formData = new FormData();
@@ -70,7 +70,7 @@ const KYCPage = () => {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        onUploadProgress: (progressEvent: any) => {
+        onUploadProgress: (progressEvent: import("axios").AxiosProgressEvent) => {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / (progressEvent.total || 1)
           );
@@ -82,19 +82,20 @@ const KYCPage = () => {
         toast.success('KYC submitted successfully 🎉');
         setTimeout(() => navigate('/kyc-status'), 1500);
       }
-    } catch (error) {
-      console.error("Upload failed:", error);
+    } catch (_error) {
+      console.error(_error);
       toast.error('Error uploading document. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (checking) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-gray-500 font-medium">Checking verification status...</div>
-    </div>
-  );
+  if (checking)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-gray-500 font-medium">Checking verification status...</div>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4">
@@ -109,7 +110,7 @@ const KYCPage = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">Document Type</label>
             <select
               value={docType}
-              onChange={(e) => setDocType(e.target.value)}
+              onChange={e => setDocType(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#5537ee] outline-none"
             >
               <option value="national_id">National ID Card</option>
@@ -118,8 +119,11 @@ const KYCPage = () => {
             </select>
           </div>
 
-          <div className={`relative border-2 border-dashed ${error ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-[#5537ee]'
-            } rounded-2xl p-8 text-center transition-colors`}>
+          <div
+            className={`relative border-2 border-dashed ${
+              error ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-[#5537ee]'
+            } rounded-2xl p-8 text-center transition-colors`}
+          >
             <input
               type="file"
               accept="image/*"
@@ -128,14 +132,27 @@ const KYCPage = () => {
               disabled={isSubmitting}
             />
             <div className="space-y-2">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${error ? 'bg-red-100' : 'bg-indigo-50'
-                }`}>
-                <svg className={`w-6 h-6 ${error ? 'text-red-500' : 'text-[#5537ee]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${
+                  error ? 'bg-red-100' : 'bg-indigo-50'
+                }`}
+              >
+                <svg
+                  className={`w-6 h-6 ${error ? 'text-red-500' : 'text-[#5537ee]'}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                  />
                 </svg>
               </div>
               <p className={`text-sm font-medium ${error ? 'text-red-500' : 'text-gray-700'}`}>
-                {file ? file.name : (error || "Click to upload or drag and drop")}
+                {file ? file.name : error || 'Click to upload or drag and drop'}
               </p>
             </div>
           </div>
@@ -155,7 +172,7 @@ const KYCPage = () => {
             className="w-full py-4 rounded-xl shadow-lg"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Uploading..." : "Submit for Verification"}
+            {isSubmitting ? 'Uploading...' : 'Submit for Verification'}
           </Button>
 
           <button

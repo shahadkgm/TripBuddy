@@ -5,14 +5,8 @@ import { StatusCode } from '../../constants/statusCode.enum';
 import { IAuthController } from '../interfaces/IAuthController';
 import { IAuthService } from '../../services/interface/IAuthservice';
 import { asyncHandler } from '../../utils/asyncHandler';
-import jwt from 'jsonwebtoken';
+
 import { AppError } from '../../utils/AppError';
-
-interface UserPayload extends jwt.JwtPayload {
-  id: string;
-  role: string;
-}
-
 import { BaseController } from './base.controller';
 
 export class AuthController extends BaseController implements IAuthController {
@@ -38,13 +32,17 @@ export class AuthController extends BaseController implements IAuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE)
+      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
     });
 
-    this.sendSuccess(res, {
-      accessToken: result.tokens?.accessToken,
-      user: result.user,
-    }, result.message);
+    this.sendSuccess(
+      res,
+      {
+        accessToken: result.tokens?.accessToken,
+        user: result.user,
+      },
+      result.message
+    );
   });
 
   googleLogin = asyncHandler(async (req: Request, res: Response) => {
@@ -60,13 +58,17 @@ export class AuthController extends BaseController implements IAuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE) 
+      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
     });
 
-    this.sendSuccess(res, {
-      accessToken: result.tokens?.accessToken,
-      user: result.user,
-    }, result.message);
+    this.sendSuccess(
+      res,
+      {
+        accessToken: result.tokens?.accessToken,
+        user: result.user,
+      },
+      result.message
+    );
   });
 
   verifyEmail = asyncHandler(async (req: Request, res: Response) => {

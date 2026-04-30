@@ -3,21 +3,35 @@ import { AdminGuideResponseDTO } from '../dto/admin.dto';
 import { GuideResponseDTO } from '../dto/guide.dto';
 import { IGuide } from '../types/guide.type';
 
-export const toGuideResponse = (guide: IGuide): GuideResponseDTO => ({
+interface PopulatedGuide extends IGuide {
+  userDoc?: {
+    _id: Types.ObjectId;
+    name: string;
+    email: string;
+    role: string;
+  };
+  kycData?: {
+    status: string;
+    filePath: string;
+    rejectionReason?: string | null;
+  };
+}
 
+export const toGuideResponse = (guide: IGuide): GuideResponseDTO => ({
   id: guide._id.toString(),
   name: guide.name,
   bio: guide.bio,
-  hourlyRate: guide.hourlyRate,
+  dailyRate: guide.dailyRate,
   serviceArea: guide.serviceArea,
   specialties: guide.specialties,
   avatarURL: guide.avatarURL,
-  isVerified: guide.isVerified
+  isVerified: guide.isVerified,
+  averageRating: guide.averageRating,
+  reviewCount: guide.reviewCount,
 });
-export const toAdminGuideResponse = (guide: IGuide): AdminGuideResponseDTO => {
-  const populatedUser = (guide.userId && typeof guide.userId === 'object' && 'name' in guide.userId)
-    ? guide.userId as { _id: Types.ObjectId; name: string; email: string; role: string }
-    : null;
+export const toAdminGuideResponse = (guide: PopulatedGuide): AdminGuideResponseDTO => {
+  const populatedUser = guide.userDoc || (guide.userId && typeof guide.userId === 'object' && 'name' in guide.userId ? (guide.userId as unknown as PopulatedGuide['userDoc']) : null);
+
 
   return {
     id: guide._id.toString(),
@@ -25,17 +39,19 @@ export const toAdminGuideResponse = (guide: IGuide): AdminGuideResponseDTO => {
       id: populatedUser?._id.toString() || guide.userId.toString(),
       name: populatedUser?.name || guide.name || 'Unknown',
       email: populatedUser?.email || 'N/A',
-      role: populatedUser?.role || 'guide'
+      role: populatedUser?.role || 'guide',
     },
     bio: guide.bio,
-    hourlyRate: guide.hourlyRate,
+    dailyRate: guide.dailyRate,
     serviceArea: guide.serviceArea,
     specialties: guide.specialties || [],
     avatarURL: guide.avatarURL,
     certificateUrl: guide.certificateUrl,
     yearsOfExperience: guide.yearsOfExperience,
-    status: guide.isVerified ? 'Verified' : 'Pending',
+    status: guide.status || (guide.isVerified ? 'verified' : 'pending'),
     isVerified: guide.isVerified,
-    createdAt: guide.createdAt?.toISOString() || new Date().toISOString(),
+    rejectionReason: guide.rejectionReason,
+    kycData: guide.kycData,
+    createdAt: guide.createdAt instanceof Date ? guide.createdAt.toISOString() : guide.createdAt,
   };
 };

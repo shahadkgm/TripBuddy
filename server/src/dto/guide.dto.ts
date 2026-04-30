@@ -1,4 +1,12 @@
-import { IsArray, IsBoolean, IsMongoId, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsMongoId,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { Types } from 'mongoose';
 import { Type, Transform } from 'class-transformer';
 
@@ -9,7 +17,7 @@ export class GuideRegisterDTO {
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  hourlyRate!: number;
+  dailyRate!: number;
 
   @IsString()
   serviceArea!: string;
@@ -19,14 +27,15 @@ export class GuideRegisterDTO {
   @Min(0)
   yearsOfExperience!: number;
 
-  @Transform(({ value }: { value: any }) => {
+  @Transform(({ value }) => {
     if (typeof value === 'string') {
       try {
-        // Try to parse if it's a JSON string like '["hiking", "climbing"]'
         return JSON.parse(value);
       } catch {
-        // Otherwise treat as comma-separated or just a single value
-        return value.split(',').map((s: string) => s.trim()).filter((s: string) => s !== '');
+        return value
+          .split(',')
+          .map((s: string) => s.trim())
+          .filter(Boolean);
       }
     }
     return Array.isArray(value) ? value : [value];
@@ -34,6 +43,50 @@ export class GuideRegisterDTO {
   @IsArray()
   @IsString({ each: true })
   specialties!: string[];
+}
+
+export class GuideUpdateDTO {
+  @IsOptional()
+  @IsString()
+  bio?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  dailyRate?: number;
+
+  @IsOptional()
+  @IsString()
+  serviceArea?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  yearsOfExperience?: number;
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value
+          .split(',')
+          .map((s: string) => s.trim())
+          .filter(Boolean);
+      }
+    }
+    return Array.isArray(value) ? value : [value];
+  })
+  @IsArray()
+  @IsString({ each: true })
+  specialties?: string[];
+
+  @IsOptional()
+  @IsString()
+  avatarURL?: string;
 }
 
 export class CreateGuideDTO {
@@ -48,7 +101,7 @@ export class CreateGuideDTO {
 
   @IsNumber()
   @Min(0)
-  hourlyRate!: number;
+  dailyRate!: number;
 
   @IsString()
   serviceArea!: string;
@@ -74,18 +127,39 @@ export interface GuideStatusResponse {
   isVerified?: boolean;
 }
 
-export interface GuideQueryDTO {
+export class GuideQueryDTO {
+  @IsOptional()
+  @IsString()
   destination?: string;
-  maxPrice?: number | string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  maxPrice?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  page?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  limit?: number;
 }
 
 export interface GuideResponseDTO {
   id: string;
   name?: string;
   bio: string;
-  hourlyRate: number;
+  dailyRate: number;
   serviceArea: string;
   specialties: string[];
   avatarURL?: string;
   isVerified: boolean;
+  averageRating?: number;
+  reviewCount?: number;
 }

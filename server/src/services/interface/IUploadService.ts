@@ -1,4 +1,4 @@
-import { KYCStatusResponseDTO} from '../../dto/kyc.dto';
+import { KYCStatusResponseDTO } from '../../dto/kyc.dto';
 import { IKYC } from '../../types/kyc.type';
 
 // server/src/controllers/interfaces/IUploadService.ts

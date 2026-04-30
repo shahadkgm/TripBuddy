@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { IUploadService } from '../../services/interface/IUploadService';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { BaseController } from './base.controller';
+import { logger } from '@/utils/logger';
 
 export class UploadController extends BaseController {
   constructor(private readonly _uploadService: IUploadService) {
@@ -22,11 +23,7 @@ export class UploadController extends BaseController {
       return;
     }
 
-    const kycRecord = await this._uploadService.saveKYCDocument(
-      req.file,
-      userId,
-      documentType
-    );
+    const kycRecord = await this._uploadService.saveKYCDocument(req.file, userId, documentType);
 
     this.sendCreated(res, kycRecord, 'KYC Document uploaded and pending approval');
   });
@@ -58,5 +55,16 @@ export class UploadController extends BaseController {
     const s3File = req.file as Express.Multer.File & { location: string };
     const imageUrl = s3File.location;
     this.sendCreated(res, { imageUrl }, 'Profile photo uploaded successfully');
+  });
+
+  handleChatImageUpload = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    if (!req.file) {
+      this.sendBadRequest(res, 'No file uploaded');
+      logger.info('chat image upload failed:in upload controller');
+      return;
+    }
+    const s3File = req.file as Express.Multer.File & { location: string };
+    const imageUrl = s3File.location;
+    this.sendCreated(res, { imageUrl }, 'Chat image uploaded successfully');
   });
 }

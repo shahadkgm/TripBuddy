@@ -44,6 +44,16 @@ export class ResetPasswordDTO {
   password!: string;
 }
 
+export class ChangePasswordDTO {
+  @IsString()
+  @MinLength(6)
+  oldPassword!: string;
+
+  @IsString()
+  @MinLength(6)
+  newPassword!: string;
+}
+
 export interface UserResponseDTO {
   id: string;
   name: string;
@@ -54,11 +64,20 @@ export interface UserResponseDTO {
   createdAt: string;
   avatarURL?: string;
   bio?: string;
-  hourlyRate?: number;
+  hourlyRate?: number; // Keep for legacy if needed, but dailyRate is preferred
+  dailyRate?: number;
   serviceArea?: string;
   yearsOfExperience?: number;
   kycStatus?: string;
   kycDocument?: string;
+  kycRejectionReason?: string | null;
+  walletBalance: number;
+  guideProfile?: {
+    _id: string;
+    dailyRate: number;
+    serviceArea: string;
+    bio: string;
+  } | null;
 }
 
 export interface RegisterUserResponseDTO {

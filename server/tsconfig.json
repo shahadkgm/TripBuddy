@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
     "ignoreDeprecations": "6.0",
-    "target": "ESNext",
+    "target": "ES2022",
     "module": "CommonJS",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
+    "useDefineForClassFields": false,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,

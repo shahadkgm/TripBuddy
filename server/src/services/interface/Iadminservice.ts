@@ -1,11 +1,10 @@
-
-
-
-
-
-import { DashboardStatsDTO, GuideListDTO, UserListDTO } from '../../dto/admin.dto';
+import { DashboardStatsDTO, GuideListDTO, UserListDTO, RevenueStatsDTO } from '../../dto/admin.dto';
 import { AdminGuideResponseDTO } from '../../dto/admin.dto';
 import { UserResponseDTO } from '../../dto/user.dto';
+import { KYCStatus } from '../../types/kyc.type';
+import { IPaymentDocument } from '../../types/payment.type';
+import { ITripDocument } from '../../types/trip.type';
+
 export interface IAdminService {
   fetchAllUsers(page: number, limit: number, search: string): Promise<UserListDTO>;
 
@@ -21,13 +20,28 @@ export interface IAdminService {
 
   approveGuide(guideId: string): Promise<AdminGuideResponseDTO>;
 
-  fetchAllGuides(
+  fetchAllGuides(page: number, limit: number, search: string): Promise<GuideListDTO>;
+
+  rejectApplication(guideId: string, reason: string): Promise<boolean>;
+  approveKYC(userId: string, status: KYCStatus, reason?: string): Promise<boolean>;
+  getDashboardStats(): Promise<DashboardStatsDTO>;
+  getAllPayments(
+    page: number,
+    limit: number
+  ): Promise<{ payments: IPaymentDocument[]; total: number }>;
+  updatePaymentStatus(paymentId: string, status: string): Promise<IPaymentDocument>;
+
+  // Trips
+  getAllTrips(
     page: number,
     limit: number,
     search: string
-  ): Promise<GuideListDTO>;
-
-  rejectApplication(guideId: string): Promise<boolean>;
-  approveKYC(userId: string, status: string): Promise<boolean>;
-  getDashboardStats(): Promise<DashboardStatsDTO>;
+  ): Promise<{
+    trips: ITripDocument[];
+    totalPages: number;
+    currentPage: number;
+    totalTrips: number;
+  }>;
+  updateTripStatus(tripId: string, status: string): Promise<ITripDocument>;
+  getRevenueStats(from?: Date, to?: Date): Promise<RevenueStatsDTO>;
 }

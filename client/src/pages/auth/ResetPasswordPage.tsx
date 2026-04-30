@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import api from '../../utils/api';
 import { Button } from '../../components/Button';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { authService } from '../../services/c.authService';
 
 export const ResetPasswordPage = () => {
   const { token } = useParams();
@@ -15,23 +14,29 @@ export const ResetPasswordPage = () => {
   const [errors, setErrors] = useState({ password: '', confirmPassword: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    if (authService.getCurrentUser()) {
+      navigate('/', { replace: true });
+    }
+  }, [navigate]);
+
   const validateForm = () => {
     let isValid = true;
     const newErrors = { password: '', confirmPassword: '' };
 
     if (!password) {
-      newErrors.password = "Password is required";
+      newErrors.password = 'Password is required';
       isValid = false;
     } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+      newErrors.password = 'Password must be at least 6 characters';
       isValid = false;
     }
 
     if (!confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
+      newErrors.confirmPassword = 'Please confirm your password';
       isValid = false;
     } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
+      newErrors.confirmPassword = 'Passwords do not match';
       isValid = false;
     }
 
@@ -44,15 +49,17 @@ export const ResetPasswordPage = () => {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    const loadToast = toast.loading("Updating password...");
+    const loadToast = toast.loading('Updating password...');
 
     try {
-      await axios.post(`${API_URL}/api/users/reset-password/${token}`, { password });
+      await api.post(`/api/users/reset-password/${token}`, { password });
 
-      toast.success("Password reset successful! Redirecting to login...", { id: loadToast });
+      toast.success('Password reset successful! Redirecting to login...', { id: loadToast });
       setTimeout(() => navigate('/login'), 3000);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Link expired or invalid", { id: loadToast });
+    } catch (_error: unknown) {
+      const errorObj = _error as { response?: { data?: { message?: string } } };
+      const msg = errorObj.response?.data?.message || 'Link expired or invalid';
+      toast.error(msg, { id: loadToast });
     } finally {
       setIsSubmitting(false);
     }
@@ -70,7 +77,7 @@ export const ResetPasswordPage = () => {
               className={`w-full px-4 py-3 rounded-xl border ${errors.password ? 'border-red-500' : 'border-gray-200'
                 } focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
               value={password}
-              onChange={(e) => {
+              onChange={e => {
                 setPassword(e.target.value);
                 if (errors.password) setErrors({ ...errors, password: '' });
               }}
@@ -80,13 +87,15 @@ export const ResetPasswordPage = () => {
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Confirm New Password
+            </label>
             <input
               type="password"
               className={`w-full px-4 py-3 rounded-xl border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-200'
                 } focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
               value={confirmPassword}
-              onChange={(e) => {
+              onChange={e => {
                 setConfirmPassword(e.target.value);
                 if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: '' });
               }}
@@ -96,7 +105,7 @@ export const ResetPasswordPage = () => {
             )}
           </div>
           <Button type="submit" className="w-full py-3" disabled={isSubmitting}>
-            {isSubmitting ? "Resetting..." : "Update Password"}
+            {isSubmitting ? 'Resetting...' : 'Update Password'}
           </Button>
         </form>
       </div>

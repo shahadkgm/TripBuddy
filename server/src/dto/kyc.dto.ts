@@ -5,10 +5,12 @@ export interface SaveKYCResponseDTO {
   userId: string;
   documentType: string;
   status: KYCStatus;
+  rejectionReason?: string | null;
   uploadedAt: Date;
 }
 
 export interface KYCStatusResponseDTO {
   userId: string;
   status: KYCStatus | 'none';
+  rejectionReason?: string | null;
 }

@@ -12,10 +12,7 @@ export class MailService implements IMailService {
     if (!process.env.FRONTEND_URL) {
       throw new Error('FRONTEND_URL is not configured');
     }
-    console.log(
-      'Checking Email Config from Mail service:',
-      process.env.EMAIL_USER
-    );
+    console.log('Checking Email Config from Mail service:', process.env.EMAIL_USER);
 
     this._transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -49,7 +46,6 @@ export class MailService implements IMailService {
       await this._transporter.sendMail(mailOptions);
 
       console.log('Password reset email sent to:', email);
-
     } catch (error) {
       console.error('Nodemailer Error:', error);
       throw error;
@@ -81,6 +77,4 @@ export class MailService implements IMailService {
 
     await this._transporter.sendMail(mailOptions);
   }
-
-
 }

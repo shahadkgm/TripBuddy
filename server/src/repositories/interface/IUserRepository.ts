@@ -3,7 +3,6 @@ import { IBaseRepository } from './IBaseRepository';
 import { CreateUserDTO, GoogleUserDTO } from '../../dto/user.dto';
 
 export interface IUserRepository extends IBaseRepository<IUser, CreateUserDTO> {
-
   findByEmail(email: string): Promise<IUser | null>;
 
   // Password reset
@@ -15,12 +14,11 @@ export interface IUserRepository extends IBaseRepository<IUser, CreateUserDTO> {
   findOrCreateGoogleUser(data: GoogleUserDTO): Promise<IUser>;
 
   // ✅ Email verification
-  updateVerificationToken(
-    userId: string,
-    token: string,
-    expires: number
-  ): Promise<void>;
+  updateVerificationToken(userId: string, token: string, expires: number): Promise<void>;
 
   findByVerificationToken(token: string): Promise<IUser | null>;
   verifyUser(userId: string): Promise<void>;
+
+  // Wallet
+  updateWalletBalance(userId: string, amount: number): Promise<void>;
 }

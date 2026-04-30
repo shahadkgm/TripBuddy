@@ -1,199 +1,230 @@
-import { useEffect, useState } from 'react';
-import { tripService } from '../../services/trip.service';
+import { useEffect, useState, useRef } from 'react';
+import { Search, MapPin, Plane, Tag, RotateCcw, ChevronDown } from 'lucide-react';
+import { tripService } from '../../services/c.trip.service';
 import { TravelerCard } from '../../components/TravelerCard';
-import type { ITrip } from '../../interface/ITripdetails';
-import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Search, MapPin, Plane, Tag } from 'lucide-react';
 import { Pagination } from '../../components/Pagination';
+import { Navbar } from '../../components/home/Navbar';
+import type { ITrip } from '../../interface/ITripdetails';
 
 const INTERESTS_LIST = [
-    "Any", "Beaches", "Adventure Sports", "Shopping", "City Tours",
-    "History/Culture", "Nightlife", "Nature/Parks", "Food & Dining"
+  'Beaches',
+  'Adventure Sports',
+  'Shopping',
+  'City Tours',
+  'History/Culture',
+  'Nightlife',
+  'Nature/Parks',
+  'Food & Dining',
 ];
 
 const FindTravelers = () => {
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const limit = 6;
-    const [trips, setTrips] = useState<ITrip[]>([]);
-    const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
-    const [filters, setFilters] = useState({
-        destination: '',
-        transport: 'Any',
-        interest: 'Any'
-    });
+  const [trips, setTrips] = useState<ITrip[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 6;
 
-    useEffect(() => {
-        loadTrips();
-    }, [page]);
+  const [filters, setFilters] = useState({
+    destination: '',
+    transport: 'Any',
+    interest: 'Any',
+  });
 
-    const loadTrips = async () => {
-        setLoading(true);
-        try {
-            const activeFilters: any = {
-                ...Object.fromEntries(
-                    Object.entries(filters).filter(([_, v]) => v !== 'Any' && v !== '')
-                ),
-                page,
-                limit
-            };
+  const filtersRef = useRef(filters);
 
-            const response = await tripService.getAllTrips(activeFilters);
-            setTrips(response.trips);
-            setTotalPages(Math.ceil(response.total / limit));
-        } catch (error) {
-            console.error("Error fetching trips:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
 
-    const handleApplyFilters = () => {
-        setPage(1);
-        loadTrips();
-    };
+  const [searchTrigger, setSearchTrigger] = useState(0);
 
-    const handleClearFilters = () => {
-        const defaultFilters = {
-            destination: '',
-            transport: 'Any',
-            interest: 'Any'
+  useEffect(() => {
+    const loadTrips = async (currentFilters = filtersRef.current, currentPage = page) => {
+      setLoading(true);
+      try {
+        const activeFilters: Record<string, string | number> = {
+          page: currentPage,
+          limit,
         };
-        setFilters(defaultFilters);
-        setPage(1);
-        setLoading(true);
-        tripService.getAllTrips({ page: 1, limit }).then((response) => {
-            setTrips(response.trips);
-            setTotalPages(Math.ceil(response.total / limit));
-        }).catch(error => {
-            console.error("Error fetching trips:", error);
-        }).finally(() => {
-            setLoading(false);
-        });
+
+        if (currentFilters.destination) activeFilters.destination = currentFilters.destination;
+        if (currentFilters.transport !== 'Any') activeFilters.transport = currentFilters.transport;
+        if (currentFilters.interest !== 'Any') activeFilters.interest = currentFilters.interest;
+
+        const response = await tripService.getAllTrips(activeFilters);
+        setTrips(response.trips);
+        setTotalPages(Math.ceil(response.total / limit));
+      } catch (_error) {
+        console.error(_error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    return (
-        <div className="min-h-screen bg-slate-50 p-6">
-            <div className="max-w-7xl mx-auto">
-                <button
-                    onClick={() => navigate('/dashboard')}
-                    className="flex items-center gap-2 mb-8 text-slate-500 hover:text-indigo-600 transition-all group font-medium"
-                >
-                    <div className="p-2 bg-white rounded-full shadow-sm group-hover:bg-indigo-50 border border-transparent group-hover:border-indigo-100 transition-all">
-                        <ChevronLeft className="w-5 h-5" />
-                    </div>
-                    Back to Dashboard
-                </button>
+    loadTrips(filtersRef.current, page);
+  }, [page, searchTrigger]);
 
-                <header className="mb-10 text-center">
-                    <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Find Travel Buddies</h1>
-                    <p className="text-slate-500 mt-2 text-lg">Connect with people heading to your next destination</p>
-                </header>
+  const handleApplyFilters = () => {
+    setPage(1);
+    setSearchTrigger(prev => prev + 1);
+  };
 
-                <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 mb-8 flex flex-col md:flex-row gap-6 items-end">
-                    <div className="flex-1 w-full">
-                        <label className="block text-sm font-semibold text-slate-700 mb-2 items-center gap-2">
-                            <MapPin className="w-4 h-4 text-indigo-500" /> Destination
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="e.g. Bali, Paris..."
-                            className="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all bg-slate-50/50"
-                            value={filters.destination}
-                            onChange={(e) => setFilters({ ...filters, destination: e.target.value })}
-                        />
-                    </div>
+  const handleClearFilters = () => {
+    const defaultFilters = {
+      destination: '',
+      transport: 'Any',
+      interest: 'Any',
+    };
+    setFilters(defaultFilters);
+    setPage(1);
+    setSearchTrigger(prev => prev + 1);
+  };
 
-                    <div className="flex-1 w-full">
-                        <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                            <Plane className="w-4 h-4 text-indigo-500" /> Travel Mode
-                        </label>
-                        <select
-                            className="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all bg-white appearance-none cursor-pointer"
-                            value={filters.transport}
-                            onChange={(e) => setFilters({ ...filters, transport: e.target.value })}
-                        >
-                            <option value="Any">Any Mode</option>
-                            <option value="flight">Flight</option>
-                            <option value="train">Train</option>
-                            <option value="car">Car Rental</option>
-                            <option value="bus">Bus</option>
-                        </select>
-                    </div>
+  return (
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <Navbar variant="sticky" showBack={true} backPath="/dashboard" />
 
-                    <div className="flex-1 w-full">
-                        <label className="block text-sm font-semibold text-slate-700 mb-2 items-center gap-2">
-                            <Tag className="w-4 h-4 text-indigo-500" /> Interests
-                        </label>
-                        <select
-                            className="w-full p-3.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all bg-white appearance-none cursor-pointer"
-                            value={filters.interest}
-                            onChange={(e) => setFilters({ ...filters, interest: e.target.value })}
-                        >
-                            {INTERESTS_LIST.map(interest => (
-                                <option key={interest} value={interest}>{interest}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                        <button
-                            onClick={handleClearFilters}
-                            className="flex-1 px-6 py-4 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
-                        >
-                            Clear
-                        </button>
-                        <button
-                            onClick={handleApplyFilters}
-                            className="flex-1 px-8 py-4 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 whitespace-nowrap"
-                        >
-                            <Search className="w-5 h-5" />
-                            Apply
-                        </button>
-                    </div>
-                </div>
-
-                {loading ? (
-                    <div className="flex flex-col items-center justify-center py-24 gap-4">
-                        <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-                        <p className="text-slate-500 font-medium">Looking for travel buddies...</p>
-                    </div>
-                ) : (
-                    <>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {trips.length > 0 ? (
-                                trips.map(trip => (
-                                    <TravelerCard key={trip._id} trip={trip} />
-                                ))
-                            ) : (
-                                <div className="col-span-full text-center py-24 bg-white rounded-3xl border border-dashed border-slate-200">
-                                    <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <Search className="w-10 h-10 text-slate-300" />
-                                    </div>
-                                    <h3 className="text-xl font-bold text-slate-800">No travel buddies found</h3>
-                                    <p className="text-slate-500">Try adjusting your filters to see more results.</p>
-                                </div>
-                            )}
-                        </div>
-
-                        {totalPages > 1 && (
-                            <div className="mt-12 flex justify-center">
-                                <Pagination
-                                    currentPage={page}
-                                    totalPages={totalPages}
-                                    onPageChange={(newPage) => {
-                                        setPage(newPage);
-                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                    }}
-                                />
-                            </div>
-                        )}
-                    </>
-                )}
+      {/* Main Container */}
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Horizontal Search Bar */}
+        <div className="bg-white p-4 rounded-[28px] shadow-xl border border-slate-100 mb-12 flex flex-col md:flex-row items-center gap-3">
+          {/* Destination */}
+          <div className="flex-1 w-full relative group">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-tb-purple transition-colors">
+              <MapPin className="w-5 h-5" />
             </div>
+            <input
+              type="text"
+              placeholder="Where are you going?"
+              className="w-full pl-12 pr-4 py-4 md:py-5 bg-slate-50 group-hover:bg-slate-100 focus:bg-white border-2 border-transparent focus:border-tb-purple/20 rounded-2xl outline-none transition-all font-semibold text-slate-700"
+              value={filters.destination}
+              onChange={e => setFilters({ ...filters, destination: e.target.value })}
+            />
+          </div>
+
+          {/* Transport */}
+          <div className="w-full md:w-56 relative group">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+              <Plane className="w-5 h-5" />
+            </div>
+            <select
+              className="w-full pl-12 pr-10 py-4 md:py-5 bg-slate-50 border-2 border-transparent focus:border-tb-purple/20 rounded-2xl outline-none transition-all font-semibold text-slate-700 appearance-none cursor-pointer"
+              value={filters.transport}
+              onChange={e => setFilters({ ...filters, transport: e.target.value })}
+            >
+              <option value="Any">Any Transport</option>
+              <option value="flight">Flight</option>
+              <option value="train">Train</option>
+              <option value="car">Car Rental</option>
+              <option value="bus">Bus</option>
+            </select>
+            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          </div>
+
+          {/* Interest */}
+          <div className="w-full md:w-64 relative group">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+              <Tag className="w-5 h-5" />
+            </div>
+            <select
+              className="w-full pl-12 pr-10 py-4 md:py-5 bg-slate-50 border-2 border-transparent focus:border-tb-purple/20 rounded-2xl outline-none transition-all font-semibold text-slate-700 appearance-none cursor-pointer"
+              value={filters.interest}
+              onChange={e => setFilters({ ...filters, interest: e.target.value })}
+            >
+              <option value="Any">Any Interest</option>
+              {INTERESTS_LIST.map(item => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2 w-full md:w-auto">
+            <button
+              onClick={handleClearFilters}
+              className="p-4 md:p-5 bg-slate-100 text-slate-500 rounded-2xl hover:bg-slate-200 transition-all flex items-center justify-center"
+              title="Clear Filters"
+            >
+              <RotateCcw className="w-6 h-6" />
+            </button>
+            <button
+              onClick={handleApplyFilters}
+              className="flex-1 md:flex-none px-8 py-4 md:py-5 bg-tb-purple  font-bold rounded-2xl shadow-lg shadow-purple-100 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+            >
+              <Search className="w-5 h-5" />
+              Search
+            </button>
+          </div>
         </div>
-    );
+
+        {/* Results Info */}
+        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-extrabold text-slate-800">Explore Trips</h2>
+            <p className="text-slate-500 font-medium mt-1">
+              {loading
+                ? 'Discovering adventures...'
+                : `Found ${trips.length} amazing trips to join`}
+            </p>
+          </div>
+        </div>
+
+        {/* Content Section */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div
+                key={i}
+                className="h-72 bg-white animate-pulse rounded-[32px] border border-slate-100"
+              />
+            ))}
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {trips.length > 0 ? (
+                trips.map(trip => <TravelerCard key={trip._id} trip={trip} />)
+              ) : (
+                <div className="col-span-full py-24 bg-white rounded-[40px] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-center px-6">
+                  <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                    <Search className="w-12 h-12 text-slate-200" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-800">No matching trips</h3>
+                  <p className="text-slate-500 max-w-sm mx-auto mt-3 text-lg">
+                    We couldn't find any trips matching your filters. Try widening your search!
+                  </p>
+                  <button
+                    onClick={handleClearFilters}
+                    className="mt-8 px-6 py-3 bg-tb-purple/10 text-tb-purple font-bold rounded-xl hover:bg-tb-purple/20 transition-all"
+                  >
+                    Reset all filters
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-16 flex justify-center pb-12">
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={newPage => {
+                    setPage(newPage);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                />
+              </div>
+            )}
+          </>
+        )}
+      </main>
+    </div>
+  );
 };
 
 export default FindTravelers;

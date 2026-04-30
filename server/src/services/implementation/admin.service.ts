@@ -2,19 +2,30 @@ import { Types } from 'mongoose';
 import { IAdminRepository } from '../../repositories/interface/IAdminRepository';
 import { AppError } from '../../utils/AppError';
 import { StatusCode } from '../../constants/statusCode.enum';
-import { UserListDTO, DashboardStatsDTO, GuideListDTO, AdminGuideResponseDTO } from '../../dto/admin.dto';
+import {
+  UserListDTO,
+  DashboardStatsDTO,
+  GuideListDTO,
+  AdminGuideResponseDTO,
+  RevenueStatsDTO,
+} from '../../dto/admin.dto';
 import { UserResponseDTO } from '../../dto/user.dto';
 import { toAdminGuideResponse } from '../../utils/guide.mapper';
 import { UserMapper } from '../../utils/userMapper';
 import { logger } from '../../utils/logger';
 import { IAdminService } from '../interface/Iadminservice';
 import { IKYCRepository } from '../../repositories/interface/IKycRepository';
+import { KYCStatus } from '../../types/kyc.type';
+import { IPaymentRepository } from '../../repositories/interface/IPaymentRepository';
+import { IPaymentDocument } from '../../types/payment.type';
+import { ITripDocument } from '../../types/trip.type';
 
 export class AdminService implements IAdminService {
   constructor(
     private adminRepo: IAdminRepository,
-    private kycRepo: IKYCRepository
-  ) { }
+    private kycRepo: IKYCRepository,
+    private paymentRepo: IPaymentRepository
+  ) {}
 
   async fetchAllUsers(page = 1, limit = 10, search = ''): Promise<UserListDTO> {
     const result = await this.adminRepo.getAllUsers(page, limit, search);
@@ -23,18 +34,22 @@ export class AdminService implements IAdminService {
       users: result.users.map(user => UserMapper.toResponseDTO(user)),
       totalPages: result.totalPages,
       // currentPage: result.currentPage,
-      totalUsers: result.totalUsers
+      totalUsers: result.totalUsers,
     };
   }
 
-  async toggleUserBlock(userId: string, blockedStatus: boolean, adminId: string): Promise<UserResponseDTO> {
+  async toggleUserBlock(
+    userId: string,
+    blockedStatus: boolean,
+    adminId: string
+  ): Promise<UserResponseDTO> {
     if (userId === adminId) {
       throw new AppError('You cannot block your own account', StatusCode.FORBIDDEN);
     }
 
     const user = await this.adminRepo.findUserById(userId);
     if (!user) {
-      throw new AppError('User not found', StatusCode.NOT_FOUND,);
+      throw new AppError('User not found', StatusCode.NOT_FOUND);
     }
 
     if (user.role === 'admin') {
@@ -81,19 +96,18 @@ export class AdminService implements IAdminService {
       throw new AppError('Guide application not found', StatusCode.NOT_FOUND);
     }
 
-    const userId = profile.userId instanceof Types.ObjectId
-      ? profile.userId.toString()
-      : profile.userId._id.toString();
+    const userId =
+      profile.userId instanceof Types.ObjectId
+        ? profile.userId.toString()
+        : profile.userId._id.toString();
 
     await this.adminRepo.updateUserRole(userId, 'guide');
 
-    // Automatically approve KYC when guide is verified
     await this.kycRepo.updateStatus(userId, 'approved');
     logger.info(`KYC status auto-approved for user: ${userId}`);
 
     return toAdminGuideResponse(profile);
   }
-
 
   async fetchAllGuides(page = 1, limit = 10, search = ''): Promise<GuideListDTO> {
     const data = await this.adminRepo.getAllGuides(page, limit, search);
@@ -101,22 +115,22 @@ export class AdminService implements IAdminService {
     console.log('Mapped guides in service:', mappedGuides[0]);
     return {
       ...data,
-      guides: mappedGuides
+      guides: mappedGuides,
     };
   }
 
-  async rejectApplication(guideId: string): Promise<boolean> {
-    const deleted = await this.adminRepo.deleteGuide(guideId);
+  async rejectApplication(guideId: string, reason: string): Promise<boolean> {
+    const rejected = await this.adminRepo.rejectGuide(guideId, reason);
 
-    if (!deleted) {
+    if (!rejected) {
       throw new AppError('Guide application not found', StatusCode.NOT_FOUND);
     }
 
     return true;
   }
 
-  async approveKYC(userId: string, status: string): Promise<boolean> {
-    const result = await this.kycRepo.updateStatus(userId, status);
+  async approveKYC(userId: string, status: KYCStatus, reason?: string): Promise<boolean> {
+    const result = await this.kycRepo.updateStatus(userId, status, reason);
     if (!result) {
       throw new AppError('KYC record not found', StatusCode.NOT_FOUND);
     }
@@ -125,24 +139,86 @@ export class AdminService implements IAdminService {
   }
 
   async getDashboardStats(): Promise<DashboardStatsDTO> {
-    console.log('from get dashboard stats');
     const userStats = await this.adminRepo.getAllUsers(1, 1, '');
-    logger.info(`from gerdashboard userstats: ${userStats}`);
     const verifiedGuidesCount = await this.adminRepo.countVerifiedGuides();
-    logger.info(`from gerdashboard  guide count:${verifiedGuidesCount}`);
-
     const pending = await this.adminRepo.getAllPendingGuides();
 
-    console.log('Dashboard Stats Debug:', {
-      totalUsers: userStats.totalUsers,
-      totalGuides: verifiedGuidesCount,
-      pendingApplications: pending.length
-    });
+    // Fetch newly added analytics
+    const tripStats = await this.adminRepo.getAllTrips(1, 1, '');
+    const paymentStats = await this.paymentRepo.findAllPayments(1, 1);
 
     return {
       totalUsers: userStats.totalUsers,
       totalGuides: verifiedGuidesCount,
       pendingApplications: pending.length,
+      totalTrips: tripStats.totalTrips,
+      totalPayments: paymentStats.total,
+    };
+  }
+
+  async getAllPayments(
+    page: number,
+    limit: number
+  ): Promise<{ payments: IPaymentDocument[]; total: number }> {
+    const result = await this.paymentRepo.findAllPayments(page, limit);
+    return result;
+  }
+
+  async updatePaymentStatus(paymentId: string, status: string): Promise<IPaymentDocument> {
+    const payment = await this.paymentRepo.findById(paymentId);
+    if (!payment) {
+      throw new AppError('Payment not found', StatusCode.NOT_FOUND);
+    }
+
+    // Only credit wallet if status is changing to refunded and wasn't already refunded
+    if (status === 'refunded' && payment.status !== 'refunded') {
+      // Safely extract userId string whether it's an ObjectId or a populated object
+      const userId =
+        payment.userId instanceof Types.ObjectId
+          ? payment.userId.toString()
+          : (payment.userId as unknown as { _id: Types.ObjectId })._id.toString();
+
+      await this.adminRepo.updateWalletBalance(userId, payment.amount);
+      logger.info(`Credited ${payment.amount} to user ${userId} wallet due to refund.`);
+    }
+
+    const updatedPayment = await this.paymentRepo.updateById(paymentId, { status });
+    if (!updatedPayment) {
+      throw new AppError('Failed to update payment status', StatusCode.INTERNAL_SERVER_ERROR);
+    }
+    return updatedPayment;
+  }
+
+  // Trips
+  async getAllTrips(
+    page = 1,
+    limit = 10,
+    search = ''
+  ): Promise<{
+    trips: ITripDocument[];
+    totalPages: number;
+    currentPage: number;
+    totalTrips: number;
+  }> {
+    return await this.adminRepo.getAllTrips(page, limit, search);
+  }
+
+  async updateTripStatus(tripId: string, status: string): Promise<ITripDocument> {
+    const updatedTrip = await this.adminRepo.updateTripStatus(tripId, status);
+    if (!updatedTrip) {
+      throw new AppError('Trip not found or failed to update', StatusCode.NOT_FOUND);
+    }
+    return updatedTrip;
+  }
+
+  async getRevenueStats(from?: Date, to?: Date): Promise<RevenueStatsDTO> {
+    const stats = await this.paymentRepo.getRevenueStats(from, to);
+    const PLATFORM_COMMISSION_RATE = 0.02; // 2% 
+
+    return {
+      ...stats,
+      platformCommission: stats.totalRevenue * PLATFORM_COMMISSION_RATE,
+      netRevenue: stats.totalRevenue - stats.totalRefunds,
     };
   }
 }

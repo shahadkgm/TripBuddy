@@ -6,7 +6,7 @@
 //     name: {
 //         type: String,
 //         required: true,
-//         trim: true, 
+//         trim: true,
 //     },
 //     email: {
 //         type: String,
@@ -17,7 +17,7 @@
 //     },
 //     password: {
 //         type: String,
-//         required: false, 
+//         required: false,
 //         minlength: 6,
 //     },
 //     isBlocked: {
@@ -26,7 +26,7 @@
 //     },
 //     role: {
 //         type: String,
-//         enum: ['user', 'guide', 'admin'], 
+//         enum: ['user', 'guide', 'admin'],
 //         default: 'user'
 //     },
 //     verificationToken: String,
@@ -45,7 +45,6 @@
 
 // export default UserModel;
 import { Schema, model, HydratedDocument } from 'mongoose';
-
 
 export type IUserDoc = HydratedDocument<IUser>;
 
@@ -67,6 +66,7 @@ const userSchema = new Schema<IUser>(
     verificationTokenExpires: Date,
 
     isVerified: { type: Boolean, default: false },
+    walletBalance: { type: Number, default: 0 },
     avatarURL: { type: String },
     bio: { type: String },
     hourlyRate: { type: Number },
@@ -75,10 +75,20 @@ const userSchema = new Schema<IUser>(
     passwordResetToken: String,
     passwordResetExpires: Date,
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
+
+userSchema.virtual('guideProfile', {
+  ref: 'GuideProfile',
+  localField: '_id',
+  foreignField: 'userId',
+  justOne: true,
+});
 
 import { IUser } from '../types/user.type';
 
 export const UserModel = model<IUser>('User', userSchema);
-

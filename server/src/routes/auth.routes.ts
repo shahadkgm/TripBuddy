@@ -17,16 +17,12 @@ const authService = new AuthService(userRepo, mailService);
 const authController = new AuthController(authService);
 
 router.post(
-    API_ROUTES.AUTH.REGISTER,
-    dtoValidationMiddleware(RegisterUserDTO),
-    authController.register
+  API_ROUTES.AUTH.REGISTER,
+  dtoValidationMiddleware(RegisterUserDTO),
+  authController.register
 );
 
-router.post(
-    API_ROUTES.AUTH.LOGIN,
-    dtoValidationMiddleware(LoginDTO),
-    authController.login
-);
+router.post(API_ROUTES.AUTH.LOGIN, dtoValidationMiddleware(LoginDTO), authController.login);
 router.get(API_ROUTES.AUTH.VERIFY_EMAIL, authController.verifyEmail);
 router.post(API_ROUTES.AUTH.REFRESH, authController.refreshToken);
 router.post(API_ROUTES.AUTH.GOOGLE_LOGIN, authController.googleLogin);
