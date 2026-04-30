@@ -40,10 +40,10 @@ export class ReportController extends BaseController {
     this.sendSuccess(res, reports, 'Reports fetched successfully');
   });
 
-  updateStatus = asyncHandler(async (req: AuthRequest<{ id: string }, {}, UpdateReportStatusDTO>, res: Response) => {
-    const { id } = req.params;
+  updateStatus = asyncHandler(async (req: AuthRequest<{ reportId: string }, {}, UpdateReportStatusDTO>, res: Response) => {
+    const { reportId } = req.params;
     const { status } = req.body;
-    const report = await this._reportService.updateReportStatus(id, status);
+    const report = await this._reportService.updateReportStatus(reportId, status);
     if (!report) {
       this.sendNotFound(res, 'Report not found');
       return;

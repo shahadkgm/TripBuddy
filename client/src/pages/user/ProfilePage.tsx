@@ -18,8 +18,8 @@ import {
   MessageCircle,
   CreditCard,
 } from 'lucide-react';
-import { authService } from '../../services/c.authService';
-import { connectionService } from '../../services/c.connection.service';
+import { authService } from '../../services/auth.service';
+import { connectionService } from '../../services/connection.service';
 import api from '../../utils/api';
 import { useEffect, useState, useRef } from 'react';
 import { Navbar } from '../../components/home/Navbar';

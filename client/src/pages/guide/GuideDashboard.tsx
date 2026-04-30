@@ -10,10 +10,10 @@ import {
   ChevronRight,
   Loader2,
 } from 'lucide-react';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 import { GuideLayout } from './GuideLayout';
 import toast from 'react-hot-toast';
-import { tripService } from '../../services/c.trip.service';
+import { tripService } from '../../services/trip.service';
 import { TripStatus } from '../../constants/TripStatus';
 import type { ITrip } from '../../interface/ITripdetails';
 import { Pagination } from '../../components/Pagination';

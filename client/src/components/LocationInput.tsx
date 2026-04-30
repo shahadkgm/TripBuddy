@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Loader2, Search } from 'lucide-react';
-import { nearbyService } from '../services/c.nearby.service';
+import { nearbyService } from '../services/nearby.service';
 
 interface LocationInputProps {
   value: string;

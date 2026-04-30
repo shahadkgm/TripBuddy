@@ -7,8 +7,8 @@ import { DataTable } from '../../components/DataTable';
 import { SearchBar } from '../../components/common/SearchBar';
 import { Pagination } from '../../components/Pagination';
 import { RejectionModal } from '../../components/RejectionModal';
-import { reportService } from '../../services/c.report.service';
-import type { IReport } from '../../services/c.report.service';
+import { reportService } from '../../services/report.service';
+import type { IReport } from '../../services/report.service';
 
 interface IGuideApplication {
   id: string;

@@ -26,12 +26,12 @@ import {
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import type { EmojiClickData } from 'emoji-picker-react';
 import { useSocketContext } from '../../hooks/useSocketContext';
-import { authService } from '../../services/c.authService';
-import { tripService } from '../../services/c.trip.service';
+import { authService } from '../../services/auth.service';
+import { tripService } from '../../services/trip.service';
 import api from '../../utils/api';
 import type { ITrip, IGuide } from '../../interface/ITripdetails';
 import toast from 'react-hot-toast';
-import { paymentService } from '../../services/c.payment.service';
+import { paymentService } from '../../services/payment.service';
 import { TripStatus } from '../../constants/TripStatus';
 import type { IMessage } from '../../interface/IMessage';
 import { ReviewModal, ReportModal } from '../../components/guide';

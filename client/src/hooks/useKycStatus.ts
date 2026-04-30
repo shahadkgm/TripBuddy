@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { authService } from '../services/c.authService';
+import { authService } from '../services/auth.service';
 import api from '../utils/api';
 
 export const useKycStatus = () => {

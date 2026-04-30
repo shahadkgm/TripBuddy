@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { connectionService } from '../../services/c.connection.service';
+import { connectionService } from '../../services/connection.service';
 import type { ConnectionRequest } from '../../types/auth.dto';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, UserCheck, UserX, Clock, MessageSquare, Plane } from 'lucide-react';

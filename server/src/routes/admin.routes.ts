@@ -44,7 +44,7 @@ router.patch(
   adminController.rejectGuide
 );
 router.patch(
-  '/kyc/:id/approve',
+  '/kyc/:guideId/approve',
   dtoValidationMiddleware(ApproveKYCDTO),
   adminController.handleApproveKYC
 );
@@ -52,7 +52,7 @@ router.patch(
 router.get(API_ROUTES.ADMIN.STATS, adminController.getDashboardStats);
 router.get(API_ROUTES.ADMIN.PAYMENTS, adminController.getAllPayments);
 router.patch(
-  '/payments/:id/status',
+  '/payments/:paymentId/status',
   dtoValidationMiddleware(UpdatePaymentStatusDTO),
   adminController.updatePaymentStatus
 );
@@ -61,7 +61,7 @@ router.get('/revenue/stats', adminController.getRevenueStats);
 // Trips
 router.get('/trips', adminController.getAllTrips);
 router.patch(
-  '/trips/:id/status',
+  '/trips/:tripId/status',
   dtoValidationMiddleware(UpdateTripStatusDTO),
   adminController.updateTripStatus
 );

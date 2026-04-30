@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 import { FeatureGrid } from '../../components/home/FeatureGrid';
 import { Navbar } from '../../components/home/Navbar';
 import { MainFooter } from '../../components/MainFooter';

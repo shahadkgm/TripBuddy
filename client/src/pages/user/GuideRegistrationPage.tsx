@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 import { Camera, IndianRupee, ArrowLeft, Loader2, Plus, X } from 'lucide-react';
 import { LocationInput } from '../../components/LocationInput';
 import { GuideStatusPage } from './GuideStatusPage';

@@ -30,8 +30,8 @@ export class TripController extends BaseController {
   });
 
   getTripById = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const trip = await this._tripService.getTripById(id);
+    const { tripId } = req.params;
+    const trip = await this._tripService.getTripById(tripId);
     if (!trip) {
       this.sendNotFound(res, 'Trip not found');
       return;
@@ -56,10 +56,10 @@ export class TripController extends BaseController {
   });
 
   updateTrip = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { tripId } = req.params;
     const updateData = req.body;
-    logger.info('Trip update request received', { id, updateData });
-    const updatedTrip = await this._tripService.updateTrip(id, updateData);
+    logger.info('Trip update request received', { tripId, updateData });
+    const updatedTrip = await this._tripService.updateTrip(tripId, updateData);
     if (!updatedTrip) {
       this.sendNotFound(res, 'Trip not found or update failed');
       return;
@@ -69,31 +69,31 @@ export class TripController extends BaseController {
 
   finalizeTrip = asyncHandler(
     async (
-      req: AuthRequest<{ id: string }, unknown, { budget: number; depositAmount: number }>,
+      req: AuthRequest<{ tripId: string }, unknown, { budget: number; depositAmount: number }>,
       res: Response
     ) => {
-      const { id } = req.params;
+      const { tripId } = req.params;
       const { budget, depositAmount } = req.body;
       const userId = req.user?.id as string;
 
-      const trip = await this._tripService.finalizeTrip(id, userId, budget, depositAmount);
+      const trip = await this._tripService.finalizeTrip(tripId, userId, budget, depositAmount);
       this.sendSuccess(res, trip, 'Trip finalized successfully');
     }
   );
 
-  cancelTrip = asyncHandler(async (req: AuthRequest<{ id: string }>, res: Response) => {
-    const { id } = req.params;
+  cancelTrip = asyncHandler(async (req: AuthRequest<{ tripId: string }>, res: Response) => {
+    const { tripId } = req.params;
     const userId = req.user?.id as string;
 
-    const trip = await this._tripService.cancelTrip(id, userId);
+    const trip = await this._tripService.cancelTrip(tripId, userId);
     this.sendSuccess(res, trip, 'Trip cancelled and members refunded');
   });
 
-  leaveTrip = asyncHandler(async (req: AuthRequest<{ id: string }>, res: Response) => {
-    const { id } = req.params;
+  leaveTrip = asyncHandler(async (req: AuthRequest<{ tripId: string }>, res: Response) => {
+    const { tripId } = req.params;
     const userId = req.user?.id as string;
 
-    const trip = await this._tripService.leaveTrip(id, userId);
+    const trip = await this._tripService.leaveTrip(tripId, userId);
     this.sendSuccess(
       res,
       trip,
@@ -101,34 +101,34 @@ export class TripController extends BaseController {
     );
   });
 
-  completeTrip = asyncHandler(async (req: AuthRequest<{ id: string }>, res: Response) => {
-    const { id } = req.params;
+  completeTrip = asyncHandler(async (req: AuthRequest<{ tripId: string }>, res: Response) => {
+    const { tripId } = req.params;
     const userId = req.user?.id as string;
 
-    const trip = await this._tripService.completeTrip(id, userId);
+    const trip = await this._tripService.completeTrip(tripId, userId);
     this.sendSuccess(res, trip, 'Trip successfully completed and escrow funds released.');
   });
 
   getChatHistory = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { tripId } = req.params;
     const { page, limit } = req.query;
     const pageNum = parseInt(page as string) || 1;
     const limitNum = parseInt(limit as string) || 50; // History usually loads more
 
-    const chatHistory = await this._tripService.getChatHistory(id, pageNum, limitNum);
+    const chatHistory = await this._tripService.getChatHistory(tripId, pageNum, limitNum);
     this.sendSuccess(res, chatHistory, 'Chat history fetched successfully');
   });
 
   assignGuide = asyncHandler(
     async (
-      req: AuthRequest<{ id: string }, unknown, { guideId?: string | null }>,
+      req: AuthRequest<{ tripId: string }, unknown, { guideId?: string | null }>,
       res: Response
     ) => {
-      const { id } = req.params;
+      const { tripId } = req.params;
       const { guideId } = req.body; // can be a string ID or null
       const userId = req.user?.id as string;
 
-      const updatedTrip = await this._tripService.assignGuide(id, guideId ?? null, userId);
+      const updatedTrip = await this._tripService.assignGuide(tripId, guideId ?? null, userId);
       this.sendSuccess(
         res,
         updatedTrip,

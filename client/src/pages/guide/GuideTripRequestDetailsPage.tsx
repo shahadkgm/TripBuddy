@@ -13,9 +13,9 @@ import {
   XCircle,
   Info,
 } from 'lucide-react';
-import { tripService } from '../../services/c.trip.service';
-import { guideService } from '../../services/c.guide.service';
-import { authService } from '../../services/c.authService';
+import { tripService } from '../../services/trip.service';
+import { guideService } from '../../services/guide.service';
+import { authService } from '../../services/auth.service';
 import type { ITrip } from '../../interface/ITripdetails';
 import toast from 'react-hot-toast';
 import { GuideLayout } from './GuideLayout';

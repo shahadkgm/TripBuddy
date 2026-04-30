@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AlertTriangle, Send, X } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { reportService } from '../../services/c.report.service';
+import { reportService } from '../../services/report.service';
 
 interface ReportModalProps {
   tripId: string;

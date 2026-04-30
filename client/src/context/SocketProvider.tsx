@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { authService } from '../services/c.authService';
-import { tripService } from '../services/c.trip.service';
+import { authService } from '../services/auth.service';
+import { tripService } from '../services/trip.service';
 import toast from 'react-hot-toast';
 import { MessageSquare } from 'lucide-react';
 import type { IMessage } from '../interface/IMessage';

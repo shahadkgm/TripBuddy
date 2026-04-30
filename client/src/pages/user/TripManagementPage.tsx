@@ -23,10 +23,10 @@ import {
   Star,
   AlertTriangle,
 } from 'lucide-react';
-import { tripService } from '../../services/c.trip.service';
-import { aiService } from '../../services/c.ai.service';
-import { guideService } from '../../services/c.guide.service';
-import { paymentService } from '../../services/c.payment.service';
+import { tripService } from '../../services/trip.service';
+import { aiService } from '../../services/ai.service';
+import { guideService } from '../../services/guide.service';
+import { paymentService } from '../../services/payment.service';
 import { TripStatus } from '../../constants/TripStatus';
 import type { ITrip, IItineraryItem, IGuide, IGuideInvitation } from '../../interface/ITripdetails';
 import type { IPayment } from '../../interface/IPayment';
@@ -76,6 +76,7 @@ const TripManagementPage = () => {
       if (!id) return;
       try {
         const data = await tripService.getTripById(id);
+        console.log(`Fetched trip data from tr management: ${JSON.stringify(data.guideId?.averageRating)}`);
         setTrip(data);
 
         // Initialize itinerary if it exists, or create default days based on trip duration
@@ -347,11 +348,10 @@ Do not include any other text, markdown formatting, or code blocks outside the J
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
               disabled={isSaving}
-              className={`px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg transition-all flex items-center gap-2 ${
-                isSaved && !isHovering
+              className={`px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg transition-all flex items-center gap-2 ${isSaved && !isHovering
                   ? 'bg-emerald-500 text-white shadow-emerald-100 cursor-default'
                   : 'bg-indigo-600 text-white shadow-indigo-100 hover:bg-slate-900 active:scale-95'
-              }`}
+                }`}
             >
               {isSaving ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -399,11 +399,10 @@ Do not include any other text, markdown formatting, or code blocks outside the J
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as 'itinerary' | 'members' | 'settings' | 'guide')}
-                className={`w-full flex items-center justify-between p-4 rounded-3xl transition-all border-2 ${
-                  activeTab === tab.id
+                className={`w-full flex items-center justify-between p-4 rounded-3xl transition-all border-2 ${activeTab === tab.id
                     ? 'bg-white border-indigo-600 shadow-xl shadow-indigo-100/20 text-indigo-700'
                     : 'bg-transparent border-transparent text-slate-400 hover:bg-white hover:border-slate-100'
-                } group`}
+                  } group`}
               >
                 <div className="flex items-center gap-4">
                   <div
@@ -630,10 +629,10 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                           />
                           {member._id ===
                             (typeof trip.userId === 'string' ? trip.userId : trip.userId._id) && (
-                            <div className="absolute -top-2 -right-2 bg-indigo-600 text-white p-1 rounded-lg border-2 border-white">
-                              <ShieldCheck size={12} />
-                            </div>
-                          )}
+                              <div className="absolute -top-2 -right-2 bg-indigo-600 text-white p-1 rounded-lg border-2 border-white">
+                                <ShieldCheck size={12} />
+                              </div>
+                            )}
                         </div>
                         <div>
                           <h4 className="font-black text-slate-800 tracking-tight">
@@ -729,6 +728,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                 <div className="flex items-center gap-1">
                                   <Star size={12} className="text-amber-400 fill-amber-400" />
                                   <span className="text-[11px] font-black text-slate-700">
+
                                     {trip.guideId.averageRating?.toFixed(1) || '0.0'}
                                   </span>
                                   <span className="text-[10px] text-slate-400 font-medium">
@@ -904,11 +904,10 @@ Do not include any other text, markdown formatting, or code blocks outside the J
 
                               <button
                                 onClick={() => handleAssignGuide(isAssigned ? null : guideId)}
-                                className={`w-full py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
-                                  isAssigned
+                                className={`w-full py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${isAssigned
                                     ? 'bg-indigo-600 text-white'
                                     : 'bg-white border border-slate-200 text-slate-600 hover:border-indigo-600 hover:text-indigo-600'
-                                }`}
+                                  }`}
                               >
                                 {isAssigned ? 'Assigned' : 'Select Guide'}
                               </button>
@@ -929,12 +928,12 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                       {guides.filter(g =>
                         g.serviceArea?.toLowerCase().includes(trip.destination?.toLowerCase())
                       ).length === 0 && (
-                        <div className="col-span-full py-6 text-center bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
-                          <p className="text-[9px] font-black uppercase tracking-widest text-slate-300">
-                            No locals matched currently
-                          </p>
-                        </div>
-                      )}
+                          <div className="col-span-full py-6 text-center bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-300">
+                              No locals matched currently
+                            </p>
+                          </div>
+                        )}
                     </div>
                   </div>
 
@@ -1098,13 +1097,12 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                 }
                               }}
                               disabled={isLoading || latestInv?.status === 'pending'}
-                              className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all ${
-                                isAssigned
+                              className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all ${isAssigned
                                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
                                   : latestInv?.status === 'pending'
                                     ? 'bg-amber-50 text-amber-600 border border-amber-100 cursor-default'
                                     : 'bg-slate-100 text-slate-600 hover:bg-indigo-600 hover:text-white hover:shadow-lg hover:shadow-indigo-100'
-                              }`}
+                                }`}
                             >
                               {isLoading ? (
                                 <Loader2 size={14} className="animate-spin" />

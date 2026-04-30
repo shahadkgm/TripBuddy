@@ -9,7 +9,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { guideService } from '../../services/c.guide.service';
+import { guideService } from '../../services/guide.service';
 import { GuideLayout } from './GuideLayout';
 import { Pagination } from '../../components/Pagination';
 import toast from 'react-hot-toast';

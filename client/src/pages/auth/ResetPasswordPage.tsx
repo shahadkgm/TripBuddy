@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../../utils/api';
 import { Button } from '../../components/Button';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 
 export const ResetPasswordPage = () => {
   const { token } = useParams();

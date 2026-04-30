@@ -1,7 +1,7 @@
 import { type FC } from 'react';
 import { User, LogOut, Menu } from 'lucide-react';
 import { Logo } from '../../components/common/Logo';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 

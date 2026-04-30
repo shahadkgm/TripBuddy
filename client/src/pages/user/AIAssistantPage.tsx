@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, X, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { aiService } from '../../services/c.ai.service';
+import { aiService } from '../../services/ai.service';
 import toast from 'react-hot-toast';
 
 interface Message {

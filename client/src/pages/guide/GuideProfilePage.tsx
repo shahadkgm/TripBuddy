@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { Camera, MapPin, Briefcase, ArrowLeft, Loader2, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../../services/c.authService';
-import { guideService } from '../../services/c.guide.service';
+import { authService } from '../../services/auth.service';
+import { guideService } from '../../services/guide.service';
 import { GuideLayout } from './GuideLayout';
 import toast from 'react-hot-toast';
 

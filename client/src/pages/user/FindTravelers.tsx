@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Search, MapPin, Plane, Tag, RotateCcw, ChevronDown } from 'lucide-react';
-import { tripService } from '../../services/c.trip.service';
+import { tripService } from '../../services/trip.service';
 import { TravelerCard } from '../../components/TravelerCard';
 import { Pagination } from '../../components/Pagination';
 import { Navbar } from '../../components/home/Navbar';

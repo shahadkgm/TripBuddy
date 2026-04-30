@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, X, User } from 'lucide-react';
 import { useSocket } from '../hooks/useSocket';
-import { authService } from '../services/c.authService';
-import { tripService } from '../services/c.trip.service';
+import { authService } from '../services/auth.service';
+import { tripService } from '../services/trip.service';
 import type { IMessage } from '../interface/IMessage';
 
 interface ChatWindowProps {

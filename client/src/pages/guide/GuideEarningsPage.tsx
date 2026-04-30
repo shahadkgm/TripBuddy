@@ -8,8 +8,8 @@ import {
   BarChart3,
   Clock,
 } from 'lucide-react';
-import { authService } from '../../services/c.authService';
-import { tripService } from '../../services/c.trip.service';
+import { authService } from '../../services/auth.service';
+import { tripService } from '../../services/trip.service';
 import { GuideLayout } from './GuideLayout';
 import type { ITrip } from '../../interface/ITripdetails';
 import { TripStatus } from '../../constants/TripStatus';

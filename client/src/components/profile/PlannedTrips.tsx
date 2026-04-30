@@ -15,8 +15,8 @@ import {
   Loader2,
   Settings,
 } from 'lucide-react';
-import { tripService } from '../../services/c.trip.service';
-import { connectionService } from '../../services/c.connection.service';
+import { tripService } from '../../services/trip.service';
+import { connectionService } from '../../services/connection.service';
 import { Pagination } from '../Pagination';
 import { TripStatus } from '../../constants/TripStatus';
 import type { ITrip } from '../../interface/ITripdetails';

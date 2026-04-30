@@ -3,7 +3,7 @@ import RegisterForm from '../../components/RegisterForm';
 import LoginForm from '../../components/LoginForm';
 import { useNavigate, Link } from 'react-router-dom';
 import type { AuthPageProps } from '../../interface/IAuth';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 import { useEffect } from 'react';
 
 export default function AuthPage({ mode }: AuthPageProps) {

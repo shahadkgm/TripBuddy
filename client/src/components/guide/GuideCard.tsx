@@ -1,7 +1,7 @@
 import React from 'react';
 import { MapPin, Sparkles, Star } from 'lucide-react';
 import type { IGuide } from '../../interface/IGuide';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 import { InviteGuideModal } from './InviteGuideModal';
 
 interface GuideCardProps {

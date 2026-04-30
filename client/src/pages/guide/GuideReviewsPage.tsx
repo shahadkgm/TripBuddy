@@ -6,7 +6,7 @@ import {
   Quote,
   ThumbsUp,
 } from 'lucide-react';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 import { GuideLayout } from './GuideLayout';
 import { Pagination } from '../../components/Pagination';
 import api from '../../utils/api';

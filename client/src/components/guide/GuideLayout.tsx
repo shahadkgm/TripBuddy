@@ -11,7 +11,7 @@ import {
   X,
   Plane,
 } from 'lucide-react';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 import { useSocketContext } from '../../hooks/useSocketContext';
 import toast from 'react-hot-toast';
 

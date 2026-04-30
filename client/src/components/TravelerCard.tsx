@@ -10,8 +10,8 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import type { ITrip } from '../interface/ITripdetails';
-import { connectionService } from '../services/c.connection.service';
-import { authService } from '../services/c.authService';
+import { connectionService } from '../services/connection.service';
+import { authService } from '../services/auth.service';
 import { TripStatus } from '../constants/TripStatus';
 import { useNavigate } from 'react-router-dom';
 

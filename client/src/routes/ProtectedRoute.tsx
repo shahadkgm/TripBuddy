@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { authService } from '../services/c.authService';
+import { authService } from '../services/auth.service';
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { Loader2 } from 'lucide-react';

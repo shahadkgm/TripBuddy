@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast'; // Added toast but it have problem i want to recheck this
-import { authService } from '../services/c.authService';
+import { authService } from '../services/auth.service';
 import { Button } from './Button';
 import { GoogleLogin } from '@react-oauth/google';
 export const LoginForm = () => {

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FooterCTA } from '../../components/FooterCTA';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 import { useKycStatus } from '../../hooks/useKycStatus';
 import { Calendar, Users, MapPin, UserCheck, X } from 'lucide-react';
 import toast from 'react-hot-toast';

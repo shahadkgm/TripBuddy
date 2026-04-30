@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, LayoutDashboard, XCircle, RefreshCcw, ArrowLeft } from 'lucide-react';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 
 interface GuideStatusPageProps {
   status: 'pending' | 'rejected' | 'verified';

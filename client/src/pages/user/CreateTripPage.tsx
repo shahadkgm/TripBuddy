@@ -41,10 +41,10 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-import { authService } from '../../services/c.authService';
-import { tripService } from '../../services/c.trip.service';
-import { nearbyService } from '../../services/c.nearby.service';
-import { weatherService, type WeatherData } from '../../services/c.weather.service';
+import { authService } from '../../services/auth.service';
+import { tripService } from '../../services/trip.service';
+import { nearbyService } from '../../services/nearby.service';
+import { weatherService, type WeatherData } from '../../services/weather.service';
 
 interface NominatimSuggestion {
   display_name: string;

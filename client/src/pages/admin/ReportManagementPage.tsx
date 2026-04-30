@@ -10,7 +10,7 @@ import {
   ExternalLink,
   ChevronRight
 } from 'lucide-react';
-import { reportService } from '../../services/c.report.service';
+import { reportService } from '../../services/report.service';
 import toast from 'react-hot-toast';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 

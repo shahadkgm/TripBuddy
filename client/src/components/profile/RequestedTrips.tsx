@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Globe, Compass, Loader2 } from 'lucide-react';
-import { connectionService } from '../../services/c.connection.service';
+import { connectionService } from '../../services/connection.service';
 import { Pagination } from '../Pagination';
 import type { ConnectionRequest } from '../../types/auth.dto';
 import toast from 'react-hot-toast';
