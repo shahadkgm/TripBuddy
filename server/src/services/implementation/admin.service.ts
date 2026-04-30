@@ -55,6 +55,11 @@ export class AdminService implements IAdminService {
       throw new AppError('Cannot delete yourself', StatusCode.FORBIDDEN);
     }
 
+    const user = await this.adminRepo.findUserById(userId);
+    if (user?.role === 'admin') {
+      throw new AppError('Cannot delete another admin account', StatusCode.FORBIDDEN);
+    }
+
     const deleted = await this.adminRepo.deleteUser(userId);
     if (!deleted) {
       throw new AppError('User not found', StatusCode.NOT_FOUND);

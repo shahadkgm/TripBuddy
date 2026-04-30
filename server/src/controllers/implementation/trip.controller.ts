@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { StatusCode } from '../../constants/statusCode.enum';
 import { ITripService } from '../../services/interface/ITripService';
 import { CreateTripDTO } from '../../dto/trip.dto';
 import { asyncHandler } from '../../utils/asyncHandler';
@@ -49,5 +48,17 @@ export class TripController extends BaseController {
 
         const result = await this._tripService.getAllTrips(filters, pageNum, limitNum);
         this.sendSuccess(res, result, 'All trips fetched successfully');
+    });
+
+    updateTrip = asyncHandler(async (req: Request, res: Response) => {
+        const { id } = req.params;
+        const updateData = req.body;
+        logger.info('Trip update request received', { id, updateData });
+        const updatedTrip = await this._tripService.updateTrip(id, updateData);
+        if (!updatedTrip) {
+            this.sendNotFound(res, 'Trip not found or update failed');
+            return;
+        }
+        this.sendSuccess(res, updatedTrip, 'Trip updated successfully');
     });
 }

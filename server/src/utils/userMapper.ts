@@ -10,7 +10,7 @@ export class UserMapper {
       id: user._id.toString(),
       name: user.name,
       email: user.email,
-      avatarURL: user.avatarURL,
+      avatarURL: user.avatarURL ? user.avatarURL.replace(/\\/g, '/') : undefined,
       bio: user.bio,
       hourlyRate: user.hourlyRate,
       serviceArea: user.serviceArea,
@@ -20,7 +20,7 @@ export class UserMapper {
       isBlocked: user.isBlocked,
       createdAt: user.createdAt?.toISOString() ?? '',
       kycStatus: user.kyc?.status || 'none',
-      kycDocument: user.kyc?.filePath || '',
+      kycDocument: user.kyc?.filePath ? user.kyc.filePath.replace(/\\/g, '/') : '',
     };
   }
 }

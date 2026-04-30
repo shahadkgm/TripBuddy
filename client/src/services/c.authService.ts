@@ -84,5 +84,18 @@ export const authService = {
   },
   setToken(token: string) {
     localStorage.setItem("accessToken", token);
+  },
+
+  async updateProfile(userId: string, updateData: any) {
+    const response = await api.patch(`/api/users/edit-profile/${userId}`, updateData);
+    const updatedUser = response.data.data;
+
+    if (updatedUser) {
+      const currentUser = this.getCurrentUser();
+      const newUser = { ...currentUser, ...updatedUser };
+      localStorage.setItem("user", JSON.stringify(newUser));
+      window.dispatchEvent(new Event("storage"));
+    }
+    return updatedUser;
   }
 };

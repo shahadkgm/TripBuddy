@@ -19,4 +19,15 @@ export const tripService = {
         const response = await api.get<ApiResponse<ITrip[]>>(`/api/plantrips/user/${userId}`);
         return response.data.data;
     },
+
+    async getTripById(id: string): Promise<ITrip> {
+        const response = await api.get<ApiResponse<ITrip>>(`/api/plantrips/${id}`);
+        return response.data.data;
+    },
+
+    async updateTrip(id: string, data: Partial<ITrip> | FormData): Promise<ITrip> {
+        const headers = data instanceof FormData ? { "Content-Type": "multipart/form-data" } : {};
+        const response = await api.patch<ApiResponse<ITrip>>(`/api/plantrips/${id}`, data, { headers });
+        return response.data.data;
+    },
 };

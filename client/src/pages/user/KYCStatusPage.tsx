@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import { authService } from '../../services/c.authService';
 
 const KYCStatusPage = () => {
@@ -8,7 +8,6 @@ const KYCStatusPage = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const user = authService.getCurrentUser();
-  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchKYCDetails = async () => {
@@ -16,7 +15,7 @@ const KYCStatusPage = () => {
       if (userId) {
         try {
           console.log("userId", userId)
-          const res = await axios.get(`${API_URL}/api/kyc-status/${userId}`);
+          const res = await api.get(`/api/kyc-status/${userId}`);
           setKycData(res.data.data);
           console.log("KYC Data from API:", res.data.data);
         } catch (err) {
@@ -52,7 +51,7 @@ const KYCStatusPage = () => {
           <div className="text-xl font-bold">{styles.label}</div>
           <p className="text-sm mt-2 opacity-80">
             {kycData?.status === 'pending' && "We are reviewing your document. This usually takes 24 hours."}
-            {kycData?.status === 'approved' && "Your account is fully verified. Enjoy all features!"}
+            {kycData?.status === 'approved' && "Congratulations! You are now a verified Guide. Please login again to access your Guide Dashboard."}
             {kycData?.status === 'rejected' && "We couldn't verify your document. Please try again."}
           </p>
         </div>
@@ -78,10 +77,19 @@ const KYCStatusPage = () => {
             Try Again
           </button>
         )}
+{/* 
+        {kycData?.status === 'approved' && (
+          <button
+            onClick={() => authService.logout()}
+            className="w-full mt-8 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 hover:shadow-lg transition flex items-center justify-center gap-2"
+          >
+            Go to Login
+          </button>
+        )} */}
 
         <button
           onClick={() => navigate('/')}
-          className="w-full mt-4 py-3 text-gray-500 text-sm font-medium"
+          className="w-full mt-4 py-3 text-gray-400 text-sm font-medium hover:text-gray-600"
         >
           Back to Home
         </button>

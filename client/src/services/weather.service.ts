@@ -9,6 +9,11 @@ export interface WeatherData {
     description: string;
     icon: string;
     uvIndex: number;
+    humidity: number;
+    feelsLike: number;
+    windSpeed: number;
+    minTemp: number;
+    maxTemp: number;
     date: string;
 }
 
@@ -27,7 +32,7 @@ export const weatherService = {
 
     async getWeather(city: string): Promise<WeatherData> {
         const coords = await this.getLatLong(city);
-        const response = await axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,weather_code&daily=uv_index_max&timezone=auto`);
+        const response = await axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&daily=uv_index_max,temperature_2m_max,temperature_2m_min&timezone=auto`);
 
         const code = response.data.current.weather_code;
         const weatherMapping: Record<number, { desc: string, icon: string }> = {
@@ -51,6 +56,11 @@ export const weatherService = {
             description: weather.desc,
             icon: weather.icon,
             uvIndex: response.data.daily.uv_index_max[0],
+            humidity: response.data.current.relative_humidity_2m,
+            feelsLike: Math.round(response.data.current.apparent_temperature),
+            windSpeed: response.data.current.wind_speed_10m,
+            minTemp: Math.round(response.data.daily.temperature_2m_min[0]),
+            maxTemp: Math.round(response.data.daily.temperature_2m_max[0]),
             date: new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long' })
         };
     }

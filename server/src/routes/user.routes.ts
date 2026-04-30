@@ -8,6 +8,8 @@ import { dtoValidationMiddleware } from '../middleware/dtoValidation';
 import { ForgotPasswordDTO, ResetPasswordDTO } from '../dto/user.dto';
 import { API_ROUTES } from '../constants/routes.constants';
 
+import { protect } from '../middleware/authMiddleware';
+
 const router = Router();
 
 // DI
@@ -16,18 +18,23 @@ const mailService = new MailService();
 const userService = new UserService(userRepository, mailService);
 const userController = new UserController(userService);
 
-// router.post('/register', userController.registerUser.bind(userController));
+// Public routes
 router.post(
     API_ROUTES.USER.FORGOT_PASSWORD,
     dtoValidationMiddleware(ForgotPasswordDTO),
     userController.forgotPassword
 );
 
-router.get(API_ROUTES.USER.GET_ALL, userController.getUsers);
-
 router.post(
     API_ROUTES.USER.RESET_PASSWORD,
     dtoValidationMiddleware(ResetPasswordDTO),
     userController.resetPassword
 );
+
+// Protected routes
+router.use(protect);
+
+router.get(API_ROUTES.USER.GET_ALL, userController.getUsers);
+router.patch(API_ROUTES.USER.EDIT_PROFILE, userController.updateProfile);
+
 export default router;

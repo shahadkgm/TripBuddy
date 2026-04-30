@@ -3,6 +3,7 @@ import { IUserService } from '../interface/IUserService';
 import { IMailService } from '../interface/IMailService';
 import { RegisterUserDTO } from '../../dto/auth.dto';
 import { RegisterUserResponseDTO } from '../../dto/user.dto';
+import { IUser } from '../../types/user.type';
 import { AppError } from '../../utils/AppError';
 import { StatusCode } from '../../constants/statusCode.enum';
 import crypto from 'crypto';
@@ -94,5 +95,27 @@ export class UserService implements IUserService {
     await this._userRepository.updatePassword(user._id.toString(), newPassword);
 
     return { message: 'Password updated successfully' };
+  }
+
+  async updateUser(userId: string, updateData: Partial<IUser>): Promise<IUser> {
+    const user = await this._userRepository.findById(userId);
+
+    if (!user) {
+      throw new AppError('User not found', StatusCode.NOT_FOUND);
+    }
+
+    // Define allowed fields to update and copy them explicitly for type safety
+    const filteredUpdate: Partial<IUser> = {};
+    if (updateData.name !== undefined) filteredUpdate.name = updateData.name;
+    if (updateData.bio !== undefined) filteredUpdate.bio = updateData.bio;
+    if (updateData.avatarURL !== undefined) filteredUpdate.avatarURL = updateData.avatarURL;
+
+    const updatedUser = await this._userRepository.updateById(userId, filteredUpdate);
+
+    if (!updatedUser) {
+      throw new AppError('Failed to update user', StatusCode.INTERNAL_SERVER_ERROR);
+    }
+
+    return updatedUser;
   }
 }

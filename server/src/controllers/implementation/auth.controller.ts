@@ -36,9 +36,9 @@ export class AuthController extends BaseController implements IAuthController {
 
     res.cookie('refreshToken', result.tokens?.refreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'none',
-      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE)
     });
 
     this.sendSuccess(res, {
@@ -59,8 +59,8 @@ export class AuthController extends BaseController implements IAuthController {
     res.cookie('refreshToken', result.tokens?.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000,
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE) 
     });
 
     this.sendSuccess(res, {
@@ -82,13 +82,7 @@ export class AuthController extends BaseController implements IAuthController {
       throw new AppError('No refresh token found', StatusCode.UNAUTHORIZED);
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as UserPayload;
-
-    const newAccessToken = jwt.sign(
-      { id: decoded.id, role: decoded.role },
-      process.env.JWT_SECRET!,
-      { expiresIn: (process.env.ACCESS_TOKEN_EXPIRE as jwt.SignOptions['expiresIn']) || '15m' }
-    );
+    const newAccessToken = await this._authService.refreshToken(token);
 
     this.sendSuccess(res, { accessToken: newAccessToken }, 'Token refreshed successfully');
   });

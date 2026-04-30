@@ -29,4 +29,9 @@ export class TripService implements ITripService {
         logger.info('Fetching all trips with filters in t-s', { filters, page, limit });
         return await this._tripRepository.findAllTrips(filters, page, limit);
     }
+
+    async updateTrip(id: string, data: Partial<CreateTripDTO>): Promise<ITripDocument | null> {
+        logger.info('Updating trip in service', { id, data });
+        return await this._tripRepository.updateById(id, data);
+    }
 }

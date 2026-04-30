@@ -82,7 +82,7 @@ export class AuthService implements IAuthService {
     }
 
     if (user.isBlocked) {
-      throw new AppError('User is blocked', StatusCode.FORBIDDEN);
+      throw new AppError('User blocked', StatusCode.FORBIDDEN);
     }
 
     if (!user.isVerified) {
@@ -132,7 +132,7 @@ export class AuthService implements IAuthService {
     });
 
     if (user.isBlocked) {
-      throw new AppError('User is blocked', StatusCode.FORBIDDEN);
+      throw new AppError('User blocked', StatusCode.FORBIDDEN);
     }
 
     const tokens = this.generateTokens({
@@ -166,6 +166,31 @@ export class AuthService implements IAuthService {
     logger.info('Email verified:', user.email);
 
     return { message: 'Email verified successfully' };
+  }
+
+  async refreshToken(token: string): Promise<string> {
+    try {
+      const decoded = jwt.verify(token, this.JWT_SECRET) as { id: string, role: string };
+      const user = await this.userRepo.findById(decoded.id);
+
+      if (!user) {
+        throw new AppError('User not found', StatusCode.UNAUTHORIZED);
+      }
+
+      if (user.isBlocked) {
+        throw new AppError('User blocked', StatusCode.FORBIDDEN);
+      }
+
+      const { accessToken } = this.generateTokens({
+        id: user._id.toString(),
+        role: user.role,
+      });
+
+      return accessToken;
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw new AppError('Invalid refresh token', StatusCode.UNAUTHORIZED);
+    }
   }
 
   // =================================================

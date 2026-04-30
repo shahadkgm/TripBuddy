@@ -2,9 +2,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/c.authService";
-import axios from "axios";
-import toast from 'react-hot-toast'; // Added toast but it have problem i want to recheck this 
-const API_URL = import.meta.env.VITE_API_URL;
+import api from "../../utils/api";
+import toast from 'react-hot-toast';
 
 export const Hero = () => {
   const navigate = useNavigate();
@@ -21,7 +20,7 @@ export const Hero = () => {
       }
 
       try {
-        const res = await axios.get(`${API_URL}/api/kyc-status/${userId}`);
+        const res = await api.get(`/api/kyc-status/${userId}`);
         console.log("KYC Response in Hero:", res.data);
         setKycStatus(res.data.data.status);
       } catch (err) {

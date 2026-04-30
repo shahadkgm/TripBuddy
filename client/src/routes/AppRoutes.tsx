@@ -18,6 +18,8 @@ import ConnectionRequestsPage from "../pages/user/ConnectionRequestsPage";
 import ExpenseSplitPage from "../pages/user/ExpenseSplitPage";
 import WeatherPage from "../pages/user/WeatherPage";
 
+import ProfilePage from "../pages/user/ProfilePage";
+
 import { AdminDashboard } from "../pages/admin/AdminDashboard";
 import { UserManagement } from "../pages/admin/UserManagement";
 import { GuideManagement } from "../pages/admin/GuideManagement";
@@ -38,15 +40,18 @@ export default function AppRoutes() {
       {/* User */}
       <Route element={<ProtectedRoute allowedRoles="user" />}>
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/kyc-status" element={<KYCStatusPage />} />
         <Route path="/kyc-verification" element={<KYCPage />} />
         <Route path="/join-guide" element={<GuideRegistrationPage />} />
         <Route path="/create-trip" element={<CreateTripPage />} />
+        <Route path="/edit-trip/:id" element={<CreateTripPage />} />
         <Route path="/find-travelers" element={<FindTravelers />} />
         <Route path="/connection-requests" element={<ConnectionRequestsPage />} />
         <Route path="/expenses" element={<ExpenseSplitPage />} />
         <Route path="/weather" element={<WeatherPage />} />
       </Route>
+
 
       {/* Admin */}
       <Route element={<ProtectedRoute allowedRoles="admin" />}>

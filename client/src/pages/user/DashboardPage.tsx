@@ -1,10 +1,10 @@
-//import React from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FooterCTA } from '../../components/FooterCTA';
 import {
   Calendar, Users, MessageSquare, Wallet,
-  Users2, Image, MapPin, LifeBuoy, CloudSun,
-  UserCircle, Search, UserCheck, X
+  Users2, Image, MapPin, LifeBuoy,
+  Search, UserCheck, X
 } from 'lucide-react';
 
 const DASHBOARD_FEATURES = [
@@ -22,13 +22,13 @@ const DASHBOARD_FEATURES = [
     color: "bg-blue-50",
     path: "/find-travelers"
   },
-  {
-    title: "Connection Requests",
-    desc: "Manage people who want to travel with you.",
-    icon: <UserCheck className="w-5 h-5 text-emerald-600" />,
-    color: "bg-emerald-50",
-    path: "/connection-requests"
-  },
+  // {
+  //   title: "Connection Requests",
+  //   desc: "Manage people who want to travel with you.",
+  //   icon: <UserCheck className="w-5 h-5 text-emerald-600" />,
+  //   color: "bg-emerald-50",
+  //   path: "/connection-requests"
+  // },
   {
     title: "Chat with Travelers",
     desc: "Coordinate plans instantly with messaging.",
@@ -65,25 +65,11 @@ const DASHBOARD_FEATURES = [
     path: "/nearby"
   },
   {
-    title: "Weather Forecast",
-    desc: "Check the forecast for your next destination.",
-    icon: <CloudSun className="w-5 h-5 text-indigo-600" />,
-    color: "bg-indigo-50",
-    path: "/weather"
-  },
-  {
     title: "Travel Assistance",
     desc: "Get 24/7 help on the go",
     icon: <LifeBuoy className="w-5 h-5 text-cyan-600" />,
     color: "bg-cyan-50",
     path: "/support"
-  },
-  {
-    title: "Profile",
-    desc: "View and edit your profile",
-    icon: <UserCircle className="w-5 h-5 text-violet-600" />,
-    color: "bg-violet-50",
-    path: "/profile"
   },
   {
     title: "Find Local Experts",
@@ -92,6 +78,7 @@ const DASHBOARD_FEATURES = [
     color: "bg-amber-50",
     path: "/dashboard"
   },
+
   {
     title: "Join as a guide",
     desc: "Start earning by guiding",
@@ -103,6 +90,13 @@ const DASHBOARD_FEATURES = [
 
 const DashboardPage = () => {
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  useEffect(() => {
+    if (user.role === 'guide') {
+      navigate('/guide-dashboard', { replace: true });
+    }
+  }, [user.role, navigate]);
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 md:p-8">

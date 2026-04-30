@@ -4,6 +4,8 @@ import { IUser } from '../../types/user.type';
 import { CreateUserDTO } from '../../dto/user.dto';
 import { IAdminRepository } from '../interface/IAdminRepository';
 import { UserModel } from '../../models/user.models';
+import { KYC } from '../../models/kyc.model';
+import { TripModel } from '../../models/trip.model';
 import { logger } from '../../utils/logger';
 import { BaseRepository } from './base.repository';
 import { IGuide } from '../../types/guide.type';
@@ -16,7 +18,6 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
 
 
   async getAllUsers(page: number, limit: number, search: string) {
-
     page = Math.max(1, page);
     limit = Math.max(1, limit);
     const skip = (page - 1) * limit;
@@ -30,21 +31,42 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
       : {};
 
     const [users, totalUsers] = await Promise.all([
-      UserModel.find(query)
-        .select('-password')
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
+      UserModel.aggregate([
+        { $match: query },
+        { $sort: { createdAt: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+        {
+          $lookup: {
+            from: 'kycs',
+            let: { userIdStr: { $toString: '$_id' } },
+            pipeline: [
+              { $match: { $expr: { $eq: ['$userId', '$$userIdStr'] } } },
+              { $sort: { uploadedAt: -1 } },
+              { $limit: 1 }
+            ],
+            as: 'kycData'
+          }
+        },
+        {
+          $addFields: {
+            kyc: { $arrayElemAt: ['$kycData', 0] }
+          }
+        },
+        {
+          $project: {
+            password: 0,
+            kycData: 0
+          }
+        }
+      ]),
       UserModel.countDocuments(query)
     ]);
-    logger.debug(`users from debug${users}`);
-    logger.info('the user gett all in getall user admin ');
 
-    const formattedUsers = users as IUser[];
-    // logger.debug("from repo",f)
+    logger.info('Fetched all users with KYC data in admin repository');
+
     return {
-      users: formattedUsers,
+      users: users as IUser[],
       totalPages: Math.ceil(totalUsers / limit),
       currentPage: page,
       totalUsers
@@ -67,9 +89,24 @@ export class AdminRepository extends BaseRepository<IUser, CreateUserDTO> implem
     ).select('-password');
   }
   async deleteUser(id: string): Promise<boolean> {
-    console.log('from adminrepo', id);
-    const result = await UserModel.findByIdAndDelete(id);
-    return !!result;
+    logger.info(`Starting cascading delete for user: ${id}`);
+
+    // Perform cleanup in parallel
+    const [userResult] = await Promise.all([
+      UserModel.findByIdAndDelete(id),
+      GuideProfile.deleteMany({ userId: id }),
+      KYC.deleteMany({ userId: id }),
+      // Also cleanup trips if they exist
+      TripModel.deleteMany({ userId: id })
+    ]);
+
+    if (userResult) {
+      logger.info(`Successfully deleted user ${id} and all associated data (Guide, KYC, Trips)`);
+      return true;
+    }
+
+    logger.warn(`User ${id} not found for deletion`);
+    return false;
   }
 
   //guide

@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { StatusCode } from '../../constants/statusCode.enum';
 import { IAdminService } from '../../services/interface/Iadminservice';
 import { IAdminController } from '../interfaces/IadminController';
 import { asyncHandler } from '../../utils/asyncHandler';

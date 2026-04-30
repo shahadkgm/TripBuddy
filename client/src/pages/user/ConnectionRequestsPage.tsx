@@ -80,11 +80,11 @@ const ConnectionRequestsPage = () => {
             `}</style>
             <div className="max-w-4xl mx-auto">
                 <button
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => navigate('/profile')}
                     className="flex items-center gap-2 mb-8 text-slate-500 hover:text-indigo-600 transition-all font-medium"
                 >
                     <ChevronLeft className="w-5 h-5" />
-                    Back to Dashboard
+                    Back to Profile
                 </button>
 
                 <header className="mb-10">

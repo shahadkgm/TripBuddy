@@ -29,8 +29,8 @@ router.post(
   guideController.registerGuide
 );
 
-router.get(API_ROUTES.GUIDE.STATUS, guideController.getGuideStatus);
+router.get(API_ROUTES.GUIDE.STATUS, protect, guideController.getGuideStatus);
 
-router.get(API_ROUTES.GUIDE.GET_ALL, guideController.getAllGuides);
+router.get(API_ROUTES.GUIDE.GET_ALL, protect, guideController.getAllGuides);
 
 export default router;
