@@ -40,25 +40,25 @@ export const LocationInput: React.FC<LocationInputProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const fetchSuggestions = async (query: string) => {
-    if (query.length < 3) {
-      setSuggestions([]);
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const data = await nearbyService.getSuggestions(query);
-      setSuggestions(data);
-      setShowSuggestions(true);
-    } catch (_error) {
-      console.error(_error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Debounce search
   useEffect(() => {
+    const fetchSuggestions = async (query: string) => {
+      if (query.length < 3) {
+        setSuggestions([]);
+        return;
+      }
+      setIsLoading(true);
+      try {
+        const data = await nearbyService.getSuggestions(query);
+        setSuggestions(data);
+        setShowSuggestions(true);
+      } catch (_error) {
+        console.error(_error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     const timeoutId = setTimeout(() => {
       if (inputValue && inputValue.length >= 3 && inputValue !== value) {
         fetchSuggestions(inputValue);
@@ -68,7 +68,7 @@ export const LocationInput: React.FC<LocationInputProps> = ({
       }
     }, 500);
     return () => clearTimeout(timeoutId);
-  }, [inputValue]);
+  }, [inputValue, value]);
 
   const handleSelect = (suggestion: { display_name: string; lat: string; lon: string }) => {
     const selectedValue = suggestion.display_name;
@@ -96,9 +96,8 @@ export const LocationInput: React.FC<LocationInputProps> = ({
           onFocus={() => {
             if (suggestions.length > 0) setShowSuggestions(true);
           }}
-          className={`w-full pl-12 pr-10 py-4 bg-slate-50 border ${
-            error ? 'border-red-500' : 'border-slate-100'
-          } rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all ${className}`}
+          className={`w-full pl-12 pr-10 py-4 bg-slate-50 border ${error ? 'border-red-500' : 'border-slate-100'
+            } rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all ${className}`}
           placeholder={placeholder}
         />
         {isLoading && (

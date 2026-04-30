@@ -24,17 +24,15 @@ const VerifyEmail = () => {
     hasStarted.current = true;
 
     const verify = async () => {
+      const loadToast = toast.loading('Verifying email...');
       try {
         await authService.verifyEmail(token);
-        toast.success('Email verified successfully 🎉');
+        toast.success('Email verified successfully 🎉', { id: loadToast });
         navigate('/login');
       } catch (_err: unknown) {
-      const errorObj = _err as { response?: { data?: { message?: string } } };
-      const msg = errorObj.response?.data?.message || 'An unexpected error occurred.';
-        // If the first one succeeded, the user is likely verified.
-        // You might want to check if the error is "INVALID_TOKEN_OR_EXPIRED"
-        // and ignore it if the user is already redirected.
-        toast.error(_err.response?.data?.message || 'Verification failed');
+        const errorObj = _err as { response?: { data?: { message?: string } } };
+        const msg = errorObj.response?.data?.message || 'Link expired or invalid';
+        toast.error(msg, { id: loadToast });
       }
     };
 

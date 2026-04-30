@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Search, MapPin, RotateCcw, SlidersHorizontal } from 'lucide-react';
 import api from '../../utils/api';
 import { GuideCard } from '../../components/guide';
@@ -19,39 +19,46 @@ const FindGuidesPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const limit = 6;
 
-  const fetchGuides = async (currentPage = page, filters = { destination, maxPrice }) => {
-    setLoading(true);
-    try {
-      const res = await api.get(`/api/guides/all`, {
-        params: {
-          ...filters,
-          page: currentPage,
-          limit,
-        },
-      });
-      setGuides(res.data.data.guides);
-      setTotalPages(Math.ceil(res.data.data.total / limit));
-    } catch (_err) {
-      console.error('Error fetching guides', _err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const filtersRef = useRef({ destination, maxPrice });
+  useEffect(() => {
+    filtersRef.current = { destination, maxPrice };
+  }, [destination, maxPrice]);
+
+  const [searchTrigger, setSearchTrigger] = useState(0);
 
   useEffect(() => {
+    const fetchGuides = async (currentPage = page, filters = filtersRef.current) => {
+      setLoading(true);
+      try {
+        const res = await api.get(`/api/guides/all`, {
+          params: {
+            ...filters,
+            page: currentPage,
+            limit,
+          },
+        });
+        setGuides(res.data.data.guides);
+        setTotalPages(Math.ceil(res.data.data.total / limit));
+      } catch (_err) {
+        console.error('Error fetching guides', _err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchGuides(page);
-  }, [page]);
+  }, [page, searchTrigger]);
 
   const handleApplyFilters = () => {
     setPage(1);
-    fetchGuides(1, { destination, maxPrice });
+    setSearchTrigger(prev => prev + 1);
   };
 
   const handleReset = () => {
     setDestination('');
     setMaxPrice(5000);
     setPage(1);
-    fetchGuides(1, { destination: '', maxPrice: 5000 });
+    setSearchTrigger(prev => prev + 1);
   };
 
   return (

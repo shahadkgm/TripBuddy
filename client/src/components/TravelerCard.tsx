@@ -45,7 +45,7 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
     trip.status === TripStatus.CANCELLED;
 
   useEffect(() => {
-    if (status === 'none') {
+    if (status !== 'loading') {
       return;
     }
 
@@ -53,7 +53,7 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
       try {
         if (!organizerId) return;
         const resStatus = await connectionService.getStatus(organizerId, trip._id);
-        setStatus(resStatus);
+        setStatus(resStatus || 'none');
       } catch (_error) {
         console.error(_error);
         setStatus('none');
@@ -61,7 +61,7 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
     };
 
     fetchStatus();
-  }, [organizerId, trip._id, currentUser?.id, isOwnTrip]);
+  }, [organizerId, trip._id, currentUser?.id, isOwnTrip, status]);
 
   return (
     <div

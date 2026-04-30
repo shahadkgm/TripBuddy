@@ -45,8 +45,8 @@ export const ForgotPasswordPage = () => {
       setTimeout(() => navigate('/login'), 3000);
     } catch (_error: unknown) {
       const errorObj = _error as { response?: { data?: { message?: string } } };
-      const msg = errorObj.response?.data?.message || 'An unexpected error occurred.';
-      toast.error(_error.response?.data?.message || 'Failed to send email. Try again later.', {
+      const msg = errorObj.response?.data?.message || 'Failed to send email. Try again later.';
+      toast.error(msg, {
         id: resetToast,
       });
     } finally {
@@ -67,9 +67,8 @@ export const ForgotPasswordPage = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
             <input
               type="email"
-              className={`w-full px-4 py-3 rounded-xl border ${
-                error ? 'border-red-500' : 'border-gray-200'
-              } focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
+              className={`w-full px-4 py-3 rounded-xl border ${error ? 'border-red-500' : 'border-gray-200'
+                } focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
               placeholder="name@example.com"
               value={email}
               onChange={e => {

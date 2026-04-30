@@ -2,7 +2,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/c.authService';
-import api from '../../utils/api';
 import { User, ArrowLeft, MessageCircle, Loader2 } from 'lucide-react';
 import { useSocketContext } from '../../hooks/useSocketContext';
 import { tripService } from '../../services/c.trip.service';

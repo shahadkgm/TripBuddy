@@ -1,4 +1,4 @@
-import { useState, type FC } from 'react';
+import { type FC } from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -7,10 +7,8 @@ import {
   User, 
   Star, 
   Mail, 
-  Menu, 
   X
 } from 'lucide-react';
-import { authService } from '../../services/c.authService';
 import { Logo } from '../../components/common/Logo';
 
 const menu = [

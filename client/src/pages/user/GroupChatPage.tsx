@@ -123,7 +123,7 @@ const GroupChatPage = () => {
         setMessages(historyRes.messages);
         setHasMoreMessages(historyRes.total > MESSAGES_LIMIT);
 
-        if (currentUser) {
+        if (currentUser?.id) {
           const myPayments = await paymentService.getMyPayments(id);
           const paid = myPayments.some(p => p.status === 'escrowed');
           setHasPaidDeposit(paid);
@@ -323,12 +323,20 @@ const GroupChatPage = () => {
 
     // Guide fee validation — guide is NOT a member, so only count trip.members
     const memberCount = trip.members?.length || 1;
-    const guideRate = trip.guideId?.dailyRate || 0;
-    const minDepositPerMember = guideRate > 0 ? Math.ceil(guideRate / memberCount) : 0;
+    const guideDailyRate = trip.guideId?.dailyRate || 0;
+
+    // Calculate total trip days
+    const start = new Date(trip.startDate);
+    const end = new Date(trip.endDate);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const tripDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Including both start and end days
+
+    const totalGuideFee = guideDailyRate * tripDays;
+    const minDepositPerMember = totalGuideFee > 0 ? Math.ceil(totalGuideFee / memberCount) : 0;
 
     if (minDepositPerMember > 0 && finalizeData.depositAmount < minDepositPerMember) {
       toast.error(
-        `Deposit must be at least ₹${minDepositPerMember} per member to cover the guide fee (₹${guideRate} ÷ ${memberCount} members).`
+        `Deposit must be at least ₹${minDepositPerMember} per member to cover the total guide fee (₹${guideDailyRate}/day × ${tripDays} days ÷ ${memberCount} members).`
       );
       return;
     }
@@ -477,8 +485,8 @@ const GroupChatPage = () => {
               <button
                 onClick={() => !hasPaidDeposit && setShowPaymentModal(true)}
                 className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${hasPaidDeposit
-                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                    : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
+                  ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                  : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
                   }`}
               >
                 {hasPaidDeposit ? <ShieldCheck size={14} /> : <AlertCircle size={14} />}
@@ -611,11 +619,10 @@ const GroupChatPage = () => {
                               });
                               setShowReportModal(true);
                             }}
-                            className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] border transition shadow-lg active:scale-95 flex items-center gap-2 ${
-                              alreadyReported
+                            className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] border transition shadow-lg active:scale-95 flex items-center gap-2 ${alreadyReported
                                 ? 'bg-slate-500/20 text-slate-300 border-slate-400/20 cursor-not-allowed opacity-60'
                                 : 'bg-rose-500/20 text-rose-200 border border-rose-400/30 hover:bg-rose-600 hover:text-white'
-                            }`}
+                              }`}
                           >
                             {alreadyReported ? 'Reported ✓' : 'Report Guide'}
                           </button>
@@ -637,11 +644,10 @@ const GroupChatPage = () => {
                               });
                               setShowReportModal(true);
                             }}
-                            className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] border transition shadow-lg active:scale-95 flex items-center gap-2 ${
-                              alreadyReported
+                            className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] border transition shadow-lg active:scale-95 flex items-center gap-2 ${alreadyReported
                                 ? 'bg-slate-500/20 text-slate-300 border-slate-400/20 cursor-not-allowed opacity-60'
                                 : 'bg-rose-500/20 text-rose-200 border border-rose-400/30 hover:bg-rose-600 hover:text-white'
-                            }`}
+                              }`}
                           >
                             {alreadyReported ? 'Reported ✓' : 'Report User'}
                           </button>
@@ -1012,16 +1018,19 @@ const GroupChatPage = () => {
                 {trip?.guideId && (() => {
                   const memberCount = trip.members?.length || 1;
                   const guideRate = trip.guideId?.dailyRate || 0;
-                  const minPerMember = Math.ceil(guideRate / memberCount);
+                  const startDate = new Date(trip.startDate);
+                  const endDate = new Date(trip.endDate);
+                  const days = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
+                  const totalGuideFee = guideRate * days;
+                  const minPerMember = Math.ceil(totalGuideFee / memberCount);
                   const isValid = finalizeData.depositAmount >= minPerMember;
                   return (
-                    <div className={`mt-3 px-4 py-3 rounded-xl text-xs font-bold flex items-start gap-2 ${
-                      isValid ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-amber-50 text-amber-700 border border-amber-100'
-                    }`}>
+                    <div className={`mt-3 px-4 py-3 rounded-xl text-xs font-bold flex items-start gap-2 ${isValid ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-amber-50 text-amber-700 border border-amber-100'
+                      }`}>
                       <span className="mt-0.5">{isValid ? '✅' : '⚠️'}</span>
                       <span>
                         Guide <strong>{trip.guideId.name}</strong> charges ₹{guideRate}/day.
-                        With <strong>{memberCount} member{memberCount !== 1 ? 's' : ''}</strong>,
+                        With <strong>{memberCount} member{memberCount !== 1 ? 's' : ''}</strong> over <strong>{days} day{days !== 1 ? 's' : ''}</strong>,
                         minimum deposit is <strong>₹{minPerMember}</strong>.
                         {!isValid && <span className="block mt-0.5 text-amber-600">Current amount is below this minimum.</span>}
                       </span>

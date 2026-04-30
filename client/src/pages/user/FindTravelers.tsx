@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Search, MapPin, Plane, Tag, RotateCcw, ChevronDown } from 'lucide-react';
 import { tripService } from '../../services/c.trip.service';
 import { TravelerCard } from '../../components/TravelerCard';
@@ -30,35 +30,43 @@ const FindTravelers = () => {
     interest: 'Any',
   });
 
-  const loadTrips = async (currentFilters = filters, currentPage = page) => {
-    setLoading(true);
-    try {
-      const activeFilters: Record<string, string | number> = {
-        page: currentPage,
-        limit,
-      };
-
-      if (currentFilters.destination) activeFilters.destination = currentFilters.destination;
-      if (currentFilters.transport !== 'Any') activeFilters.transport = currentFilters.transport;
-      if (currentFilters.interest !== 'Any') activeFilters.interest = currentFilters.interest;
-
-      const response = await tripService.getAllTrips(activeFilters);
-      setTrips(response.trips);
-      setTotalPages(Math.ceil(response.total / limit));
-    } catch (_error) {
-      console.error(_error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const filtersRef = useRef(filters);
 
   useEffect(() => {
-    loadTrips();
-  }, [page]);
+    filtersRef.current = filters;
+  }, [filters]);
+
+  const [searchTrigger, setSearchTrigger] = useState(0);
+
+  useEffect(() => {
+    const loadTrips = async (currentFilters = filtersRef.current, currentPage = page) => {
+      setLoading(true);
+      try {
+        const activeFilters: Record<string, string | number> = {
+          page: currentPage,
+          limit,
+        };
+
+        if (currentFilters.destination) activeFilters.destination = currentFilters.destination;
+        if (currentFilters.transport !== 'Any') activeFilters.transport = currentFilters.transport;
+        if (currentFilters.interest !== 'Any') activeFilters.interest = currentFilters.interest;
+
+        const response = await tripService.getAllTrips(activeFilters);
+        setTrips(response.trips);
+        setTotalPages(Math.ceil(response.total / limit));
+      } catch (_error) {
+        console.error(_error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTrips(filtersRef.current, page);
+  }, [page, searchTrigger]);
 
   const handleApplyFilters = () => {
     setPage(1);
-    loadTrips(filters, 1);
+    setSearchTrigger(prev => prev + 1);
   };
 
   const handleClearFilters = () => {
@@ -69,7 +77,7 @@ const FindTravelers = () => {
     };
     setFilters(defaultFilters);
     setPage(1);
-    loadTrips(defaultFilters, 1);
+    setSearchTrigger(prev => prev + 1);
   };
 
   return (

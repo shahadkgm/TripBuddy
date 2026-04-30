@@ -32,7 +32,6 @@ const TripDetails = () => {
   const [status, setStatus] = useState<
     'none' | 'pending' | 'accepted' | 'rejected' | 'incoming_pending' | 'loading'
   >('loading');
-  const [hasPaidDeposit, setHasPaidDeposit] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
 
@@ -52,9 +51,7 @@ const TripDetails = () => {
           setStatus(resStatus || 'none');
 
           if (resStatus === 'accepted') {
-            const myPayments = await paymentService.getMyPayments(id);
-            const paid = myPayments.some(p => p.status === 'escrowed');
-            setHasPaidDeposit(paid);
+            await paymentService.getMyPayments(id);
           }
         } else {
           setStatus('none');

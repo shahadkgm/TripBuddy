@@ -30,56 +30,55 @@ export const ExpenseSplitPage = () => {
   const currentUser = authService.getCurrentUser();
 
   useEffect(() => {
-    loadUserTrips();
-  }, []);
+    const loadUserTrips = async () => {
+      if (!currentUser?.id) return;
+      try {
+        const data = await tripService.getUserTrips(currentUser.id, 1, 100);
+        setTrips(data.trips);
 
-  const loadUserTrips = async () => {
-    if (!currentUser?.id) return;
-    try {
-      const data = await tripService.getUserTrips(currentUser.id, 1, 100);
-      setTrips(data.trips);
-
-      // If we have a stateTripId, prioritize it. Otherwise, pick the first one from the list.
-      if (stateTripId) {
-        setSelectedTripId(stateTripId);
-      } else if (data.trips.length > 0 && !selectedTripId) {
-        setSelectedTripId(data.trips[0]._id);
+        // If we have a stateTripId, prioritize it. Otherwise, pick the first one from the list.
+        if (stateTripId) {
+          setSelectedTripId(stateTripId);
+        } else if (data.trips.length > 0 && !selectedTripId) {
+          setSelectedTripId(data.trips[0]._id);
+        }
+      } catch (_error) {
+        toast.error('Failed to load trips');
       }
-    } catch (_error) {
-      toast.error('Failed to load trips');
-    }
-  };
+    };
+    loadUserTrips();
+  }, [currentUser?.id, stateTripId, selectedTripId]);
 
   useEffect(() => {
-    if (selectedTripId) {
-      loadExpenses();
-      loadTripMembers();
-    }
-  }, [selectedTripId]);
+    if (!selectedTripId) return;
 
-  const loadTripMembers = async () => {
-    try {
-      const members = await connectionService.getTripMembers(selectedTripId);
-      setTripMembers(members);
-      if (members.length > 0) {
-        setNewExpense(prev => ({ ...prev, paidBy: members[0].name }));
+    const loadTripMembers = async () => {
+      try {
+        const members = await connectionService.getTripMembers(selectedTripId);
+        setTripMembers(members);
+        if (members.length > 0) {
+          setNewExpense(prev => ({ ...prev, paidBy: members[0].name }));
+        }
+      } catch (_error) {
+        console.error(_error);
       }
-    } catch (_error) {
-      console.error(_error);
-    }
-  };
+    };
 
-  const loadExpenses = async () => {
-    try {
-      setLoading(true);
-      const data = await expenseService.getTripExpenses(selectedTripId);
-      setExpenses(data);
-    } catch (_error) {
-      toast.error('Failed to load expenses');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const loadExpenses = async () => {
+      try {
+        setLoading(true);
+        const data = await expenseService.getTripExpenses(selectedTripId);
+        setExpenses(data);
+      } catch (_error) {
+        toast.error('Failed to load expenses');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadExpenses();
+    loadTripMembers();
+  }, [selectedTripId]);
 
   const calculateBalances = () => {
     const totals: Record<string, number> = {};
@@ -309,12 +308,12 @@ export const ExpenseSplitPage = () => {
                                 (acc, exp) =>
                                   acc +
                                   exp.amount /
-                                    Math.max(
-                                      Array.isArray(exp.splitAmong)
-                                        ? exp.splitAmong.length
-                                        : tripMembers.length,
-                                      1
-                                    ),
+                                  Math.max(
+                                    Array.isArray(exp.splitAmong)
+                                      ? exp.splitAmong.length
+                                      : tripMembers.length,
+                                    1
+                                  ),
                                 0
                               )
                               .toFixed(2)}

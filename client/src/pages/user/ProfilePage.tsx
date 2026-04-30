@@ -68,14 +68,16 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
+    const userId = currentUser?.id;
+    if (!userId) return;
+
     const loadInitialData = async () => {
-      if (!currentUser?.id) return;
       try {
-        console.log('current user', currentUser);
+        console.log('loading profile data for:', userId);
         const [kycRes, reqData, profileData] = await Promise.all([
-          api.get(`/api/kyc-status/${currentUser.id}`),
+          api.get(`/api/kyc-status/${userId}`),
           connectionService.getPendingRequests(),
-          authService.getProfile(currentUser.id),
+          authService.getProfile(userId),
         ]);
         setKycStatus(kycRes.data.data?.status || 'none');
         setRequests(reqData);
@@ -85,7 +87,7 @@ const ProfilePage = () => {
       }
     };
     loadInitialData();
-  }, [currentUser?.id]);
+  }, [currentUser?.id]); // Only re-run when the ID changes to prevent infinite loops from setCurrentUser
 
   if (!currentUser) {
     navigate('/login');
@@ -475,11 +477,10 @@ const ProfilePage = () => {
               <div className="flex items-center gap-8">
                 <button
                   onClick={() => setActiveTab('planned')}
-                  className={`relative py-6 text-sm font-bold transition-all ${
-                    activeTab === 'planned'
+                  className={`relative py-6 text-sm font-bold transition-all ${activeTab === 'planned'
                       ? 'text-indigo-600'
                       : 'text-slate-400 hover:text-slate-600'
-                  }`}
+                    }`}
                 >
                   <span className="flex items-center gap-2 italic">
                     <Plane size={18} /> Planned Itineraries
@@ -491,11 +492,10 @@ const ProfilePage = () => {
                 <div className="h-6 w-[1.5px] bg-slate-200"></div>
                 <button
                   onClick={() => setActiveTab('requested')}
-                  className={`relative py-6 text-sm font-bold transition-all ${
-                    activeTab === 'requested'
+                  className={`relative py-6 text-sm font-bold transition-all ${activeTab === 'requested'
                       ? 'text-indigo-600'
                       : 'text-slate-400 hover:text-slate-600'
-                  }`}
+                    }`}
                 >
                   <span className="flex items-center gap-2 italic">Requested Trips</span>
                   {activeTab === 'requested' && (
@@ -505,11 +505,10 @@ const ProfilePage = () => {
                 <div className="h-6 w-[1.5px] bg-slate-200"></div>
                 <button
                   onClick={() => setActiveTab('chats')}
-                  className={`relative py-6 text-sm font-bold transition-all ${
-                    activeTab === 'chats'
+                  className={`relative py-6 text-sm font-bold transition-all ${activeTab === 'chats'
                       ? 'text-indigo-600'
                       : 'text-slate-400 hover:text-slate-600'
-                  }`}
+                    }`}
                 >
                   <span className="flex items-center gap-2 italic">
                     <MessageCircle size={18} /> Live Chats

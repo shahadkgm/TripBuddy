@@ -17,7 +17,7 @@ import { Pagination } from '../../components/Pagination';
 import toast from 'react-hot-toast';
 
 export const GuideEarningsPage = () => {
-  const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
+  const [currentUser] = useState(authService.getCurrentUser());
   const [trips, setTrips] = useState<ITrip[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -34,22 +34,10 @@ export const GuideEarningsPage = () => {
 
   useEffect(() => {
     const fetchEarnings = async () => {
-      let activeUser = currentUser;
-      
-      // Self-healing: If dailyRate is missing or 0, attempt to re-sync profile from server
-      if (activeUser?.guideProfile?._id && !activeUser.guideProfile.dailyRate) {
-        console.log('DEBUG: dailyRate missing in local state. Re-syncing profile...');
-        try {
-          activeUser = await authService.getProfile(activeUser.id);
-          setCurrentUser(activeUser);
-        } catch (_error) {
-          console.error('Failed to re-sync profile:', _error);
-        }
-      }
-
+      const activeUser = currentUser;
       const activeGuideId = activeUser?.guideProfile?._id;
+      
       if (!activeGuideId) {
-        console.log('DEBUG: No activeGuideId found', { activeUser });
         setLoading(false);
         return;
       }
@@ -61,21 +49,13 @@ export const GuideEarningsPage = () => {
         const data = await tripService.getGuideTrips(activeGuideId, page, LIMIT);
         const currentRate = activeUser?.guideProfile?.dailyRate || 0;
         
-        console.log('--- EARNINGS DEBUG ---', { 
-            activeGuideId,
-            guideDailyRate: currentRate,
-            tripsReturned: data.trips.length
-        });
-        
         setTrips(data.trips);
         setTotalPages(Math.ceil(data.total / LIMIT));
 
         const completed = data.trips.filter(t => t.status === TripStatus.COMPLETED);
         const earnings = completed.reduce((acc, trip) => {
           const days = calcDays(trip.startDate, trip.endDate);
-          const tripEarnings = days * currentRate;
-          console.log(`COMPLETED Trip [${trip.title}]: ${days} days * ₹${currentRate} = ₹${tripEarnings}`);
-          return acc + tripEarnings;
+          return acc + days * currentRate;
         }, 0);
 
         const pending = data.trips

@@ -16,12 +16,18 @@ import toast from 'react-hot-toast';
 import { tripService } from '../../services/c.trip.service';
 import { TripStatus } from '../../constants/TripStatus';
 import type { ITrip } from '../../interface/ITripdetails';
+import { Pagination } from '../../components/Pagination';
 
 export const GuideDashboard = () => {
   const user = authService.getCurrentUser();
   const navigate = useNavigate();
   const [trips, setTrips] = useState<ITrip[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [paginationLoading, setPaginationLoading] = useState(false);
+  const LIMIT = 5;
+
   const [stats, setStats] = useState({
     totalBookings: 0,
     rating: 5.0,
@@ -55,14 +61,17 @@ export const GuideDashboard = () => {
         return;
       }
       try {
-        console.log('DEBUG: Dashboard: Fetching trips for guide ID:', currentUser.guideProfile._id);
-        const data = await tripService.getGuideTrips(currentUser.guideProfile._id, 1, 10);
-        console.log('DEBUG: Dashboard data received:', data);
+        if (page === 1) setLoading(true);
+        else setPaginationLoading(true);
 
+        const data = await tripService.getGuideTrips(currentUser.guideProfile._id, page, LIMIT);
+        
         const guideTrips = data.trips;
         setTrips(guideTrips);
+        setTotalPages(Math.ceil(data.total / LIMIT));
 
-        // Calculate stats
+        // Calculate stats (Note: Stats are calculated from all trips if backend supports it, 
+        // but here we keep the current logic of calculating from the returned page)
         const completedTrips = guideTrips.filter(t => t.status === TripStatus.COMPLETED);
         const earnings = completedTrips.reduce((acc, trip) => {
           const days =
@@ -83,10 +92,11 @@ export const GuideDashboard = () => {
         toast.error('Failed to load dashboard data');
       } finally {
         setLoading(false);
+        setPaginationLoading(false);
       }
     };
     fetchGuideData();
-  }, [user?.id]); // Use user.id as dependency instead of profile._id for re-fetching
+  }, [user?.id, user?.guideProfile?._id, page]);
 
   return (
     <GuideLayout currentPage="Dashboard">
@@ -206,6 +216,20 @@ export const GuideDashboard = () => {
                 </div>
               </div>
             ))}
+
+            {/* Pagination Component */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex justify-center pb-4">
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={newPage => {
+                    setPage(newPage);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                />
+              </div>
+            )}
           </div>
         ) : (
           <div className="bg-white rounded-[3rem] border-2 border-dashed border-slate-100 p-20 text-center shadow-xl shadow-slate-100/50">
