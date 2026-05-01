@@ -103,4 +103,9 @@ export const API_ENDPOINTS = {
     RESET_GUIDE_STATUS: '/api/guides/reset-status',
     OUTBOUND_INVITATIONS: '/api/guide-invitations/outbound',
   },
+  EXTERNAL_SERVICES: {
+    NOMINATIM: 'https://nominatim.openstreetmap.org/search',
+    OPEN_METEO: 'https://api.open-meteo.com/v1/forecast',
+    OVERPASS: 'https://overpass-api.de/api/interpreter',
+  },
 };
