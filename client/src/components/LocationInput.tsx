@@ -19,7 +19,9 @@ export const LocationInput: React.FC<LocationInputProps> = ({
   error,
   icon,
 }) => {
-  const [suggestions, setSuggestions] = useState<{ display_name: string; lat: string; lon: string }[]>([]);
+  const [suggestions, setSuggestions] = useState<
+    { display_name: string; lat: string; lon: string }[]
+  >([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -96,8 +98,9 @@ export const LocationInput: React.FC<LocationInputProps> = ({
           onFocus={() => {
             if (suggestions.length > 0) setShowSuggestions(true);
           }}
-          className={`w-full pl-12 pr-10 py-4 bg-slate-50 border ${error ? 'border-red-500' : 'border-slate-100'
-            } rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all ${className}`}
+          className={`w-full pl-12 pr-10 py-4 bg-slate-50 border ${
+            error ? 'border-red-500' : 'border-slate-100'
+          } rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all ${className}`}
           placeholder={placeholder}
         />
         {isLoading && (

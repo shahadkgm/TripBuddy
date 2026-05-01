@@ -1,13 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Mail,
-  MapPin,
-  Calendar,
-  ArrowRight,
-  Loader2,
-  Sparkles,
-  Clock,
-} from 'lucide-react';
+import { Mail, MapPin, Calendar, ArrowRight, Loader2, Sparkles, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { guideService } from '../../services/guide.service';
 import { GuideLayout } from './GuideLayout';
@@ -15,7 +7,9 @@ import { Pagination } from '../../components/Pagination';
 import toast from 'react-hot-toast';
 
 export const GuideInvitationsPage = () => {
-  const [invitations, setInvitations] = useState<import("../../interface/ITripdetails").IGuideInvitation[]>([]);
+  const [invitations, setInvitations] = useState<
+    import('../../interface/ITripdetails').IGuideInvitation[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -130,7 +124,9 @@ export const GuideInvitationsPage = () => {
                     <div className="flex items-center gap-2">
                       <Calendar size={16} className="text-indigo-400" />
                       <span className="text-xs font-bold uppercase tracking-widest">
-                        {typeof inv.tripId !== 'string' ? new Date(inv.tripId?.startDate).toLocaleDateString() : 'N/A'}
+                        {typeof inv.tripId !== 'string'
+                          ? new Date(inv.tripId?.startDate).toLocaleDateString()
+                          : 'N/A'}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -162,11 +158,7 @@ export const GuideInvitationsPage = () => {
             ))}
 
             <div className="mt-8">
-              <Pagination
-                currentPage={page}
-                totalPages={totalPages}
-                onPageChange={setPage}
-              />
+              <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
             </div>
           </div>
         ) : (
@@ -181,8 +173,8 @@ export const GuideInvitationsPage = () => {
               Inbox is Empty
             </h3>
             <p className="text-slate-400 max-w-sm mx-auto mt-4 font-medium">
-              You haven't received any trip invitations yet. Make sure your profile is optimized
-              to attract travelers!
+              You haven't received any trip invitations yet. Make sure your profile is optimized to
+              attract travelers!
             </p>
           </div>
         )}

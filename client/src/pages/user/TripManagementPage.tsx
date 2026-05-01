@@ -32,6 +32,7 @@ import type { ITrip, IItineraryItem, IGuide, IGuideInvitation } from '../../inte
 import type { IPayment } from '../../interface/IPayment';
 import toast from 'react-hot-toast';
 import api from '../../utils/api';
+import { API_ENDPOINTS } from '../../constants/api.constants';
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { ReportModal, ReviewModal } from '../../components/guide';
 
@@ -76,7 +77,9 @@ const TripManagementPage = () => {
       if (!id) return;
       try {
         const data = await tripService.getTripById(id);
-        console.log(`Fetched trip data from tr management: ${JSON.stringify(data.guideId?.averageRating)}`);
+        console.log(
+          `Fetched trip data from tr management: ${JSON.stringify(data.guideId?.averageRating)}`
+        );
         setTrip(data);
 
         // Initialize itinerary if it exists, or create default days based on trip duration
@@ -88,11 +91,15 @@ const TripManagementPage = () => {
         }
 
         // Fetch invitations for this trip
-        const invRes = await api.get<{ data: { invitations: IGuideInvitation[] } }>('/api/guide-invitations/outbound');
-        setInvitations(invRes.data.data.invitations.filter((inv: IGuideInvitation) => {
-          const tId = typeof inv.tripId === 'string' ? inv.tripId : inv.tripId?._id;
-          return tId === id;
-        }));
+        const invRes = await api.get<{ data: { invitations: IGuideInvitation[] } }>(
+          API_ENDPOINTS.MISC.OUTBOUND_INVITATIONS
+        );
+        setInvitations(
+          invRes.data.data.invitations.filter((inv: IGuideInvitation) => {
+            const tId = typeof inv.tripId === 'string' ? inv.tripId : inv.tripId?._id;
+            return tId === id;
+          })
+        );
 
         // Fetch payments for this trip
         const paymentsData = await paymentService.getTripPayments(id);
@@ -173,7 +180,7 @@ const TripManagementPage = () => {
   const fetchGuides = async (destination = guideDestination, maxPrice = guideMaxPrice) => {
     setGuideLoading(true);
     try {
-      const res = await api.get('/api/guides/all', {
+      const res = await api.get(API_ENDPOINTS.GUIDES.ALL, {
         params: { destination, maxPrice, page: 1, limit: 12 },
       });
       setGuides(res.data.data.guides);
@@ -207,11 +214,15 @@ const TripManagementPage = () => {
       toast.success('Trip request sent to guide!');
 
       // Refresh invitations
-      const invRes = await api.get<{ data: { invitations: IGuideInvitation[] } }>('/api/guide-invitations/outbound');
-      setInvitations(invRes.data.data.invitations.filter((inv: IGuideInvitation) => {
-        const tId = typeof inv.tripId === 'string' ? inv.tripId : inv.tripId?._id;
-        return tId === id;
-      }));
+      const invRes = await api.get<{ data: { invitations: IGuideInvitation[] } }>(
+        API_ENDPOINTS.MISC.OUTBOUND_INVITATIONS
+      );
+      setInvitations(
+        invRes.data.data.invitations.filter((inv: IGuideInvitation) => {
+          const tId = typeof inv.tripId === 'string' ? inv.tripId : inv.tripId?._id;
+          return tId === id;
+        })
+      );
     } catch (_err: unknown) {
       const errorObj = _err as { response?: { data?: { message?: string } } };
       toast.error(errorObj?.response?.data?.message || 'Failed to send invitation');
@@ -280,26 +291,30 @@ Do not include any other text, markdown formatting, or code blocks outside the J
         }[];
       }
 
-      const newItinerary: IItineraryItem[] = generatedData.map((dayData: AIGeneratedDay, index: number) => {
-        const currentDate = new Date(trip.startDate);
-        currentDate.setDate(currentDate.getDate() + index);
+      const newItinerary: IItineraryItem[] = generatedData.map(
+        (dayData: AIGeneratedDay, index: number) => {
+          const currentDate = new Date(trip.startDate);
+          currentDate.setDate(currentDate.getDate() + index);
 
-        return {
-          day: index + 1,
-          date: currentDate,
-          activities: (dayData.activities || []).map((act) => ({
-            time: act.time || '10:00',
-            activity: act.activity || 'Activity',
-            location: act.location || '',
-            notes: act.notes || '',
-          })),
-        };
-      });
+          return {
+            day: index + 1,
+            date: currentDate,
+            activities: (dayData.activities || []).map(act => ({
+              time: act.time || '10:00',
+              activity: act.activity || 'Activity',
+              location: act.location || '',
+              notes: act.notes || '',
+            })),
+          };
+        }
+      );
 
       setItinerary(newItinerary);
       toast.success('AI generated a brilliant itinerary!');
     } catch (_error) {
-      toast.error('Failed to generate itinerary becase Model is experiencing high demand . Please try manual way.');
+      toast.error(
+        'Failed to generate itinerary becase Model is experiencing high demand . Please try manual way.'
+      );
     } finally {
       setIsGeneratingAI(false);
     }
@@ -348,10 +363,11 @@ Do not include any other text, markdown formatting, or code blocks outside the J
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
               disabled={isSaving}
-              className={`px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg transition-all flex items-center gap-2 ${isSaved && !isHovering
+              className={`px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg transition-all flex items-center gap-2 ${
+                isSaved && !isHovering
                   ? 'bg-emerald-500 text-white shadow-emerald-100 cursor-default'
                   : 'bg-indigo-600 text-white shadow-indigo-100 hover:bg-slate-900 active:scale-95'
-                }`}
+              }`}
             >
               {isSaving ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -398,11 +414,14 @@ Do not include any other text, markdown formatting, or code blocks outside the J
             ].map(tab => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as 'itinerary' | 'members' | 'settings' | 'guide')}
-                className={`w-full flex items-center justify-between p-4 rounded-3xl transition-all border-2 ${activeTab === tab.id
+                onClick={() =>
+                  setActiveTab(tab.id as 'itinerary' | 'members' | 'settings' | 'guide')
+                }
+                className={`w-full flex items-center justify-between p-4 rounded-3xl transition-all border-2 ${
+                  activeTab === tab.id
                     ? 'bg-white border-indigo-600 shadow-xl shadow-indigo-100/20 text-indigo-700'
                     : 'bg-transparent border-transparent text-slate-400 hover:bg-white hover:border-slate-100'
-                  } group`}
+                } group`}
               >
                 <div className="flex items-center gap-4">
                   <div
@@ -629,10 +648,10 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                           />
                           {member._id ===
                             (typeof trip.userId === 'string' ? trip.userId : trip.userId._id) && (
-                              <div className="absolute -top-2 -right-2 bg-indigo-600 text-white p-1 rounded-lg border-2 border-white">
-                                <ShieldCheck size={12} />
-                              </div>
-                            )}
+                            <div className="absolute -top-2 -right-2 bg-indigo-600 text-white p-1 rounded-lg border-2 border-white">
+                              <ShieldCheck size={12} />
+                            </div>
+                          )}
                         </div>
                         <div>
                           <h4 className="font-black text-slate-800 tracking-tight">
@@ -728,7 +747,6 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                 <div className="flex items-center gap-1">
                                   <Star size={12} className="text-amber-400 fill-amber-400" />
                                   <span className="text-[11px] font-black text-slate-700">
-
                                     {trip.guideId.averageRating?.toFixed(1) || '0.0'}
                                   </span>
                                   <span className="text-[10px] text-slate-400 font-medium">
@@ -762,8 +780,12 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                         <div className="mt-8 pt-8 border-t border-slate-100">
                           <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-8 bg-indigo-50/50 rounded-[2.5rem] border border-indigo-100">
                             <div>
-                              <h4 className="text-lg font-black text-slate-900 tracking-tight">Trip Completed!</h4>
-                              <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Share your experience or report issues</p>
+                              <h4 className="text-lg font-black text-slate-900 tracking-tight">
+                                Trip Completed!
+                              </h4>
+                              <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">
+                                Share your experience or report issues
+                              </p>
                             </div>
                             <div className="flex gap-3">
                               <button
@@ -804,7 +826,11 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                       {showReportModal && (
                         <ReportModal
                           tripId={trip._id}
-                          targetId={typeof trip.guideId?.userId === 'string' ? trip.guideId.userId : trip.guideId?.userId?._id || ''}
+                          targetId={
+                            typeof trip.guideId?.userId === 'string'
+                              ? trip.guideId.userId
+                              : trip.guideId?.userId?._id || ''
+                          }
                           targetType="guide"
                           targetName={trip.guideId?.name || 'Guide'}
                           onClose={() => setShowReportModal(false)}
@@ -824,8 +850,13 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                   <div className="bg-indigo-600 rounded-[3rem] p-10 text-white shadow-2xl shadow-indigo-200 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32 transition-transform duration-700 group-hover:scale-110"></div>
                     <div className="relative z-10">
-                      <h3 className="text-2xl font-black tracking-tighter mb-2">No Guide Assigned</h3>
-                      <p className="text-indigo-100 text-sm font-medium mb-8 max-w-md">Find a local expert to lead your group and handle the navigation. Browse our verified guides below.</p>
+                      <h3 className="text-2xl font-black tracking-tighter mb-2">
+                        No Guide Assigned
+                      </h3>
+                      <p className="text-indigo-100 text-sm font-medium mb-8 max-w-md">
+                        Find a local expert to lead your group and handle the navigation. Browse our
+                        verified guides below.
+                      </p>
                       <button
                         onClick={() => {
                           const element = document.getElementById('guide-search-area');
@@ -840,7 +871,10 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                 )}
 
                 {/* Guide Search Area */}
-                <div id="guide-search-area" className="bg-white rounded-[3rem] border border-slate-100 shadow-xl p-8">
+                <div
+                  id="guide-search-area"
+                  className="bg-white rounded-[3rem] border border-slate-100 shadow-xl p-8"
+                >
                   <h3 className="text-xl font-black text-slate-900 tracking-tighter mb-6 flex items-center gap-3">
                     <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
                       <Search size={22} />
@@ -904,10 +938,11 @@ Do not include any other text, markdown formatting, or code blocks outside the J
 
                               <button
                                 onClick={() => handleAssignGuide(isAssigned ? null : guideId)}
-                                className={`w-full py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${isAssigned
+                                className={`w-full py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                                  isAssigned
                                     ? 'bg-indigo-600 text-white'
                                     : 'bg-white border border-slate-200 text-slate-600 hover:border-indigo-600 hover:text-indigo-600'
-                                  }`}
+                                }`}
                               >
                                 {isAssigned ? 'Assigned' : 'Select Guide'}
                               </button>
@@ -928,12 +963,12 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                       {guides.filter(g =>
                         g.serviceArea?.toLowerCase().includes(trip.destination?.toLowerCase())
                       ).length === 0 && (
-                          <div className="col-span-full py-6 text-center bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-300">
-                              No locals matched currently
-                            </p>
-                          </div>
-                        )}
+                        <div className="col-span-full py-6 text-center bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
+                          <p className="text-[9px] font-black uppercase tracking-widest text-slate-300">
+                            No locals matched currently
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -1097,12 +1132,13 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                                 }
                               }}
                               disabled={isLoading || latestInv?.status === 'pending'}
-                              className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all ${isAssigned
+                              className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all ${
+                                isAssigned
                                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
                                   : latestInv?.status === 'pending'
                                     ? 'bg-amber-50 text-amber-600 border border-amber-100 cursor-default'
                                     : 'bg-slate-100 text-slate-600 hover:bg-indigo-600 hover:text-white hover:shadow-lg hover:shadow-indigo-100'
-                                }`}
+                              }`}
                             >
                               {isLoading ? (
                                 <Loader2 size={14} className="animate-spin" />

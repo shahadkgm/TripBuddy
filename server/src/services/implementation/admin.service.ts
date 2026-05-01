@@ -213,7 +213,7 @@ export class AdminService implements IAdminService {
 
   async getRevenueStats(from?: Date, to?: Date): Promise<RevenueStatsDTO> {
     const stats = await this.paymentRepo.getRevenueStats(from, to);
-    const PLATFORM_COMMISSION_RATE = 0.02; // 2% 
+    const PLATFORM_COMMISSION_RATE = 0.02; // 2%
 
     return {
       ...stats,

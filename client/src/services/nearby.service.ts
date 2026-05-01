@@ -93,7 +93,9 @@ class NearByService {
       }
 
       return response.data.elements
-        .filter((el: OverpassElement) => el.tags && (el.tags.name || el.tags.amenity || el.tags.tourism))
+        .filter(
+          (el: OverpassElement) => el.tags && (el.tags.name || el.tags.amenity || el.tags.tourism)
+        )
         .map((el: OverpassElement) => ({
           id: el.id,
           name: el.tags?.name || el.tags?.amenity || el.tags?.tourism || 'Unknown',

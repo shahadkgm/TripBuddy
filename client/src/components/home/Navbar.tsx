@@ -9,7 +9,6 @@ import type { ITrip } from '../../interface/ITripdetails';
 import { TripStatus } from '../../constants/TripStatus';
 import { Logo } from '../common/Logo';
 
-
 interface NavbarProps {
   variant?: 'floating' | 'sticky';
   showBack?: boolean;

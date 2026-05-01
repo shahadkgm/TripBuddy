@@ -308,12 +308,12 @@ export const ExpenseSplitPage = () => {
                                 (acc, exp) =>
                                   acc +
                                   exp.amount /
-                                  Math.max(
-                                    Array.isArray(exp.splitAmong)
-                                      ? exp.splitAmong.length
-                                      : tripMembers.length,
-                                    1
-                                  ),
+                                    Math.max(
+                                      Array.isArray(exp.splitAmong)
+                                        ? exp.splitAmong.length
+                                        : tripMembers.length,
+                                      1
+                                    ),
                                 0
                               )
                               .toFixed(2)}

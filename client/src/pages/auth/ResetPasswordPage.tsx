@@ -74,8 +74,9 @@ export const ResetPasswordPage = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
             <input
               type="password"
-              className={`w-full px-4 py-3 rounded-xl border ${errors.password ? 'border-red-500' : 'border-gray-200'
-                } focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
+              className={`w-full px-4 py-3 rounded-xl border ${
+                errors.password ? 'border-red-500' : 'border-gray-200'
+              } focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
               value={password}
               onChange={e => {
                 setPassword(e.target.value);
@@ -92,8 +93,9 @@ export const ResetPasswordPage = () => {
             </label>
             <input
               type="password"
-              className={`w-full px-4 py-3 rounded-xl border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-200'
-                } focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
+              className={`w-full px-4 py-3 rounded-xl border ${
+                errors.confirmPassword ? 'border-red-500' : 'border-gray-200'
+              } focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
               value={confirmPassword}
               onChange={e => {
                 setConfirmPassword(e.target.value);

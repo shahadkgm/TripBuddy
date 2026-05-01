@@ -30,8 +30,11 @@ export const toGuideResponse = (guide: IGuide): GuideResponseDTO => ({
   reviewCount: guide.reviewCount,
 });
 export const toAdminGuideResponse = (guide: PopulatedGuide): AdminGuideResponseDTO => {
-  const populatedUser = guide.userDoc || (guide.userId && typeof guide.userId === 'object' && 'name' in guide.userId ? (guide.userId as unknown as PopulatedGuide['userDoc']) : null);
-
+  const populatedUser =
+    guide.userDoc ||
+    (guide.userId && typeof guide.userId === 'object' && 'name' in guide.userId
+      ? (guide.userId as unknown as PopulatedGuide['userDoc'])
+      : null);
 
   return {
     id: guide._id.toString(),

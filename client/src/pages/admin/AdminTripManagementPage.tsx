@@ -3,6 +3,7 @@ import { Map, Search, XCircle, CheckCircle, Clock, Star, MessageSquare } from 'l
 import toast from 'react-hot-toast';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import api from '../../utils/api';
+import { API_ENDPOINTS } from '../../constants/api.constants';
 import { TripStatus } from '../../constants/TripStatus';
 import { DataTable } from '../../components/DataTable';
 import { Pagination } from '../../components/Pagination';
@@ -92,7 +93,7 @@ export const AdminTripManagementPage = () => {
   const fetchTrips = async () => {
     try {
       setLoading(true);
-      const { data } = await api.get('/api/admin/trips', {
+      const { data } = await api.get(API_ENDPOINTS.ADMIN.TRIPS, {
         params: { page: currentPage, limit, search: searchTerm },
       });
       setTrips(data.data.trips);
@@ -113,7 +114,7 @@ export const AdminTripManagementPage = () => {
   const handleStatusUpdate = async () => {
     if (!selectedAction) return;
     try {
-      await api.patch(`/api/admin/trips/${selectedAction.tripId}/status`, {
+      await api.patch(API_ENDPOINTS.ADMIN.UPDATE_TRIP_STATUS(selectedAction.tripId), {
         status: selectedAction.status,
       });
       toast.success(`Trip status updated to "${selectedAction.status}"`);
@@ -134,8 +135,9 @@ export const AdminTripManagementPage = () => {
     setActiveTripTitle(trip.title);
     setIsReviewModalOpen(true);
     setIsReviewsLoading(true);
+    setIsReviewsLoading(true);
     try {
-      const { data } = await api.get(`/api/reviews/trip/${trip._id}`);
+      const { data } = await api.get(API_ENDPOINTS.REVIEWS.TRIP_REVIEWS(trip._id));
       setSelectedTripReviews(data.data);
     } catch (_err) {
       toast.error('Failed to load reviews');

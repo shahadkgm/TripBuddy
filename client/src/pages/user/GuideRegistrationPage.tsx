@@ -25,9 +25,9 @@ export const GuideRegistrationPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
-  const [appStatus, setAppStatus] = useState<'none' | 'pending' | 'verified' | 'rejected' | 'loading'>(
-    'loading'
-  );
+  const [appStatus, setAppStatus] = useState<
+    'none' | 'pending' | 'verified' | 'rejected' | 'loading'
+  >('loading');
   const [rejectionReason, setRejectionReason] = useState('');
 
   const [formData, setFormData] = useState({
@@ -82,8 +82,14 @@ export const GuideRegistrationPage = () => {
   }
 
   if (appStatus === 'pending') return <GuideStatusPage status="pending" />;
-  if (appStatus === 'rejected') 
-    return <GuideStatusPage status="rejected" reason={rejectionReason} onReapply={() => setAppStatus('none')} />;
+  if (appStatus === 'rejected')
+    return (
+      <GuideStatusPage
+        status="rejected"
+        reason={rejectionReason}
+        onReapply={() => setAppStatus('none')}
+      />
+    );
   if (appStatus === 'verified') return <Navigate to="/guide-dashboard" replace />;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -385,16 +391,18 @@ export const GuideRegistrationPage = () => {
                   {s.label}
                 </button>
               ))}
-              {formData.specialties.filter(s => !SPECIALTIES.find(spec => spec.id === s)).map(s => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => handleSpecialtyChange(s)}
-                  className="px-4 py-2 rounded-full border bg-tb-purple text-white border-tb-purple group flex items-center gap-2"
-                >
-                  {s} <X size={14} className="opacity-50 group-hover:opacity-100" />
-                </button>
-              ))}
+              {formData.specialties
+                .filter(s => !SPECIALTIES.find(spec => spec.id === s))
+                .map(s => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => handleSpecialtyChange(s)}
+                    className="px-4 py-2 rounded-full border bg-tb-purple text-white border-tb-purple group flex items-center gap-2"
+                  >
+                    {s} <X size={14} className="opacity-50 group-hover:opacity-100" />
+                  </button>
+                ))}
 
               {isAddingSpecialty ? (
                 <div className="flex gap-2 animate-in slide-in-from-left-2 transition-all">

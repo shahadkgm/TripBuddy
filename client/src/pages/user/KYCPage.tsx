@@ -4,6 +4,7 @@ import { authService } from '../../services/auth.service';
 import api from '../../utils/api';
 import { Button } from '../../components/Button';
 import toast from 'react-hot-toast';
+import { API_ENDPOINTS } from '../../constants/api.constants';
 
 const KYCPage = () => {
   const [docType, setDocType] = useState('national_id');
@@ -20,7 +21,7 @@ const KYCPage = () => {
       const userId = user?.id;
       if (userId) {
         try {
-          const res = await api.get(`/api/kyc-status/${userId}`);
+          const res = await api.get(API_ENDPOINTS.KYC.STATUS(userId));
           const status = res.data.data?.status;
           if (status === 'pending' || status === 'approved') {
             navigate('/kyc-status');
@@ -66,11 +67,11 @@ const KYCPage = () => {
     formData.append('image', file);
 
     try {
-      const response = await api.post(`/api/upload`, formData, {
+      const response = await api.post(API_ENDPOINTS.KYC.UPLOAD, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        onUploadProgress: (progressEvent: import("axios").AxiosProgressEvent) => {
+        onUploadProgress: (progressEvent: import('axios').AxiosProgressEvent) => {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / (progressEvent.total || 1)
           );

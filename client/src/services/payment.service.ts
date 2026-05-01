@@ -1,13 +1,17 @@
 import api from '../utils/api';
+import { API_ENDPOINTS } from '../constants/api.constants';
 import type { ApiResponse } from '../interface/ApiResponse';
 import type { IPayment } from '../interface/IPayment';
 
 export const paymentService = {
   async createStripeSession(amount: number, tripId: string): Promise<{ id: string; url: string }> {
-    const response = await api.post<ApiResponse<{ id: string; url: string }>>(`/api/payments/create-stripe-session`, {
-      amount,
-      tripId,
-    });
+    const response = await api.post<ApiResponse<{ id: string; url: string }>>(
+      API_ENDPOINTS.PAYMENTS.CREATE_STRIPE_SESSION,
+      {
+        amount,
+        tripId,
+      }
+    );
     return response.data.data;
   },
 
@@ -16,14 +20,14 @@ export const paymentService = {
     tripId: string;
   }): Promise<IPayment> {
     const response = await api.post<ApiResponse<IPayment>>(
-      `/api/payments/verify-stripe-payment`,
+      API_ENDPOINTS.PAYMENTS.VERIFY_STRIPE_PAYMENT,
       verificationData
     );
     return response.data.data;
   },
 
   async payDeposit(tripId: string, amount: number): Promise<IPayment> {
-    const response = await api.post<ApiResponse<IPayment>>(`/api/payments/pay-deposit`, {
+    const response = await api.post<ApiResponse<IPayment>>(API_ENDPOINTS.PAYMENTS.PAY_DEPOSIT, {
       tripId,
       amount,
     });
@@ -31,7 +35,7 @@ export const paymentService = {
   },
 
   async payWithWallet(tripId: string, amount: number): Promise<IPayment> {
-    const response = await api.post<ApiResponse<IPayment>>(`/api/payments/pay-with-wallet`, {
+    const response = await api.post<ApiResponse<IPayment>>(API_ENDPOINTS.PAYMENTS.PAY_WITH_WALLET, {
       tripId,
       amount,
     });
@@ -39,19 +43,19 @@ export const paymentService = {
   },
 
   async getMyPayments(tripId: string): Promise<IPayment[]> {
-    const response = await api.get<ApiResponse<IPayment[]>>(`/api/payments/my-payments/${tripId}`);
+    const response = await api.get<ApiResponse<IPayment[]>>(API_ENDPOINTS.PAYMENTS.MY_PAYMENTS(tripId));
     return response.data.data;
   },
 
   async getTripPayments(tripId: string): Promise<IPayment[]> {
     const response = await api.get<ApiResponse<IPayment[]>>(
-      `/api/payments/trip-payments/${tripId}`
+      API_ENDPOINTS.PAYMENTS.TRIP_PAYMENTS(tripId)
     );
     return response.data.data;
   },
 
   async getUserPayments(): Promise<IPayment[]> {
-    const response = await api.get<ApiResponse<IPayment[]>>(`/api/payments/user-payments`);
+    const response = await api.get<ApiResponse<IPayment[]>>(API_ENDPOINTS.PAYMENTS.USER_PAYMENTS);
     return response.data.data;
   },
 };

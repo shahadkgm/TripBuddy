@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { 
-  TrendingUp, 
-  DollarSign, 
-  RotateCcw, 
-  Clock, 
-  BarChart3, 
+import {
+  TrendingUp,
+  DollarSign,
+  RotateCcw,
+  Clock,
+  BarChart3,
   PieChart as PieChartIcon,
   Download,
   Calendar,
-  ChevronDown
+  ChevronDown,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
@@ -24,7 +24,7 @@ import {
   Cell,
   Legend,
   BarChart,
-  Bar
+  Bar,
 } from 'recharts';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import api from '../../utils/api';
@@ -92,13 +92,13 @@ export const AdminRevenuePage = () => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
   const handleExport = () => {
     if (!stats) return;
-    
+
     const csvData = [
       ['Metric', 'Value'],
       ['Total Revenue', stats.totalRevenue],
@@ -118,16 +118,18 @@ export const AdminRevenuePage = () => {
       [],
       ['Top Revenue Generating Trips'],
       ['Title', 'Destination', 'Revenue', 'Transactions'],
-      ...stats.topTrips.map(t => [t.title, t.destination, t.revenue, t.transactions])
+      ...stats.topTrips.map(t => [t.title, t.destination, t.revenue, t.transactions]),
     ];
 
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + csvData.map(e => e.join(",")).join("\n");
+    const csvContent = 'data:text/csv;charset=utf-8,' + csvData.map(e => e.join(',')).join('\n');
 
     const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `revenue_report_${range}_${new Date().toISOString().split('T')[0]}.csv`);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute(
+      'download',
+      `revenue_report_${range}_${new Date().toISOString().split('T')[0]}.csv`
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -141,13 +143,15 @@ export const AdminRevenuePage = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h2 className="text-2xl font-bold text-gray-800">Revenue Management</h2>
-            <p className="text-sm text-gray-500">Financial performance and platform earnings overview</p>
+            <p className="text-sm text-gray-500">
+              Financial performance and platform earnings overview
+            </p>
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
             <div className="relative inline-block w-full md:w-48">
               <select
                 value={range}
-                onChange={(e) => setRange(e.target.value)}
+                onChange={e => setRange(e.target.value)}
                 className="w-full appearance-none bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer pr-10"
               >
                 <option value="all">All Time</option>
@@ -155,7 +159,10 @@ export const AdminRevenuePage = () => {
                 <option value="quarter">Last 3 Months</option>
                 <option value="year">This Year</option>
               </select>
-              <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <ChevronDown
+                size={16}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+              />
             </div>
             <button
               onClick={handleExport}
@@ -175,11 +182,15 @@ export const AdminRevenuePage = () => {
             <div className="p-3 bg-indigo-50 rounded-2xl w-fit mb-4 relative z-10">
               <DollarSign size={24} className="text-indigo-600" />
             </div>
-            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Total Revenue</p>
+            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">
+              Total Revenue
+            </p>
             {loading ? (
               <div className="h-8 w-24 bg-slate-100 animate-pulse rounded-lg mt-2"></div>
             ) : (
-              <h3 className="text-2xl font-black text-slate-800">{formatCurrency(stats?.totalRevenue || 0)}</h3>
+              <h3 className="text-2xl font-black text-slate-800">
+                {formatCurrency(stats?.totalRevenue || 0)}
+              </h3>
             )}
             <div className="mt-4 flex items-center gap-1.5">
               <div className="flex h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
@@ -193,13 +204,19 @@ export const AdminRevenuePage = () => {
             <div className="p-3 bg-emerald-50 rounded-2xl w-fit mb-4 relative z-10">
               <TrendingUp size={24} className="text-emerald-600" />
             </div>
-            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Platform Earnings</p>
+            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">
+              Platform Earnings
+            </p>
             {loading ? (
               <div className="h-8 w-24 bg-slate-100 animate-pulse rounded-lg mt-2"></div>
             ) : (
-              <h3 className="text-2xl font-black text-slate-800">{formatCurrency(stats?.platformCommission || 0)}</h3>
+              <h3 className="text-2xl font-black text-slate-800">
+                {formatCurrency(stats?.platformCommission || 0)}
+              </h3>
             )}
-            <p className="text-[10px] text-emerald-600 font-bold mt-1 uppercase tracking-tight">10% standard fee</p>
+            <p className="text-[10px] text-emerald-600 font-bold mt-1 uppercase tracking-tight">
+              10% standard fee
+            </p>
           </div>
 
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group">
@@ -207,13 +224,19 @@ export const AdminRevenuePage = () => {
             <div className="p-3 bg-rose-50 rounded-2xl w-fit mb-4 relative z-10">
               <RotateCcw size={24} className="text-rose-600" />
             </div>
-            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Total Refunds</p>
+            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">
+              Total Refunds
+            </p>
             {loading ? (
               <div className="h-8 w-24 bg-slate-100 animate-pulse rounded-lg mt-2"></div>
             ) : (
-              <h3 className="text-2xl font-black text-slate-800">{formatCurrency(stats?.totalRefunds || 0)}</h3>
+              <h3 className="text-2xl font-black text-slate-800">
+                {formatCurrency(stats?.totalRefunds || 0)}
+              </h3>
             )}
-            <p className="text-[10px] text-rose-500 font-bold mt-1 uppercase tracking-tight">Returned to users</p>
+            <p className="text-[10px] text-rose-500 font-bold mt-1 uppercase tracking-tight">
+              Returned to users
+            </p>
           </div>
 
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group">
@@ -221,13 +244,19 @@ export const AdminRevenuePage = () => {
             <div className="p-3 bg-amber-50 rounded-2xl w-fit mb-4 relative z-10">
               <Clock size={24} className="text-amber-600" />
             </div>
-            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">In Escrow</p>
+            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">
+              In Escrow
+            </p>
             {loading ? (
               <div className="h-8 w-24 bg-slate-100 animate-pulse rounded-lg mt-2"></div>
             ) : (
-              <h3 className="text-2xl font-black text-slate-800">{formatCurrency(stats?.escrowedAmount || 0)}</h3>
+              <h3 className="text-2xl font-black text-slate-800">
+                {formatCurrency(stats?.escrowedAmount || 0)}
+              </h3>
             )}
-            <p className="text-[10px] text-amber-600 font-bold mt-1 uppercase tracking-tight">Held for completion</p>
+            <p className="text-[10px] text-amber-600 font-bold mt-1 uppercase tracking-tight">
+              Held for completion
+            </p>
           </div>
         </div>
 
@@ -247,35 +276,46 @@ export const AdminRevenuePage = () => {
                 <AreaChart data={stats?.monthlyTrend || []}>
                   <defs>
                     <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.1}/>
-                      <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.1} />
+                      <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis 
-                    dataKey="_id" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}}
+                  <XAxis
+                    dataKey="_id"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#64748b', fontSize: 12, fontWeight: 600 }}
                     dy={10}
                   />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}}
-                    tickFormatter={(value) => `₹${value >= 1000 ? (value/1000).toFixed(0)+'k' : value}`}
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#64748b', fontSize: 12, fontWeight: 600 }}
+                    tickFormatter={value =>
+                      `₹${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`
+                    }
                   />
-                  <RechartsTooltip 
-                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                    formatter={(value: string | number | undefined | readonly (string | number)[]) => [formatCurrency(Number(Array.isArray(value) ? value[0] : (value || 0))), 'Revenue']}
+                  <RechartsTooltip
+                    contentStyle={{
+                      borderRadius: '16px',
+                      border: 'none',
+                      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                    }}
+                    formatter={(
+                      value: string | number | undefined | readonly (string | number)[]
+                    ) => [
+                      formatCurrency(Number(Array.isArray(value) ? value[0] : value || 0)),
+                      'Revenue',
+                    ]}
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="revenue" 
-                    stroke="#4f46e5" 
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#4f46e5"
                     strokeWidth={3}
-                    fillOpacity={1} 
-                    fill="url(#colorRev)" 
+                    fillOpacity={1}
+                    fill="url(#colorRev)"
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -306,9 +346,11 @@ export const AdminRevenuePage = () => {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <RechartsTooltip 
+                  <RechartsTooltip
                     contentStyle={{ borderRadius: '16px' }}
-                    formatter={(value: string | number | undefined | readonly (string | number)[]) => formatCurrency(Number(Array.isArray(value) ? value[0] : (value || 0)))}
+                    formatter={(
+                      value: string | number | undefined | readonly (string | number)[]
+                    ) => formatCurrency(Number(Array.isArray(value) ? value[0] : value || 0))}
                   />
                   <Legend verticalAlign="bottom" height={36} iconType="circle" />
                 </PieChart>
@@ -328,27 +370,29 @@ export const AdminRevenuePage = () => {
           <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats?.topTrips || []} layout="vertical" margin={{ left: 40 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  horizontal={true}
+                  vertical={false}
+                  stroke="#f1f5f9"
+                />
                 <XAxis type="number" hide />
-                <YAxis 
-                  dataKey="title" 
-                  type="category" 
-                  axisLine={false} 
+                <YAxis
+                  dataKey="title"
+                  type="category"
+                  axisLine={false}
                   tickLine={false}
-                  tick={{fill: '#1e293b', fontSize: 13, fontWeight: 700}}
+                  tick={{ fill: '#1e293b', fontSize: 13, fontWeight: 700 }}
                   width={150}
                 />
-                <RechartsTooltip 
-                  cursor={{fill: '#f8fafc'}}
+                <RechartsTooltip
+                  cursor={{ fill: '#f8fafc' }}
                   contentStyle={{ borderRadius: '16px', border: 'none' }}
-                  formatter={(value: string | number | undefined | readonly (string | number)[]) => formatCurrency(Number(Array.isArray(value) ? value[0] : (value || 0)))}
+                  formatter={(value: string | number | undefined | readonly (string | number)[]) =>
+                    formatCurrency(Number(Array.isArray(value) ? value[0] : value || 0))
+                  }
                 />
-                <Bar 
-                  dataKey="revenue" 
-                  fill="#4f46e5" 
-                  radius={[0, 8, 8, 0]} 
-                  barSize={32}
-                />
+                <Bar dataKey="revenue" fill="#4f46e5" radius={[0, 8, 8, 0]} barSize={32} />
               </BarChart>
             </ResponsiveContainer>
           </div>

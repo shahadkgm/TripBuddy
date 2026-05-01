@@ -126,7 +126,6 @@ export const GuideManagement = () => {
     }
   };
 
-
   const columns = [
     {
       header: 'No.',
@@ -169,12 +168,13 @@ export const GuideManagement = () => {
       render: (guide: IGuideApplication) => (
         <div>
           <span
-            className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${guide.status === 'verified'
+            className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${
+              guide.status === 'verified'
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                 : guide.status === 'rejected'
                   ? 'bg-red-50 text-red-700 border-red-200'
                   : 'bg-amber-50 text-amber-700 border-amber-200'
-              }`}
+            }`}
           >
             {guide.status}
           </span>
@@ -500,7 +500,10 @@ export const GuideManagement = () => {
         {/* Reports Slide-Over Modal */}
         {reportModalGuide && (
           <div className="fixed inset-0 z-50 flex justify-end animate-in fade-in duration-300">
-            <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={() => setReportModalGuide(null)} />
+            <div
+              className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+              onClick={() => setReportModalGuide(null)}
+            />
             <div className="relative w-full max-w-md bg-white shadow-2xl h-full flex flex-col animate-in slide-in-from-right duration-400">
               {/* Header */}
               <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-rose-50/40">
@@ -509,7 +512,9 @@ export const GuideManagement = () => {
                     <ShieldAlert size={20} />
                   </div>
                   <div>
-                    <h3 className="text-base font-black text-slate-900 tracking-tight">Community Reports</h3>
+                    <h3 className="text-base font-black text-slate-900 tracking-tight">
+                      Community Reports
+                    </h3>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
                       Against {reportModalGuide.user?.name}
                     </p>
@@ -526,7 +531,7 @@ export const GuideManagement = () => {
               {/* Body */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 {reportsLoading ? (
-                  [1,2,3].map(i => (
+                  [1, 2, 3].map(i => (
                     <div key={i} className="h-28 bg-slate-100 rounded-2xl animate-pulse" />
                   ))
                 ) : guideReports.length === 0 ? (
@@ -534,40 +539,62 @@ export const GuideManagement = () => {
                     <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mb-4">
                       <CheckCircle size={32} className="text-emerald-400" />
                     </div>
-                    <p className="text-slate-400 font-black uppercase tracking-widest text-xs">No reports filed</p>
-                    <p className="text-slate-300 text-[10px] font-medium mt-1">This guide has a clean record</p>
+                    <p className="text-slate-400 font-black uppercase tracking-widest text-xs">
+                      No reports filed
+                    </p>
+                    <p className="text-slate-300 text-[10px] font-medium mt-1">
+                      This guide has a clean record
+                    </p>
                   </div>
                 ) : (
                   guideReports.map(report => (
-                    <div key={report._id} className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-3 hover:shadow-md transition-shadow">
+                    <div
+                      key={report._id}
+                      className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-3 hover:shadow-md transition-shadow"
+                    >
                       {/* Reporter */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
                           <img
-                            src={report.reporterId?.avatarURL || `https://ui-avatars.com/api/?name=${report.reporterId?.name}`}
+                            src={
+                              report.reporterId?.avatarURL ||
+                              `https://ui-avatars.com/api/?name=${report.reporterId?.name}`
+                            }
                             className="w-8 h-8 rounded-xl object-cover shadow-sm"
                             alt=""
                           />
                           <div>
-                            <p className="text-xs font-black text-slate-800 tracking-tight">{report.reporterId?.name}</p>
-                            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Reporter</p>
+                            <p className="text-xs font-black text-slate-800 tracking-tight">
+                              {report.reporterId?.name}
+                            </p>
+                            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+                              Reporter
+                            </p>
                           </div>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border flex items-center gap-1.5 ${
-                          report.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                          report.status === 'resolved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                          'bg-slate-50 text-slate-400 border-slate-100'
-                        }`}>
-                          {report.status === 'pending' && <Clock size={10}/>}
-                          {report.status === 'resolved' && <CheckCircle size={10}/>}
+                        <span
+                          className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border flex items-center gap-1.5 ${
+                            report.status === 'pending'
+                              ? 'bg-amber-50 text-amber-600 border-amber-100'
+                              : report.status === 'resolved'
+                                ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                : 'bg-slate-50 text-slate-400 border-slate-100'
+                          }`}
+                        >
+                          {report.status === 'pending' && <Clock size={10} />}
+                          {report.status === 'resolved' && <CheckCircle size={10} />}
                           {report.status}
                         </span>
                       </div>
 
                       {/* Reason */}
                       <div className="bg-rose-50/50 p-3 rounded-xl border border-rose-100/50">
-                        <p className="text-[10px] font-black text-rose-700 uppercase tracking-widest mb-1">{report.reason}</p>
-                        <p className="text-[11px] text-slate-600 font-medium italic leading-relaxed">"{report.description}"</p>
+                        <p className="text-[10px] font-black text-rose-700 uppercase tracking-widest mb-1">
+                          {report.reason}
+                        </p>
+                        <p className="text-[11px] text-slate-600 font-medium italic leading-relaxed">
+                          "{report.description}"
+                        </p>
                       </div>
 
                       {/* Trip + Date */}
@@ -590,7 +617,9 @@ export const GuideManagement = () => {
                       <ShieldAlert size={16} />
                     </div>
                     <div>
-                      <p className="text-xs font-black text-slate-800">{guideReports.length} Total Report{guideReports.length > 1 ? 's' : ''}</p>
+                      <p className="text-xs font-black text-slate-800">
+                        {guideReports.length} Total Report{guideReports.length > 1 ? 's' : ''}
+                      </p>
                       <p className="text-[10px] text-slate-400 font-medium">
                         {guideReports.filter(r => r.status === 'pending').length} pending review
                       </p>

@@ -22,7 +22,7 @@ interface Props {
 export const TravelerCard: React.FC<Props> = ({ trip }) => {
   const navigate = useNavigate();
   const currentUser = authService.getCurrentUser();
-  
+
   // Safe extraction of organizer details
   const organizerId = typeof trip.userId === 'string' ? trip.userId : trip.userId?._id;
   const isOwnTrip = currentUser?.id === organizerId;
@@ -33,12 +33,15 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
     if (!currentUser?.id || isOwnTrip) return 'none';
     return 'loading';
   });
-  
+
   // Safe extraction of organizer details
   const organizerObj = typeof trip.userId === 'object' ? trip.userId : null;
   const organizerName = organizerObj?.name || 'Unknown Traveler';
-  const organizerAvatar = organizerObj?.avatarURL || organizerObj?.avatar || `https://i.pravatar.cc/150?u=${organizerId || 'unknown'}`;
-  
+  const organizerAvatar =
+    organizerObj?.avatarURL ||
+    organizerObj?.avatar ||
+    `https://i.pravatar.cc/150?u=${organizerId || 'unknown'}`;
+
   const isExpired =
     new Date(trip.startDate).getTime() - 8 * 60 * 60 * 1000 < new Date().getTime() ||
     trip.status === TripStatus.COMPLETED ||
@@ -95,8 +98,7 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
             {trip.title || trip.destination}
           </h3>
           <p className="text-slate-500 text-sm font-bold mt-0.5">
-            organized by{' '}
-            <span className="text-indigo-600">{organizerName}</span>
+            organized by <span className="text-indigo-600">{organizerName}</span>
           </p>
         </div>
       </div>

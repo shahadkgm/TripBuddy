@@ -17,7 +17,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, variant = 'standard
   if (variant === 'mini') {
     return (
       <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
-        <img 
+        <img
           src={guide.avatarURL || `https://ui-avatars.com/api/?name=${guide.name || 'G'}`}
           className="w-10 h-10 rounded-xl object-cover"
           alt=""
@@ -45,7 +45,8 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, variant = 'standard
               ? guide.avatarURL.startsWith('http')
                 ? guide.avatarURL
                 : `${import.meta.env.VITE_API_URL}${guide.avatarURL}`
-              : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (guide.userId?.name || guide.name || 'guide')
+              : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' +
+                (guide.userId?.name || guide.name || 'guide')
           }
           className="w-24 h-24 sm:w-28 sm:h-28 rounded-[2rem] object-cover border-4 border-white shadow-lg ring-1 ring-slate-100"
           alt="Guide"
@@ -68,22 +69,28 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, variant = 'standard
                 </div>
               )}
             </div>
-            
+
             <div className="flex items-center justify-center sm:justify-start gap-3 mt-1.5 flex-wrap">
               <p className="flex items-center gap-1 text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">
                 <MapPin className="w-3 h-3" /> {guide.serviceArea}
               </p>
               <div className="flex items-center gap-1.5 py-0.5 px-2 bg-amber-50 rounded-lg border border-amber-100/50">
                 <Star size={12} className="text-amber-500 fill-amber-500" />
-                <span className="text-[10px] font-black text-amber-700">{guide.averageRating?.toFixed(1) || '0.0'}</span>
-                <span className="text-[10px] font-bold text-amber-900/40">({guide.reviewCount || 0})</span>
+                <span className="text-[10px] font-black text-amber-700">
+                  {guide.averageRating?.toFixed(1) || '0.0'}
+                </span>
+                <span className="text-[10px] font-bold text-amber-900/40">
+                  ({guide.reviewCount || 0})
+                </span>
               </div>
             </div>
           </div>
-          
+
           <div className="bg-slate-900 text-white px-4 py-2 rounded-2xl flex flex-col items-center shadow-lg shadow-slate-900/20">
             <span className="text-lg font-black leading-none">₹{guide.dailyRate}</span>
-            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">/ Day</span>
+            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">
+              / Day
+            </span>
           </div>
         </div>
 
@@ -122,7 +129,16 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, variant = 'standard
 
 // Helper components if needed
 const CheckCircle = ({ size }: { size: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
     <polyline points="22 4 12 14.01 9 11.01" />
   </svg>

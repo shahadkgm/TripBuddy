@@ -20,10 +20,10 @@ export interface AdminGuideResponseDTO {
   specialties: string[];
   avatarURL?: string;
   certificateUrl?: string;
-   isVerified: boolean;
-   status: string;
-   rejectionReason?: string;
-   createdAt: string;
+  isVerified: boolean;
+  status: string;
+  rejectionReason?: string;
+  createdAt: string;
   kycData?: {
     status: string;
     filePath: string;

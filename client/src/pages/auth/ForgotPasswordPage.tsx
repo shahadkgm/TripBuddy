@@ -67,8 +67,9 @@ export const ForgotPasswordPage = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
             <input
               type="email"
-              className={`w-full px-4 py-3 rounded-xl border ${error ? 'border-red-500' : 'border-gray-200'
-                } focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
+              className={`w-full px-4 py-3 rounded-xl border ${
+                error ? 'border-red-500' : 'border-gray-200'
+              } focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
               placeholder="name@example.com"
               value={email}
               onChange={e => {

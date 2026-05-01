@@ -27,7 +27,7 @@ const ProtectedRoute = ({ allowedRoles, requireKyc }: ProtectedRouteProps) => {
         try {
           const res = await api.get(`/api/kyc-status/${currentUser.id}`);
           const latestStatus = res.data.data?.status || 'none';
-          
+
           if (latestStatus !== currentUser.kycStatus) {
             // Update localStorage and state
             const updatedUser = { ...currentUser, kycStatus: latestStatus };

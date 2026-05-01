@@ -65,19 +65,19 @@ export const GuideDashboard = () => {
         else setPaginationLoading(true);
 
         const data = await tripService.getGuideTrips(currentUser.guideProfile._id, page, LIMIT);
-        
+
         const guideTrips = data.trips;
         setTrips(guideTrips);
         setTotalPages(Math.ceil(data.total / LIMIT));
 
-        // Calculate stats (Note: Stats are calculated from all trips if backend supports it, 
+        // Calculate stats (Note: Stats are calculated from all trips if backend supports it,
         // but here we keep the current logic of calculating from the returned page)
         const completedTrips = guideTrips.filter(t => t.status === TripStatus.COMPLETED);
         const earnings = completedTrips.reduce((acc, trip) => {
           const days =
             Math.ceil(
               (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
-              (1000 * 60 * 60 * 24)
+                (1000 * 60 * 60 * 24)
             ) + 1;
           return acc + days * (currentUser?.guideProfile?.dailyRate || 0);
         }, 0);
@@ -191,14 +191,15 @@ export const GuideDashboard = () => {
                 <div className="flex flex-col items-center md:items-end gap-2">
                   <span
                     className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm
-                                ${trip.status === TripStatus.COMPLETED
-                        ? 'bg-emerald-50 text-emerald-600'
-                        : trip.status === TripStatus.ONGOING
-                          ? 'bg-blue-50 text-blue-600'
-                          : trip.status === TripStatus.PLANNED
-                            ? 'bg-amber-50 text-amber-600'
-                            : 'bg-slate-50 text-slate-400'
-                      }`}
+                                ${
+                                  trip.status === TripStatus.COMPLETED
+                                    ? 'bg-emerald-50 text-emerald-600'
+                                    : trip.status === TripStatus.ONGOING
+                                      ? 'bg-blue-50 text-blue-600'
+                                      : trip.status === TripStatus.PLANNED
+                                        ? 'bg-amber-50 text-amber-600'
+                                        : 'bg-slate-50 text-slate-400'
+                                }`}
                   >
                     {trip.status}
                   </span>

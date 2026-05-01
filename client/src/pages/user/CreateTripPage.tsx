@@ -317,9 +317,7 @@ const CreateTripPage = () => {
       const errorObj = _error as { response?: { data?: { message?: string } } };
       const msg = errorObj.response?.data?.message || 'An unexpected error occurred.';
       console.error('Trip operation failed:', _error);
-      toast.error(
-        msg || `Failed to ${isEditing ? 'update' : 'create'} trip`
-      );
+      toast.error(msg || `Failed to ${isEditing ? 'update' : 'create'} trip`);
     } finally {
       setIsSubmitting(false);
     }

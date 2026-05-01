@@ -16,7 +16,7 @@ export class TripService implements ITripService {
     private _tripRepository: ITripRepository,
     private _paymentRepository: IPaymentRepository,
     private _userRepository: IUserRepository
-  ) { }
+  ) {}
 
   async createTrip(data: CreateTripDTO): Promise<ITripDocument> {
     logger.info('Creating new trip in service in t-s', { data });
@@ -97,7 +97,8 @@ export class TripService implements ITripService {
 
     const ownerId = trip.userId._id.toString();
     if (ownerId !== userId) throw new Error('Unauthorized');
-    if (trip.status !== TripStatus.PLANNED) throw new Error('Trip already finalized or in progress');
+    if (trip.status !== TripStatus.PLANNED)
+      throw new Error('Trip already finalized or in progress');
 
     const updatedTrip = await this._tripRepository.updateById(tripId, {
       budget,
@@ -193,7 +194,9 @@ export class TripService implements ITripService {
     if (ownerId !== userId) throw new Error('Unauthorized');
 
     // 1. Mark trip as cancelled
-    const cancelledTrip = await this._tripRepository.updateById(tripId, { status: TripStatus.CANCELLED });
+    const cancelledTrip = await this._tripRepository.updateById(tripId, {
+      status: TripStatus.CANCELLED,
+    });
     if (!cancelledTrip) throw new Error('Failed to cancel trip');
 
     // 2. Refund all escrowed deposits
@@ -261,13 +264,19 @@ export class TripService implements ITripService {
     // Checking for deficit!
     const requiredFunds = platformCommission + guidePayout;
     if (totalEscrowPool < requiredFunds) {
-      throw new Error(`Insufficient funds collected in Escrow. Required: ${requiredFunds}, Available: ${totalEscrowPool}. Please ensure members pay correct deposit amount.`);
+      throw new Error(
+        `Insufficient funds collected in Escrow. Required: ${requiredFunds}, Available: ${totalEscrowPool}. Please ensure members pay correct deposit amount.`
+      );
     }
 
     // 5. Pay the Guide physically
     if (guidePayout > 0 && guideUserId) {
       await this._userRepository.updateWalletBalance(guideUserId, guidePayout);
-      logger.info('Guide payout released', { tripId, guideId: trip.guideId?._id, amount: guidePayout });
+      logger.info('Guide payout released', {
+        tripId,
+        guideId: trip.guideId?._id,
+        amount: guidePayout,
+      });
     }
 
     // 6. Remaining Balance -> Refund equally to all travelers
@@ -292,8 +301,6 @@ export class TripService implements ITripService {
         });
       }
     }
-
-
 
     return completedTrip;
   }

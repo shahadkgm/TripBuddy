@@ -266,9 +266,7 @@ export const GuideTripRequestDetailsPage = () => {
                       </div>
                       <div className="min-w-0">
                         <p className="text-base lg:text-lg font-black tracking-tight uppercase leading-tight truncate">
-                          {typeof trip.userId !== 'string'
-                            ? trip.userId.name
-                            : 'Unknown Organizer'}
+                          {typeof trip.userId !== 'string' ? trip.userId.name : 'Unknown Organizer'}
                         </p>
                         <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mt-1">
                           Traveler Admin
@@ -315,8 +313,8 @@ export const GuideTripRequestDetailsPage = () => {
                       </p>
                     </div>
                     <p className="text-[10px] font-bold text-slate-400 mt-2">
-                      Based on your rate: ₹
-                      {authService.getCurrentUser()?.guideProfile?.dailyRate}/day
+                      Based on your rate: ₹{authService.getCurrentUser()?.guideProfile?.dailyRate}
+                      /day
                     </p>
                   </div>
                 </div>

@@ -70,7 +70,9 @@ export const LoginForm = () => {
       setIsLoading(false);
     }
   };
-  const handleGoogleSuccess = async (credentialResponse: import("@react-oauth/google").CredentialResponse) => {
+  const handleGoogleSuccess = async (
+    credentialResponse: import('@react-oauth/google').CredentialResponse
+  ) => {
     setIsLoading(true);
     try {
       if (!credentialResponse.credential) throw new Error('No credential received');
