@@ -34,19 +34,19 @@ router.post(
 );
 
 router.post(
-  '/pay-with-wallet',
+  API_ROUTES.PAYMENT.PAY_WITH_WALLET,
   dtoValidationMiddleware(CreatePaymentDTO),
   paymentController.payWithWallet
 );
 
 router.post(
-  '/create-stripe-session',
+  API_ROUTES.PAYMENT.CREATE_STRIPE_SESSION,
   dtoValidationMiddleware(CreateStripeSessionDTO),
   paymentController.createStripeSession
 );
 
 router.post(
-  '/verify-stripe-payment',
+  API_ROUTES.PAYMENT.VERIFY_STRIPE_PAYMENT,
   dtoValidationMiddleware(VerifyStripePaymentDTO),
   paymentController.verifyStripePayment
 );
@@ -56,5 +56,6 @@ router.get(API_ROUTES.PAYMENT.MY_PAYMENTS, paymentController.getMyPayments);
 router.get(API_ROUTES.PAYMENT.TRIP_PAYMENTS, paymentController.getTripPayments);
 
 router.get(API_ROUTES.PAYMENT.USER_PAYMENTS, paymentController.getUserPayments);
+router.get(API_ROUTES.PAYMENT.WALLET_TRANSACTIONS, paymentController.getWalletTransactions);
 
 export default router;

@@ -2,6 +2,7 @@ import api from '../utils/api';
 import { API_ENDPOINTS } from '../constants/api.constants';
 import type { ApiResponse } from '../interface/ApiResponse';
 import type { IPayment } from '../interface/IPayment';
+import type { IWalletTransaction } from '../interface/IWalletTransaction';
 
 export const paymentService = {
   async createStripeSession(amount: number, tripId: string): Promise<{ id: string; url: string }> {
@@ -56,6 +57,13 @@ export const paymentService = {
 
   async getUserPayments(): Promise<IPayment[]> {
     const response = await api.get<ApiResponse<IPayment[]>>(API_ENDPOINTS.PAYMENTS.USER_PAYMENTS);
+    return response.data.data;
+  },
+ 
+  async getWalletTransactions(): Promise<IWalletTransaction[]> {
+    const response = await api.get<ApiResponse<IWalletTransaction[]>>(
+      API_ENDPOINTS.PAYMENTS.WALLET_TRANSACTIONS
+    );
     return response.data.data;
   },
 };

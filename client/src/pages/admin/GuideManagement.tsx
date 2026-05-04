@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { AdminLayout } from '../../components/admin/AdminLayout';
-import { CheckCircle, XCircle, Eye, ShieldCheck, ShieldAlert, Clock, MapPin } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, ShieldCheck, ShieldAlert, Clock, MapPin, Instagram, Linkedin, Globe } from 'lucide-react';
 import api from '../../utils/api';
 import { DataTable } from '../../components/DataTable';
 import { SearchBar } from '../../components/common/SearchBar';
@@ -23,6 +23,12 @@ interface IGuideApplication {
   serviceArea: string;
   specialties: string[];
   avatarURL?: string;
+  languages: string[];
+  socialLinks?: {
+    instagram?: string;
+    linkedin?: string;
+    website?: string;
+  };
   isVerified: boolean;
   status: string;
   rejectionReason?: string;
@@ -168,13 +174,12 @@ export const GuideManagement = () => {
       render: (guide: IGuideApplication) => (
         <div>
           <span
-            className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${
-              guide.status === 'verified'
+            className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${guide.status === 'verified'
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                 : guide.status === 'rejected'
                   ? 'bg-red-50 text-red-700 border-red-200'
                   : 'bg-amber-50 text-amber-700 border-amber-200'
-            }`}
+              }`}
           >
             {guide.status}
           </span>
@@ -420,6 +425,54 @@ export const GuideManagement = () => {
                         )}
                       </div>
                     </div>
+
+
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 block">
+                        Languages Spoken
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {viewingGuide.languages && viewingGuide.languages.length > 0 ? (
+                          viewingGuide.languages.map((l, i) => (
+                            <span
+                              key={i}
+                              className="px-3 py-1.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-lg border border-emerald-100 shadow-sm"
+                            >
+                              {l}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-[10px] text-gray-400 italic">None specified</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Social Presence */}
+                    {viewingGuide.socialLinks && (
+                      <div>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 block">
+                          Social Presence
+                        </label>
+                        <div className="flex gap-4">
+                          {viewingGuide.socialLinks.instagram && (
+                            <div className="flex items-center gap-2 text-xs font-medium text-pink-600 bg-pink-50 px-3 py-1.5 rounded-xl border border-pink-100">
+                              <Instagram size={14} /> IG
+                            </div>
+                          )}
+                          {viewingGuide.socialLinks.linkedin && (
+                            <div className="flex items-center gap-2 text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-100">
+                              <Linkedin size={14} /> LI
+                            </div>
+                          )}
+                          {viewingGuide.socialLinks.website && (
+                            <div className="flex items-center gap-2 text-xs font-medium text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-xl border border-indigo-100">
+                              <Globe size={14} /> Web
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                     {/* KYC Section */}
                     {viewingGuide.kycData && (
                       <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -573,13 +626,12 @@ export const GuideManagement = () => {
                           </div>
                         </div>
                         <span
-                          className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border flex items-center gap-1.5 ${
-                            report.status === 'pending'
+                          className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border flex items-center gap-1.5 ${report.status === 'pending'
                               ? 'bg-amber-50 text-amber-600 border-amber-100'
                               : report.status === 'resolved'
                                 ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
                                 : 'bg-slate-50 text-slate-400 border-slate-100'
-                          }`}
+                            }`}
                         >
                           {report.status === 'pending' && <Clock size={10} />}
                           {report.status === 'resolved' && <CheckCircle size={10} />}

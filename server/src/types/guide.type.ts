@@ -3,12 +3,12 @@ import { Types } from 'mongoose';
 export interface IGuide {
   _id: Types.ObjectId;
   userId:
-    | Types.ObjectId
-    | {
-        _id: Types.ObjectId;
-        name: string;
-        email: string;
-      };
+  | Types.ObjectId
+  | {
+    _id: Types.ObjectId;
+    name: string;
+    email: string;
+  };
   name: string;
   bio: string;
   dailyRate: number;
@@ -16,6 +16,12 @@ export interface IGuide {
   certificateUrl?: string;
   yearsOfExperience: number;
   specialties: string[];
+  languages: string[];
+  socialLinks?: {
+    instagram?: string;
+    linkedin?: string;
+    website?: string;
+  };
   avatarURL?: string;
   isVerified: boolean;
   status: 'pending' | 'verified' | 'rejected';

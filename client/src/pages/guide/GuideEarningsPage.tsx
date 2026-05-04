@@ -151,6 +151,7 @@ export const GuideEarningsPage = () => {
             <thead>
               <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50">
                 <th className="px-6 md:px-10 py-6 whitespace-nowrap">Reference Trip</th>
+                <th className="px-6 md:px-10 py-6 whitespace-nowrap">Trip ID</th>
                 <th className="px-6 md:px-10 py-6 whitespace-nowrap">Date</th>
                 <th className="px-6 md:px-10 py-6 whitespace-nowrap">Amount</th>
                 <th className="px-6 md:px-10 py-6 whitespace-nowrap">Status</th>
@@ -160,7 +161,7 @@ export const GuideEarningsPage = () => {
             <tbody className="divide-y divide-slate-50">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-20 text-center">
+                  <td colSpan={6} className="py-20 text-center">
                     <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mx-auto" />
                   </td>
                 </tr>
@@ -174,6 +175,9 @@ export const GuideEarningsPage = () => {
                       <p className="text-[10px] font-bold text-slate-400 mt-1">
                         {trip.destination}
                       </p>
+                    </td>
+                    <td className="px-6 md:px-10 py-6 text-xs font-mono text-slate-400 whitespace-nowrap">
+                      {trip._id}
                     </td>
                     <td className="px-6 md:px-10 py-6 text-xs font-bold text-slate-500 whitespace-nowrap">
                       {new Date(trip.endDate).toLocaleDateString()}
@@ -204,7 +208,7 @@ export const GuideEarningsPage = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="py-20 text-center">
+                  <td colSpan={6} className="py-20 text-center">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                       No earnings records found
                     </p>

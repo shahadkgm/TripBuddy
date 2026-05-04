@@ -19,6 +19,12 @@ export interface AdminGuideResponseDTO {
   serviceArea: string;
   specialties: string[];
   avatarURL?: string;
+  languages: string[];
+  socialLinks?: {
+    instagram?: string;
+    linkedin?: string;
+    website?: string;
+  };
   certificateUrl?: string;
   isVerified: boolean;
   status: string;

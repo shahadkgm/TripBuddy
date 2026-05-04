@@ -92,6 +92,10 @@ export const API_ROUTES = {
   PAYMENT: {
     BASE: '/api/payments',
     PAY_DEPOSIT: '/pay-deposit',
+    PAY_WITH_WALLET: '/pay-with-wallet',
+    CREATE_STRIPE_SESSION: '/create-stripe-session',
+    VERIFY_STRIPE_PAYMENT: '/verify-stripe-payment',
+    WALLET_TRANSACTIONS: '/wallet-transactions',
     MY_PAYMENTS: '/my-payments/:tripId',
     TRIP_PAYMENTS: '/trip-payments/:tripId',
     USER_PAYMENTS: '/user-payments',

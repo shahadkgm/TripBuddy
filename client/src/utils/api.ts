@@ -99,7 +99,11 @@ api.interceptors.response.use(
     }
 
     //  blocked user
-    if (error.response?.status === 403 && error.response.data?.message === 'User blocked') {
+    if (
+      error.response?.status === 403 &&
+      (error.response.data?.message === 'User blocked' ||
+        error.response.data?.message?.includes('account has been blocked'))
+    ) {
       localStorage.clear();
       window.location.replace('/login?blocked=true');
     }

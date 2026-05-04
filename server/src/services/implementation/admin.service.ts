@@ -126,6 +126,14 @@ export class AdminService implements IAdminService {
       throw new AppError('Guide application not found', StatusCode.NOT_FOUND);
     }
 
+    const userId =
+      rejected.userId instanceof Types.ObjectId
+        ? rejected.userId.toString()
+        : rejected.userId._id.toString();
+
+    // Demote the user back to a regular 'user' role
+    await this.adminRepo.updateUserRole(userId, 'user');
+
     return true;
   }
 
@@ -178,7 +186,12 @@ export class AdminService implements IAdminService {
           ? payment.userId.toString()
           : (payment.userId as unknown as { _id: Types.ObjectId })._id.toString();
 
-      await this.adminRepo.updateWalletBalance(userId, payment.amount);
+      await this.adminRepo.updateWalletBalance(
+        userId,
+        payment.amount,
+        payment.tripId.toString(),
+        `Admin manual refund for payment: ${payment.transactionId || payment._id}`
+      );
       logger.info(`Credited ${payment.amount} to user ${userId} wallet due to refund.`);
     }
 

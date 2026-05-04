@@ -76,7 +76,12 @@ export const LoginForm = () => {
     setIsLoading(true);
     try {
       if (!credentialResponse.credential) throw new Error('No credential received');
-      await authService.googleLogin(credentialResponse.credential);
+      const result = await authService.googleLogin(credentialResponse.credential);
+      if (result.user.isBlocked) {
+        toast.error('Your account has been blocked. Contact support.');
+        authService.logout();
+        return;
+      }
       toast.success('Google Login Successful!');
       navigate('/');
     } catch (_error: unknown) {

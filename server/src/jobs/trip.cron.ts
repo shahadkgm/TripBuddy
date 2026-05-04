@@ -44,7 +44,12 @@ export const startCronJobs = () => {
 
           // Direct 100% refund for all remaining members who placed an escrow
           for (const payment of payments) {
-            await userRepository.updateWalletBalance(payment.userId.toString(), payment.amount);
+            await userRepository.updateWalletBalance(
+              payment.userId.toString(),
+              payment.amount,
+              trip._id.toString(),
+              `Auto-refund: Trip failed to reach minimum members (${trip.title})`
+            );
             await paymentRepository.updateById(payment._id.toString(), {
               status: PaymentStatus.REFUNDED,
               refundReason:

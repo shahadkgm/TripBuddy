@@ -489,11 +489,10 @@ const GroupChatPage = () => {
             {trip?.status === TripStatus.FINALIZED && !isGuide && (
               <button
                 onClick={() => !hasPaidDeposit && setShowPaymentModal(true)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${
-                  hasPaidDeposit
+                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${hasPaidDeposit
                     ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
                     : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
-                }`}
+                  }`}
               >
                 {hasPaidDeposit ? <ShieldCheck size={14} /> : <AlertCircle size={14} />}
                 {hasPaidDeposit ? 'Spot Secured' : 'Secure Spot'}
@@ -628,11 +627,10 @@ const GroupChatPage = () => {
                                 });
                                 setShowReportModal(true);
                               }}
-                              className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] border transition shadow-lg active:scale-95 flex items-center gap-2 ${
-                                alreadyReported
+                              className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] border transition shadow-lg active:scale-95 flex items-center gap-2 ${alreadyReported
                                   ? 'bg-slate-500/20 text-slate-300 border-slate-400/20 cursor-not-allowed opacity-60'
                                   : 'bg-rose-500/20 text-rose-200 border border-rose-400/30 hover:bg-rose-600 hover:text-white'
-                              }`}
+                                }`}
                             >
                               {alreadyReported ? 'Reported ✓' : 'Report Guide'}
                             </button>
@@ -657,11 +655,10 @@ const GroupChatPage = () => {
                                 });
                                 setShowReportModal(true);
                               }}
-                              className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] border transition shadow-lg active:scale-95 flex items-center gap-2 ${
-                                alreadyReported
+                              className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] border transition shadow-lg active:scale-95 flex items-center gap-2 ${alreadyReported
                                   ? 'bg-slate-500/20 text-slate-300 border-slate-400/20 cursor-not-allowed opacity-60'
                                   : 'bg-rose-500/20 text-rose-200 border border-rose-400/30 hover:bg-rose-600 hover:text-white'
-                              }`}
+                                }`}
                             >
                               {alreadyReported ? 'Reported ✓' : 'Report User'}
                             </button>
@@ -706,9 +703,11 @@ const GroupChatPage = () => {
                   </div>
                 )}
                 {messages.map((msg, index) => {
-                  const isOwn = msg.senderId._id === currentUser?.id;
-                  const isFirstInGroup =
-                    index === 0 || messages[index - 1].senderId._id !== msg.senderId._id;
+                  const senderIdStr = msg.senderId?._id || 'unknown';
+                  const isOwn = senderIdStr === currentUser?.id && currentUser?.id != null;
+                  const prevSenderIdStr = index > 0 ? (messages[index - 1].senderId?._id || 'unknown') : null;
+                  const isFirstInGroup = index === 0 || prevSenderIdStr !== senderIdStr;
+
                   return (
                     <div
                       key={msg._id || index}
@@ -716,8 +715,8 @@ const GroupChatPage = () => {
                     >
                       <div className={`flex items-end gap-3 max-w-[85%] sm:max-w-[75%] group`}>
                         {!isOwn && isFirstInGroup && (
-                          <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center overflow-hidden border border-indigo-100 shadow-sm">
-                            {msg.senderId.avatarURL ? (
+                          <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center overflow-hidden border border-indigo-100 shadow-sm shrink-0">
+                            {msg.senderId?.avatarURL ? (
                               <img
                                 src={msg.senderId.avatarURL}
                                 className="w-full h-full object-cover"
@@ -732,7 +731,7 @@ const GroupChatPage = () => {
                         <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'}`}>
                           {isFirstInGroup && !isOwn && (
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
-                              {msg.senderId.name}
+                              {msg.senderId?.name || 'Unknown User'}
                             </p>
                           )}
                           <div
@@ -907,7 +906,7 @@ const GroupChatPage = () => {
                 disabled={
                   isProcessingPayment ||
                   Math.round((currentUser?.walletBalance || 0) * 100) <
-                    Math.round((trip.depositAmount || trip.budget * 0.2) * 100)
+                  Math.round((trip.depositAmount || trip.budget * 0.2) * 100)
                 }
                 className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 transition shadow-xl disabled:opacity-50 flex items-center justify-center gap-3"
               >
@@ -1047,11 +1046,10 @@ const GroupChatPage = () => {
                     const isValid = finalizeData.depositAmount >= minPerMember;
                     return (
                       <div
-                        className={`mt-3 px-4 py-3 rounded-xl text-xs font-bold flex items-start gap-2 ${
-                          isValid
+                        className={`mt-3 px-4 py-3 rounded-xl text-xs font-bold flex items-start gap-2 ${isValid
                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
                             : 'bg-amber-50 text-amber-700 border border-amber-100'
-                        }`}
+                          }`}
                       >
                         <span className="mt-0.5">{isValid ? '✅' : '⚠️'}</span>
                         <span>
@@ -1355,7 +1353,7 @@ const GroupChatPage = () => {
               : trip.guideId?.name
           }
           onClose={() => setShowReviewModal(false)}
-          onSuccess={() => {}}
+          onSuccess={() => { }}
         />
       )}
 

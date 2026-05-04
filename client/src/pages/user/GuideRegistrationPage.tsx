@@ -1,4 +1,4 @@
-// client/src/modules/auth/pages/GuideRegistrationPage.tsx
+// client/src/modules/auth/pages/GuideRegistrationPage.tsx (synced)
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -21,7 +21,6 @@ const SPECIALTIES = [
 export const GuideRegistrationPage = () => {
   const navigate = useNavigate();
   const user = authService.getCurrentUser();
-  console.log('user from guideRegistractionpage ', user);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
@@ -37,6 +36,12 @@ export const GuideRegistrationPage = () => {
     specialties: [] as string[],
     avatarFile: null as File | null,
     yearsOfExperience: '',
+    languages: [] as string[],
+    socialLinks: {
+      instagram: '',
+      linkedin: '',
+      website: '',
+    },
   });
 
   const [newSpecialty, setNewSpecialty] = useState('');
@@ -179,12 +184,13 @@ export const GuideRegistrationPage = () => {
         setIsSubmitting(false);
         return;
       }
-      data.append('userId', user.id);
       data.append('bio', formData.bio);
       data.append('dailyRate', formData.dailyRate);
       data.append('serviceArea', formData.serviceArea);
       data.append('specialties', JSON.stringify(formData.specialties));
       data.append('yearsOfExperience', formData.yearsOfExperience);
+      data.append('languages', JSON.stringify(formData.languages));
+      data.append('socialLinks', JSON.stringify(formData.socialLinks));
       if (formData.avatarFile) data.append('avatar', formData.avatarFile);
 
       await api.post(`/api/guides/register`, data, {
@@ -223,9 +229,8 @@ export const GuideRegistrationPage = () => {
         <form onSubmit={handleSubmit} className="space-y-8" noValidate>
           {/* Section 1: Identity */}
           <div
-            className={`bg-white p-8 rounded-2xl shadow-sm border ${
-              errors.avatarFile ? 'border-red-500' : 'border-gray-100'
-            }`}
+            className={`bg-white p-8 rounded-2xl shadow-sm border ${errors.avatarFile ? 'border-red-500' : 'border-gray-100'
+              }`}
           >
             <div className="flex items-center gap-4 mb-6">
               <span className="w-8 h-8 bg-tb-purple text-white rounded-full flex items-center justify-center font-bold">
@@ -237,9 +242,8 @@ export const GuideRegistrationPage = () => {
             <div className="flex flex-col items-center mb-6">
               <div className="relative group cursor-pointer">
                 <div
-                  className={`w-24 h-24 rounded-full overflow-hidden border-4 ${
-                    errors.avatarFile ? 'border-red-300' : 'border-tb-purple/20'
-                  } bg-gray-100`}
+                  className={`w-24 h-24 rounded-full overflow-hidden border-4 ${errors.avatarFile ? 'border-red-300' : 'border-tb-purple/20'
+                    } bg-gray-100`}
                 >
                   {preview ? (
                     <img src={preview} alt="Preview" className="w-full h-full object-cover" />
@@ -277,9 +281,8 @@ export const GuideRegistrationPage = () => {
                   Guiding Summary
                 </label>
                 <textarea
-                  className={`w-full p-3 border ${
-                    errors.bio ? 'border-red-500' : 'border-gray-200'
-                  } rounded-xl focus:ring-2 focus:ring-tb-purple outline-none transition-all`}
+                  className={`w-full p-3 border ${errors.bio ? 'border-red-500' : 'border-gray-200'
+                    } rounded-xl focus:ring-2 focus:ring-tb-purple outline-none transition-all`}
                   rows={3}
                   placeholder="Tell travelers about your local secrets..."
                   value={formData.bio}
@@ -301,9 +304,8 @@ export const GuideRegistrationPage = () => {
                     <IndianRupee className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                     <input
                       type="number"
-                      className={`w-full pl-10 pr-4 py-3 border ${
-                        errors.dailyRate ? 'border-red-500' : 'border-gray-200'
-                      } rounded-xl`}
+                      className={`w-full pl-10 pr-4 py-3 border ${errors.dailyRate ? 'border-red-500' : 'border-gray-200'
+                        } rounded-xl`}
                       placeholder="2000"
                       value={formData.dailyRate}
                       onChange={e => {
@@ -342,9 +344,8 @@ export const GuideRegistrationPage = () => {
                     <input
                       type="number"
                       min="0"
-                      className={`w-full px-4 py-3 border ${
-                        errors.yearsOfExperience ? 'border-red-500' : 'border-gray-200'
-                      } rounded-xl focus:ring-2 focus:ring-tb-purple outline-none`}
+                      className={`w-full px-4 py-3 border ${errors.yearsOfExperience ? 'border-red-500' : 'border-gray-200'
+                        } rounded-xl focus:ring-2 focus:ring-tb-purple outline-none`}
                       placeholder="e.g. 5"
                       value={formData.yearsOfExperience}
                       onChange={e => {
@@ -366,9 +367,8 @@ export const GuideRegistrationPage = () => {
 
           {/* Section 3: Specialities */}
           <div
-            className={`bg-white p-8 rounded-2xl shadow-sm border ${
-              errors.specialties ? 'border-red-500' : 'border-gray-100'
-            }`}
+            className={`bg-white p-8 rounded-2xl shadow-sm border ${errors.specialties ? 'border-red-500' : 'border-gray-100'
+              }`}
           >
             <div className="flex items-center gap-4 mb-6">
               <span className="w-8 h-8 bg-tb-purple text-white rounded-full flex items-center justify-center font-bold">
@@ -382,11 +382,10 @@ export const GuideRegistrationPage = () => {
                   key={s.id}
                   type="button"
                   onClick={() => handleSpecialtyChange(s.id)}
-                  className={`px-4 py-2 rounded-full border transition-all ${
-                    formData.specialties.includes(s.id)
+                  className={`px-4 py-2 rounded-full border transition-all ${formData.specialties.includes(s.id)
                       ? 'bg-tb-purple text-white border-tb-purple'
                       : 'bg-white text-gray-600 border-gray-200'
-                  }`}
+                    }`}
                 >
                   {s.label}
                 </button>
@@ -458,6 +457,81 @@ export const GuideRegistrationPage = () => {
                 {errors.specialties}
               </p>
             )}
+          </div>
+          {/* Section 4: Languages & Social Presence */}
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-8">
+            <div>
+              <div className="flex items-center gap-4 mb-6">
+                <span className="w-8 h-8 bg-tb-purple text-white rounded-full flex items-center justify-center font-bold">
+                  4
+                </span>
+                <h2 className="text-xl font-bold">Languages & Socials</h2>
+              </div>
+              
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Languages You Speak
+              </label>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {formData.languages.map((l, idx) => (
+                  <span key={idx} className="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-lg border border-emerald-100 flex items-center gap-2">
+                    {l}
+                    <button type="button" onClick={() => setFormData({...formData, languages: formData.languages.filter((_, i) => i !== idx)})} className="hover:text-red-500">×</button>
+                  </span>
+                ))}
+              </div>
+              <input
+                type="text"
+                id="languageInput"
+                placeholder="e.g. English, Malayalam (Press Enter to add)"
+                className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl text-sm focus:ring-2 focus:ring-tb-purple outline-none"
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const val = (e.target as HTMLInputElement).value.trim();
+                    if (val && !formData.languages.includes(val)) {
+                      setFormData({...formData, languages: [...formData.languages, val]});
+                      (e.target as HTMLInputElement).value = '';
+                    }
+                  }
+                }}
+                onBlur={e => {
+                  const val = e.target.value.trim();
+                  if (val && !formData.languages.includes(val)) {
+                    setFormData(prev => ({...prev, languages: [...prev.languages, val]}));
+                    e.target.value = '';
+                  }
+                }}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Social Links (Optional)
+              </label>
+              <div className="grid md:grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  placeholder="Instagram URL"
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl text-sm"
+                  value={formData.socialLinks.instagram}
+                  onChange={e => setFormData({...formData, socialLinks: {...formData.socialLinks, instagram: e.target.value}})}
+                />
+                <input
+                  type="text"
+                  placeholder="LinkedIn URL"
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl text-sm"
+                  value={formData.socialLinks.linkedin}
+                  onChange={e => setFormData({...formData, socialLinks: {...formData.socialLinks, linkedin: e.target.value}})}
+                />
+                <input
+                  type="text"
+                  placeholder="Personal Website / Portfolio"
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl text-sm md:col-span-2"
+                  value={formData.socialLinks.website}
+                  onChange={e => setFormData({...formData, socialLinks: {...formData.socialLinks, website: e.target.value}})}
+                />
+              </div>
+            </div>
           </div>
 
           <button

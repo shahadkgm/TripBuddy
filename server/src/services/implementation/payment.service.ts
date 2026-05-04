@@ -10,6 +10,8 @@ import { IUserRepository } from '../../repositories/interface/IUserRepository';
 import { ITripService } from '../interface/ITripService';
 import mongoose from 'mongoose';
 import Stripe from 'stripe';
+import { WalletTransactionModel } from '../../models/walletTransaction.model';
+import { IWalletTransactionDocument } from '../../types/wallet.type';
 
 export class PaymentService implements IPaymentService {
   private stripe: Stripe;
@@ -147,7 +149,12 @@ export class PaymentService implements IPaymentService {
     }
 
     // Deduct from wallet
-    await this.userRepository.updateWalletBalance(userId, -data.amount);
+    await this.userRepository.updateWalletBalance(
+      userId,
+      -data.amount,
+      data.tripId,
+      `Payment for trip: ${trip.title}`
+    );
 
     // Create payment record
     const payment = await this.paymentRepository.create({
@@ -175,5 +182,9 @@ export class PaymentService implements IPaymentService {
 
   async getUserPayments(userId: string): Promise<IPaymentDocument[]> {
     return await this.paymentRepository.findByUserId(userId);
+  }
+ 
+  async getWalletTransactions(userId: string): Promise<IWalletTransactionDocument[]> {
+    return await WalletTransactionModel.find({ userId }).populate('tripId', 'title destination').sort({ createdAt: -1 });
   }
 }

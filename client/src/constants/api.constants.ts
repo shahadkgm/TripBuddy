@@ -39,6 +39,7 @@ export const API_ENDPOINTS = {
     MY_PAYMENTS: (tripId: string) => `/api/payments/my-payments/${tripId}`,
     TRIP_PAYMENTS: (tripId: string) => `/api/payments/trip-payments/${tripId}`,
     USER_PAYMENTS: '/api/payments/user-payments',
+    WALLET_TRANSACTIONS: '/api/payments/wallet-transactions',
   },
   GUIDES: {
     PROFILE: '/api/guides/profile',

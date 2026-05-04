@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, MapPin, Briefcase, ArrowLeft, Loader2, Save } from 'lucide-react';
+import { Camera, MapPin, Briefcase, ArrowLeft, Loader2, Save, Instagram, Linkedin, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
 import { guideService } from '../../services/guide.service';
@@ -19,6 +19,12 @@ export const GuideProfilePage = () => {
     dailyRate: user?.guideProfile?.dailyRate || 0,
     yearsOfExperience: user?.guideProfile?.yearsOfExperience || 0,
     specialties: user?.guideProfile?.specialties || [],
+    languages: user?.guideProfile?.languages || [],
+    socialLinks: {
+      instagram: user?.guideProfile?.socialLinks?.instagram || '',
+      linkedin: user?.guideProfile?.socialLinks?.linkedin || '',
+      website: user?.guideProfile?.socialLinks?.website || '',
+    },
   });
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,7 +61,23 @@ export const GuideProfilePage = () => {
     e.preventDefault();
     try {
       setIsSaving(true);
-      const updatedProfile = await guideService.updateProfile(formData);
+      
+      // Capture any un-entered text in the tag inputs
+      const payload = { ...formData };
+      
+      const specInput = document.getElementById('specialties-input') as HTMLInputElement;
+      if (specInput && specInput.value.trim() && !payload.specialties.includes(specInput.value.trim())) {
+        payload.specialties = [...payload.specialties, specInput.value.trim()];
+        specInput.value = '';
+      }
+
+      const langInput = document.getElementById('languages-input') as HTMLInputElement;
+      if (langInput && langInput.value.trim() && !payload.languages.includes(langInput.value.trim())) {
+        payload.languages = [...payload.languages, langInput.value.trim()];
+        langInput.value = '';
+      }
+
+      const updatedProfile = await guideService.updateProfile(payload);
 
       if (user) {
         const updatedUser = {
@@ -66,6 +88,9 @@ export const GuideProfilePage = () => {
       }
 
       toast.success('Profile updated successfully!');
+      
+      // Update local state to reflect the new payload arrays so UI syncs
+      setFormData(payload);
     } catch (_error) {
       toast.error('Failed to update profile');
     } finally {
@@ -217,7 +242,7 @@ export const GuideProfilePage = () => {
                       Specialties
                     </label>
                     <div className="flex flex-wrap gap-2 mb-3">
-                      {formData.specialties.map((s, idx) => (
+                      {formData.specialties.map((s: string, idx: number) => (
                         <span
                           key={idx}
                           className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase rounded-lg border border-indigo-100 flex items-center gap-2"
@@ -228,7 +253,7 @@ export const GuideProfilePage = () => {
                             onClick={() =>
                               setFormData({
                                 ...formData,
-                                specialties: formData.specialties.filter((_, i) => i !== idx),
+                                specialties: formData.specialties.filter((_: string, i: number) => i !== idx),
                               })
                             }
                             className="hover:text-red-500"
@@ -239,6 +264,7 @@ export const GuideProfilePage = () => {
                       ))}
                     </div>
                     <input
+                      id="specialties-input"
                       type="text"
                       placeholder="Press Enter to add specialty"
                       className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
@@ -255,7 +281,114 @@ export const GuideProfilePage = () => {
                           }
                         }
                       }}
+                      onBlur={e => {
+                        const val = e.target.value.trim();
+                        if (val && !formData.specialties.includes(val)) {
+                          setFormData({
+                            ...formData,
+                            specialties: [...formData.specialties, val],
+                          });
+                          e.target.value = '';
+                        }
+                      }}
                     />
+                  </div>
+
+                  {/* Languages Spoken */}
+                  <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">
+                      Languages Spoken
+                    </label>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {formData.languages.map((l: string, idx: number) => (
+                        <span
+                          key={idx}
+                          className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase rounded-lg border border-emerald-100 flex items-center gap-2"
+                        >
+                          {l}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setFormData({
+                                ...formData,
+                                languages: formData.languages.filter((_: string, i: number) => i !== idx),
+                              })
+                            }
+                            className="hover:text-red-500"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                    <input
+                      id="languages-input"
+                      type="text"
+                      placeholder="e.g. English, Malayalam (Press Enter)"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const val = (e.target as HTMLInputElement).value.trim();
+                          if (val && !formData.languages.includes(val)) {
+                            setFormData({
+                              ...formData,
+                              languages: [...formData.languages, val],
+                            });
+                            (e.target as HTMLInputElement).value = '';
+                          }
+                        }
+                      }}
+                      onBlur={e => {
+                        const val = e.target.value.trim();
+                        if (val && !formData.languages.includes(val)) {
+                          setFormData({
+                            ...formData,
+                            languages: [...formData.languages, val],
+                          });
+                          e.target.value = '';
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {/* Social Presence */}
+                  <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-4 px-1">
+                      Social Presence
+                    </label>
+                    <div className="space-y-4">
+                      <div className="relative">
+                        <Instagram className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                        <input
+                          type="text"
+                          value={formData.socialLinks.instagram}
+                          onChange={e => setFormData({...formData, socialLinks: {...formData.socialLinks, instagram: e.target.value}})}
+                          className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                          placeholder="Instagram Profile URL"
+                        />
+                      </div>
+                      <div className="relative">
+                        <Linkedin className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                        <input
+                          type="text"
+                          value={formData.socialLinks.linkedin}
+                          onChange={e => setFormData({...formData, socialLinks: {...formData.socialLinks, linkedin: e.target.value}})}
+                          className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                          placeholder="LinkedIn Profile URL"
+                        />
+                      </div>
+                      <div className="relative">
+                        <Globe className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                        <input
+                          type="text"
+                          value={formData.socialLinks.website}
+                          onChange={e => setFormData({...formData, socialLinks: {...formData.socialLinks, website: e.target.value}})}
+                          className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                          placeholder="Portfolio / Personal Website"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

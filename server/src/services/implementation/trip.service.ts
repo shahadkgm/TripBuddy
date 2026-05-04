@@ -175,7 +175,12 @@ export class TripService implements ITripService {
     if (!updatedTrip) throw new Error('Failed to update trip when leaving');
 
     if (refundAmount > 0) {
-      await this._userRepository.updateWalletBalance(userId, refundAmount);
+      await this._userRepository.updateWalletBalance(
+        userId,
+        refundAmount,
+        tripId,
+        `Refund for leaving trip: ${trip.title}`
+      );
     }
 
     await this._paymentRepository.updateById(escrowedPayment._id.toString(), {
@@ -207,7 +212,12 @@ export class TripService implements ITripService {
 
     for (const payment of escrowedPayments) {
       // Refund 100% to wallet
-      await this._userRepository.updateWalletBalance(payment.userId._id.toString(), payment.amount);
+      await this._userRepository.updateWalletBalance(
+        payment.userId._id.toString(),
+        payment.amount,
+        tripId,
+        `Full refund for cancelled trip: ${trip.title}`
+      );
 
       // Mark payment as refunded
       await this._paymentRepository.updateById(payment._id.toString(), {
@@ -271,7 +281,12 @@ export class TripService implements ITripService {
 
     // 5. Pay the Guide physically
     if (guidePayout > 0 && guideUserId) {
-      await this._userRepository.updateWalletBalance(guideUserId, guidePayout);
+      await this._userRepository.updateWalletBalance(
+        guideUserId,
+        guidePayout,
+        tripId,
+        `Payout for guiding trip: ${trip.title}`
+      );
       logger.info('Guide payout released', {
         tripId,
         guideId: trip.guideId?._id,
@@ -289,7 +304,12 @@ export class TripService implements ITripService {
       const splitAmount = Number((finalPoolToDistribute / travelerMembers.length).toFixed(2));
       for (const member of travelerMembers) {
         // Send the money straight to their wallet
-        await this._userRepository.updateWalletBalance(member._id.toString(), splitAmount);
+        await this._userRepository.updateWalletBalance(
+          member._id.toString(),
+          splitAmount,
+          tripId,
+          `Pool split refund for trip: ${trip.title}`
+        );
       }
     }
 

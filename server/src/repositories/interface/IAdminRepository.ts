@@ -24,7 +24,12 @@ export interface IAdminRepository {
   deleteUser(id: string): Promise<boolean>;
 
   updateUserRole(userId: string, role: 'user' | 'guide' | 'admin'): Promise<IUser | null>;
-  updateWalletBalance(userId: string, amount: number): Promise<IUser | null>;
+  updateWalletBalance(
+    userId: string,
+    amount: number,
+    tripId?: string,
+    reason?: string
+  ): Promise<IUser | null>;
 
   // guides
   getAllPendingGuides(): Promise<IGuide[]>;
