@@ -25,7 +25,7 @@ export const GuideDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [paginationLoading, setPaginationLoading] = useState(false);
+  const [, setPaginationLoading] = useState(false);
   const LIMIT = 5;
 
   const [stats, setStats] = useState({

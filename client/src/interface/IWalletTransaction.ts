@@ -1,7 +1,4 @@
-export enum TransactionType {
-  CREDIT = 'credit',
-  DEBIT = 'debit',
-}
+export type TransactionType = 'credit' | 'debit';
 
 export interface IWalletTransaction {
   _id: string;
