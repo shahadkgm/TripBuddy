@@ -1,3 +1,4 @@
+import { getIO } from '../../config/socket';
 import { IReportRepository } from '../../repositories/interface/IReportRepository';
 import { IReportDocument } from '../../models/report.model';
 
@@ -14,7 +15,6 @@ export class ReportService implements IReportService {
   async createReport(data: Partial<IReportDocument>): Promise<IReportDocument> {
     const result = await this._reportRepository.create(data);
     try {
-      const { getIO } = require('../../config/socket');
       getIO().to('admin_room').emit('global_notification', {
         title: 'New Report Filed',
         message: `A new report has been submitted against a ${data.targetType || 'user'}.`,

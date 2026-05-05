@@ -1,4 +1,5 @@
 import { Types } from 'mongoose';
+import { getIO } from '../../config/socket';
 import { IGuideInvitationDocument, InvitationStatus } from '../../types/guideInvitation.type';
 import { IGuideInvitationRepository } from '../../repositories/interface/IGuideInvitationRepository';
 import { IGuideInvitationService } from '../interface/IGuideInvitationService';
@@ -39,7 +40,6 @@ export class GuideInvitationService implements IGuideInvitationService {
     const result = await this._invitationRepository.create(invitationData);
     
     try {
-      const { getIO } = require('../../config/socket');
       getIO().to(`user_${guide.userId}`).emit('global_notification', {
         title: 'New Trip Invitation',
         message: 'You have received a new invitation to lead a trip.',

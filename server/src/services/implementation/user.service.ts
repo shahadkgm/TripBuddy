@@ -1,3 +1,4 @@
+import { getIO } from '../../config/socket';
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
 import { IUserService } from '../interface/IUserService';
 import { IMailService } from '../interface/IMailService';
@@ -29,7 +30,6 @@ export class UserService implements IUserService {
     });
 
     try {
-      const { getIO } = require('../../config/socket');
       getIO().to('admin_room').emit('global_notification', {
         title: 'New User Registration',
         message: `${newUser.name} has joined TripBuddy.`

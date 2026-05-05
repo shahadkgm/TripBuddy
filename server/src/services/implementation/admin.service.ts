@@ -1,4 +1,5 @@
 import { Types } from 'mongoose';
+import { getIO } from '../../config/socket';
 import { IAdminRepository } from '../../repositories/interface/IAdminRepository';
 import { AppError } from '../../utils/AppError';
 import { StatusCode } from '../../constants/statusCode.enum';
@@ -107,7 +108,6 @@ export class AdminService implements IAdminService {
     logger.info(`KYC status auto-approved for user: ${userId}`);
 
     try {
-      const { getIO } = require('../../config/socket');
       getIO().to(`user_${userId}`).emit('global_notification', {
         title: 'Application Approved',
         message: 'Congratulations! Your guide application has been approved.',
@@ -146,7 +146,6 @@ export class AdminService implements IAdminService {
     await this.adminRepo.updateUserRole(userId, 'user');
 
     try {
-      const { getIO } = require('../../config/socket');
       getIO().to(`user_${userId}`).emit('global_notification', {
         title: 'Application Rejected',
         message: `Your guide application was rejected. Reason: ${reason}`

@@ -1,3 +1,4 @@
+import { getIO } from '../../config/socket';
 import {
   CreateGuideDTO,
   GuideQueryDTO,
@@ -54,7 +55,6 @@ export class GuideService implements IGuideService {
     const result = await this._guideRepository.create(profileData);
 
     try {
-      const { getIO } = require('../../config/socket');
       getIO().to('admin_room').emit('global_notification', {
         title: 'New Guide Application',
         message: `${user?.name || 'A user'} has applied to be a guide.`,
