@@ -101,6 +101,12 @@ export class GuideInvitationService implements IGuideInvitationService {
       try {
         // Assign guide to trip
         await this._tripService.assignGuide(tripIdStr, guideIdStr, senderIdStr);
+
+        getIO().to(`user_${senderIdStr}`).emit('global_notification', {
+          title: 'Guide Accepted!',
+          message: 'A guide has accepted your invitation for the trip.',
+          link: `/group-chat/${tripIdStr}`
+        });
       } catch (assignError: unknown) {
         const message = assignError instanceof Error ? assignError.message : 'Unknown error';
         logger.error('Error during trip service assignment', { error: message });
@@ -108,8 +114,23 @@ export class GuideInvitationService implements IGuideInvitationService {
       }
     }
 
-    if (status === InvitationStatus.REJECTED && reason) {
-      invitation.rejectionReason = reason;
+    if (status === InvitationStatus.REJECTED) {
+      const tripIdStr = this.extractId(invitation.tripId);
+      const senderIdStr = this.extractId(invitation.senderId);
+
+      if (reason) {
+        invitation.rejectionReason = reason;
+      }
+
+      try {
+        getIO().to(`user_${senderIdStr}`).emit('global_notification', {
+          title: 'Guide Declined',
+          message: `A guide declined your trip invitation. ${reason ? `Reason: ${reason}` : ''}`,
+          link: `/group-chat/${tripIdStr}`
+        });
+      } catch (e) {
+        logger.error('Failed to emit rejection notification', { error: e });
+      }
     }
 
     invitation.status = status as InvitationStatus;

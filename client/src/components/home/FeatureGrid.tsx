@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 
 const FEATURES = [
   {
@@ -56,7 +56,7 @@ const FEATURES = [
 ];
 
 export const FeatureGrid = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   return (
     <section className="py-16 md:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
