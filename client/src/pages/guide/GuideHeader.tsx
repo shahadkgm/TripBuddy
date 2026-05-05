@@ -1,7 +1,7 @@
 import { type FC } from 'react';
 import { User, LogOut, Menu } from 'lucide-react';
 import { Logo } from '../../components/common/Logo';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
@@ -24,7 +24,7 @@ export const GuideHeader: FC<GuideHeaderProps> = ({ currentPage, onMenuClick }) 
     <header className="bg-white/80 backdrop-blur-md px-4 md:px-10 py-3 md:py-5 border-b border-slate-100 flex justify-between items-center sticky top-0 z-30 h-[70px] md:h-[89px]">
       <div className="flex items-center gap-3 md:gap-6">
         {/* Mobile Menu Button */}
-        <button 
+        <button
           onClick={onMenuClick}
           className="lg:hidden p-2 bg-slate-900 text-white rounded-xl shadow-lg shadow-slate-200 active:scale-95 transition-all"
         >
@@ -32,7 +32,7 @@ export const GuideHeader: FC<GuideHeaderProps> = ({ currentPage, onMenuClick }) 
         </button>
 
         <Logo size="sm" className="hidden sm:block lg:hidden" />
-        
+
         <div className="flex items-center gap-1.5 md:gap-2">
           <h2 className="font-black text-slate-900 tracking-tighter uppercase text-[9px] md:text-sm">
             Guide Central

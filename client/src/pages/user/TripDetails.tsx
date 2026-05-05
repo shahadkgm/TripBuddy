@@ -12,10 +12,10 @@ import {
   AlertCircle,
   Loader2,
 } from 'lucide-react';
-import { tripService } from '../../services/c.trip.service';
-import { connectionService } from '../../services/c.connection.service';
-import { authService } from '../../services/c.authService';
-import { paymentService } from '../../services/c.payment.service';
+import { tripService } from '../../services/trip.service';
+import { connectionService } from '../../services/connection.service';
+import { authService } from '../../services/auth.service';
+import { paymentService } from '../../services/payment.service';
 import type { ITrip } from '../../interface/ITripdetails';
 import { TripStatus } from '../../constants/TripStatus';
 import toast from 'react-hot-toast';

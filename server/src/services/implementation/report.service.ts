@@ -1,3 +1,4 @@
+import { getIO } from '../../config/socket';
 import { IReportRepository } from '../../repositories/interface/IReportRepository';
 import { IReportDocument } from '../../models/report.model';
 
@@ -12,7 +13,17 @@ export class ReportService implements IReportService {
   constructor(private _reportRepository: IReportRepository) {}
 
   async createReport(data: Partial<IReportDocument>): Promise<IReportDocument> {
-    return await this._reportRepository.create(data);
+    const result = await this._reportRepository.create(data);
+    try {
+      getIO().to('admin_room').emit('global_notification', {
+        title: 'New Report Filed',
+        message: `A new report has been submitted against a ${data.targetType || 'user'}.`,
+        link: '/admin/reports'
+      });
+    } catch (e) {
+      console.error('Failed to emit socket event', e);
+    }
+    return result;
   }
 
   async getAllReports(): Promise<IReportDocument[]> {

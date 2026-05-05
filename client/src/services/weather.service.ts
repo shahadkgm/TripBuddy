@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { API_ENDPOINTS } from '../constants/api.constants';
 
 // Using Open-Meteo for weather (no API key needed)
 // and Nominatim for geocoding (no API key needed)
@@ -19,9 +20,12 @@ export interface WeatherData {
 
 export const weatherService = {
   async getLatLong(city: string) {
-    const response = await axios.get(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${city}`
-    );
+    const response = await axios.get(API_ENDPOINTS.EXTERNAL_SERVICES.NOMINATIM, {
+      params: {
+        q: city,
+        format: 'json',
+      },
+    });
     if (response.data && response.data.length > 0) {
       return {
         lat: response.data[0].lat,
@@ -34,9 +38,15 @@ export const weatherService = {
 
   async getWeather(city: string): Promise<WeatherData> {
     const coords = await this.getLatLong(city);
-    const response = await axios.get(
-      `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&daily=uv_index_max,temperature_2m_max,temperature_2m_min&timezone=auto`
-    );
+    const response = await axios.get(API_ENDPOINTS.EXTERNAL_SERVICES.OPEN_METEO, {
+      params: {
+        latitude: coords.lat,
+        longitude: coords.lon,
+        current: 'temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code',
+        daily: 'uv_index_max,temperature_2m_max,temperature_2m_min',
+        timezone: 'auto',
+      },
+    });
 
     const code = response.data.current.weather_code;
     const weatherMapping: Record<number, { desc: string; icon: string }> = {

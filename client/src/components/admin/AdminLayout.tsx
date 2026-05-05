@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 import {
   LayoutDashboard,
   Users,

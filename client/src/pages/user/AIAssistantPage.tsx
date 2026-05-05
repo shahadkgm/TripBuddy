@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, X, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { aiService } from '../../services/c.ai.service';
+import { aiService } from '../../services/ai.service';
 import toast from 'react-hot-toast';
 
 interface Message {
@@ -53,7 +53,9 @@ const AIAssistantPage = () => {
       setMessages(prev => [...prev, { role: 'assistant', content: response }]);
     } catch (_error) {
       console.error('AI Chat Error:', _error);
-      toast.error('Failed to get a response beacuse ofThis model is currently experiencing high demand . Please try manual way.');
+      toast.error(
+        'Failed to get a response beacuse ofThis model is currently experiencing high demand . Please try manual way.'
+      );
     } finally {
       setIsLoading(false);
     }

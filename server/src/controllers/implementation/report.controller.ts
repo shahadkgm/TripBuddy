@@ -34,21 +34,24 @@ export class ReportController extends BaseController {
     this.sendSuccess(res, reports, 'Reports fetched successfully');
   });
 
-  getReportsByTarget = asyncHandler(async (req: AuthRequest<{ targetId: string }>, res: Response) => {
-    const { targetId } = req.params;
-    const reports = await this._reportService.getReportsByTarget(targetId);
-    this.sendSuccess(res, reports, 'Reports fetched successfully');
-  });
-
-  updateStatus = asyncHandler(async (req: AuthRequest<{ id: string }, {}, UpdateReportStatusDTO>, res: Response) => {
-    const { id } = req.params;
-    const { status } = req.body;
-    const report = await this._reportService.updateReportStatus(id, status);
-    if (!report) {
-      this.sendNotFound(res, 'Report not found');
-      return;
+  getReportsByTarget = asyncHandler(
+    async (req: AuthRequest<{ targetId: string }>, res: Response) => {
+      const { targetId } = req.params;
+      const reports = await this._reportService.getReportsByTarget(targetId);
+      this.sendSuccess(res, reports, 'Reports fetched successfully');
     }
-    this.sendSuccess(res, report, 'Report status updated');
-  });
-}
+  );
 
+  updateStatus = asyncHandler(
+    async (req: AuthRequest<{ reportId: string }, {}, UpdateReportStatusDTO>, res: Response) => {
+      const { reportId } = req.params;
+      const { status } = req.body;
+      const report = await this._reportService.updateReportStatus(reportId, status);
+      if (!report) {
+        this.sendNotFound(res, 'Report not found');
+        return;
+      }
+      this.sendSuccess(res, report, 'Report status updated');
+    }
+  );
+}

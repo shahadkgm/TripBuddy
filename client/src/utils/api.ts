@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { authService } from '../services/c.authService';
+import { authService } from '../services/auth.service';
+import { API_ENDPOINTS } from '../constants/api.constants';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -52,9 +53,9 @@ api.interceptors.response.use(
   async error => {
     const originalRequest = error.config;
     const isAuthRoute =
-      originalRequest.url?.includes('/auth/login') ||
-      originalRequest.url?.includes('/auth/register') ||
-      originalRequest.url?.includes('/auth/refresh');
+      originalRequest.url?.includes(API_ENDPOINTS.AUTH.LOGIN) ||
+      originalRequest.url?.includes(API_ENDPOINTS.AUTH.REGISTER) ||
+      originalRequest.url?.includes(API_ENDPOINTS.AUTH.REFRESH);
 
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthRoute) {
       if (isRefreshing) {
@@ -75,7 +76,7 @@ api.interceptors.response.use(
 
       try {
         const res = await axios.post(
-          `${import.meta.env.VITE_API_URL}/auth/refresh`,
+          `${import.meta.env.VITE_API_URL}${API_ENDPOINTS.AUTH.REFRESH}`,
           {},
           { withCredentials: true }
         );
@@ -98,7 +99,11 @@ api.interceptors.response.use(
     }
 
     //  blocked user
-    if (error.response?.status === 403 && error.response.data?.message === 'User blocked') {
+    if (
+      error.response?.status === 403 &&
+      (error.response.data?.message === 'User blocked' ||
+        error.response.data?.message?.includes('account has been blocked'))
+    ) {
       localStorage.clear();
       window.location.replace('/login?blocked=true');
     }

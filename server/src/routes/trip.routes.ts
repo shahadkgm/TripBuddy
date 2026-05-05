@@ -24,13 +24,13 @@ const tripController = new TripController(tripService);
 
 router.use(protect);
 
-router.post('/:id/finalize', tripController.finalizeTrip);
+router.post('/:tripId/finalize', tripController.finalizeTrip);
 
-router.post('/:id/cancel', tripController.cancelTrip);
+router.post('/:tripId/cancel', tripController.cancelTrip);
 
-router.post('/:id/complete', tripController.completeTrip);
+router.post('/:tripId/complete', tripController.completeTrip);
 
-router.post('/:id/leave', tripController.leaveTrip);
+router.post('/:tripId/leave', tripController.leaveTrip);
 
 router.post(
   API_ROUTES.TRIP.CREATE,
@@ -50,7 +50,7 @@ router.patch(API_ROUTES.TRIP.GET_BY_ID, upload.none(), tripController.updateTrip
 router.get(API_ROUTES.TRIP.GET_CHAT, tripController.getChatHistory);
 
 // Assign / remove a guide from a trip
-router.patch('/:id/guide', tripController.assignGuide);
+router.patch('/:tripId/guide', tripController.assignGuide);
 
 router.get('/guide/:guideId', tripController.getGuideTrips);
 

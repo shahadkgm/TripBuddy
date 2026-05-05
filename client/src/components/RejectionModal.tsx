@@ -34,9 +34,7 @@ export const RejectionModal: React.FC<RejectionModalProps> = ({
         </div>
 
         <div className="p-6">
-          <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-            {message}
-          </p>
+          <p className="text-sm text-gray-500 mb-6 leading-relaxed">{message}</p>
 
           <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
             Rejection Reason
@@ -46,7 +44,7 @@ export const RejectionModal: React.FC<RejectionModalProps> = ({
             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all min-h-[120px] resize-none"
             placeholder="Please explain why the application is being rejected..."
             value={reason}
-            onChange={(e) => setReason(e.target.value)}
+            onChange={e => setReason(e.target.value)}
           />
         </div>
 

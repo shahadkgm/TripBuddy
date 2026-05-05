@@ -28,14 +28,13 @@ export class GuideRegisterDTO {
   yearsOfExperience!: number;
 
   @Transform(({ value }) => {
+    if (!value) return [];
     if (typeof value === 'string') {
       try {
-        return JSON.parse(value);
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : [parsed];
       } catch {
-        return value
-          .split(',')
-          .map((s: string) => s.trim())
-          .filter(Boolean);
+        return value.split(',').map((s: string) => s.trim()).filter(Boolean);
       }
     }
     return Array.isArray(value) ? value : [value];
@@ -43,6 +42,40 @@ export class GuideRegisterDTO {
   @IsArray()
   @IsString({ each: true })
   specialties!: string[];
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (!value) return [];
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value.split(',').map((s: string) => s.trim()).filter(Boolean);
+      }
+    }
+    return Array.isArray(value) ? value : [value];
+  })
+  @IsArray()
+  @IsString({ each: true })
+  languages?: string[];
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (!value) return {};
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value;
+      }
+    }
+    return value;
+  })
+  socialLinks?: {
+    instagram?: string;
+    linkedin?: string;
+    website?: string;
+  };
 }
 
 export class GuideUpdateDTO {
@@ -68,14 +101,13 @@ export class GuideUpdateDTO {
 
   @IsOptional()
   @Transform(({ value }) => {
+    if (!value) return undefined;
     if (typeof value === 'string') {
       try {
-        return JSON.parse(value);
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : [parsed];
       } catch {
-        return value
-          .split(',')
-          .map((s: string) => s.trim())
-          .filter(Boolean);
+        return value.split(',').map((s: string) => s.trim()).filter(Boolean);
       }
     }
     return Array.isArray(value) ? value : [value];
@@ -83,6 +115,41 @@ export class GuideUpdateDTO {
   @IsArray()
   @IsString({ each: true })
   specialties?: string[];
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (!value) return undefined;
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        return value.split(',').map((s: string) => s.trim()).filter(Boolean);
+      }
+    }
+    return Array.isArray(value) ? value : [value];
+  })
+  @IsArray()
+  @IsString({ each: true })
+  languages?: string[];
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (!value) return undefined;
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return value;
+      }
+    }
+    return value;
+  })
+  socialLinks?: {
+    instagram?: string;
+    linkedin?: string;
+    website?: string;
+  };
 
   @IsOptional()
   @IsString()
@@ -113,6 +180,17 @@ export class CreateGuideDTO {
   @IsArray()
   @IsString({ each: true })
   specialties!: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  languages!: string[];
+
+  @IsOptional()
+  socialLinks?: {
+    instagram?: string;
+    linkedin?: string;
+    website?: string;
+  };
 
   @IsOptional()
   @IsString()
@@ -158,7 +236,14 @@ export interface GuideResponseDTO {
   dailyRate: number;
   serviceArea: string;
   specialties: string[];
+  languages: string[];
+  socialLinks?: {
+    instagram?: string;
+    linkedin?: string;
+    website?: string;
+  };
   avatarURL?: string;
+  yearsOfExperience: number;
   isVerified: boolean;
   averageRating?: number;
   reviewCount?: number;

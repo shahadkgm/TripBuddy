@@ -55,8 +55,8 @@ export class UserController extends BaseController {
   });
 
   getUserProfile = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const user = await this._userService.getUserProfile(id);
+    const { userId } = req.params;
+    const user = await this._userService.getUserProfile(userId);
     const response = UserMapper.toResponseDTO(user);
     this.sendSuccess(res, response, 'User profile fetched successfully');
   });

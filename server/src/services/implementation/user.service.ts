@@ -1,3 +1,4 @@
+import { getIO } from '../../config/socket';
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
 import { IUserService } from '../interface/IUserService';
 import { IMailService } from '../interface/IMailService';
@@ -27,6 +28,15 @@ export class UserService implements IUserService {
       role: userData.role || 'user',
       isBlocked: false,
     });
+
+    try {
+      getIO().to('admin_room').emit('global_notification', {
+        title: 'New User Registration',
+        message: `${newUser.name} has joined TripBuddy.`
+      });
+    } catch (e) {
+      console.error('Failed to emit socket event', e);
+    }
 
     return {
       id: newUser._id.toString(),

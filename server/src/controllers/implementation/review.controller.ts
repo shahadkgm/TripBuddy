@@ -57,8 +57,8 @@ export class ReviewController extends BaseController {
   });
 
   deleteReview = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { id } = req.params;
-    await this._reviewService.deleteReview(id);
+    const { reviewId } = req.params;
+    await this._reviewService.deleteReview(reviewId);
     this.sendSuccess(res, null, 'Review deleted successfully');
   });
 }

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { nearbyService, type Place } from '../../services/c.nearby.service';
+import { nearbyService, type Place } from '../../services/nearby.service';
 import toast from 'react-hot-toast';
 import L from 'leaflet';
 

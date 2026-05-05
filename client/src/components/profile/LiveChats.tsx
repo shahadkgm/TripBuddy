@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, Plane, ArrowRight, Loader2 } from 'lucide-react';
-import { tripService } from '../../services/c.trip.service';
+import { tripService } from '../../services/trip.service';
 import { Pagination } from '../Pagination';
 import type { ITrip } from '../../interface/ITripdetails';
 import { useSocketContext } from '../../hooks/useSocketContext';

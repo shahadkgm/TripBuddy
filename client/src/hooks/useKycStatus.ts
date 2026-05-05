@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { authService } from '../services/c.authService';
+import { authService } from '../services/auth.service';
 import api from '../utils/api';
 
 export const useKycStatus = () => {
-  const [kycStatus, setKycStatus] = useState<'none' | 'pending' | 'approved' | 'rejected' | 'loading'>('loading');
+  const [kycStatus, setKycStatus] = useState<
+    'none' | 'pending' | 'approved' | 'rejected' | 'loading'
+  >('loading');
   const user = authService.getCurrentUser();
 
   useEffect(() => {

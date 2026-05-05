@@ -25,13 +25,19 @@ export const toGuideResponse = (guide: IGuide): GuideResponseDTO => ({
   serviceArea: guide.serviceArea,
   specialties: guide.specialties,
   avatarURL: guide.avatarURL,
+  yearsOfExperience: guide.yearsOfExperience,
+  languages: guide.languages || [],
+  socialLinks: guide.socialLinks,
   isVerified: guide.isVerified,
   averageRating: guide.averageRating,
   reviewCount: guide.reviewCount,
 });
 export const toAdminGuideResponse = (guide: PopulatedGuide): AdminGuideResponseDTO => {
-  const populatedUser = guide.userDoc || (guide.userId && typeof guide.userId === 'object' && 'name' in guide.userId ? (guide.userId as unknown as PopulatedGuide['userDoc']) : null);
-
+  const populatedUser =
+    guide.userDoc ||
+    (guide.userId && typeof guide.userId === 'object' && 'name' in guide.userId
+      ? (guide.userId as unknown as PopulatedGuide['userDoc'])
+      : null);
 
   return {
     id: guide._id.toString(),
@@ -46,6 +52,8 @@ export const toAdminGuideResponse = (guide: PopulatedGuide): AdminGuideResponseD
     serviceArea: guide.serviceArea,
     specialties: guide.specialties || [],
     avatarURL: guide.avatarURL,
+    languages: guide.languages || [],
+    socialLinks: guide.socialLinks,
     certificateUrl: guide.certificateUrl,
     yearsOfExperience: guide.yearsOfExperience,
     status: guide.status || (guide.isVerified ? 'verified' : 'pending'),

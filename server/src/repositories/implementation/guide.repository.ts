@@ -7,7 +7,8 @@ import { IGuide } from '../../types/guide.type';
 
 export class GuideRepository
   extends BaseRepository<IGuide, CreateGuideDTO>
-  implements IGuideRepository {
+  implements IGuideRepository
+{
   constructor() {
     super(guideModel);
   }
@@ -58,7 +59,7 @@ export class GuideRepository
 
     const [guides, totalResults] = await Promise.all([
       this._model.aggregate<IGuide>(pipeline).exec(),
-       this._model.countDocuments(query),
+      this._model.countDocuments(query),
     ]);
 
     return { guides, total: totalResults };

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 import { useKycStatus } from '../../hooks/useKycStatus';
 import toast from 'react-hot-toast';
 

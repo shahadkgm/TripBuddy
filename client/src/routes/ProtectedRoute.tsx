@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { authService } from '../services/c.authService';
+import { authService } from '../services/auth.service';
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { Loader2 } from 'lucide-react';
@@ -27,7 +27,7 @@ const ProtectedRoute = ({ allowedRoles, requireKyc }: ProtectedRouteProps) => {
         try {
           const res = await api.get(`/api/kyc-status/${currentUser.id}`);
           const latestStatus = res.data.data?.status || 'none';
-          
+
           if (latestStatus !== currentUser.kycStatus) {
             // Update localStorage and state
             const updatedUser = { ...currentUser, kycStatus: latestStatus };

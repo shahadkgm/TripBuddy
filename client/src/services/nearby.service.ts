@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { API_ENDPOINTS } from '../constants/api.constants';
 
 export interface Place {
   id: number;
@@ -14,7 +15,7 @@ class NearByService {
     query: string
   ): Promise<{ lat: number; lon: number; display_name: string } | null> {
     try {
-      const response = await axios.get(`https://nominatim.openstreetmap.org/search`, {
+      const response = await axios.get(API_ENDPOINTS.EXTERNAL_SERVICES.NOMINATIM, {
         params: {
           q: query,
           format: 'json',
@@ -41,7 +42,7 @@ class NearByService {
   ): Promise<{ display_name: string; lat: string; lon: string }[]> {
     if (!query || query.length < 3) return [];
     try {
-      const response = await axios.get(`https://nominatim.openstreetmap.org/search`, {
+      const response = await axios.get(API_ENDPOINTS.EXTERNAL_SERVICES.NOMINATIM, {
         params: {
           q: query,
           format: 'json',
@@ -72,7 +73,7 @@ class NearByService {
                 out skel qt;
             `;
 
-      const response = await axios.post('https://overpass-api.de/api/interpreter', query, {
+      const response = await axios.post(API_ENDPOINTS.EXTERNAL_SERVICES.OVERPASS, query, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
@@ -93,7 +94,9 @@ class NearByService {
       }
 
       return response.data.elements
-        .filter((el: OverpassElement) => el.tags && (el.tags.name || el.tags.amenity || el.tags.tourism))
+        .filter(
+          (el: OverpassElement) => el.tags && (el.tags.name || el.tags.amenity || el.tags.tourism)
+        )
         .map((el: OverpassElement) => ({
           id: el.id,
           name: el.tags?.name || el.tags?.amenity || el.tags?.tourism || 'Unknown',

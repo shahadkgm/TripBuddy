@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'; // 1. Import useRef
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 
 const VerifyEmail = () => {
   const [params] = useSearchParams();

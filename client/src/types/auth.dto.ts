@@ -35,6 +35,12 @@ export interface AuthUser {
     bio?: string;
     yearsOfExperience?: number;
     specialties?: string[];
+    languages?: string[];
+    socialLinks?: {
+      instagram?: string;
+      linkedin?: string;
+      website?: string;
+    };
     avatarURL?: string;
   };
 }
@@ -64,13 +70,13 @@ export interface ConnectionRequest {
     avatarURL?: string;
   };
   receiverId:
-    | string
-    | {
-        _id: string;
-        name: string;
-        email: string;
-        avatarURL?: string;
-      };
+  | string
+  | {
+    _id: string;
+    name: string;
+    email: string;
+    avatarURL?: string;
+  };
   tripId?: {
     _id: string;
     title: string;

@@ -20,5 +20,10 @@ export interface IUserRepository extends IBaseRepository<IUser, CreateUserDTO> {
   verifyUser(userId: string): Promise<void>;
 
   // Wallet
-  updateWalletBalance(userId: string, amount: number): Promise<void>;
+  updateWalletBalance(
+    userId: string,
+    amount: number,
+    tripId?: string,
+    reason?: string
+  ): Promise<void>;
 }

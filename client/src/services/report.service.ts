@@ -1,4 +1,5 @@
 import api from '../utils/api';
+import { API_ENDPOINTS } from '../constants/api.constants';
 
 export interface IReportData {
   targetId: string;
@@ -10,22 +11,22 @@ export interface IReportData {
 
 export const reportService = {
   async submitReport(data: IReportData) {
-    const response = await api.post('/api/reports', data);
+    const response = await api.post(API_ENDPOINTS.REPORTS.BASE, data);
     return response.data;
   },
 
   async getAllReports() {
-    const response = await api.get('/api/reports/all');
+    const response = await api.get(API_ENDPOINTS.REPORTS.ALL);
     return response.data.data;
   },
 
   async updateReportStatus(reportId: string, status: string) {
-    const response = await api.patch(`/api/reports/${reportId}/status`, { status });
+    const response = await api.patch(API_ENDPOINTS.REPORTS.STATUS(reportId), { status });
     return response.data;
   },
 
   async getReportsByTarget(targetId: string) {
-    const response = await api.get(`/api/reports/target/${targetId}`);
+    const response = await api.get(API_ENDPOINTS.REPORTS.TARGET(targetId));
     return response.data.data as IReport[];
   },
 };

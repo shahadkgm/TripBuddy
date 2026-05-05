@@ -1,4 +1,5 @@
 import { Types } from 'mongoose';
+import { getIO } from '../../config/socket';
 import { IAdminRepository } from '../../repositories/interface/IAdminRepository';
 import { AppError } from '../../utils/AppError';
 import { StatusCode } from '../../constants/statusCode.enum';
@@ -106,6 +107,16 @@ export class AdminService implements IAdminService {
     await this.kycRepo.updateStatus(userId, 'approved');
     logger.info(`KYC status auto-approved for user: ${userId}`);
 
+    try {
+      getIO().to(`user_${userId}`).emit('global_notification', {
+        title: 'Application Approved',
+        message: 'Congratulations! Your guide application has been approved.',
+        link: '/guide/dashboard'
+      });
+    } catch (e) {
+      logger.error('Failed to emit socket event', { error: e });
+    }
+
     return toAdminGuideResponse(profile);
   }
 
@@ -124,6 +135,23 @@ export class AdminService implements IAdminService {
 
     if (!rejected) {
       throw new AppError('Guide application not found', StatusCode.NOT_FOUND);
+    }
+
+    const userId =
+      rejected.userId instanceof Types.ObjectId
+        ? rejected.userId.toString()
+        : rejected.userId._id.toString();
+
+    // Demote the user back to a regular 'user' role
+    await this.adminRepo.updateUserRole(userId, 'user');
+
+    try {
+      getIO().to(`user_${userId}`).emit('global_notification', {
+        title: 'Application Rejected',
+        message: `Your guide application was rejected. Reason: ${reason}`
+      });
+    } catch (e) {
+      logger.error('Failed to emit socket event', { error: e });
     }
 
     return true;
@@ -178,7 +206,12 @@ export class AdminService implements IAdminService {
           ? payment.userId.toString()
           : (payment.userId as unknown as { _id: Types.ObjectId })._id.toString();
 
-      await this.adminRepo.updateWalletBalance(userId, payment.amount);
+      await this.adminRepo.updateWalletBalance(
+        userId,
+        payment.amount,
+        payment.tripId.toString(),
+        `Admin manual refund for payment: ${payment.transactionId || payment._id}`
+      );
       logger.info(`Credited ${payment.amount} to user ${userId} wallet due to refund.`);
     }
 
@@ -213,7 +246,7 @@ export class AdminService implements IAdminService {
 
   async getRevenueStats(from?: Date, to?: Date): Promise<RevenueStatsDTO> {
     const stats = await this.paymentRepo.getRevenueStats(from, to);
-    const PLATFORM_COMMISSION_RATE = 0.02; // 2% 
+    const PLATFORM_COMMISSION_RATE = 0.02; // 2%
 
     return {
       ...stats,

@@ -1,12 +1,6 @@
 import { useState, useEffect } from 'react';
-import {
-  Star,
-  MessageSquare,
-  Loader2,
-  Quote,
-  ThumbsUp,
-} from 'lucide-react';
-import { authService } from '../../services/c.authService';
+import { Star, MessageSquare, Loader2, Quote, ThumbsUp } from 'lucide-react';
+import { authService } from '../../services/auth.service';
 import { GuideLayout } from './GuideLayout';
 import { Pagination } from '../../components/Pagination';
 import api from '../../utils/api';
@@ -43,16 +37,19 @@ export const GuideReviewsPage = () => {
       try {
         setLoading(true);
         const res = await api.get(`/api/reviews/guide/${user.guideProfile._id}`, {
-          params: { page, limit: LIMIT }
+          params: { page, limit: LIMIT },
         });
         const reviewData = res.data.data.reviews || res.data.data;
         const totalCount = res.data.data.total || reviewData.length;
-        
+
         setReviews(reviewData);
         setTotalPages(Math.ceil(totalCount / LIMIT));
 
         if (reviewData.length > 0) {
-          const total = reviewData.reduce((acc: number, r: { rating: number }) => acc + r.rating, 0);
+          const total = reviewData.reduce(
+            (acc: number, r: { rating: number }) => acc + r.rating,
+            0
+          );
           const avg = total / reviewData.length;
 
           const dist = [0, 0, 0, 0, 0];
@@ -118,8 +115,7 @@ export const GuideReviewsPage = () => {
             <div className="space-y-4">
               {stats.ratingDistribution.map((count, idx) => {
                 const rating = 5 - idx;
-                const percentage =
-                  stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
+                const percentage = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
                 return (
                   <div key={rating} className="flex items-center gap-4">
                     <div className="flex items-center gap-2 w-12">
@@ -149,22 +145,34 @@ export const GuideReviewsPage = () => {
           </div>
         ) : reviews.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {reviews.map((review) => (
-              <div key={review._id} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500">
+            {reviews.map(review => (
+              <div
+                key={review._id}
+                className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-xl transition-all duration-500"
+              >
                 {/* Review Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center border border-slate-200 overflow-hidden shadow-inner group-hover:border-indigo-100 transition-all">
                       {review.reviewerId.avatarURL ? (
-                        <img src={review.reviewerId.avatarURL} alt="" className="w-full h-full object-cover" />
+                        <img
+                          src={review.reviewerId.avatarURL}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <Quote size={20} className="text-slate-300" />
                       )}
                     </div>
                     <div>
-                      <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">{review.reviewerId.name}</h4>
+                      <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">
+                        {review.reviewerId.name}
+                      </h4>
                       <p className="text-[10px] font-bold text-slate-400 mt-0.5 uppercase tracking-widest">
-                        {new Date(review.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+                        {new Date(review.createdAt).toLocaleDateString(undefined, {
+                          month: 'long',
+                          year: 'numeric',
+                        })}
                       </p>
                     </div>
                   </div>
@@ -205,11 +213,7 @@ export const GuideReviewsPage = () => {
 
             {totalPages > 1 && (
               <div className="mt-12 flex justify-center pb-6">
-                <Pagination
-                  currentPage={page}
-                  totalPages={totalPages}
-                  onPageChange={setPage}
-                />
+                <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
               </div>
             )}
           </div>

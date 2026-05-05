@@ -1,3 +1,4 @@
+import { getIO } from '../../config/socket';
 import {
   CreateGuideDTO,
   GuideQueryDTO,
@@ -16,10 +17,9 @@ export class GuideService implements IGuideService {
   constructor(
     private readonly _guideRepository: IGuideRepository,
     private readonly _userRepository: IUserRepository
-  ) {}
+  ) { }
 
   async register(userId: string, data: GuideRegisterDTO, avatarURL?: string): Promise<IGuide> {
-    // const user=await this._userRepsitory.findby
     logger.info(`Starting guide registration for user: ${userId}`);
     const existing = await this._guideRepository.findOne({ userId });
     if (existing) {
@@ -29,8 +29,11 @@ export class GuideService implements IGuideService {
     const user = await this._userRepository.findById(userId);
     if (!user) {
       logger.error(`User not found during guide registration: ${userId}`);
-      console.log('from guide register ', user);
     }
+    const languages = typeof data.languages === 'string' ? JSON.parse(data.languages) : data.languages;
+    const socialLinks = typeof data.socialLinks === 'string' ? JSON.parse(data.socialLinks) : data.socialLinks;
+    const specialties = typeof data.specialties === 'string' ? JSON.parse(data.specialties) : data.specialties;
+
     const profileData: CreateGuideDTO = {
       userId,
       name: user?.name ? user.name : '',
@@ -38,7 +41,9 @@ export class GuideService implements IGuideService {
       dailyRate: Number(data.dailyRate),
       serviceArea: data.serviceArea,
       yearsOfExperience: Number(data.yearsOfExperience) || 0,
-      specialties: data.specialties,
+      specialties: specialties || [],
+      languages: languages || [],
+      socialLinks: socialLinks,
       avatarURL: avatarURL || '',
       isVerified: false,
     };
@@ -47,7 +52,19 @@ export class GuideService implements IGuideService {
       yearsOfExperience: profileData.yearsOfExperience,
     });
 
-    return await this._guideRepository.create(profileData);
+    const result = await this._guideRepository.create(profileData);
+
+    try {
+      getIO().to('admin_room').emit('global_notification', {
+        title: 'New Guide Application',
+        message: `${user?.name || 'A user'} has applied to be a guide.`,
+        link: '/admin/guides'
+      });
+    } catch (e) {
+      logger.error('Failed to emit socket event', { error: e });
+    }
+
+    return result;
   }
 
   async getStatus(userId: string) {
@@ -100,8 +117,15 @@ export class GuideService implements IGuideService {
       throw new Error('Guide profile not found');
     }
 
+    const languages = typeof data.languages === 'string' ? JSON.parse(data.languages) : data.languages;
+    const socialLinks = typeof data.socialLinks === 'string' ? JSON.parse(data.socialLinks) : data.socialLinks;
+    const specialties = typeof data.specialties === 'string' ? JSON.parse(data.specialties) : data.specialties;
+
     const updated = await this._guideRepository.updateById(guide._id.toString(), {
       ...data,
+      languages,
+      socialLinks,
+      specialties,
       lastUpdated: new Date(),
     });
 

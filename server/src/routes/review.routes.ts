@@ -24,6 +24,6 @@ router.post('/', protect, reviewController.createReview);
 
 // Admin routes
 router.get('/admin/all', protect, reviewController.getAllReviews);
-router.delete('/:id', protect, reviewController.deleteReview);
+router.delete('/:reviewId', protect, reviewController.deleteReview);
 
 export default router;

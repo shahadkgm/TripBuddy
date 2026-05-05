@@ -40,7 +40,9 @@ export class GuideInvitationController extends BaseController {
       const { invitationId, status, reason } = req.body;
       const guideUserId = req.user?.id as string;
 
-      if (![InvitationStatus.ACCEPTED, InvitationStatus.REJECTED].includes(status as InvitationStatus)) {
+      if (
+        ![InvitationStatus.ACCEPTED, InvitationStatus.REJECTED].includes(status as InvitationStatus)
+      ) {
         this.sendBadRequest(res, 'Invalid status');
         return;
       }

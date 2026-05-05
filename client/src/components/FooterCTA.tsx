@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useKycStatus } from '../hooks/useKycStatus';
-import { authService } from '../services/c.authService';
+import { authService } from '../services/auth.service';
 import toast from 'react-hot-toast';
 
 export const FooterCTA: React.FC = () => {

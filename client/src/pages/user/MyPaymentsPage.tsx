@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { Navbar } from '../../components/home/Navbar';
 import { MainFooter } from '../../components/MainFooter';
 import api from '../../utils/api';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 import type { AuthUser } from '../../types/auth.dto';
 
 interface PaymentData {

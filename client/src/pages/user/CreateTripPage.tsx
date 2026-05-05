@@ -41,10 +41,10 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-import { authService } from '../../services/c.authService';
-import { tripService } from '../../services/c.trip.service';
-import { nearbyService } from '../../services/c.nearby.service';
-import { weatherService, type WeatherData } from '../../services/c.weather.service';
+import { authService } from '../../services/auth.service';
+import { tripService } from '../../services/trip.service';
+import { nearbyService } from '../../services/nearby.service';
+import { weatherService, type WeatherData } from '../../services/weather.service';
 
 interface NominatimSuggestion {
   display_name: string;
@@ -317,9 +317,7 @@ const CreateTripPage = () => {
       const errorObj = _error as { response?: { data?: { message?: string } } };
       const msg = errorObj.response?.data?.message || 'An unexpected error occurred.';
       console.error('Trip operation failed:', _error);
-      toast.error(
-        msg || `Failed to ${isEditing ? 'update' : 'create'} trip`
-      );
+      toast.error(msg || `Failed to ${isEditing ? 'update' : 'create'} trip`);
     } finally {
       setIsSubmitting(false);
     }

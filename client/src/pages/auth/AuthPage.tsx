@@ -1,14 +1,24 @@
 //client/src/pages/auth/AuthPage.tsx
 import RegisterForm from '../../components/RegisterForm';
 import LoginForm from '../../components/LoginForm';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import type { AuthPageProps } from '../../interface/IAuth';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 import { useEffect } from 'react';
 
 export default function AuthPage({ mode }: AuthPageProps) {
   const isRegister = mode === 'register';
   const navigate = useNavigate();
+
+  const location = useLocation();
+ 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('blocked') === 'true') {
+      toast.error('Your account has been blocked. Please contact support.');
+    }
+  }, [location.search]);
 
   useEffect(() => {
     const user = authService.getCurrentUser();

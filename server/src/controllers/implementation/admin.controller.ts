@@ -22,20 +22,20 @@ export class AdminController extends BaseController implements IAdminController 
   });
 
   handleBlockUser = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { userId } = req.params;
     const { blocked } = req.body;
     const adminId = req.user?.id?.toString() || '';
 
-    const updatedUser = await this._adminService.toggleUserBlock(id, blocked, adminId);
+    const updatedUser = await this._adminService.toggleUserBlock(userId, blocked, adminId);
 
     this.sendSuccess(res, updatedUser, `User ${blocked ? 'blocked' : 'unblocked'} successfully`);
   });
 
   deleteUser = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { userId } = req.params;
     const adminId = req.user?.id?.toString() || '';
 
-    await this._adminService.removeUser(id, adminId);
+    await this._adminService.removeUser(userId, adminId);
 
     this.sendSuccess(res, null, 'User deleted successfully');
   });
@@ -47,10 +47,10 @@ export class AdminController extends BaseController implements IAdminController 
   });
 
   handleVerifyGuide = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    logger.info(`id from handleverify guide admin${id}`);
+    const { guideId } = req.params;
+    logger.info(`id from handleverify guide admin${guideId}`);
 
-    const result = await this._adminService.approveGuide(id);
+    const result = await this._adminService.approveGuide(guideId);
 
     this.sendSuccess(res, result, 'Guide verified successfully');
   });
@@ -66,19 +66,19 @@ export class AdminController extends BaseController implements IAdminController 
   });
 
   rejectGuide = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { guideId } = req.params;
     const { reason } = req.body;
 
-    await this._adminService.rejectApplication(id, reason);
+    await this._adminService.rejectApplication(guideId, reason);
 
     this.sendSuccess(res, null, 'Guide application rejected successfully');
   });
 
   handleApproveKYC = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { guideId } = req.params;
     const { status, reason } = req.body;
 
-    await this._adminService.approveKYC(id, status, reason);
+    await this._adminService.approveKYC(guideId, status, reason);
 
     this.sendSuccess(res, null, `KYC status updated to ${status} successfully`);
   });
@@ -97,9 +97,9 @@ export class AdminController extends BaseController implements IAdminController 
   });
 
   updatePaymentStatus = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { paymentId } = req.params;
     const { status } = req.body;
-    const updatedPayment = await this._adminService.updatePaymentStatus(id, status);
+    const updatedPayment = await this._adminService.updatePaymentStatus(paymentId, status);
     this.sendSuccess(res, updatedPayment, `Payment status updated to ${status} successfully`);
   });
 
@@ -113,9 +113,9 @@ export class AdminController extends BaseController implements IAdminController 
   });
 
   updateTripStatus = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { tripId } = req.params;
     const { status } = req.body;
-    const updatedTrip = await this._adminService.updateTripStatus(id, status);
+    const updatedTrip = await this._adminService.updateTripStatus(tripId, status);
     this.sendSuccess(res, updatedTrip, `Trip status updated to ${status} successfully`);
   });
 

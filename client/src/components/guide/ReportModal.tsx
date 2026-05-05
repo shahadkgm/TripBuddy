@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AlertTriangle, Send, X } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { reportService } from '../../services/c.report.service';
+import { reportService } from '../../services/report.service';
 
 interface ReportModalProps {
   tripId: string;
@@ -81,7 +81,8 @@ export const ReportModal: React.FC<ReportModalProps> = ({
             Report {targetType === 'guide' ? 'Guide' : 'Organizer'}
           </h2>
           <p className="text-slate-500 text-sm">
-            Reporting <strong>{targetName}</strong> for issues during the trip. This report will be sent directly to TripBuddy Admins.
+            Reporting <strong>{targetName}</strong> for issues during the trip. This report will be
+            sent directly to TripBuddy Admins.
           </p>
         </div>
 
@@ -97,7 +98,9 @@ export const ReportModal: React.FC<ReportModalProps> = ({
             >
               <option value="">Select a reason</option>
               {reportReasons.map(r => (
-                <option key={r} value={r}>{r}</option>
+                <option key={r} value={r}>
+                  {r}
+                </option>
               ))}
             </select>
           </div>
@@ -134,5 +137,3 @@ export const ReportModal: React.FC<ReportModalProps> = ({
     </div>
   );
 };
-
-

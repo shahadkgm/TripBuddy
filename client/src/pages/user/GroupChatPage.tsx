@@ -26,12 +26,12 @@ import {
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import type { EmojiClickData } from 'emoji-picker-react';
 import { useSocketContext } from '../../hooks/useSocketContext';
-import { authService } from '../../services/c.authService';
-import { tripService } from '../../services/c.trip.service';
+import { authService } from '../../services/auth.service';
+import { tripService } from '../../services/trip.service';
 import api from '../../utils/api';
 import type { ITrip, IGuide } from '../../interface/ITripdetails';
 import toast from 'react-hot-toast';
-import { paymentService } from '../../services/c.payment.service';
+import { paymentService } from '../../services/payment.service';
 import { TripStatus } from '../../constants/TripStatus';
 import type { IMessage } from '../../interface/IMessage';
 import { ReviewModal, ReportModal } from '../../components/guide';
@@ -63,7 +63,11 @@ const GroupChatPage = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewTarget, setReviewTarget] = useState<'organizer' | 'guide'>('organizer');
   const [showReportModal, setShowReportModal] = useState(false);
-  const [reportTarget, setReportTarget] = useState<{ id: string; name: string; type: 'guide' | 'organizer' } | null>(null);
+  const [reportTarget, setReportTarget] = useState<{
+    id: string;
+    name: string;
+    type: 'guide' | 'organizer';
+  } | null>(null);
   const [reportedTypes, setReportedTypes] = useState<Set<'guide' | 'organizer'>>(new Set());
 
   const [chatPage, setChatPage] = useState(1);
@@ -279,7 +283,7 @@ const GroupChatPage = () => {
 
   const handlePayment = async () => {
     if (!trip || !id) return;
-    const depositAmount = trip.depositAmount || (trip.budget * 0.2);
+    const depositAmount = trip.depositAmount || trip.budget * 0.2;
     try {
       setIsProcessingPayment(true);
       const { url } = await paymentService.createStripeSession(depositAmount, id);
@@ -293,7 +297,7 @@ const GroupChatPage = () => {
 
   const handleWalletPayment = async () => {
     if (!trip || !id || !currentUser) return;
-    const depositAmount = trip.depositAmount || (trip.budget * 0.2);
+    const depositAmount = trip.depositAmount || trip.budget * 0.2;
 
     const currentBalance = currentUser.walletBalance || 0;
     if (currentBalance < depositAmount) {
@@ -476,17 +480,18 @@ const GroupChatPage = () => {
                   <AlertCircle size={14} /> EXPIRED
                 </div>
               )}
-            {trip?.status === TripStatus.PLANNED && new Date(trip?.startDate || '') >= new Date() && (
-              <div className="px-4 py-2 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-xl text-xs font-bold flex items-center gap-2">
-                <Sparkles size={14} /> Awaiting Finalization
-              </div>
-            )}
+            {trip?.status === TripStatus.PLANNED &&
+              new Date(trip?.startDate || '') >= new Date() && (
+                <div className="px-4 py-2 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-xl text-xs font-bold flex items-center gap-2">
+                  <Sparkles size={14} /> Awaiting Finalization
+                </div>
+              )}
             {trip?.status === TripStatus.FINALIZED && !isGuide && (
               <button
                 onClick={() => !hasPaidDeposit && setShowPaymentModal(true)}
                 className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${hasPaidDeposit
-                  ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                  : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
+                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                    : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
                   }`}
               >
                 {hasPaidDeposit ? <ShieldCheck size={14} /> : <AlertCircle size={14} />}
@@ -602,57 +607,63 @@ const GroupChatPage = () => {
                       )}
 
                       {/* Report buttons — only after trip is completed */}
-                      {trip.guideId && !isGuide && (() => {
-                        const guideUserId = typeof trip.guideId?.userId === 'object'
-                          ? trip.guideId.userId?._id
-                          : trip.guideId?.userId;
-                        const alreadyReported = reportedTypes.has('guide');
-                        return (
-                          <button
-                            disabled={alreadyReported}
-                            onClick={() => {
-                              if (alreadyReported) return;
-                              setReportTarget({
-                                id: guideUserId || '',
-                                name: trip.guideId?.name || 'Guide',
-                                type: 'guide',
-                              });
-                              setShowReportModal(true);
-                            }}
-                            className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] border transition shadow-lg active:scale-95 flex items-center gap-2 ${alreadyReported
-                                ? 'bg-slate-500/20 text-slate-300 border-slate-400/20 cursor-not-allowed opacity-60'
-                                : 'bg-rose-500/20 text-rose-200 border border-rose-400/30 hover:bg-rose-600 hover:text-white'
-                              }`}
-                          >
-                            {alreadyReported ? 'Reported ✓' : 'Report Guide'}
-                          </button>
-                        );
-                      })()}
-                      {!isOwner && (() => {
-                        const alreadyReported = reportedTypes.has('organizer');
-                        return (
-                          <button
-                            disabled={alreadyReported}
-                            onClick={() => {
-                              if (alreadyReported) return;
-                              const ownerId = typeof trip.userId === 'string' ? trip.userId : trip.userId?._id;
-                              const ownerName = typeof trip.userId !== 'string' ? trip.userId?.name : 'Organizer';
-                              setReportTarget({
-                                id: ownerId || '',
-                                name: ownerName || 'Organizer',
-                                type: 'organizer',
-                              });
-                              setShowReportModal(true);
-                            }}
-                            className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] border transition shadow-lg active:scale-95 flex items-center gap-2 ${alreadyReported
-                                ? 'bg-slate-500/20 text-slate-300 border-slate-400/20 cursor-not-allowed opacity-60'
-                                : 'bg-rose-500/20 text-rose-200 border border-rose-400/30 hover:bg-rose-600 hover:text-white'
-                              }`}
-                          >
-                            {alreadyReported ? 'Reported ✓' : 'Report User'}
-                          </button>
-                        );
-                      })()}
+                      {trip.guideId &&
+                        !isGuide &&
+                        (() => {
+                          const guideUserId =
+                            typeof trip.guideId?.userId === 'object'
+                              ? trip.guideId.userId?._id
+                              : trip.guideId?.userId;
+                          const alreadyReported = reportedTypes.has('guide');
+                          return (
+                            <button
+                              disabled={alreadyReported}
+                              onClick={() => {
+                                if (alreadyReported) return;
+                                setReportTarget({
+                                  id: guideUserId || '',
+                                  name: trip.guideId?.name || 'Guide',
+                                  type: 'guide',
+                                });
+                                setShowReportModal(true);
+                              }}
+                              className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] border transition shadow-lg active:scale-95 flex items-center gap-2 ${alreadyReported
+                                  ? 'bg-slate-500/20 text-slate-300 border-slate-400/20 cursor-not-allowed opacity-60'
+                                  : 'bg-rose-500/20 text-rose-200 border border-rose-400/30 hover:bg-rose-600 hover:text-white'
+                                }`}
+                            >
+                              {alreadyReported ? 'Reported ✓' : 'Report Guide'}
+                            </button>
+                          );
+                        })()}
+                      {!isOwner &&
+                        (() => {
+                          const alreadyReported = reportedTypes.has('organizer');
+                          return (
+                            <button
+                              disabled={alreadyReported}
+                              onClick={() => {
+                                if (alreadyReported) return;
+                                const ownerId =
+                                  typeof trip.userId === 'string' ? trip.userId : trip.userId?._id;
+                                const ownerName =
+                                  typeof trip.userId !== 'string' ? trip.userId?.name : 'Organizer';
+                                setReportTarget({
+                                  id: ownerId || '',
+                                  name: ownerName || 'Organizer',
+                                  type: 'organizer',
+                                });
+                                setShowReportModal(true);
+                              }}
+                              className={`px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] border transition shadow-lg active:scale-95 flex items-center gap-2 ${alreadyReported
+                                  ? 'bg-slate-500/20 text-slate-300 border-slate-400/20 cursor-not-allowed opacity-60'
+                                  : 'bg-rose-500/20 text-rose-200 border border-rose-400/30 hover:bg-rose-600 hover:text-white'
+                                }`}
+                            >
+                              {alreadyReported ? 'Reported ✓' : 'Report User'}
+                            </button>
+                          );
+                        })()}
                     </div>
                   </div>
                 </div>
@@ -692,9 +703,11 @@ const GroupChatPage = () => {
                   </div>
                 )}
                 {messages.map((msg, index) => {
-                  const isOwn = msg.senderId._id === currentUser?.id;
-                  const isFirstInGroup =
-                    index === 0 || messages[index - 1].senderId._id !== msg.senderId._id;
+                  const senderIdStr = msg.senderId?._id || 'unknown';
+                  const isOwn = senderIdStr === currentUser?.id && currentUser?.id != null;
+                  const prevSenderIdStr = index > 0 ? (messages[index - 1].senderId?._id || 'unknown') : null;
+                  const isFirstInGroup = index === 0 || prevSenderIdStr !== senderIdStr;
+
                   return (
                     <div
                       key={msg._id || index}
@@ -702,8 +715,8 @@ const GroupChatPage = () => {
                     >
                       <div className={`flex items-end gap-3 max-w-[85%] sm:max-w-[75%] group`}>
                         {!isOwn && isFirstInGroup && (
-                          <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center overflow-hidden border border-indigo-100 shadow-sm">
-                            {msg.senderId.avatarURL ? (
+                          <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center overflow-hidden border border-indigo-100 shadow-sm shrink-0">
+                            {msg.senderId?.avatarURL ? (
                               <img
                                 src={msg.senderId.avatarURL}
                                 className="w-full h-full object-cover"
@@ -718,7 +731,7 @@ const GroupChatPage = () => {
                         <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'}`}>
                           {isFirstInGroup && !isOwn && (
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
-                              {msg.senderId.name}
+                              {msg.senderId?.name || 'Unknown User'}
                             </p>
                           )}
                           <div
@@ -945,11 +958,14 @@ const GroupChatPage = () => {
                     <h3 className="text-sm font-bold text-slate-900 truncate">{member.name}</h3>
                     <p className="text-[10px] font-black uppercase tracking-widest">
                       {(() => {
-                        const guideUserId = typeof trip.guideId?.userId === 'object'
-                          ? trip.guideId.userId?._id
-                          : trip.guideId?.userId;
-                        if (member._id === organizerId) return <span className="text-indigo-500">Admin</span>;
-                        if (guideUserId && member._id === guideUserId) return <span className="text-amber-500">Guide</span>;
+                        const guideUserId =
+                          typeof trip.guideId?.userId === 'object'
+                            ? trip.guideId.userId?._id
+                            : trip.guideId?.userId;
+                        if (member._id === organizerId)
+                          return <span className="text-indigo-500">Admin</span>;
+                        if (guideUserId && member._id === guideUserId)
+                          return <span className="text-amber-500">Guide</span>;
                         return <span className="text-slate-400">Member</span>;
                       })()}
                     </p>
@@ -1015,28 +1031,46 @@ const GroupChatPage = () => {
                   placeholder="e.g. 2000"
                 />
                 {/* Guide fee hint */}
-                {trip?.guideId && (() => {
-                  const memberCount = trip.members?.length || 1;
-                  const guideRate = trip.guideId?.dailyRate || 0;
-                  const startDate = new Date(trip.startDate);
-                  const endDate = new Date(trip.endDate);
-                  const days = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
-                  const totalGuideFee = guideRate * days;
-                  const minPerMember = Math.ceil(totalGuideFee / memberCount);
-                  const isValid = finalizeData.depositAmount >= minPerMember;
-                  return (
-                    <div className={`mt-3 px-4 py-3 rounded-xl text-xs font-bold flex items-start gap-2 ${isValid ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-amber-50 text-amber-700 border border-amber-100'
-                      }`}>
-                      <span className="mt-0.5">{isValid ? '✅' : '⚠️'}</span>
-                      <span>
-                        Guide <strong>{trip.guideId.name}</strong> charges ₹{guideRate}/day.
-                        With <strong>{memberCount} member{memberCount !== 1 ? 's' : ''}</strong> over <strong>{days} day{days !== 1 ? 's' : ''}</strong>,
-                        minimum deposit is <strong>₹{minPerMember}</strong>.
-                        {!isValid && <span className="block mt-0.5 text-amber-600">Current amount is below this minimum.</span>}
-                      </span>
-                    </div>
-                  );
-                })()}
+                {trip?.guideId &&
+                  (() => {
+                    const memberCount = trip.members?.length || 1;
+                    const guideRate = trip.guideId?.dailyRate || 0;
+                    const startDate = new Date(trip.startDate);
+                    const endDate = new Date(trip.endDate);
+                    const days = Math.max(
+                      1,
+                      Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+                    );
+                    const totalGuideFee = guideRate * days;
+                    const minPerMember = Math.ceil(totalGuideFee / memberCount);
+                    const isValid = finalizeData.depositAmount >= minPerMember;
+                    return (
+                      <div
+                        className={`mt-3 px-4 py-3 rounded-xl text-xs font-bold flex items-start gap-2 ${isValid
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                            : 'bg-amber-50 text-amber-700 border border-amber-100'
+                          }`}
+                      >
+                        <span className="mt-0.5">{isValid ? '✅' : '⚠️'}</span>
+                        <span>
+                          Guide <strong>{trip.guideId.name}</strong> charges ₹{guideRate}/day. With{' '}
+                          <strong>
+                            {memberCount} member{memberCount !== 1 ? 's' : ''}
+                          </strong>{' '}
+                          over{' '}
+                          <strong>
+                            {days} day{days !== 1 ? 's' : ''}
+                          </strong>
+                          , minimum deposit is <strong>₹{minPerMember}</strong>.
+                          {!isValid && (
+                            <span className="block mt-0.5 text-amber-600">
+                              Current amount is below this minimum.
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })()}
               </div>
             </div>
 

@@ -77,6 +77,15 @@ export interface UserResponseDTO {
     dailyRate: number;
     serviceArea: string;
     bio: string;
+    yearsOfExperience: number;
+    specialties: string[];
+    languages: string[];
+    socialLinks?: {
+      instagram?: string;
+      linkedin?: string;
+      website?: string;
+    };
+    avatarURL?: string;
   } | null;
 }
 

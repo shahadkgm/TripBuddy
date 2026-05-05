@@ -11,6 +11,8 @@ import { BaseRepository } from './base.repository';
 import { IGuide } from '../../types/guide.type';
 
 import { ITripDocument } from '../../types/trip.type';
+import { WalletTransactionModel } from '../../models/walletTransaction.model';
+import { TransactionType } from '../../types/wallet.type';
 
 export class AdminRepository
   extends BaseRepository<IUser, CreateUserDTO>
@@ -198,6 +200,8 @@ export class AdminRepository
             yearsOfExperience: 1,
             avatarURL: 1,
             specialties: 1,
+            languages: 1,
+            socialLinks: 1,
             isVerified: 1,
             status: 1,
             rejectionReason: 1,
@@ -251,14 +255,32 @@ export class AdminRepository
     logger.info('from countverifiedGuide');
     return await UserModel.countDocuments({ role: 'guide' });
   }
-  async updateWalletBalance(userId: string, amount: number): Promise<IUser | null> {
-    return await UserModel.findByIdAndUpdate(
+  async updateWalletBalance(
+    userId: string,
+    amount: number,
+    tripId?: string,
+    reason?: string
+  ): Promise<IUser | null> {
+    const user = await UserModel.findByIdAndUpdate(
       userId,
       { $inc: { walletBalance: amount } },
       { new: true }
     )
       .select('-password')
       .lean<IUser>();
+
+    if (user) {
+      // Create transaction record
+      await WalletTransactionModel.create({
+        userId: new UserModel.base.Types.ObjectId(userId),
+        tripId: tripId ? new UserModel.base.Types.ObjectId(tripId) : undefined,
+        amount: Math.abs(amount),
+        type: amount >= 0 ? TransactionType.CREDIT : TransactionType.DEBIT,
+        description: reason || (amount >= 0 ? 'Admin wallet adjustment' : 'Admin wallet debit'),
+      });
+    }
+
+    return user ?? null;
   }
 
   // Trips

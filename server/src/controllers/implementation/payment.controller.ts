@@ -93,4 +93,15 @@ export class PaymentController extends BaseController {
     const payments = await this._paymentService.getUserPayments(userId);
     this.sendSuccess(res, payments, 'User payments fetched successfully');
   });
+
+  getWalletTransactions = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) {
+      this.sendUnauthorized(res, 'User not authenticated');
+      return;
+    }
+
+    const transactions = await this._paymentService.getWalletTransactions(userId);
+    this.sendSuccess(res, transactions, 'Wallet transactions fetched successfully');
+  });
 }

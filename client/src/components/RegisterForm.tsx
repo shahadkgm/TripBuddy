@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/c.authService';
+import { authService } from '../services/auth.service';
 import { GoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
@@ -121,7 +121,9 @@ const RegisterForm = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse: import("@react-oauth/google").CredentialResponse) => {
+  const handleGoogleSuccess = async (
+    credentialResponse: import('@react-oauth/google').CredentialResponse
+  ) => {
     setIsLoading(true);
     try {
       if (!credentialResponse.credential) throw new Error('No credential received');
@@ -186,8 +188,9 @@ const RegisterForm = () => {
             placeholder="John Doe"
             value={form.name}
             onChange={handleChange}
-            className={`mt-1 w-full px-4 py-2.5 border ${errors.name ? 'border-red-500' : 'border-gray-200'
-              } rounded-xl focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
+            className={`mt-1 w-full px-4 py-2.5 border ${
+              errors.name ? 'border-red-500' : 'border-gray-200'
+            } rounded-xl focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
           />
           {errors.name && <p className="mt-1 text-xs text-red-500 font-medium">{errors.name}</p>}
         </div>
@@ -201,8 +204,9 @@ const RegisterForm = () => {
             placeholder="you@example.com"
             value={form.email}
             onChange={handleChange}
-            className={`mt-1 w-full px-4 py-2.5 border ${errors.email ? 'border-red-500' : 'border-gray-200'
-              } rounded-xl focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
+            className={`mt-1 w-full px-4 py-2.5 border ${
+              errors.email ? 'border-red-500' : 'border-gray-200'
+            } rounded-xl focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
           />
           {errors.email && <p className="mt-1 text-xs text-red-500 font-medium">{errors.email}</p>}
         </div>
@@ -216,8 +220,9 @@ const RegisterForm = () => {
             placeholder="Min. 8 characters"
             value={form.password}
             onChange={handleChange}
-            className={`mt-1 w-full px-4 py-2.5 border ${errors.password ? 'border-red-500' : 'border-gray-200'
-              } rounded-xl focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
+            className={`mt-1 w-full px-4 py-2.5 border ${
+              errors.password ? 'border-red-500' : 'border-gray-200'
+            } rounded-xl focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
           />
           {/* Strength Bar */}
           <div className="mt-2 h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
@@ -247,8 +252,9 @@ const RegisterForm = () => {
             placeholder="Confirm your password"
             value={form.confirmPassword}
             onChange={handleChange}
-            className={`mt-1 w-full px-4 py-2.5 border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-200'
-              } rounded-xl focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
+            className={`mt-1 w-full px-4 py-2.5 border ${
+              errors.confirmPassword ? 'border-red-500' : 'border-gray-200'
+            } rounded-xl focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
           />
           {errors.confirmPassword && (
             <p className="mt-1 text-xs text-red-500 font-medium">{errors.confirmPassword}</p>
@@ -258,8 +264,9 @@ const RegisterForm = () => {
         <button
           type="submit"
           disabled={isLoading}
-          className={`w-full py-3 rounded-xl bg-[#5537ee] text-white font-semibold transition-all shadow-md ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-[#442cd1] active:scale-95'
-            }`}
+          className={`w-full py-3 rounded-xl bg-[#5537ee] text-white font-semibold transition-all shadow-md ${
+            isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-[#442cd1] active:scale-95'
+          }`}
         >
           {isLoading ? 'Processing...' : 'Sign up'}
         </button>

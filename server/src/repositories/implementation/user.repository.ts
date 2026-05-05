@@ -2,6 +2,8 @@ import { IUserRepository } from '../interface/IUserRepository';
 import { IUser } from '../../types/user.type';
 import bcrypt from 'bcryptjs';
 import { UserModel } from '../../models/user.models';
+import { WalletTransactionModel } from '../../models/walletTransaction.model';
+import { TransactionType } from '../../types/wallet.type';
 import { BaseRepository } from './base.repository';
 import { UpdateQuery } from 'mongoose';
 import { CreateUserDTO, GoogleUserDTO } from '../../dto/user.dto';
@@ -86,9 +88,23 @@ export class UserRepository
     await this.updateById(userId, update);
   }
 
-  async updateWalletBalance(userId: string, amount: number): Promise<void> {
+  async updateWalletBalance(
+    userId: string,
+    amount: number,
+    tripId?: string,
+    reason?: string
+  ): Promise<void> {
     await this._model.findByIdAndUpdate(userId, {
       $inc: { walletBalance: amount },
+    });
+
+    // Create transaction record
+    await WalletTransactionModel.create({
+      userId: new UserModel.base.Types.ObjectId(userId),
+      tripId: tripId ? new UserModel.base.Types.ObjectId(tripId) : undefined,
+      amount: Math.abs(amount),
+      type: amount >= 0 ? TransactionType.CREDIT : TransactionType.DEBIT,
+      description: reason || (amount >= 0 ? 'Wallet credit' : 'Wallet debit'),
     });
   }
 

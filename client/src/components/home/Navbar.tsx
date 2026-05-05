@@ -1,14 +1,13 @@
 // src/components/home/Navbar.tsx
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 import { User, ArrowLeft, MessageCircle, Loader2 } from 'lucide-react';
 import { useSocketContext } from '../../hooks/useSocketContext';
-import { tripService } from '../../services/c.trip.service';
+import { tripService } from '../../services/trip.service';
 import type { ITrip } from '../../interface/ITripdetails';
 import { TripStatus } from '../../constants/TripStatus';
 import { Logo } from '../common/Logo';
-
 
 interface NavbarProps {
   variant?: 'floating' | 'sticky';

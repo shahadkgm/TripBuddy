@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Globe, Compass, Loader2 } from 'lucide-react';
-import { connectionService } from '../../services/c.connection.service';
+import { connectionService } from '../../services/connection.service';
 import { Pagination } from '../Pagination';
 import type { ConnectionRequest } from '../../types/auth.dto';
 import toast from 'react-hot-toast';
@@ -99,7 +99,7 @@ export const RequestedTrips: React.FC<RequestedTripsProps> = ({ userId }) => {
                       {req.status}
                     </span>
                     <p className="text-[9px] text-slate-400 mt-1 font-bold">
-                      sent to {(req.receiverId as {name?: string})?.name || 'Traveler'}
+                      sent to {(req.receiverId as { name?: string })?.name || 'Traveler'}
                     </p>
                     <span className="text-[8px] text-indigo-500 font-bold mt-1 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
                       View Details <Globe size={8} />

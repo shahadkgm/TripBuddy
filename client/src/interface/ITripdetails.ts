@@ -19,6 +19,12 @@ export interface IGuide {
   avatarURL?: string;
   avatar?: string;
   specialties: string[];
+  languages?: string[];
+  socialLinks?: {
+    instagram?: string;
+    linkedin?: string;
+    website?: string;
+  };
   yearsOfExperience?: number;
   isVerified: boolean;
   averageRating?: number;
@@ -35,16 +41,16 @@ import { TripStatus } from '../constants/TripStatus';
 export interface ITrip {
   _id: string;
   userId:
-    | string
-    | {
-        _id: string;
-        name: string;
-        email: string;
-        avatarURL?: string;
-        avatar?: string;
-        role: string;
-        bio?: string;
-      };
+  | string
+  | {
+    _id: string;
+    name: string;
+    email: string;
+    avatarURL?: string;
+    avatar?: string;
+    role: string;
+    bio?: string;
+  };
   title: string;
   destination: string;
   startDate: string | Date;

@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { Trash2, Plus, User, Receipt, Calculator, ChevronLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { expenseService } from '../../services/c.expense.service';
-import type { IExpense } from '../../services/c.expense.service';
-import { tripService } from '../../services/c.trip.service';
-import { authService } from '../../services/c.authService';
-import { connectionService } from '../../services/c.connection.service';
+import { expenseService } from '../../services/expense.service';
+import type { IExpense } from '../../services/expense.service';
+import { tripService } from '../../services/trip.service';
+import { authService } from '../../services/auth.service';
+import { connectionService } from '../../services/connection.service';
 import type { ITrip } from '../../interface/ITripdetails';
 
 export const ExpenseSplitPage = () => {
@@ -308,12 +308,12 @@ export const ExpenseSplitPage = () => {
                                 (acc, exp) =>
                                   acc +
                                   exp.amount /
-                                  Math.max(
-                                    Array.isArray(exp.splitAmong)
-                                      ? exp.splitAmong.length
-                                      : tripMembers.length,
-                                    1
-                                  ),
+                                    Math.max(
+                                      Array.isArray(exp.splitAmong)
+                                        ? exp.splitAmong.length
+                                        : tripMembers.length,
+                                      1
+                                    ),
                                 0
                               )
                               .toFixed(2)}

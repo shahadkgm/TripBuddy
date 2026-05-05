@@ -13,9 +13,9 @@ import {
   XCircle,
   Info,
 } from 'lucide-react';
-import { tripService } from '../../services/c.trip.service';
-import { guideService } from '../../services/c.guide.service';
-import { authService } from '../../services/c.authService';
+import { tripService } from '../../services/trip.service';
+import { guideService } from '../../services/guide.service';
+import { authService } from '../../services/auth.service';
 import type { ITrip } from '../../interface/ITripdetails';
 import toast from 'react-hot-toast';
 import { GuideLayout } from './GuideLayout';
@@ -266,9 +266,7 @@ export const GuideTripRequestDetailsPage = () => {
                       </div>
                       <div className="min-w-0">
                         <p className="text-base lg:text-lg font-black tracking-tight uppercase leading-tight truncate">
-                          {typeof trip.userId !== 'string'
-                            ? trip.userId.name
-                            : 'Unknown Organizer'}
+                          {typeof trip.userId !== 'string' ? trip.userId.name : 'Unknown Organizer'}
                         </p>
                         <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mt-1">
                           Traveler Admin
@@ -315,8 +313,8 @@ export const GuideTripRequestDetailsPage = () => {
                       </p>
                     </div>
                     <p className="text-[10px] font-bold text-slate-400 mt-2">
-                      Based on your rate: ₹
-                      {authService.getCurrentUser()?.guideProfile?.dailyRate}/day
+                      Based on your rate: ₹{authService.getCurrentUser()?.guideProfile?.dailyRate}
+                      /day
                     </p>
                   </div>
                 </div>

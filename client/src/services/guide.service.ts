@@ -1,11 +1,12 @@
 import api from '../utils/api';
+import { API_ENDPOINTS } from '../constants/api.constants';
 import type { IGuide, IGuideInvitation } from '../interface/ITripdetails';
 import type { ApiResponse } from '../interface/ApiResponse';
 
 export const guideService = {
   async updateProfile(data: FormData | Partial<IGuide>): Promise<IGuide> {
     const headers = data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {};
-    const response = await api.put<ApiResponse<IGuide>>('/api/guides/profile', data, { headers });
+    const response = await api.put<ApiResponse<IGuide>>(API_ENDPOINTS.GUIDES.PROFILE, data, { headers });
     const updatedGuide = response.data.data;
 
     // Sync local storage
@@ -26,28 +27,39 @@ export const guideService = {
 
   async getStatus(userId: string): Promise<{ exists: boolean; isVerified: boolean }> {
     const response = await api.get<ApiResponse<{ exists: boolean; isVerified: boolean }>>(
-      `/api/guides/status/${userId}`
+      API_ENDPOINTS.GUIDES.STATUS(userId)
     );
     return response.data.data;
   },
 
-  async getAllGuides(params: Record<string, string | number | boolean>): Promise<{ guides: IGuide[]; total: number }> {
+  async getAllGuides(
+    params: Record<string, string | number | boolean>
+  ): Promise<{ guides: IGuide[]; total: number }> {
     const response = await api.get<ApiResponse<{ guides: IGuide[]; total: number }>>(
-      '/api/guides/all',
+      API_ENDPOINTS.GUIDES.ALL,
       { params }
     );
     return response.data.data;
   },
 
   async sendInvitation(tripId: string, guideId: string): Promise<ApiResponse<IGuideInvitation>> {
-    const response = await api.post<ApiResponse<IGuideInvitation>>('/api/guide-invitations/send', { tripId, guideId });
+    const response = await api.post<ApiResponse<IGuideInvitation>>(API_ENDPOINTS.GUIDE_INVITATIONS.SEND, {
+      tripId,
+      guideId,
+    });
     return response.data;
   },
 
-  async getInboundInvitations(page = 1, limit = 5): Promise<{ invitations: IGuideInvitation[]; total: number }> {
-    const response = await api.get<ApiResponse<{ invitations: IGuideInvitation[]; total: number }>>('/api/guide-invitations/inbound', {
-      params: { page, limit }
-    });
+  async getInboundInvitations(
+    page = 1,
+    limit = 5
+  ): Promise<{ invitations: IGuideInvitation[]; total: number }> {
+    const response = await api.get<ApiResponse<{ invitations: IGuideInvitation[]; total: number }>>(
+      API_ENDPOINTS.GUIDE_INVITATIONS.INBOUND,
+      {
+        params: { page, limit },
+      }
+    );
     return response.data.data;
   },
 
@@ -56,11 +68,14 @@ export const guideService = {
     status: 'accepted' | 'rejected',
     reason?: string
   ): Promise<ApiResponse<IGuideInvitation>> {
-    const response = await api.post<ApiResponse<IGuideInvitation>>('/api/guide-invitations/respond', {
-      invitationId,
-      status,
-      reason,
-    });
+    const response = await api.post<ApiResponse<IGuideInvitation>>(
+      API_ENDPOINTS.GUIDE_INVITATIONS.RESPOND,
+      {
+        invitationId,
+        status,
+        reason,
+      }
+    );
     return response.data;
   },
 };

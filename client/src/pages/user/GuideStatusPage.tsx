@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, LayoutDashboard, XCircle, RefreshCcw, ArrowLeft } from 'lucide-react';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
-import { authService } from '../../services/c.authService';
+import { authService } from '../../services/auth.service';
 
 interface GuideStatusPageProps {
   status: 'pending' | 'rejected' | 'verified';
@@ -54,9 +54,14 @@ export const GuideStatusPage: React.FC<GuideStatusPageProps> = ({ status, reason
             </p>
 
             <div className="bg-red-50/50 p-6 rounded-xl border border-red-100 mb-8 max-w-md mx-auto">
-              <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-2">Reason for Rejection</p>
+              <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-2">
+                Reason for Rejection
+              </p>
               <p className="text-slate-700 font-medium leading-relaxed italic">
-                "{reason || 'No specific reason provided. Please contact support for more information.'}"
+                "
+                {reason ||
+                  'No specific reason provided. Please contact support for more information.'}
+                "
               </p>
             </div>
 

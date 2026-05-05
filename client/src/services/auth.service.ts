@@ -7,10 +7,11 @@ import type {
   AuthResponse,
 } from '../types/auth.dto';
 import api from '../utils/api';
+import { API_ENDPOINTS } from '../constants/api.constants';
 
 export const authService = {
   async register(userData: RegisterDTO): Promise<AuthResponse> {
-    const response = await api.post('/auth/register', userData);
+    const response = await api.post(API_ENDPOINTS.AUTH.REGISTER, userData);
     const { user, accessToken } = response.data.data;
     if (accessToken && user) {
       this.setToken(accessToken);
@@ -20,7 +21,7 @@ export const authService = {
   },
 
   async login(credentials: LoginDTO): Promise<AuthResponse> {
-    const response = await api.post('/auth/login', credentials);
+    const response = await api.post(API_ENDPOINTS.AUTH.LOGIN, credentials);
     const { user, accessToken } = response.data.data;
     if (accessToken && user) {
       this.setToken(accessToken);
@@ -31,11 +32,11 @@ export const authService = {
   },
 
   async verifyEmail(token: string) {
-    return await api.get(`/auth/verify-email/${token}`);
+    return await api.get(API_ENDPOINTS.AUTH.VERIFY_EMAIL(token));
   },
 
   async googleLogin(token: string): Promise<AuthResponse> {
-    const response = await api.post('/auth/google-login', { token });
+    const response = await api.post(API_ENDPOINTS.AUTH.GOOGLE_LOGIN, { token });
     const { user, accessToken } = response.data.data;
     if (accessToken && user) {
       this.setToken(accessToken);
@@ -76,7 +77,7 @@ export const authService = {
   },
 
   async updateProfile(userId: string, updateData: UpdateProfileDTO): Promise<AuthUser> {
-    const response = await api.patch(`/api/users/profile/${userId}`, updateData);
+    const response = await api.patch(API_ENDPOINTS.USERS.PROFILE(userId), updateData);
     const updatedUser = response.data.data;
 
     if (updatedUser) {
@@ -89,12 +90,12 @@ export const authService = {
   },
 
   async changePassword(userId: string, data: ChangePasswordDTO) {
-    const response = await api.post(`/api/users/password/${userId}`, data);
+    const response = await api.post(API_ENDPOINTS.USERS.PASSWORD(userId), data);
     return response.data;
   },
 
   async getProfile(userId: string): Promise<AuthUser> {
-    const response = await api.get(`/api/users/profile/${userId}`);
+    const response = await api.get(API_ENDPOINTS.USERS.PROFILE(userId));
     const updatedUser = response.data.data;
     if (updatedUser) {
       localStorage.setItem('user', JSON.stringify(updatedUser));
