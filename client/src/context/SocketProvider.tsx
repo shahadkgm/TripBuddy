@@ -3,7 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { authService } from '../services/auth.service';
 import { tripService } from '../services/trip.service';
 import toast from 'react-hot-toast';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Bell } from 'lucide-react';
 import type { IMessage } from '../interface/IMessage';
 
 import { SocketContext } from './SocketContext';
@@ -46,7 +46,10 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     const newSocket = io(SOCKET_URL, {
       withCredentials: true,
-      query: { userId: currentUser.id },
+      query: { 
+        userId: currentUser.id,
+        role: currentUser.role
+      },
     });
 
     Promise.resolve().then(() => setSocket(newSocket));
@@ -75,6 +78,54 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
 
     joinAllRooms();
+
+    newSocket.on('global_notification', (notification: { title: string; message: string; link?: string; }) => {
+      toast.custom(
+        t => (
+          <div
+            className={`${t.visible ? 'animate-in fade-in slide-in-from-top-4' : 'animate-out fade-out slide-out-to-top-2'} max-w-sm w-full bg-slate-900 shadow-2xl rounded-3xl pointer-events-auto flex ring-1 ring-white/10 overflow-hidden`}
+          >
+            <div className="flex-1 w-0 p-5">
+              <div className="flex items-start">
+                <div className="flex-shrink-0 pt-0.5">
+                  <div className="h-10 w-10 rounded-2xl bg-indigo-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                    <Bell size={20} />
+                  </div>
+                </div>
+                <div className="ml-4 flex-1">
+                  <p className="text-xs font-black uppercase tracking-widest text-indigo-400 mb-1">
+                    {notification.title}
+                  </p>
+                  <p className="mt-1 text-xs font-medium text-slate-300">
+                    {notification.message}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col border-l border-white/5 bg-white/5">
+              {notification.link && (
+                <button
+                  onClick={() => {
+                    window.location.replace(notification.link!);
+                    toast.dismiss(t.id);
+                  }}
+                  className="w-full flex-1 flex items-center justify-center text-[10px] font-black uppercase tracking-widest text-indigo-400 hover:text-white px-6 transition-colors"
+                >
+                  Open
+                </button>
+              )}
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className={`w-full flex-1 flex items-center justify-center text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white px-6 transition-colors ${notification.link ? 'border-t border-white/5' : ''}`}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        ),
+        { duration: 6000, position: 'top-right' }
+      );
+    });
 
     newSocket.on('receive_message', (message: IMessage) => {
       const incomingTripId = String(message.tripId);

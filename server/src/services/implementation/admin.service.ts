@@ -106,6 +106,17 @@ export class AdminService implements IAdminService {
     await this.kycRepo.updateStatus(userId, 'approved');
     logger.info(`KYC status auto-approved for user: ${userId}`);
 
+    try {
+      const { getIO } = require('../../config/socket');
+      getIO().to(`user_${userId}`).emit('global_notification', {
+        title: 'Application Approved',
+        message: 'Congratulations! Your guide application has been approved.',
+        link: '/guide/dashboard'
+      });
+    } catch (e) {
+      logger.error('Failed to emit socket event', { error: e });
+    }
+
     return toAdminGuideResponse(profile);
   }
 
@@ -133,6 +144,16 @@ export class AdminService implements IAdminService {
 
     // Demote the user back to a regular 'user' role
     await this.adminRepo.updateUserRole(userId, 'user');
+
+    try {
+      const { getIO } = require('../../config/socket');
+      getIO().to(`user_${userId}`).emit('global_notification', {
+        title: 'Application Rejected',
+        message: `Your guide application was rejected. Reason: ${reason}`
+      });
+    } catch (e) {
+      logger.error('Failed to emit socket event', { error: e });
+    }
 
     return true;
   }

@@ -2,6 +2,15 @@ import { Server as SocketIOServer } from 'socket.io';
 import { Server as HTTPServer } from 'http';
 import { MessageModel } from '../models/message.model';
 
+let ioInstance: SocketIOServer;
+
+export const getIO = () => {
+  if (!ioInstance) {
+    throw new Error('Socket.io is not initialized');
+  }
+  return ioInstance;
+};
+
 export const setupSocket = (httpServer: HTTPServer) => {
   const io = new SocketIOServer(httpServer, {
     cors: {
@@ -11,8 +20,22 @@ export const setupSocket = (httpServer: HTTPServer) => {
     },
   });
 
+  ioInstance = io;
+
   io.on('connection', socket => {
     console.log('A user connected:', socket.id);
+
+    // Join personal user room for global notifications
+    const userId = socket.handshake.query.userId;
+    if (userId && typeof userId === 'string') {
+      socket.join(`user_${userId}`);
+    }
+
+    // Join admin room if role is admin
+    const role = socket.handshake.query.role;
+    if (role === 'admin') {
+      socket.join('admin_room');
+    }
 
     socket.on('join_trip', (tripId: string) => {
       socket.join(tripId);

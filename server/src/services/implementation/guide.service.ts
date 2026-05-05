@@ -51,7 +51,20 @@ export class GuideService implements IGuideService {
       yearsOfExperience: profileData.yearsOfExperience,
     });
 
-    return await this._guideRepository.create(profileData);
+    const result = await this._guideRepository.create(profileData);
+
+    try {
+      const { getIO } = require('../../config/socket');
+      getIO().to('admin_room').emit('global_notification', {
+        title: 'New Guide Application',
+        message: `${user?.name || 'A user'} has applied to be a guide.`,
+        link: '/admin/guides'
+      });
+    } catch (e) {
+      logger.error('Failed to emit socket event', { error: e });
+    }
+
+    return result;
   }
 
   async getStatus(userId: string) {

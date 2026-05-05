@@ -28,6 +28,16 @@ export class UserService implements IUserService {
       isBlocked: false,
     });
 
+    try {
+      const { getIO } = require('../../config/socket');
+      getIO().to('admin_room').emit('global_notification', {
+        title: 'New User Registration',
+        message: `${newUser.name} has joined TripBuddy.`
+      });
+    } catch (e) {
+      console.error('Failed to emit socket event', e);
+    }
+
     return {
       id: newUser._id.toString(),
       name: newUser.name,

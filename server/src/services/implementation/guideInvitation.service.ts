@@ -36,7 +36,20 @@ export class GuideInvitationService implements IGuideInvitationService {
       status: InvitationStatus.PENDING,
     };
 
-    return await this._invitationRepository.create(invitationData);
+    const result = await this._invitationRepository.create(invitationData);
+    
+    try {
+      const { getIO } = require('../../config/socket');
+      getIO().to(`user_${guide.userId}`).emit('global_notification', {
+        title: 'New Trip Invitation',
+        message: 'You have received a new invitation to lead a trip.',
+        link: '/guide/dashboard'
+      });
+    } catch (e) {
+      logger.error('Failed to emit socket event', { error: e });
+    }
+
+    return result;
   }
 
   async getGuideInvitations(
