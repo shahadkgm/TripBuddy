@@ -37,9 +37,22 @@ setupSocket(httpServer);
 const PORT = process.env.PORT || 4000;
 
 // --- Middlewares ---
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'https://tripbuddy.shahad.online',
+  'https://main.demjrwlxtsr38.amplifyapp.com',
+  'http://localhost:5173'
+].filter(Boolean).map(origin => origin!.replace(/\/$/, ''));
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
