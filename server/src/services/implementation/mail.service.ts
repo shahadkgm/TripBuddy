@@ -12,7 +12,8 @@ export class MailService implements IMailService {
     if (!process.env.FRONTEND_URL) {
       throw new Error('FRONTEND_URL is not configured');
     }
-    console.log('Checking Email Config from Mail service:', process.env.EMAIL_USER);
+    console.log('Checking Config - EMAIL:', process.env.EMAIL_USER);
+    console.log('Checking Config - FRONTEND_URL:', process.env.FRONTEND_URL);
 
     this._transporter = nodemailer.createTransport({
       service: 'gmail',
