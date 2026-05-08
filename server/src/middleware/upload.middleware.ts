@@ -3,7 +3,7 @@ import multer from 'multer';
 import multerS3 from 'multer-s3';
 import { s3 } from '../config/s3';
 import path from 'path';
-import { logger } from '@/utils/logger';
+import { logger } from '../utils/logger';
 
 const s3Storage = multerS3({
   s3: s3,
