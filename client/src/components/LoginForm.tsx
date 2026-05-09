@@ -1,13 +1,15 @@
 //client/src/modules/auth/components/LoginForm.tsx
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import toast from 'react-hot-toast'; // Added toast but it have problem i want to recheck this
+import { Eye, EyeOff } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { authService } from '../services/auth.service';
 import { Button } from './Button';
 import { GoogleLogin } from '@react-oauth/google';
 export const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -121,17 +123,26 @@ export const LoginForm = () => {
               Forgot Password?
             </Link>
           </div>
-          <input
-            type="password"
-            className={`mt-1 block w-full px-3 py-2 border ${
-              errors.password ? 'border-red-500' : 'border-gray-300'
-            } rounded-md shadow-sm focus:ring-[#5537ee] focus:border-[#5537ee] outline-none transition-colors`}
-            value={password}
-            onChange={e => {
-              setPassword(e.target.value);
-              if (errors.password) setErrors({ ...errors, password: '' });
-            }}
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              className={`mt-1 block w-full px-3 py-2 border ${
+                errors.password ? 'border-red-500' : 'border-gray-300'
+              } rounded-md shadow-sm focus:ring-[#5537ee] focus:border-[#5537ee] outline-none transition-colors pr-10`}
+              value={password}
+              onChange={e => {
+                setPassword(e.target.value);
+                if (errors.password) setErrors({ ...errors, password: '' });
+              }}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
           {errors.password && (
             <p className="mt-1 text-xs text-red-500 font-medium">{errors.password}</p>
           )}

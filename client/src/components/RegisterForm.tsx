@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { authService } from '../services/auth.service';
 import { GoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
@@ -38,6 +39,8 @@ const RegisterForm = () => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordScore, setPasswordScore] = useState(0);
   const navigate = useNavigate();
 
@@ -214,16 +217,25 @@ const RegisterForm = () => {
         {/* Password Input & Strength Meter */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Password</label>
-          <input
-            name="password"
-            type="password"
-            placeholder="Min. 8 characters"
-            value={form.password}
-            onChange={handleChange}
-            className={`mt-1 w-full px-4 py-2.5 border ${
-              errors.password ? 'border-red-500' : 'border-gray-200'
-            } rounded-xl focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
-          />
+          <div className="relative">
+            <input
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Min. 8 characters"
+              value={form.password}
+              onChange={handleChange}
+              className={`mt-1 w-full px-4 py-2.5 border ${
+                errors.password ? 'border-red-500' : 'border-gray-200'
+              } rounded-xl focus:ring-2 focus:ring-[#5537ee] outline-none transition-all pr-12`}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
           {/* Strength Bar */}
           <div className="mt-2 h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
             <motion.div
@@ -246,16 +258,25 @@ const RegisterForm = () => {
         {/* Confirm Password Input */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
-          <input
-            name="confirmPassword"
-            type="password"
-            placeholder="Confirm your password"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            className={`mt-1 w-full px-4 py-2.5 border ${
-              errors.confirmPassword ? 'border-red-500' : 'border-gray-200'
-            } rounded-xl focus:ring-2 focus:ring-[#5537ee] outline-none transition-all`}
-          />
+          <div className="relative">
+            <input
+              name="confirmPassword"
+              type={showConfirmPassword ? 'text' : 'password'}
+              placeholder="Confirm your password"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              className={`mt-1 w-full px-4 py-2.5 border ${
+                errors.confirmPassword ? 'border-red-500' : 'border-gray-200'
+              } rounded-xl focus:ring-2 focus:ring-[#5537ee] outline-none transition-all pr-12`}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
           {errors.confirmPassword && (
             <p className="mt-1 text-xs text-red-500 font-medium">{errors.confirmPassword}</p>
           )}
