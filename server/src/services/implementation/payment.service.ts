@@ -57,8 +57,8 @@ export class PaymentService implements IPaymentService {
           },
         ],
         mode: 'payment',
-        success_url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/group-chat/${data.tripId}?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/group-chat/${data.tripId}`,
+        success_url: `${(process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '')}/group-chat/${data.tripId}?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${(process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '')}/group-chat/${data.tripId}`,
         metadata: {
           tripId: data.tripId,
           userId: userId,

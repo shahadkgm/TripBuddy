@@ -9,7 +9,7 @@ export class ConnectionService implements IConnectionService {
   constructor(
     private _connectionRepository: IConnectionRepository,
     private _tripRepository: ITripRepository
-  ) {}
+  ) { }
 
   async sendRequest(
     senderId: string,
