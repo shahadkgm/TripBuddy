@@ -239,7 +239,6 @@ const GroupChatPage = () => {
     if (!socket || !newMessage.trim() || !currentUser || !id) return;
     socket.emit('send_message', {
       tripId: id,
-      senderId: currentUser.id,
       content: newMessage.trim(),
     });
     setNewMessage('');
@@ -264,7 +263,6 @@ const GroupChatPage = () => {
       if (response.data.success) {
         socket?.emit('send_message', {
           tripId: id,
-          senderId: currentUser.id,
           content: 'Shared an image',
           messageType: 'image',
           fileUrl: response.data.data.imageUrl,

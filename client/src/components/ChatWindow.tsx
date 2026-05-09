@@ -57,7 +57,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ tripId, onClose }) => {
 
     socket.emit('send_message', {
       tripId,
-      senderId: currentUser.id,
       content: newMessage.trim(),
     });
 

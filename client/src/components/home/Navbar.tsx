@@ -104,13 +104,12 @@ export const Navbar = ({ variant = 'floating', showBack = false, backPath = '/' 
                   ) : (
                     <div
                       onClick={() => navigate('/kyc-status')}
-                      className={`cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-bold border shadow-sm transition-all hover:scale-105 whitespace-nowrap ${
-                        kycStatus === 'approved'
+                      className={`cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-bold border shadow-sm transition-all hover:scale-105 whitespace-nowrap ${kycStatus === 'approved'
                           ? 'bg-green-50 text-green-700 border-green-200'
                           : kycStatus === 'rejected'
                             ? 'bg-red-50 text-red-700 border-red-200'
                             : 'bg-blue-50 text-blue-700 border-blue-200'
-                      }`}
+                        }`}
                     >
                       {kycStatus === 'approved' && <span>✅ Verified</span>}
                       {kycStatus === 'pending' && <span>⏳ Pending</span>}
