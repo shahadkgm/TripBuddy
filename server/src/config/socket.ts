@@ -1,5 +1,6 @@
 import { Server as SocketIOServer } from 'socket.io';
 import { Server as HTTPServer } from 'http';
+import jwt from 'jsonwebtoken';
 import { MessageModel } from '../models/message.model';
 
 let ioInstance: SocketIOServer;
@@ -12,9 +13,16 @@ export const getIO = () => {
 };
 
 export const setupSocket = (httpServer: HTTPServer) => {
+  const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'https://tripbuddy.shahad.online',
+    'https://main.demjrwlxtsr38.amplifyapp.com',
+    'http://localhost:5173'
+  ].filter(Boolean).map(origin => origin!.replace(/\/$/, ''));
+
   const io = new SocketIOServer(httpServer, {
     cors: {
-      origin: 'http://localhost:5173',
+      origin: allowedOrigins,
       methods: ['GET', 'POST'],
       credentials: true,
     },
@@ -22,18 +30,37 @@ export const setupSocket = (httpServer: HTTPServer) => {
 
   ioInstance = io;
 
+  // Middleware for authentication
+  io.use((socket, next) => {
+    const token = socket.handshake.auth.token;
+    if (!token) {
+      return next(new Error('Authentication error: No token provided'));
+    }
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
+        id: string;
+        role: string;
+      };
+      socket.data.user = decoded; // Store user info in socket data
+      next();
+    } catch (err) {
+      console.error('Socket Auth Error:', err);
+      next(new Error('Authentication error: Invalid token'));
+    }
+  });
+
   io.on('connection', socket => {
-    console.log('A user connected:', socket.id);
+    const user = socket.data.user;
+    console.log('A user connected:', socket.id, 'User:', user.id);
 
     // Join personal user room for global notifications
-    const userId = socket.handshake.query.userId;
-    if (userId && typeof userId === 'string') {
-      socket.join(`user_${userId}`);
+    if (user.id) {
+      socket.join(`user_${user.id}`);
     }
 
     // Join admin room if role is admin
-    const role = socket.handshake.query.role;
-    if (role === 'admin') {
+    if (user.role === 'admin') {
       socket.join('admin_room');
     }
 
@@ -46,7 +73,6 @@ export const setupSocket = (httpServer: HTTPServer) => {
       'send_message',
       async (data: {
         tripId: string;
-        senderId: string;
         content: string;
         messageType?: 'text' | 'image';
         fileUrl?: string;
@@ -54,7 +80,7 @@ export const setupSocket = (httpServer: HTTPServer) => {
         try {
           const newMessage = await MessageModel.create({
             tripId: data.tripId,
-            senderId: data.senderId,
+            senderId: user.id, // Use verified ID from token
             content: data.content,
             messageType: data.messageType || 'text',
             fileUrl: data.fileUrl,

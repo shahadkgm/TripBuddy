@@ -169,7 +169,7 @@ export class TripRepository
         .find(query)
         .populate('userId', 'name email avatarURL')
         .populate('members', 'name email avatarURL')
-        .sort({ startDate: 1 })
+        .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
       this._model.countDocuments(query),

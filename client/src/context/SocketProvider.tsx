@@ -46,9 +46,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     const newSocket = io(SOCKET_URL, {
       withCredentials: true,
-      query: { 
-        userId: currentUser.id,
-        role: currentUser.role
+      auth: {
+        token: localStorage.getItem('accessToken'),
       },
     });
 
