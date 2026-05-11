@@ -140,8 +140,10 @@ const ProfilePage = () => {
       });
       await authService.updateProfile(currentUser.id, { avatarURL: res.data.data.imageUrl });
       toast.success('Profile photo updated successfully');
-    } catch (_error) {
-      toast.error('Upload failed');
+    } catch (_error: unknown) {
+      const err = _error as { response?: { data?: { message?: string } } };
+      const msg = err.response?.data?.message || 'Upload failed';
+      toast.error(msg);
     } finally {
       setIsUploading(false);
     }
