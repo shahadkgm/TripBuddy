@@ -74,6 +74,8 @@ export const authService = {
 
   setToken(token: string) {
     localStorage.setItem('accessToken', token);
+    // Manually fire 'storage' so SocketProvider (same tab) can reconnect with fresh token
+    window.dispatchEvent(new Event('storage'));
   },
 
   async updateProfile(userId: string, updateData: UpdateProfileDTO): Promise<AuthUser> {
