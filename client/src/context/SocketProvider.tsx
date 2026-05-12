@@ -220,6 +220,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       window.removeEventListener('storage', handleTokenRefresh);
       newSocket.disconnect();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser?.id]);
 
   const totalUnread = Object.values(unreadCounts).reduce((acc, curr) => acc + curr, 0);

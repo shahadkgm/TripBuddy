@@ -85,6 +85,7 @@ export const GuideManagement = () => {
 
   useEffect(() => {
     loadGuides();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, debouncedTerm]);
 
   const loadGuides = async () => {

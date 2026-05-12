@@ -96,6 +96,7 @@ export const GuideDashboard = () => {
       }
     };
     fetchGuideData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, user?.guideProfile?._id, page]);
 
   return (

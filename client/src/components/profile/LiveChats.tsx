@@ -41,6 +41,7 @@ export const LiveChats: React.FC<LiveChatsProps> = ({ userId }) => {
     if (userId) {
       fetchChats(page);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, page]);
 
   if (loading) {

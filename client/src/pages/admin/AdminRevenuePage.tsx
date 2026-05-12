@@ -64,6 +64,7 @@ export const AdminRevenuePage = () => {
 
   useEffect(() => {
     fetchStats();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [range]);
 
   const fetchStats = async () => {
