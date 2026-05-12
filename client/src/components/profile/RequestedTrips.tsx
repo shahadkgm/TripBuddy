@@ -41,6 +41,7 @@ export const RequestedTrips: React.FC<RequestedTripsProps> = ({ userId }) => {
     if (userId) {
       loadData(page);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, page]);
 
   if (loading) {

@@ -72,6 +72,7 @@ export const GuideBookingsPage = () => {
 
   useEffect(() => {
     fetchBookings(page);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, page]);
 
   const filteredTrips = filter === 'all' ? trips : trips.filter(t => t.status === filter);

@@ -64,6 +64,7 @@ export const PlannedTrips: React.FC<PlannedTripsProps> = ({ userId }) => {
     if (userId) {
       loadData(page);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, page]);
 
   const handleAcceptRequest = async (requestId: string) => {

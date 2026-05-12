@@ -79,6 +79,7 @@ export const GuideEarningsPage = () => {
       }
     };
     fetchEarnings();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser?.guideProfile?._id, page]);
 
   return (

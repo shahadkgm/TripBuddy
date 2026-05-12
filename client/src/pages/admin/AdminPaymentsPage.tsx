@@ -42,6 +42,7 @@ export const AdminPaymentsPage = () => {
 
   useEffect(() => {
     fetchPayments();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, searchTerm]);
 
   const fetchPayments = async () => {

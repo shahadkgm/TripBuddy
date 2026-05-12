@@ -34,6 +34,7 @@ export const useKycStatus = () => {
     };
 
     fetchStatus();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   return { kycStatus, isLoading: kycStatus === 'loading' };

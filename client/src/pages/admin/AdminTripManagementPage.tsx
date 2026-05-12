@@ -88,6 +88,7 @@ export const AdminTripManagementPage = () => {
 
   useEffect(() => {
     fetchTrips();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, searchTerm]);
 
   const fetchTrips = async () => {
