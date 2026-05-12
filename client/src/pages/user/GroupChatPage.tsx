@@ -22,6 +22,7 @@ import {
   MapPin,
   Star,
   Clock,
+  MoreVertical,
 } from 'lucide-react';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import type { EmojiClickData } from 'emoji-picker-react';
@@ -71,6 +72,7 @@ const GroupChatPage = () => {
   const [reportedTypes, setReportedTypes] = useState<Set<'guide' | 'organizer'>>(new Set());
 
   const [chatPage, setChatPage] = useState(1);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [hasMoreMessages, setHasMoreMessages] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const MESSAGES_LIMIT = 50;
@@ -271,8 +273,10 @@ const GroupChatPage = () => {
       } else {
         toast.error('Failed to upload image');
       }
-    } catch (_error) {
-      toast.error('Error uploading image');
+    } catch (_error: unknown) {
+      const err = _error as { response?: { data?: { message?: string } } };
+      const msg = err.response?.data?.message || 'Error uploading image';
+      toast.error(msg);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -424,7 +428,7 @@ const GroupChatPage = () => {
   return (
     <div className="h-screen bg-slate-100 flex flex-col font-sans overflow-hidden">
       {/* Centered Header */}
-      <div className="bg-white border-b border-slate-200 px-6 py-4 shadow-sm z-20 flex-shrink-0">
+      <div className="bg-white border-b border-slate-200 px-6 py-4 shadow-sm z-20 flex-shrink-0 relative">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
@@ -451,19 +455,26 @@ const GroupChatPage = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {/* Mobile Backdrop */}
+            <div 
+              className={`fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 md:hidden transition-opacity ${showMobileMenu ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+              onClick={() => setShowMobileMenu(false)}
+            />
+
+            <div className={`absolute md:relative top-[72px] right-4 md:top-auto md:right-auto bg-white md:bg-transparent rounded-2xl md:rounded-none shadow-2xl md:shadow-none border border-slate-100 md:border-none p-4 md:p-0 z-50 flex flex-col md:flex-row items-stretch md:items-center gap-3 transition-all origin-top-right md:transform-none min-w-[200px] md:min-w-0 ${showMobileMenu ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none md:scale-100 md:opacity-100 md:pointer-events-auto'}`}>
             {isOwner && (
               <button
-                onClick={() => navigate(`/manage-trip/${id}`)}
-                className="hidden md:flex p-2 bg-indigo-50 text-indigo-600 rounded-xl items-center justify-center hover:bg-indigo-100 transition-all font-bold border border-indigo-100 shadow-sm"
+                onClick={() => { setShowMobileMenu(false); navigate(`/manage-trip/${id}`); }}
+                className="flex p-2 md:px-4 md:py-2 bg-indigo-50 text-indigo-600 rounded-xl items-center justify-start md:justify-center gap-2 hover:bg-indigo-100 transition-all font-bold border border-indigo-100 shadow-sm"
                 title="Manage Trip"
               >
-                <Settings size={18} />
+                <Settings size={18} /> <span className="md:hidden">Manage Trip</span>
               </button>
             )}
             {trip?.status === TripStatus.PLANNED && isOwner && (
               <button
-                onClick={() => setShowFinalizeModal(true)}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all shadow-sm"
+                onClick={() => { setShowMobileMenu(false); setShowFinalizeModal(true); }}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all shadow-sm text-left md:text-center"
               >
                 Finalize Trip
               </button>
@@ -486,8 +497,13 @@ const GroupChatPage = () => {
               )}
             {trip?.status === TripStatus.FINALIZED && !isGuide && (
               <button
-                onClick={() => !hasPaidDeposit && setShowPaymentModal(true)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 border transition-all ${hasPaidDeposit
+                onClick={() => {
+                  if (!hasPaidDeposit) {
+                    setShowMobileMenu(false);
+                    setShowPaymentModal(true);
+                  }
+                }}
+                className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-start md:justify-center gap-2 border transition-all ${hasPaidDeposit
                     ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
                     : 'bg-rose-50 text-rose-600 border-rose-100 animate-pulse'
                   }`}
@@ -497,14 +513,14 @@ const GroupChatPage = () => {
               </button>
             )}
             {trip?.status === TripStatus.CONFIRMED && (
-              <div className="flex items-center gap-3">
-                <div className="px-4 py-2 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl text-xs font-bold flex items-center gap-2">
+              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+                <div className="px-4 py-2 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl text-xs font-bold flex items-center justify-start md:justify-center gap-2">
                   <ShieldCheck size={14} /> Confirmed ✅
                 </div>
                 {isOwner && (
                   <button
-                    onClick={() => setShowConfirmModal(true)}
-                    className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all shadow-sm"
+                    onClick={() => { setShowMobileMenu(false); setShowConfirmModal(true); }}
+                    className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all shadow-sm text-left md:text-center"
                   >
                     Complete Trip
                   </button>
@@ -514,6 +530,7 @@ const GroupChatPage = () => {
             {trip?.status === TripStatus.COMPLETED && (
               <button
                 onClick={() => {
+                  setShowMobileMenu(false);
                   if (isOwner) {
                     if (trip.guideId) {
                       setReviewTarget('guide');
@@ -526,24 +543,33 @@ const GroupChatPage = () => {
                     setShowReviewModal(true);
                   }
                 }}
-                className="px-4 py-2 bg-amber-50 text-amber-600 border border-amber-100 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-amber-100 transition-all"
+                className="px-4 py-2 bg-amber-50 text-amber-600 border border-amber-100 rounded-xl text-xs font-bold flex items-center justify-start md:justify-center gap-2 hover:bg-amber-100 transition-all"
               >
                 <Star size={14} className="fill-amber-600" />
                 {isOwner ? 'Review Guide' : 'Review Trip'}
               </button>
             )}
             <button
-              onClick={() => setShowItineraryModal(true)}
-              className="hidden md:flex px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold items-center gap-2 border border-indigo-100 hover:bg-indigo-100 transition-all"
+              onClick={() => { setShowMobileMenu(false); setShowItineraryModal(true); }}
+              className="flex px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold items-center gap-2 border border-indigo-100 hover:bg-indigo-100 transition-all justify-start md:justify-center"
             >
-              <Eye size={14} /> Itinerary
+              <Eye size={14} /> <span>Itinerary</span>
             </button>
             <button
-              onClick={fetchRecommendations}
-              className="px-4 py-2 bg-amber-50 text-amber-600 rounded-xl text-xs font-bold items-center gap-2 border border-amber-100 hover:bg-amber-100 transition-all group"
+              onClick={() => { setShowMobileMenu(false); fetchRecommendations(); }}
+              className="px-4 py-2 bg-amber-50 text-amber-600 rounded-xl text-xs font-bold flex items-center gap-2 border border-amber-100 hover:bg-amber-100 transition-all group justify-start md:justify-center"
             >
-              <Sparkles size={14} className="group-hover:rotate-12 transition-transform" /> Local
-              Guides
+              <Sparkles size={14} className="group-hover:rotate-12 transition-transform" /> 
+              <span>Local Guides</span>
+            </button>
+            </div>
+            
+            {/* Mobile Menu Toggle */}
+            <button
+              className="md:hidden p-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl transition-colors relative z-50"
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+            >
+              {showMobileMenu ? <X size={20} /> : <MoreVertical size={20} />}
             </button>
           </div>
         </div>

@@ -44,14 +44,21 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       return;
     }
 
-    const newSocket = io(SOCKET_URL, {
-      withCredentials: true,
-      auth: {
-        token: localStorage.getItem('accessToken'),
-      },
-    });
+    const createSocket = () => {
+      const token = localStorage.getItem('accessToken');
+      return io(SOCKET_URL, {
+        withCredentials: true,
+        auth: { token },
+      });
+    };
 
+    const newSocket = createSocket();
     Promise.resolve().then(() => setSocket(newSocket));
+
+    // Log socket connection errors for debugging
+    newSocket.on('connect_error', (err) => {
+      console.error('[Socket] Connection error:', err.message);
+    });
 
     // Join all user's/guide's trip rooms for global notifications
     const joinAllRooms = async () => {
@@ -76,7 +83,22 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
     };
 
-    joinAllRooms();
+    newSocket.on('connect', () => {
+      joinAllRooms();
+    });
+
+    // When the Axios interceptor refreshes the access token it calls
+    // authService.setToken() → localStorage.setItem() → fires 'storage' event.
+    // Reconnect the socket with the fresh token so admin_room auth stays valid.
+    const handleTokenRefresh = () => {
+      const freshToken = localStorage.getItem('accessToken');
+      if (freshToken && newSocket.auth) {
+        (newSocket.auth as { token: string }).token = freshToken;
+        newSocket.disconnect().connect();
+      }
+    };
+
+    window.addEventListener('storage', handleTokenRefresh);
 
     newSocket.on('global_notification', (notification: { title: string; message: string; link?: string; }) => {
       toast.custom(
@@ -195,6 +217,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
 
     return () => {
+      window.removeEventListener('storage', handleTokenRefresh);
       newSocket.disconnect();
     };
   }, [currentUser?.id]);

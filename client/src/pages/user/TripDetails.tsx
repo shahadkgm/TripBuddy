@@ -322,6 +322,12 @@ const TripDetails = () => {
               <p className="text-center text-slate-400 text-sm font-medium italic">
                 Your request to join this trip was not accepted.
               </p>
+              <button
+                onClick={handleSendRequest}
+                className="w-full py-4 bg-white border-2 border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-2xl font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center shadow-sm"
+              >
+                Send Request Again
+              </button>
             </div>
           ) : status === 'incoming_pending' ? (
             <button

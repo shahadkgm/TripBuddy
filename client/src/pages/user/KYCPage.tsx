@@ -83,9 +83,11 @@ const KYCPage = () => {
         toast.success('KYC submitted successfully 🎉');
         setTimeout(() => navigate('/kyc-status'), 1500);
       }
-    } catch (_error) {
+    } catch (_error: unknown) {
       console.error(_error);
-      toast.error('Error uploading document. Please try again.');
+      const err = _error as { response?: { data?: { message?: string } } };
+      const msg = err.response?.data?.message || 'Error uploading document. Please try again.';
+      toast.error(msg);
     } finally {
       setIsSubmitting(false);
     }

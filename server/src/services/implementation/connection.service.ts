@@ -4,6 +4,7 @@ import { IConnectionService } from '../interface/IConnectionService';
 import { IConnectionDocument } from '../../types/connection.type';
 import { IUser } from '../../types/user.type';
 import { logger } from '@/utils/logger';
+import { getIO } from '../../config/socket';
 
 export class ConnectionService implements IConnectionService {
   constructor(
@@ -22,16 +23,48 @@ export class ConnectionService implements IConnectionService {
     // Check if request already exists
     const existing = await this._connectionRepository.findByUsers(senderId, receiverId, tripId);
     if (existing) {
+      if (existing.status === 'rejected') {
+        logger.info('Connection request was previously rejected. Retrying...');
+        const updatedRequest = await this._connectionRepository.updateById(
+          existing._id.toString(), 
+          { status: 'pending' }
+        );
+        
+        if (updatedRequest) {
+          try {
+            getIO().to(`user_${receiverId}`).emit('global_notification', {
+              title: tripId ? 'New Trip Invitation' : 'New Connection Request',
+              message: tripId ? 'Someone invited you to join a trip!' : 'Someone wants to connect with you.',
+              link: '/connection-requests'
+            });
+          } catch (e) {
+            logger.error('Failed to emit connection request notification', { error: e });
+          }
+          return updatedRequest;
+        }
+      }
       logger.info('Connection request already exists');
       return existing;
     }
 
-    return await this._connectionRepository.create({
+    const newRequest = await this._connectionRepository.create({
       senderId,
       receiverId,
       tripId,
       status: 'pending',
     });
+
+    try {
+      getIO().to(`user_${receiverId}`).emit('global_notification', {
+        title: tripId ? 'New Trip Invitation' : 'New Connection Request',
+        message: tripId ? 'Someone invited you to join a trip!' : 'Someone wants to connect with you.',
+        link: '/connection-requests'
+      });
+    } catch (e) {
+      logger.error('Failed to emit connection request notification', { error: e });
+    }
+
+    return newRequest;
   }
 
   async acceptRequest(requestId: string): Promise<IConnectionDocument | null> {
@@ -44,7 +77,24 @@ export class ConnectionService implements IConnectionService {
         connection.senderId.toString()
       );
     }
-    return await this._connectionRepository.updateById(requestId, { status: 'accepted' });
+    const updated = await this._connectionRepository.updateById(requestId, { status: 'accepted' });
+
+    if (updated) {
+      try {
+        const senderIdStr = updated.senderId.toString();
+        getIO().to(`user_${senderIdStr}`).emit('global_notification', {
+          title: 'Request Accepted',
+          message: updated.tripId 
+            ? 'Your trip invitation was accepted!' 
+            : 'Your connection request was accepted!',
+          link: '/connection-requests'
+        });
+      } catch (e) {
+        logger.error('Failed to emit request accepted notification', { error: e });
+      }
+    }
+
+    return updated;
   }
 
   async rejectRequest(requestId: string): Promise<IConnectionDocument | null> {

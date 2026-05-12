@@ -76,8 +76,10 @@ const GalleryPage = () => {
       const res = await galleryService.uploadImage(file);
       setUploadData(prev => ({ ...prev, image: res.data.imageUrl }));
       toast.success('Photo uploaded successfully');
-    } catch (_error) {
-      toast.error('Upload failed');
+    } catch (_error: unknown) {
+      const err = _error as { response?: { data?: { message?: string } } };
+      const msg = err.response?.data?.message || 'Upload failed';
+      toast.error(msg);
     } finally {
       setIsUploading(false);
     }

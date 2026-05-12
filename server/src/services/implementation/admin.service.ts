@@ -162,6 +162,22 @@ export class AdminService implements IAdminService {
     if (!result) {
       throw new AppError('KYC record not found', StatusCode.NOT_FOUND);
     }
+    
+    try {
+      const title = status === 'approved' ? 'KYC Approved' : 'KYC Status Updated';
+      const message = status === 'approved' 
+        ? 'Your KYC documents have been verified successfully.' 
+        : `Your KYC status has been updated to ${status}. ${reason ? 'Reason: ' + reason : ''}`;
+        
+      getIO().to(`user_${userId}`).emit('global_notification', {
+        title,
+        message,
+        link: '/kyc-status'
+      });
+    } catch (e) {
+      logger.error('Failed to emit KYC socket event', { error: e });
+    }
+    
     logger.info(`KYC status updated manually for user: ${userId} to ${status}`);
     return true;
   }
