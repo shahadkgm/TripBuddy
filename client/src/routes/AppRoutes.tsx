@@ -1,52 +1,55 @@
 // src/routes/AppRoutes.tsx
+import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+const GlobalLoader = lazy(() => import('../components/GlobalLoader').then(m => ({ default: m.GlobalLoader })));
 import ProtectedRoute from './ProtectedRoute';
 
-import HomePage from '../pages/user/HomePage';
-import AuthPage from '../pages/auth/AuthPage';
-import { ForgotPasswordPage } from '../pages/auth/ForgotPasswordPage';
-import { ResetPasswordPage } from '../pages/auth/ResetPasswordPage';
-import VerifyEmail from '../pages/auth/VerifyEmail';
+const HomePage = lazy(() => import('../pages/user/HomePage'));
+const AuthPage = lazy(() => import('../pages/auth/AuthPage'));
+const ForgotPasswordPage = lazy(() => import('../pages/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
+const ResetPasswordPage = lazy(() => import('../pages/auth/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
+const VerifyEmail = lazy(() => import('../pages/auth/VerifyEmail'));
 
-import DashboardPage from '../pages/user/DashboardPage';
-import KYCStatusPage from '../pages/user/KYCStatusPage';
-import KYCPage from '../pages/user/KYCPage';
-import { GuideRegistrationPage } from '../pages/user/GuideRegistrationPage';
-import CreateTripPage from '../pages/user/CreateTripPage';
-import FindTravelers from '../pages/user/FindTravelers';
-import TripDetails from '../pages/user/TripDetails';
-import ConnectionRequestsPage from '../pages/user/ConnectionRequestsPage';
-import ExpenseSplitPage from '../pages/user/ExpenseSplitPage';
-import WeatherPage from '../pages/user/WeatherPage';
+const DashboardPage = lazy(() => import('../pages/user/DashboardPage'));
+const KYCStatusPage = lazy(() => import('../pages/user/KYCStatusPage'));
+const KYCPage = lazy(() => import('../pages/user/KYCPage'));
+const GuideRegistrationPage = lazy(() => import('../pages/user/GuideRegistrationPage').then(m => ({ default: m.GuideRegistrationPage })));
+const CreateTripPage = lazy(() => import('../pages/user/CreateTripPage'));
+const FindTravelers = lazy(() => import('../pages/user/FindTravelers'));
+const TripDetails = lazy(() => import('../pages/user/TripDetails'));
+const ConnectionRequestsPage = lazy(() => import('../pages/user/ConnectionRequestsPage'));
+const ExpenseSplitPage = lazy(() => import('../pages/user/ExpenseSplitPage'));
+const WeatherPage = lazy(() => import('../pages/user/WeatherPage'));
 
-import ProfilePage from '../pages/user/ProfilePage';
-import GalleryPage from '../pages/user/GalleryPage';
-import TripManagementPage from '../pages/user/TripManagementPage';
-import AIAssistantPage from '../pages/user/AIAssistantPage';
-import GroupChatPage from '../pages/user/GroupChatPage';
-import NearByPlacesPage from '../pages/user/NearByPlacesPage';
-import FindGuidesPage from '../pages/user/FindGuidesPage';
-import MyPaymentsPage from '../pages/user/MyPaymentsPage';
+const ProfilePage = lazy(() => import('../pages/user/ProfilePage'));
+const GalleryPage = lazy(() => import('../pages/user/GalleryPage'));
+const TripManagementPage = lazy(() => import('../pages/user/TripManagementPage'));
+const AIAssistantPage = lazy(() => import('../pages/user/AIAssistantPage'));
+const GroupChatPage = lazy(() => import('../pages/user/GroupChatPage'));
+const NearByPlacesPage = lazy(() => import('../pages/user/NearByPlacesPage'));
+const FindGuidesPage = lazy(() => import('../pages/user/FindGuidesPage'));
+const MyPaymentsPage = lazy(() => import('../pages/user/MyPaymentsPage'));
 
-import { AdminDashboard } from '../pages/admin/AdminDashboard';
-import { UserManagement } from '../pages/admin/UserManagement';
-import { GuideManagement } from '../pages/admin/GuideManagement';
-import { AdminPaymentsPage } from '../pages/admin/AdminPaymentsPage';
-import { AdminTripManagementPage } from '../pages/admin/AdminTripManagementPage';
-import { AdminRevenuePage } from '../pages/admin/AdminRevenuePage';
-import ReportManagementPage from '../pages/admin/ReportManagementPage';
+const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const UserManagement = lazy(() => import('../pages/admin/UserManagement').then(m => ({ default: m.UserManagement })));
+const GuideManagement = lazy(() => import('../pages/admin/GuideManagement').then(m => ({ default: m.GuideManagement })));
+const AdminPaymentsPage = lazy(() => import('../pages/admin/AdminPaymentsPage').then(m => ({ default: m.AdminPaymentsPage })));
+const AdminTripManagementPage = lazy(() => import('../pages/admin/AdminTripManagementPage').then(m => ({ default: m.AdminTripManagementPage })));
+const AdminRevenuePage = lazy(() => import('../pages/admin/AdminRevenuePage').then(m => ({ default: m.AdminRevenuePage })));
+const ReportManagementPage = lazy(() => import('../pages/admin/ReportManagementPage'));
 
-import { GuideDashboard } from '../pages/guide/GuideDashboard';
-import { GuideProfilePage } from '../pages/guide/GuideProfilePage';
-import { GuideBookingsPage } from '../pages/guide/GuideBookingsPage';
-import { GuideEarningsPage } from '../pages/guide/GuideEarningsPage';
-import { GuideReviewsPage } from '../pages/guide/GuideReviewsPage';
-import { GuideInvitationsPage } from '../pages/guide/GuideInvitationsPage';
-import { GuideTripRequestDetailsPage } from '../pages/guide/GuideTripRequestDetailsPage';
+const GuideDashboard = lazy(() => import('../pages/guide/GuideDashboard').then(m => ({ default: m.GuideDashboard })));
+const GuideProfilePage = lazy(() => import('../pages/guide/GuideProfilePage').then(m => ({ default: m.GuideProfilePage })));
+const GuideBookingsPage = lazy(() => import('../pages/guide/GuideBookingsPage').then(m => ({ default: m.GuideBookingsPage })));
+const GuideEarningsPage = lazy(() => import('../pages/guide/GuideEarningsPage').then(m => ({ default: m.GuideEarningsPage })));
+const GuideReviewsPage = lazy(() => import('../pages/guide/GuideReviewsPage').then(m => ({ default: m.GuideReviewsPage })));
+const GuideInvitationsPage = lazy(() => import('../pages/guide/GuideInvitationsPage').then(m => ({ default: m.GuideInvitationsPage })));
+const GuideTripRequestDetailsPage = lazy(() => import('../pages/guide/GuideTripRequestDetailsPage').then(m => ({ default: m.GuideTripRequestDetailsPage })));
 
 export default function AppRoutes() {
   return (
-    <Routes>
+    <Suspense fallback={<GlobalLoader />}>
+      <Routes>
       {/* Public */}
       <Route path="/" element={<HomePage />} />
       <Route path="/register" element={<AuthPage mode="register" />} />
@@ -114,5 +117,6 @@ export default function AppRoutes() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </Suspense>
   );
 }
