@@ -122,6 +122,11 @@ export const AdminPaymentsPage = () => {
           <div className="text-xs text-gray-400 truncate">
             {payment.tripId?.destination || 'N/A'}
           </div>
+          {payment.tripId?._id && (
+            <div className="text-[10px] text-gray-400 font-mono mt-0.5 truncate" title={payment.tripId._id}>
+              ID: {payment.tripId._id}
+            </div>
+          )}
         </div>
       ),
     },
