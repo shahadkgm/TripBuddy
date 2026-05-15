@@ -238,7 +238,7 @@ const TripDetails = () => {
                       className="flex items-center gap-2 bg-white p-1.5 rounded-full border border-slate-100 shadow-sm pr-3"
                     >
                       <img
-                        src={member.avatarURL || `https://ui-avatars.com/api/?name=${member.name}`}
+                        src={member.avatarURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'}
                         alt=""
                         className="w-6 h-6 rounded-full object-cover"
                       />

@@ -974,7 +974,7 @@ const GroupChatPage = () => {
                   className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100"
                 >
                   <img
-                    src={member.avatarURL || `https://ui-avatars.com/api/?name=${member.name}`}
+                    src={member.avatarURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'}
                     alt=""
                     className="w-10 h-10 rounded-full object-cover shadow-sm"
                   />

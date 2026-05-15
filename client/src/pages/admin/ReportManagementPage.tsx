@@ -197,7 +197,7 @@ const ReportManagementPage: React.FC = () => {
                           <img
                             src={
                               report.reporterId?.avatarURL ||
-                              `https://ui-avatars.com/api/?name=${report.reporterId?.name}`
+                              'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
                             }
                             className="w-10 h-10 rounded-xl object-cover shadow-sm ring-2 ring-white"
                             alt=""
@@ -233,7 +233,7 @@ const ReportManagementPage: React.FC = () => {
                             <img
                               src={
                                 report.targetId?.avatarURL ||
-                                `https://ui-avatars.com/api/?name=${report.targetId?.name}`
+                                'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
                               }
                               className="w-10 h-10 rounded-xl object-cover shadow-sm ring-2 ring-rose-50"
                               alt=""
@@ -339,7 +339,7 @@ const ReportManagementPage: React.FC = () => {
                       <img
                         src={
                           selectedReport.reporterId?.avatarURL ||
-                          `https://ui-avatars.com/api/?name=${selectedReport.reporterId?.name}`
+                          'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
                         }
                         className="w-10 h-10 rounded-xl object-cover shadow-sm"
                         alt=""
@@ -362,7 +362,7 @@ const ReportManagementPage: React.FC = () => {
                       <img
                         src={
                           selectedReport.targetId?.avatarURL ||
-                          `https://ui-avatars.com/api/?name=${selectedReport.targetId?.name}`
+                          'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
                         }
                         className="w-10 h-10 rounded-xl object-cover shadow-sm ring-2 ring-white"
                         alt=""

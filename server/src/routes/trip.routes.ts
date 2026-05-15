@@ -8,6 +8,7 @@ import { CreateTripDTO } from '../dto/trip.dto';
 import { API_ROUTES } from '../constants/routes.constants';
 
 import { protect } from '../middleware/authMiddleware';
+import { requireKyc } from '../middleware/kycMiddleware';
 
 import { PaymentRepository } from '../repositories/implementation/payment.repository';
 import { UserRepository } from '../repositories/implementation/user.repository';
@@ -24,16 +25,17 @@ const tripController = new TripController(tripService);
 
 router.use(protect);
 
-router.post('/:tripId/finalize', tripController.finalizeTrip);
+router.post('/:tripId/finalize', requireKyc, tripController.finalizeTrip);
 
-router.post('/:tripId/cancel', tripController.cancelTrip);
+router.post('/:tripId/cancel', requireKyc, tripController.cancelTrip);
 
-router.post('/:tripId/complete', tripController.completeTrip);
+router.post('/:tripId/complete', requireKyc, tripController.completeTrip);
 
-router.post('/:tripId/leave', tripController.leaveTrip);
+router.post('/:tripId/leave', requireKyc, tripController.leaveTrip);
 
 router.post(
   API_ROUTES.TRIP.CREATE,
+  requireKyc,
   upload.none(), // Parse FormData fields into req.body
   dtoValidationMiddleware(CreateTripDTO),
   tripController.createTrip
@@ -45,12 +47,12 @@ router.get(API_ROUTES.TRIP.GET_ALL, tripController.getAllTrips);
 
 router.get(API_ROUTES.TRIP.GET_BY_ID, tripController.getTripById);
 
-router.patch(API_ROUTES.TRIP.GET_BY_ID, upload.none(), tripController.updateTrip);
+router.patch(API_ROUTES.TRIP.GET_BY_ID, requireKyc, upload.none(), tripController.updateTrip);
 
 router.get(API_ROUTES.TRIP.GET_CHAT, tripController.getChatHistory);
 
 // Assign / remove a guide from a trip
-router.patch('/:tripId/guide', tripController.assignGuide);
+router.patch('/:tripId/guide', requireKyc, tripController.assignGuide);
 
 router.get('/guide/:guideId', tripController.getGuideTrips);
 

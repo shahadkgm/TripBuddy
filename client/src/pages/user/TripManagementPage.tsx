@@ -27,6 +27,7 @@ import { tripService } from '../../services/trip.service';
 import { aiService } from '../../services/ai.service';
 import { guideService } from '../../services/guide.service';
 import { paymentService } from '../../services/payment.service';
+import { authService } from '../../services/auth.service';
 import { TripStatus } from '../../constants/TripStatus';
 import type { ITrip, IItineraryItem, IGuide, IGuideInvitation } from '../../interface/ITripdetails';
 import type { IPayment } from '../../interface/IPayment';
@@ -81,6 +82,23 @@ const TripManagementPage = () => {
           `Fetched trip data from tr management: ${JSON.stringify(data.guideId?.averageRating)}`
         );
         setTrip(data);
+
+        // ── AUTHORIZATION CHECK ──────────────────────────────────────────
+        // Only the trip owner is allowed on this management page.
+        // Compare the trip's owner ID against the current logged-in user.
+        const currentUser = authService.getCurrentUser();
+        const currentUserId = currentUser?.id;
+        const tripOwnerId =
+          data.userId && typeof data.userId === 'object' && '_id' in (data.userId as object)
+            ? (data.userId as { _id: string })._id
+            : (data.userId as string);
+
+        if (!currentUserId || currentUserId !== tripOwnerId) {
+          toast.error('Access denied. You are not the owner of this trip.');
+          navigate('/profile');
+          return;
+        }
+        // ────────────────────────────────────────────────────────────────
 
         // Initialize itinerary if it exists, or create default days based on trip duration
         if (data.itinerary && data.itinerary.length > 0) {
@@ -641,7 +659,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                         <div className="relative">
                           <img
                             src={
-                              member.avatarURL || `https://ui-avatars.com/api/?name=${member.name}`
+                              member.avatarURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
                             }
                             className="w-14 h-14 rounded-2xl object-cover shadow-md"
                             alt=""

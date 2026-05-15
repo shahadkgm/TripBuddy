@@ -612,7 +612,7 @@ export const GuideManagement = () => {
                           <img
                             src={
                               report.reporterId?.avatarURL ||
-                              `https://ui-avatars.com/api/?name=${report.reporterId?.name}`
+                              'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
                             }
                             className="w-8 h-8 rounded-xl object-cover shadow-sm"
                             alt=""
