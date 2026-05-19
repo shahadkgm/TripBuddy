@@ -7,12 +7,12 @@ import { ITripService } from '../interface/ITripService';
 import guideModel from '../../models/guide.model';
 import { logger } from '@/utils/logger';
 
+
 export class GuideInvitationService implements IGuideInvitationService {
   constructor(
     private _invitationRepository: IGuideInvitationRepository,
     private _tripService: ITripService
   ) {}
-
   async sendInvitation(
     tripId: string,
     guideId: string,
@@ -28,6 +28,7 @@ export class GuideInvitationService implements IGuideInvitationService {
     // Check for existing pending invitation
     const existing = await this._invitationRepository.findByTripAndGuide(tripId, guideId);
     if (existing) throw new Error('An invitation is already pending for this guide and trip');
+    
 
     const invitationData: Partial<IGuideInvitationDocument> = {
       tripId: new Types.ObjectId(tripId),
@@ -74,6 +75,7 @@ export class GuideInvitationService implements IGuideInvitationService {
       logger.error('Invitation not found', { invitationId });
       throw new Error('Invitation not found');
     }
+    
 
     const receiverId = this.extractId(invitation.receiverId);
     logger.info('Comparing receiver and guide IDs', { receiverId, guideUserId });

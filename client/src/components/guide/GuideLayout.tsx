@@ -29,10 +29,22 @@ const menu = [
 
 export const GuideLayout: React.FC<GuideLayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const user = authService.getCurrentUser();
+  const [user, setUser] = useState(authService.getCurrentUser());
   const navigate = useNavigate();
   const location = useLocation();
   const { totalUnread } = useSocketContext();
+
+  React.useEffect(() => {
+    const handleProfileUpdate = () => {
+      setUser(authService.getCurrentUser());
+    };
+    window.addEventListener('user-profile-updated', handleProfileUpdate);
+    window.addEventListener('storage', handleProfileUpdate);
+    return () => {
+      window.removeEventListener('user-profile-updated', handleProfileUpdate);
+      window.removeEventListener('storage', handleProfileUpdate);
+    };
+  }, []);
 
   const handleLogout = () => {
     authService.logout();

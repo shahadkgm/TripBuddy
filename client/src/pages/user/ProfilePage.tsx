@@ -114,7 +114,8 @@ const ProfilePage = () => {
 
     try {
       setIsSaving(true);
-      await authService.updateProfile(currentUser.id, editData);
+      const updated = await authService.updateProfile(currentUser.id, editData);
+      setCurrentUser(updated);
       toast.success('Profile updated successfully');
       setIsEditing(false);
       setErrors({});
@@ -138,7 +139,8 @@ const ProfilePage = () => {
       const res = await api.post('/api/profile-photo', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      await authService.updateProfile(currentUser.id, { avatarURL: res.data.data.imageUrl });
+      const updated = await authService.updateProfile(currentUser.id, { avatarURL: res.data.data.imageUrl });
+      setCurrentUser(updated);
       toast.success('Profile photo updated successfully');
     } catch (_error: unknown) {
       const err = _error as { response?: { data?: { message?: string } } };

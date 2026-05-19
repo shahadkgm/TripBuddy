@@ -1,6 +1,7 @@
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../types/authRequest';
 import { UserModel } from '../models/user.models';
+import { KYC } from '../models/kyc.model';
 import { StatusCode } from '../constants/statusCode.enum';
 
 /**
@@ -14,16 +15,24 @@ export const requireKyc = async (req: AuthRequest, res: Response, next: NextFunc
     return res.status(StatusCode.UNAUTHORIZED).json({ message: 'Not authenticated' });
   }
 
-  const user = await UserModel.findById(userId).select('kyc');
+  const user = await UserModel.findById(userId);
 
   if (!user) {
     return res.status(StatusCode.UNAUTHORIZED).json({ message: 'User not found' });
   }
 
-  if (user.kyc?.status !== 'approved') {
+  // Admin and guides bypass regular KYC verification (guides are verified separately)
+  if (user.role === 'admin' || user.role === 'guide') {
+    return next();
+  }
+
+  // Look up latest KYC record in the KYC collection
+  const latestKyc = await KYC.findOne({ userId }).sort({ uploadedAt: -1 });
+
+  if (!latestKyc || latestKyc.status !== 'approved') {
     return res.status(StatusCode.FORBIDDEN).json({
       message: 'KYC verification required. Please complete your identity verification to access this feature.',
-      kycStatus: user.kyc?.status || 'none',
+      kycStatus: latestKyc?.status || 'none',
     });
   }
 

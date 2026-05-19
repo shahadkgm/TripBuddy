@@ -16,7 +16,7 @@ export class TripService implements ITripService {
     private _tripRepository: ITripRepository,
     private _paymentRepository: IPaymentRepository,
     private _userRepository: IUserRepository
-  ) {}
+  ) { }
 
   async createTrip(data: CreateTripDTO): Promise<ITripDocument> {
     logger.info('Creating new trip in service in t-s', { data });

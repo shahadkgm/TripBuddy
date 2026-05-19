@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Star, MessageSquare, Loader2, Quote, ThumbsUp } from 'lucide-react';
 import { authService } from '../../services/auth.service';
 import { GuideLayout } from './GuideLayout';
 import { Pagination } from '../../components/Pagination';
 import api from '../../utils/api';
-import toast from 'react-hot-toast';
+import { useQuery } from '@tanstack/react-query';
 
 interface Review {
   _id: string;
@@ -19,59 +19,78 @@ interface Review {
 
 export const GuideReviewsPage = () => {
   const user = authService.getCurrentUser();
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const LIMIT = 5;
 
-  const [stats, setStats] = useState({
-    averageRating: 0,
-    totalReviews: 0,
-    ratingDistribution: [0, 0, 0, 0, 0],
+  // React Query self-healing profile query
+  const { data: currentUserProfile } = useQuery({
+    queryKey: ['user-profile', user?.id],
+    queryFn: async () => {
+      if (user?.role === 'guide' && !user?.guideProfile?._id) {
+        try {
+          const profile = await authService.getProfile(user.id);
+          return profile;
+        } catch (_error) {
+          console.error(_error);
+        }
+      }
+      return user;
+    },
+    initialData: user,
   });
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      if (!user?.guideProfile?._id) return;
-      try {
-        setLoading(true);
-        const res = await api.get(`/api/reviews/guide/${user.guideProfile._id}`, {
-          params: { page, limit: LIMIT },
-        });
-        const reviewData = res.data.data.reviews || res.data.data;
-        const totalCount = res.data.data.total || reviewData.length;
+  const guideId = currentUserProfile?.guideProfile?._id;
 
-        setReviews(reviewData);
-        setTotalPages(Math.ceil(totalCount / LIMIT));
+  // React Query fetch guide reviews
+  const { data: reviewsData, isLoading: loading } = useQuery({
+    queryKey: ['guide-reviews', guideId, page],
+    queryFn: async () => {
+      const res = await api.get(`/api/reviews/guide/${guideId}`, {
+        params: { page, limit: LIMIT },
+      });
+      return res.data.data;
+    },
+    enabled: !!guideId,
+  });
 
-        if (reviewData.length > 0) {
-          const total = reviewData.reduce(
-            (acc: number, r: { rating: number }) => acc + r.rating,
-            0
-          );
-          const avg = total / reviewData.length;
+  const reviews = useMemo<Review[]>(() => {
+    if (!reviewsData) return [];
+    return reviewsData.reviews || reviewsData;
+  }, [reviewsData]);
 
-          const dist = [0, 0, 0, 0, 0];
-          reviewData.forEach((r: { rating: number }) => {
-            if (r.rating >= 1 && r.rating <= 5) dist[r.rating - 1]++;
-          });
+  const totalCount = useMemo(() => {
+    if (!reviewsData) return 0;
+    return reviewsData.total || reviews.length;
+  }, [reviewsData, reviews]);
 
-          setStats({
-            averageRating: avg,
-            totalReviews: totalCount,
-            ratingDistribution: dist.reverse(), // 5 to 1
-          });
-        }
-      } catch (_err: unknown) {
-        const errorObj = _err as { response?: { data?: { message?: string } } };
-        toast.error(errorObj?.response?.data?.message || 'Failed to fetch reviews');
-      } finally {
-        setLoading(false);
-      }
+  const totalPages = Math.ceil(totalCount / LIMIT);
+
+  const stats = useMemo(() => {
+    if (reviews.length === 0) {
+      return {
+        averageRating: 0,
+        totalReviews: 0,
+        ratingDistribution: [0, 0, 0, 0, 0],
+      };
+    }
+
+    const total = reviews.reduce(
+      (acc: number, r: { rating: number }) => acc + r.rating,
+      0
+    );
+    const avg = total / reviews.length;
+
+    const dist = [0, 0, 0, 0, 0];
+    reviews.forEach((r: { rating: number }) => {
+      if (r.rating >= 1 && r.rating <= 5) dist[r.rating - 1]++;
+    });
+
+    return {
+      averageRating: avg,
+      totalReviews: totalCount,
+      ratingDistribution: dist.reverse(), // 5 to 1
     };
-    fetchReviews();
-  }, [user?.guideProfile?._id, page]);
+  }, [reviews, totalCount]);
 
   return (
     <GuideLayout currentPage="Reviews">

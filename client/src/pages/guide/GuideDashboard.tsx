@@ -1,5 +1,6 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useMemo, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import {
   Star,
   Clock,
@@ -9,95 +10,118 @@ import {
   MapPin,
   ChevronRight,
   Loader2,
+  TrendingUp,
 } from 'lucide-react';
 import { authService } from '../../services/auth.service';
 import { GuideLayout } from './GuideLayout';
-import toast from 'react-hot-toast';
 import { tripService } from '../../services/trip.service';
 import { TripStatus } from '../../constants/TripStatus';
-import type { ITrip } from '../../interface/ITripdetails';
 import { Pagination } from '../../components/Pagination';
+import {
+  ComposedChart,
+  Area,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+} from 'recharts';
 
 export const GuideDashboard = () => {
   const user = authService.getCurrentUser();
   const navigate = useNavigate();
-  const [trips, setTrips] = useState<ITrip[]>([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [, setPaginationLoading] = useState(false);
   const LIMIT = 5;
 
-  const [stats, setStats] = useState({
-    totalBookings: 0,
-    rating: 5.0,
-    earned: 0,
-    status: 'Verified',
-  });
-
-  useEffect(() => {
-    const fetchGuideData = async () => {
-      let currentUser = user;
-
-      // Self-healing: If user is a guide but guideProfile is missing from local state, re-fetch profile
-      if (currentUser?.role === 'guide' && !currentUser?.guideProfile?._id) {
-        console.log(
-          'DEBUG: Guide profile missing in local state. Attempting to re-sync user profile...'
-        );
+  // React Query self-healing profile query
+  const { data: currentUserProfile } = useQuery({
+    queryKey: ['user-profile', user?.id],
+    queryFn: async () => {
+      if (user?.role === 'guide' && !user?.guideProfile?._id) {
+        console.log('DEBUG: Guide profile missing in local state. Attempting to re-sync user profile...');
         try {
-          currentUser = await authService.getProfile(currentUser.id);
-          if (currentUser?.guideProfile?._id) {
-            console.log('DEBUG: Profile re-synced successfully:', currentUser);
-          } else {
-            console.warn('DEBUG: No guideProfile._id found even after re-sync attempt');
+          const profile = await authService.getProfile(user.id);
+          if (profile?.guideProfile?._id) {
+            console.log('DEBUG: Profile re-synced successfully:', profile);
+            return profile;
           }
         } catch (_error) {
           console.error(_error);
         }
       }
+      return user;
+    },
+    initialData: user,
+  });
 
-      if (!currentUser?.guideProfile?._id) {
-        setLoading(false);
-        return;
-      }
-      try {
-        if (page === 1) setLoading(true);
-        else setPaginationLoading(true);
+  const guideId = currentUserProfile?.guideProfile?._id;
 
-        const data = await tripService.getGuideTrips(currentUser.guideProfile._id, page, LIMIT);
+  // React Query fetch guide trips
+  const { data: dashboardData, isLoading: loading } = useQuery({
+    queryKey: ['guide-dashboard', guideId, page],
+    queryFn: () => tripService.getGuideTrips(guideId!, page, LIMIT),
+    enabled: !!guideId,
+  });
 
-        const guideTrips = data.trips;
-        setTrips(guideTrips);
-        setTotalPages(Math.ceil(data.total / LIMIT));
+  const trips = useMemo(() => dashboardData?.trips || [], [dashboardData?.trips]);
+  const totalTripsCount = dashboardData?.total || 0;
+  const totalPages = Math.ceil(totalTripsCount / LIMIT);
 
-        // Calculate stats (Note: Stats are calculated from all trips if backend supports it,
-        // but here we keep the current logic of calculating from the returned page)
-        const completedTrips = guideTrips.filter(t => t.status === TripStatus.COMPLETED);
-        const earnings = completedTrips.reduce((acc, trip) => {
-          const days =
-            Math.ceil(
-              (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
-              (1000 * 60 * 60 * 24)
-            ) + 1;
-          return acc + days * (currentUser?.guideProfile?.dailyRate || 0);
-        }, 0);
+  // Compute stats dynamically in render
+  const stats = useMemo(() => {
+    const completedTrips = trips.filter(t => t.status === TripStatus.COMPLETED);
+    const earnings = completedTrips.reduce((acc, trip) => {
+      const days =
+        Math.ceil(
+          (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
+          (1000 * 60 * 60 * 24)
+        ) + 1;
+      return acc + days * (currentUserProfile?.guideProfile?.dailyRate || 0);
+    }, 0);
 
-        setStats(prev => ({
-          ...prev,
-          totalBookings: data.total,
-          earned: earnings,
-        }));
-      } catch (_err) {
-        console.error('Error fetching guide trips:', _err);
-        toast.error('Failed to load dashboard data');
-      } finally {
-        setLoading(false);
-        setPaginationLoading(false);
-      }
+    return {
+      totalBookings: totalTripsCount,
+      rating: 5.0,
+      earned: earnings,
+      status: 'Verified',
     };
-    fetchGuideData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, user?.guideProfile?._id, page]);
+  }, [trips, totalTripsCount, currentUserProfile?.guideProfile?.dailyRate]);
+
+  // Compute chartData dynamically in render
+  const chartData = useMemo(() => {
+    const last6Months = Array.from({ length: 6 }).map((_, i) => {
+      const d = new Date();
+      d.setMonth(d.getMonth() - (5 - i));
+      return {
+        month: d.toLocaleDateString('en-US', { month: 'short' }),
+        monthNum: d.getMonth(),
+        year: d.getFullYear(),
+        Earnings: 0,
+        Bookings: 0,
+      };
+    });
+
+    trips.forEach(trip => {
+      const tripDate = new Date(trip.startDate);
+      const tripMonth = tripDate.getMonth();
+      const tripYear = tripDate.getFullYear();
+      
+      const match = last6Months.find(m => m.monthNum === tripMonth && m.year === tripYear);
+      if (match) {
+        match.Bookings += 1;
+        if (trip.status === TripStatus.COMPLETED) {
+          const days = Math.ceil(
+            (new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) /
+            (1000 * 60 * 60 * 24)
+          ) + 1;
+          match.Earnings += days * (currentUserProfile?.guideProfile?.dailyRate || 0);
+        }
+      }
+    });
+
+    return last6Months;
+  }, [trips, currentUserProfile?.guideProfile?.dailyRate]);
 
   return (
     <GuideLayout currentPage="Dashboard">
@@ -138,6 +162,118 @@ export const GuideDashboard = () => {
           value={stats.status}
           color="slate"
         />
+      </div>
+
+      {/* Chart Section */}
+      <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-indigo-50 rounded-2xl">
+              <TrendingUp size={20} className="text-indigo-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight">Performance Analytics</h3>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
+                Monthly Earnings & Bookings Over Time
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+              <span className="w-2 h-2 rounded-full bg-indigo-600"></span>
+              Earnings (₹)
+            </span>
+            <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Bookings
+            </span>
+          </div>
+        </div>
+
+        <div className="h-[300px] w-full">
+          {loading ? (
+            <div className="h-full w-full flex items-center justify-center">
+              <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={chartData}>
+                <defs>
+                  <linearGradient id="earningsColor" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.01}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#64748b', fontSize: 10, fontWeight: 900 }}
+                  dy={10}
+                />
+                <YAxis
+                  yAxisId="left"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#64748b', fontSize: 10, fontWeight: 900 }}
+                  tickFormatter={(val) => `₹${val}`}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#64748b', fontSize: 10, fontWeight: 900 }}
+                />
+                <RechartsTooltip
+                  cursor={{ stroke: '#f1f5f9', strokeWidth: 1 }}
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      return (
+                        <div className="bg-white/95 backdrop-blur-md p-5 rounded-2xl border border-slate-100 shadow-2xl space-y-2">
+                          <p className="text-xs font-black text-slate-800 uppercase tracking-widest border-b border-slate-100 pb-1.5">
+                            {data.month} {data.year}
+                          </p>
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between gap-6">
+                              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Earnings:</span>
+                              <span className="text-xs font-black text-indigo-600">₹{data.Earnings.toLocaleString()}</span>
+                            </div>
+                            <div className="flex items-center justify-between gap-6">
+                              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Bookings:</span>
+                              <span className="text-xs font-black text-emerald-600">{data.Bookings}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Area
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="Earnings"
+                  stroke="#6366f1"
+                  strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#earningsColor)"
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="Bookings"
+                  stroke="#10b981"
+                  strokeWidth={3}
+                  dot={{ r: 4, stroke: '#10b981', strokeWidth: 2, fill: '#fff' }}
+                  activeDot={{ r: 6, stroke: '#10b981', strokeWidth: 2, fill: '#10b981' }}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          )}
+        </div>
       </div>
 
       {/* Trips Section */}
@@ -210,7 +346,10 @@ export const GuideDashboard = () => {
                     >
                       Open Chat <MessageSquare size={14} />
                     </button>
-                    <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors py-2">
+                    <button
+                      onClick={() => navigate(`/guide/trip-request/${trip._id}/view`)}
+                      className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors py-2"
+                    >
                       View Details <ChevronRight size={14} />
                     </button>
                   </div>

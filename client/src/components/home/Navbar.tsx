@@ -19,8 +19,20 @@ import { useKycStatus } from '../../hooks/useKycStatus';
 
 export const Navbar = ({ variant = 'floating', showBack = false, backPath = '/' }: NavbarProps) => {
   const navigate = useNavigate();
-  const user = authService.getCurrentUser();
+  const [user, setUser] = useState(authService.getCurrentUser());
   const { totalUnread, unreadCounts } = useSocketContext();
+
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      setUser(authService.getCurrentUser());
+    };
+    window.addEventListener('user-profile-updated', handleProfileUpdate);
+    window.addEventListener('storage', handleProfileUpdate);
+    return () => {
+      window.removeEventListener('user-profile-updated', handleProfileUpdate);
+      window.removeEventListener('storage', handleProfileUpdate);
+    };
+  }, []);
   const { kycStatus, isLoading } = useKycStatus();
   const [showChatDropdown, setShowChatDropdown] = useState(false);
   const [chatTrips, setChatTrips] = useState<ITrip[]>([]);

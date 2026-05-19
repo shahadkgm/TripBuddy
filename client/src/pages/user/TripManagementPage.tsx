@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Calendar,
   MapPin,
@@ -29,8 +30,7 @@ import { guideService } from '../../services/guide.service';
 import { paymentService } from '../../services/payment.service';
 import { authService } from '../../services/auth.service';
 import { TripStatus } from '../../constants/TripStatus';
-import type { ITrip, IItineraryItem, IGuide, IGuideInvitation } from '../../interface/ITripdetails';
-import type { IPayment } from '../../interface/IPayment';
+import type { IItineraryItem, IGuide, IGuideInvitation } from '../../interface/ITripdetails';
 import toast from 'react-hot-toast';
 import api from '../../utils/api';
 import { API_ENDPOINTS } from '../../constants/api.constants';
@@ -40,8 +40,8 @@ import { ReportModal, ReviewModal } from '../../components/guide';
 const TripManagementPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [trip, setTrip] = useState<ITrip | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
@@ -59,12 +59,42 @@ const TripManagementPage = () => {
   const [guideDestination, setGuideDestination] = useState('');
   const [guideMaxPrice, setGuideMaxPrice] = useState(5000);
   const [assigningGuideId, setAssigningGuideId] = useState<string | null>(null);
-  const [invitations, setInvitations] = useState<IGuideInvitation[]>([]);
-  const [payments, setPayments] = useState<IPayment[]>([]);
 
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
+
+  // React Query Fetch trip details
+  const { data: trip, isLoading: loading } = useQuery({
+    queryKey: ['trip', id],
+    queryFn: async () => {
+      if (!id) throw new Error('Missing trip ID');
+      return tripService.getTripById(id);
+    },
+    enabled: !!id,
+  });
+
+  // React Query Fetch invitations for this trip
+  const { data: invitations = [] } = useQuery({
+    queryKey: ['trip-invitations', id],
+    queryFn: async () => {
+      const invRes = await api.get<{ data: { invitations: IGuideInvitation[] } }>(
+        API_ENDPOINTS.MISC.OUTBOUND_INVITATIONS
+      );
+      return invRes.data.data.invitations.filter((inv: IGuideInvitation) => {
+        const tId = typeof inv.tripId === 'string' ? inv.tripId : inv.tripId?._id;
+        return tId === id;
+      });
+    },
+    enabled: !!id,
+  });
+
+  // React Query Fetch payments for this trip
+  const { data: payments = [] } = useQuery({
+    queryKey: ['trip-payments', id],
+    queryFn: () => paymentService.getTripPayments(id!),
+    enabled: !!id,
+  });
 
   const getGuideInvitationStatus = (guideId: string) => {
     return invitations.find(inv => {
@@ -74,63 +104,31 @@ const TripManagementPage = () => {
   };
 
   useEffect(() => {
-    const loadTrip = async () => {
-      if (!id) return;
-      try {
-        const data = await tripService.getTripById(id);
-        console.log(
-          `Fetched trip data from tr management: ${JSON.stringify(data.guideId?.averageRating)}`
-        );
-        setTrip(data);
+    if (trip) {
+      // ── AUTHORIZATION CHECK ──────────────────────────────────────────
+      const currentUser = authService.getCurrentUser();
+      const currentUserId = currentUser?.id;
+      const tripOwnerId =
+        trip.userId && typeof trip.userId === 'object' && '_id' in (trip.userId as object)
+          ? (trip.userId as { _id: string })._id
+          : (trip.userId as string);
 
-        // ── AUTHORIZATION CHECK ──────────────────────────────────────────
-        // Only the trip owner is allowed on this management page.
-        // Compare the trip's owner ID against the current logged-in user.
-        const currentUser = authService.getCurrentUser();
-        const currentUserId = currentUser?.id;
-        const tripOwnerId =
-          data.userId && typeof data.userId === 'object' && '_id' in (data.userId as object)
-            ? (data.userId as { _id: string })._id
-            : (data.userId as string);
-
-        if (!currentUserId || currentUserId !== tripOwnerId) {
-          toast.error('Access denied. You are not the owner of this trip.');
-          navigate('/profile');
-          return;
-        }
-        // ────────────────────────────────────────────────────────────────
-
-        // Initialize itinerary if it exists, or create default days based on trip duration
-        if (data.itinerary && data.itinerary.length > 0) {
-          setItinerary(data.itinerary);
-        } else {
-          const days = generateDefaultItinerary(data.startDate, data.endDate);
-          setItinerary(days);
-        }
-
-        // Fetch invitations for this trip
-        const invRes = await api.get<{ data: { invitations: IGuideInvitation[] } }>(
-          API_ENDPOINTS.MISC.OUTBOUND_INVITATIONS
-        );
-        setInvitations(
-          invRes.data.data.invitations.filter((inv: IGuideInvitation) => {
-            const tId = typeof inv.tripId === 'string' ? inv.tripId : inv.tripId?._id;
-            return tId === id;
-          })
-        );
-
-        // Fetch payments for this trip
-        const paymentsData = await paymentService.getTripPayments(id);
-        setPayments(paymentsData);
-      } catch (_error) {
-        toast.error('Failed to load trip data');
+      if (!currentUserId || currentUserId !== tripOwnerId) {
+        toast.error('Access denied. You are not the owner of this trip.');
         navigate('/profile');
-      } finally {
-        setLoading(false);
+        return;
       }
-    };
-    loadTrip();
-  }, [id, navigate]);
+      // ────────────────────────────────────────────────────────────────
+
+      // Initialize itinerary if it exists, or create default days based on trip duration
+      if (trip.itinerary && trip.itinerary.length > 0) {
+        setItinerary(trip.itinerary);
+      } else {
+        const days = generateDefaultItinerary(trip.startDate, trip.endDate);
+        setItinerary(days);
+      }
+    }
+  }, [trip, navigate]);
 
   const generateDefaultItinerary = (start: string | Date, end: string | Date): IItineraryItem[] => {
     const startDate = new Date(start);
@@ -184,7 +182,8 @@ const TripManagementPage = () => {
     if (!id) return;
     try {
       setIsSaving(true);
-      await tripService.updateTrip(id, { itinerary });
+      const updatedTrip = await tripService.updateTrip(id, { itinerary });
+      queryClient.setQueryData(['trip', id], updatedTrip);
       toast.success('Itinerary saved successfully!');
       setIsSaved(true);
     } catch (_error) {
@@ -214,7 +213,7 @@ const TripManagementPage = () => {
     setAssigningGuideId(guideId);
     try {
       const updatedTrip = await tripService.assignGuide(id, guideId);
-      setTrip(updatedTrip);
+      queryClient.setQueryData(['trip', id], updatedTrip);
       toast.success(guideId ? 'Guide assigned to trip!' : 'Guide removed from trip.');
     } catch (_err: unknown) {
       const errorObj = _err as { response?: { data?: { message?: string } } };
@@ -230,17 +229,7 @@ const TripManagementPage = () => {
     try {
       await guideService.sendInvitation(id, guideId);
       toast.success('Trip request sent to guide!');
-
-      // Refresh invitations
-      const invRes = await api.get<{ data: { invitations: IGuideInvitation[] } }>(
-        API_ENDPOINTS.MISC.OUTBOUND_INVITATIONS
-      );
-      setInvitations(
-        invRes.data.data.invitations.filter((inv: IGuideInvitation) => {
-          const tId = typeof inv.tripId === 'string' ? inv.tripId : inv.tripId?._id;
-          return tId === id;
-        })
-      );
+      queryClient.invalidateQueries({ queryKey: ['trip-invitations', id] });
     } catch (_err: unknown) {
       const errorObj = _err as { response?: { data?: { message?: string } } };
       toast.error(errorObj?.response?.data?.message || 'Failed to send invitation');
@@ -831,12 +820,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                           onClose={() => setShowReviewModal(false)}
                           onSuccess={() => {
                             toast.success('Review submitted!');
-                            const loadTrip = async () => {
-                              if (!id) return;
-                              const data = await tripService.getTripById(id);
-                              setTrip(data);
-                            };
-                            loadTrip();
+                            queryClient.invalidateQueries({ queryKey: ['trip', id] });
                           }}
                         />
                       )}

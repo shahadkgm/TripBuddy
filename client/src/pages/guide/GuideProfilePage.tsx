@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, MapPin, Briefcase, ArrowLeft, Loader2, Save, Instagram, Linkedin, Globe } from 'lucide-react';
+import { Camera, MapPin, Briefcase, ArrowLeft, Loader2, Save, Instagram, Linkedin, Globe, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
 import { guideService } from '../../services/guide.service';
@@ -14,6 +14,7 @@ export const GuideProfilePage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
+    name: user?.name || '',
     bio: user?.guideProfile?.bio || '',
     serviceArea: user?.guideProfile?.serviceArea || '',
     dailyRate: user?.guideProfile?.dailyRate || 0,
@@ -49,7 +50,7 @@ export const GuideProfilePage = () => {
       }
 
       toast.success('Profile photo updated!');
-      window.location.reload(); // Refresh to sync photo everywhere
+      window.dispatchEvent(new Event('user-profile-updated'));
     } catch (_error) {
       toast.error('Failed to upload photo');
     } finally {
@@ -61,10 +62,10 @@ export const GuideProfilePage = () => {
     e.preventDefault();
     try {
       setIsSaving(true);
-      
+
       // Capture any un-entered text in the tag inputs
       const payload = { ...formData };
-      
+
       const specInput = document.getElementById('specialties-input') as HTMLInputElement;
       if (specInput && specInput.value.trim() && !payload.specialties.includes(specInput.value.trim())) {
         payload.specialties = [...payload.specialties, specInput.value.trim()];
@@ -82,13 +83,15 @@ export const GuideProfilePage = () => {
       if (user) {
         const updatedUser = {
           ...user,
+          name: payload.name || user.name,
           guideProfile: { ...user.guideProfile, ...updatedProfile },
         };
         localStorage.setItem('user', JSON.stringify(updatedUser));
       }
 
       toast.success('Profile updated successfully!');
-      
+      window.dispatchEvent(new Event('user-profile-updated'));
+
       // Update local state to reflect the new payload arrays so UI syncs
       setFormData(payload);
     } catch (_error) {
@@ -163,6 +166,26 @@ export const GuideProfilePage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Left Column: Basic Info */}
                 <div className="space-y-6">
+                  {/* Display Name */}
+                  <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">
+                      Display Name
+                    </label>
+                    <div className="relative">
+                      <User
+                        className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"
+                        size={18}
+                      />
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={e => setFormData({ ...formData, name: e.target.value })}
+                        className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                        placeholder="Your full name"
+                      />
+                    </div>
+                  </div>
+
                   <div>
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">
                       Biography
@@ -363,7 +386,7 @@ export const GuideProfilePage = () => {
                         <input
                           type="text"
                           value={formData.socialLinks.instagram}
-                          onChange={e => setFormData({...formData, socialLinks: {...formData.socialLinks, instagram: e.target.value}})}
+                          onChange={e => setFormData({ ...formData, socialLinks: { ...formData.socialLinks, instagram: e.target.value } })}
                           className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                           placeholder="Instagram Profile URL"
                         />
@@ -373,7 +396,7 @@ export const GuideProfilePage = () => {
                         <input
                           type="text"
                           value={formData.socialLinks.linkedin}
-                          onChange={e => setFormData({...formData, socialLinks: {...formData.socialLinks, linkedin: e.target.value}})}
+                          onChange={e => setFormData({ ...formData, socialLinks: { ...formData.socialLinks, linkedin: e.target.value } })}
                           className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                           placeholder="LinkedIn Profile URL"
                         />
@@ -383,7 +406,7 @@ export const GuideProfilePage = () => {
                         <input
                           type="text"
                           value={formData.socialLinks.website}
-                          onChange={e => setFormData({...formData, socialLinks: {...formData.socialLinks, website: e.target.value}})}
+                          onChange={e => setFormData({ ...formData, socialLinks: { ...formData.socialLinks, website: e.target.value } })}
                           className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                           placeholder="Portfolio / Personal Website"
                         />

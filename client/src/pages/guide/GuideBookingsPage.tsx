@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import {
   Loader2,
   CalendarCheck,
@@ -12,70 +13,48 @@ import {
 import { authService } from '../../services/auth.service';
 import { tripService } from '../../services/trip.service';
 import { GuideLayout } from './GuideLayout';
-import type { ITrip } from '../../interface/ITripdetails';
 import { TripStatus } from '../../constants/TripStatus';
-import toast from 'react-hot-toast';
 import { Pagination } from '../../components/Pagination';
-
 export const GuideBookingsPage = () => {
   const user = authService.getCurrentUser();
   const navigate = useNavigate();
-  const [trips, setTrips] = useState<ITrip[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | TripStatus>('all' as const);
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const LIMIT = 5;
-  const [paginationLoading, setPaginationLoading] = useState(false);
 
-  const fetchBookings = async (pageNum: number = 1) => {
-    let currentUser = user;
-
-    // Self-healing: Re-fetch profile if guideProfile is missing
-    if (currentUser?.role === 'guide' && !currentUser?.guideProfile?._id) {
-      console.log('DEBUG: Bookings: Guide profile missing. Re-syncing...');
-      try {
-        currentUser = await authService.getProfile(currentUser.id);
-      } catch (_error) {
-        console.error(_error);
+  // React Query self-healing profile query
+  const { data: currentUserProfile } = useQuery({
+    queryKey: ['user-profile', user?.id],
+    queryFn: async () => {
+      if (user?.role === 'guide' && !user?.guideProfile?._id) {
+        console.log('DEBUG: Bookings: Guide profile missing. Re-syncing...');
+        try {
+          const profile = await authService.getProfile(user.id);
+          return profile;
+        } catch (_error) {
+          console.error(_error);
+        }
       }
-    }
+      return user;
+    },
+    initialData: user,
+  });
 
-    if (!currentUser?.guideProfile?._id) {
-      setLoading(false);
-      return;
-    }
+  const guideId = currentUserProfile?.guideProfile?._id;
 
-    try {
-      if (pageNum === 1 && !paginationLoading) setLoading(true);
-      else setPaginationLoading(true);
+  // React Query fetch bookings
+  const { data: bookingsData, isLoading: loading, isFetching: paginationLoading } = useQuery({
+    queryKey: ['guide-bookings', guideId, page],
+    queryFn: () => tripService.getGuideTrips(guideId!, page, LIMIT),
+    enabled: !!guideId,
+  });
 
-      console.log(
-        'DEBUG: Fetching bookings for guide ID:',
-        currentUser.guideProfile._id,
-        'page:',
-        pageNum
-      );
-      const data = await tripService.getGuideTrips(currentUser.guideProfile._id, pageNum, LIMIT);
-      console.log('DEBUG: Bookings data received:', data);
+  const trips = useMemo(() => bookingsData?.trips || [], [bookingsData?.trips]);
+  const total = bookingsData?.total || 0;
 
-      setTrips(data.trips);
-      setTotal(data.total);
-    } catch (_err) {
-      console.error('DEBUG: Error in fetchBookings:', _err);
-      toast.error('Failed to load bookings');
-    } finally {
-      setLoading(false);
-      setPaginationLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchBookings(page);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, page]);
-
-  const filteredTrips = filter === 'all' ? trips : trips.filter(t => t.status === filter);
+  const filteredTrips = useMemo(() => {
+    return filter === 'all' ? trips : trips.filter(t => t.status === filter);
+  }, [trips, filter]);
 
   return (
     <GuideLayout currentPage="Bookings">
@@ -199,7 +178,10 @@ export const GuideBookingsPage = () => {
                       >
                         Open Chat <MessageSquare size={14} />
                       </button>
-                      <button className="flex items-center gap-2 px-6 py-2 bg-slate-100 text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">
+                      <button
+                        onClick={() => navigate(`/guide/trip-request/${trip._id}/view`)}
+                        className="flex items-center gap-2 px-6 py-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-50 hover:text-indigo-600 transition-all"
+                      >
                         View Details <ChevronRight size={14} />
                       </button>
                     </div>

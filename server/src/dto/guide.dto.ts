@@ -81,6 +81,10 @@ export class GuideRegisterDTO {
 export class GuideUpdateDTO {
   @IsOptional()
   @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
   bio?: string;
 
   @IsOptional()
