@@ -228,6 +228,30 @@ export class TripService implements ITripService {
       // Log refund (could also create a new payment record if needed, but status update is cleaner)
     }
 
+    try {
+      // Notify all members and guide
+      const notifyUsers = [ ...trip.members.map(m => m._id.toString()) ];
+      let guideUserId = null;
+      if (trip.guideId) {
+        guideUserId = (trip.guideId.userId as { _id?: mongoose.Types.ObjectId })._id?.toString() || 
+                      (trip.guideId.userId as unknown as string);
+        if (guideUserId && !notifyUsers.includes(guideUserId)) notifyUsers.push(guideUserId);
+      }
+      
+      notifyUsers.forEach(uid => {
+        getIO().to(`user_${uid}`).emit('trip_updated', { tripId, status: TripStatus.CANCELLED });
+        getIO().to(`user_${uid}`).emit('global_notification', {
+          title: 'Trip Cancelled',
+          message: `The trip ${trip.title} has been cancelled. Refunds have been processed to your wallet.`,
+          link: '/profile'
+        });
+      });
+      // Fallback for active group chat viewers
+      getIO().to(tripId).emit('trip_updated', { tripId, status: TripStatus.CANCELLED });
+    } catch (e) {
+      logger.error('Failed to emit trip_updated on cancel', { error: e });
+    }
+
     return cancelledTrip;
   }
 
@@ -324,7 +348,22 @@ export class TripService implements ITripService {
     }
 
     try {
-      getIO().to(`trip_${tripId}`).emit('trip_updated', { tripId, status: TripStatus.COMPLETED });
+      // Notify all members and guide
+      const notifyUsers = [ ...trip.members.map(m => m._id.toString()) ];
+      if (guideUserId && !notifyUsers.includes(guideUserId)) {
+        notifyUsers.push(guideUserId);
+      }
+      
+      notifyUsers.forEach(uid => {
+        getIO().to(`user_${uid}`).emit('trip_updated', { tripId, status: TripStatus.COMPLETED });
+        getIO().to(`user_${uid}`).emit('global_notification', {
+          title: 'Trip Completed',
+          message: `The trip ${trip.title} is now complete! Escrow has been processed.`,
+          link: '/profile'
+        });
+      });
+      // Fallback for active group chat viewers
+      getIO().to(tripId).emit('trip_updated', { tripId, status: TripStatus.COMPLETED });
     } catch (e) {
       logger.error('Failed to emit trip_updated on complete', { error: e });
     }

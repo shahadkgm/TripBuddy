@@ -103,13 +103,14 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     window.addEventListener('storage', handleTokenRefresh);
 
     newSocket.on('global_notification', (notification: { title: string; message: string; link?: string; }) => {
+      console.log('Received global_notification event:', notification);
       if (notification.link === '/admin/guides') {
         queryClient.invalidateQueries({ queryKey: ['admin-guides'] });
       }
       if (notification.link === '/admin/reports') {
         queryClient.invalidateQueries({ queryKey: ['admin-reports'] });
       }
-      if (notification.link === '/guide/dashboard') {
+      if (notification.link === '/guide/dashboard' || notification.link === '/guide/invitations') {
         queryClient.invalidateQueries({ queryKey: ['guide-invitations'] });
       }
 
@@ -229,6 +230,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
 
     newSocket.on('invitation_responded', (data: { tripId: string; status: string }) => {
+      console.log('Received invitation_responded event:', data);
       // Automatically refresh trip & invitation data so UI updates without page reload
       queryClient.invalidateQueries({ queryKey: ['trip', data.tripId] });
       queryClient.invalidateQueries({ queryKey: ['trips'] });
