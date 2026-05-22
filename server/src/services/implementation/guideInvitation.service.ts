@@ -45,7 +45,7 @@ export class GuideInvitationService implements IGuideInvitationService {
       getIO().to(`user_${guideIdStr}`).emit('global_notification', {
         title: 'New Trip Invitation',
         message: 'You have received a new invitation to lead a trip.',
-        link: '/guide/dashboard'
+        link: '/guide/invitations'
       });
     } catch (e) {
       logger.error('Failed to emit socket event', { error: e });

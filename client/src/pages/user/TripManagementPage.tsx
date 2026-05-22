@@ -927,6 +927,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                           const guideId = (guide._id || guide.id) as string;
                           const isAssigned = Boolean(trip.guideId && trip.guideId._id === guideId);
                           const latestInv = getGuideInvitationStatus(guideId);
+                          const isLoading = assigningGuideId === guideId;
                           return (
                             <div
                               key={guideId}
@@ -964,14 +965,21 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                               </div>
 
                               <button
-                                onClick={() => handleAssignGuide(isAssigned ? null : guideId)}
+                                onClick={() => {
+                                  if (!isAssigned) {
+                                    handleInviteGuide(guideId);
+                                  }
+                                }}
+                                disabled={isLoading || latestInv?.status === 'pending' || isAssigned}
                                 className={`w-full py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
                                   isAssigned
                                     ? 'bg-indigo-600 text-white'
-                                    : 'bg-white border border-slate-200 text-slate-600 hover:border-indigo-600 hover:text-indigo-600'
+                                    : latestInv?.status === 'pending'
+                                      ? 'bg-amber-50 text-amber-600 border border-amber-100 cursor-default'
+                                      : 'bg-white border border-slate-200 text-slate-600 hover:border-indigo-600 hover:text-indigo-600'
                                 }`}
                               >
-                                {isAssigned ? 'Assigned' : 'Select Guide'}
+                                {isLoading ? 'Processing...' : isAssigned ? 'Assigned' : latestInv?.status === 'pending' ? 'Requested' : latestInv?.status === 'rejected' ? 'Try Again' : 'Invite Guide'}
                               </button>
 
                               {latestInv?.status === 'rejected' && (
@@ -1196,13 +1204,11 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                             </div>
                             <button
                               onClick={() => {
-                                if (isAssigned) {
-                                  handleAssignGuide(null);
-                                } else if (!latestInv || latestInv.status === 'rejected') {
+                                if (!isAssigned) {
                                   handleInviteGuide(guideId);
                                 }
                               }}
-                              disabled={isLoading || latestInv?.status === 'pending'}
+                              disabled={isLoading || latestInv?.status === 'pending' || isAssigned}
                               className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all ${
                                 isAssigned
                                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
