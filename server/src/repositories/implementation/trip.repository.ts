@@ -156,6 +156,8 @@ export class TripRepository
       );
   }
 
+ 
+
   async findByGuideId(
     guideId: string,
     page: number,

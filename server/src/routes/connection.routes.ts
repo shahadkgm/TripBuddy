@@ -4,6 +4,7 @@ import { TripRepository } from '../repositories/implementation/trip.repository';
 import { ConnectionService } from '../services/implementation/connection.service';
 import { ConnectionController } from '../controllers/implementation/connection.controller';
 import { protect } from '../middleware/authMiddleware';
+import { requireKyc } from '../middleware/kycMiddleware';
 import { dtoValidationMiddleware } from '../middleware/dtoValidation';
 import { CreateConnectionDTO } from '../dto/connection.dto';
 import { API_ROUTES } from '../constants/routes.constants';
@@ -20,11 +21,12 @@ router.use(protect);
 
 router.post(
   API_ROUTES.CONNECTION.SEND,
+  requireKyc,
   dtoValidationMiddleware(CreateConnectionDTO),
   connectionController.sendRequest
 );
-router.patch(API_ROUTES.CONNECTION.ACCEPT, connectionController.acceptRequest);
-router.patch(API_ROUTES.CONNECTION.REJECT, connectionController.rejectRequest);
+router.patch(API_ROUTES.CONNECTION.ACCEPT, requireKyc, connectionController.acceptRequest);
+router.patch(API_ROUTES.CONNECTION.REJECT, requireKyc, connectionController.rejectRequest);
 router.get(API_ROUTES.CONNECTION.PENDING, connectionController.getPendingRequests);
 router.get(API_ROUTES.CONNECTION.MY_REQUESTS, connectionController.getSentRequests);
 router.get(API_ROUTES.CONNECTION.STATUS, connectionController.getConnectionStatus);

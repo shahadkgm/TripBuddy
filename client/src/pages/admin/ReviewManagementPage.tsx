@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Star, Trash2, MapPin, User, Calendar, MessageSquare } from 'lucide-react';
 import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { ConfirmModal } from '../../components/ConfirmModal';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface Review {
   _id: string;
@@ -25,25 +26,20 @@ interface Review {
 }
 
 export const ReviewManagementPage: React.FC = () => {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [reviewToDeleteId, setReviewToDeleteId] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadReviews();
-  }, []);
+  const queryClient = useQueryClient();
 
-  const loadReviews = async () => {
-    try {
+  const { data: reviewsData, isLoading } = useQuery({
+    queryKey: ['admin-reviews'],
+    queryFn: async () => {
       const res = await api.get('/api/reviews/admin/all');
-      setReviews(res.data.data);
-    } catch (_err) {
-      toast.error('Failed to load reviews');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      return res.data.data as Review[];
+    },
+  });
+
+  const reviews = reviewsData || [];
 
   const handleDelete = async () => {
     if (!reviewToDeleteId) return;
@@ -51,7 +47,7 @@ export const ReviewManagementPage: React.FC = () => {
     try {
       await api.delete(`/api/reviews/${reviewToDeleteId}`);
       toast.success('Review deleted');
-      setReviews(prev => prev.filter(r => r._id !== reviewToDeleteId));
+      queryClient.invalidateQueries({ queryKey: ['admin-reviews'] });
     } catch (_err) {
       toast.error('Failed to delete review');
     } finally {

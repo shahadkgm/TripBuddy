@@ -87,6 +87,7 @@ export const authService = {
       const newUser = { ...currentUser, ...updatedUser };
       localStorage.setItem('user', JSON.stringify(newUser));
       window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new Event('user-profile-updated'));
     }
     return updatedUser;
   },
@@ -102,6 +103,7 @@ export const authService = {
     if (updatedUser) {
       localStorage.setItem('user', JSON.stringify(updatedUser));
       window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new Event('user-profile-updated'));
     }
     return updatedUser;
   },

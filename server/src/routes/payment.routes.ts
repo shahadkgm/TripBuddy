@@ -10,6 +10,7 @@ import {
 } from '../dto/payment.dto';
 import { API_ROUTES } from '../constants/routes.constants';
 import { protect } from '../middleware/authMiddleware';
+import { requireKyc } from '../middleware/kycMiddleware';
 
 import { UserRepository } from '../repositories/implementation/user.repository';
 import { TripRepository } from '../repositories/implementation/trip.repository';
@@ -29,24 +30,28 @@ router.use(protect);
 
 router.post(
   API_ROUTES.PAYMENT.PAY_DEPOSIT,
+  requireKyc,
   dtoValidationMiddleware(CreatePaymentDTO),
   paymentController.payDeposit
 );
 
 router.post(
   API_ROUTES.PAYMENT.PAY_WITH_WALLET,
+  requireKyc,
   dtoValidationMiddleware(CreatePaymentDTO),
   paymentController.payWithWallet
 );
 
 router.post(
   API_ROUTES.PAYMENT.CREATE_STRIPE_SESSION,
+  requireKyc,
   dtoValidationMiddleware(CreateStripeSessionDTO),
   paymentController.createStripeSession
 );
 
 router.post(
   API_ROUTES.PAYMENT.VERIFY_STRIPE_PAYMENT,
+  requireKyc,
   dtoValidationMiddleware(VerifyStripePaymentDTO),
   paymentController.verifyStripePayment
 );

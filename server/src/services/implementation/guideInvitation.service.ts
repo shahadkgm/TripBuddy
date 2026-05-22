@@ -7,12 +7,12 @@ import { ITripService } from '../interface/ITripService';
 import guideModel from '../../models/guide.model';
 import { logger } from '@/utils/logger';
 
+
 export class GuideInvitationService implements IGuideInvitationService {
   constructor(
     private _invitationRepository: IGuideInvitationRepository,
     private _tripService: ITripService
   ) {}
-
   async sendInvitation(
     tripId: string,
     guideId: string,
@@ -28,6 +28,7 @@ export class GuideInvitationService implements IGuideInvitationService {
     // Check for existing pending invitation
     const existing = await this._invitationRepository.findByTripAndGuide(tripId, guideId);
     if (existing) throw new Error('An invitation is already pending for this guide and trip');
+    
 
     const invitationData: Partial<IGuideInvitationDocument> = {
       tripId: new Types.ObjectId(tripId),
@@ -40,7 +41,7 @@ export class GuideInvitationService implements IGuideInvitationService {
     const result = await this._invitationRepository.create(invitationData);
     
     try {
-      getIO().to(`user_${guide.userId}`).emit('global_notification', {
+      getIO().to(`user_${guide.userId.toString()}`).emit('global_notification', {
         title: 'New Trip Invitation',
         message: 'You have received a new invitation to lead a trip.',
         link: '/guide/dashboard'
@@ -74,6 +75,7 @@ export class GuideInvitationService implements IGuideInvitationService {
       logger.error('Invitation not found', { invitationId });
       throw new Error('Invitation not found');
     }
+    
 
     const receiverId = this.extractId(invitation.receiverId);
     logger.info('Comparing receiver and guide IDs', { receiverId, guideUserId });
@@ -107,6 +109,12 @@ export class GuideInvitationService implements IGuideInvitationService {
           message: 'A guide has accepted your invitation for the trip.',
           link: `/group-chat/${tripIdStr}`
         });
+
+        // Targeted event so the sender's React Query cache auto-invalidates
+        getIO().to(`user_${senderIdStr}`).emit('invitation_responded', {
+          tripId: tripIdStr,
+          status: 'accepted',
+        });
       } catch (assignError: unknown) {
         const message = assignError instanceof Error ? assignError.message : 'Unknown error';
         logger.error('Error during trip service assignment', { error: message });
@@ -127,6 +135,12 @@ export class GuideInvitationService implements IGuideInvitationService {
           title: 'Guide Declined',
           message: `A guide declined your trip invitation. ${reason ? `Reason: ${reason}` : ''}`,
           link: `/group-chat/${tripIdStr}`
+        });
+
+        // Targeted event so the sender's React Query cache auto-invalidates
+        getIO().to(`user_${senderIdStr}`).emit('invitation_responded', {
+          tripId: tripIdStr,
+          status: 'rejected',
         });
       } catch (e) {
         logger.error('Failed to emit rejection notification', { error: e });
@@ -156,4 +170,6 @@ export class GuideInvitationService implements IGuideInvitationService {
     }
     return String(field);
   }
+
+  
 }

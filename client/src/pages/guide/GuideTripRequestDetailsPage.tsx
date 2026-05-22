@@ -19,6 +19,7 @@ import { authService } from '../../services/auth.service';
 import type { ITrip } from '../../interface/ITripdetails';
 import toast from 'react-hot-toast';
 import { GuideLayout } from './GuideLayout';
+import { TripStatus } from '../../constants/TripStatus';
 
 export const GuideTripRequestDetailsPage = () => {
   const { id, invitationId } = useParams<{ id: string; invitationId: string }>();
@@ -29,13 +30,33 @@ export const GuideTripRequestDetailsPage = () => {
   const [responding, setResponding] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [invitationStatus, setInvitationStatus] = useState<'pending' | 'accepted' | 'rejected' | null>(null);
+
+  const user = authService.getCurrentUser();
+  const guideId = user?.guideProfile?._id;
+  const assignedGuideId =
+    trip?.guideId && typeof trip.guideId === 'object'
+      ? trip.guideId._id || trip.guideId.id
+      : trip?.guideId;
+  const isAlreadyAssigned = !!guideId && assignedGuideId === guideId;
 
   useEffect(() => {
     const loadTripData = async () => {
       if (!id) return;
       try {
-        const data = await tripService.getTripById(id);
-        setTrip(data);
+        const [tripData, invData] = await Promise.all([
+          tripService.getTripById(id),
+          invitationId && invitationId !== 'view'
+            ? guideService.getInboundInvitations(1, 100)
+            : Promise.resolve(null),
+        ]);
+        setTrip(tripData);
+        if (invData) {
+          const currentInv = invData.invitations.find(inv => inv._id === invitationId);
+          if (currentInv) {
+            setInvitationStatus(currentInv.status);
+          }
+        }
       } catch (_error) {
         console.error(_error);
         toast.error('Failed to load trip details');
@@ -44,7 +65,7 @@ export const GuideTripRequestDetailsPage = () => {
       }
     };
     loadTripData();
-  }, [id]);
+  }, [id, invitationId]);
 
   const handleAccept = async () => {
     if (!invitationId) {
@@ -88,6 +109,7 @@ export const GuideTripRequestDetailsPage = () => {
       setShowRejectModal(false);
     }
   };
+
 
   if (loading) {
     return (
@@ -274,25 +296,72 @@ export const GuideTripRequestDetailsPage = () => {
                       </div>
                     </div>
                     <div className="pt-6 border-t border-white/10 space-y-4">
-                      <button
-                        onClick={handleAccept}
-                        disabled={responding}
-                        className="w-full py-4 bg-indigo-500 hover:bg-indigo-400 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-2 disabled:opacity-50 active:scale-95"
-                      >
-                        {responding ? (
-                          <Loader2 className="animate-spin" size={16} />
-                        ) : (
-                          <>
-                            <CheckCircle2 size={16} /> Accept Assignment
-                          </>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => setShowRejectModal(true)}
-                        className="w-full py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10 flex items-center justify-center gap-2 active:scale-95"
-                      >
-                        <XCircle size={16} /> Decline Request
-                      </button>
+                      {invitationId && invitationId !== 'view' && !isAlreadyAssigned && invitationStatus !== 'rejected' && invitationStatus !== 'accepted' ? (
+                        <>
+                          <button
+                            onClick={handleAccept}
+                            disabled={responding}
+                            className="w-full py-4 bg-indigo-500 hover:bg-indigo-400 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-2 disabled:opacity-50 active:scale-95"
+                          >
+                            {responding ? (
+                              <Loader2 className="animate-spin" size={16} />
+                            ) : (
+                              <>
+                                <CheckCircle2 size={16} /> Accept Assignment
+                              </>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => setShowRejectModal(true)}
+                            className="w-full py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10 flex items-center justify-center gap-2 active:scale-95"
+                          >
+                            <XCircle size={16} /> Decline Request
+                          </button>
+                        </>
+                      ) : (
+                        <div className="space-y-4">
+                          {invitationStatus === 'rejected' ? (
+                            <div className="w-full py-4 bg-rose-950 border border-rose-900/50 text-rose-400 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                              <XCircle size={16} /> Invitation Declined
+                            </div>
+                          ) : (
+                            <>
+                              {isAlreadyAssigned || invitationStatus === 'accepted' ? (
+                                <button
+                                  onClick={() => navigate(`/group-chat/${trip._id}`)}
+                                  className="w-full py-4 bg-indigo-500 hover:bg-indigo-400 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-2 active:scale-95"
+                                >
+                                  Open Group Chat
+                                </button>
+                              ) : null}
+                              
+                              {trip.status === TripStatus.COMPLETED && (
+                                <div className="w-full py-4 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                                  <CheckCircle2 size={16} /> Trip Completed
+                                </div>
+                              )}
+                              
+                              {trip.status === TripStatus.CANCELLED && (
+                                <div className="w-full py-4 bg-red-50 border border-red-200 text-red-600 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                                  <XCircle size={16} /> Trip Cancelled
+                                </div>
+                              )}
+                              
+                              {trip.status === TripStatus.CONFIRMED && (
+                                <div className="w-full py-4 bg-indigo-50 border border-indigo-200 text-indigo-600 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                                  <CheckCircle2 size={16} /> Trip Confirmed
+                                </div>
+                              )}
+
+                              {trip.status === TripStatus.ONGOING && (
+                                <div className="w-full py-4 bg-blue-50 border border-blue-200 text-blue-600 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                                  <CheckCircle2 size={16} /> Trip Ongoing
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 

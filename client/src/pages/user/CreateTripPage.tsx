@@ -263,11 +263,28 @@ const CreateTripPage = () => {
     const start = formData.startDate ? new Date(formData.startDate) : null;
     const end = formData.endDate ? new Date(formData.endDate) : null;
 
-    if (!formData.title) newErrors.title = 'Title is required';
-    if (!formData.destination) newErrors.destination = 'Destination is required';
-    if (!start) newErrors.startDate = 'Start date is required';
-    if (!end) newErrors.endDate = 'End date is required';
-    else if (start && end < start) newErrors.endDate = 'End date cannot be before start date';
+    if (!formData.title.trim()) newErrors.title = 'Title is required';
+    if (!formData.destination.trim()) newErrors.destination = 'Destination is required';
+    
+    if (!start) {
+      newErrors.startDate = 'Start date is required';
+    } else if (start < today) {
+      newErrors.startDate = 'Start date cannot be in the past';
+    }
+
+    if (!end) {
+      newErrors.endDate = 'End date is required';
+    } else if (start && end < start) {
+      newErrors.endDate = 'End date cannot be before start date';
+    }
+
+    if (!formData.budget || Number(formData.budget) <= 0) {
+      newErrors.budget = 'Budget amount must be greater than 0';
+    }
+
+    if (!formData.travelers || Number(formData.travelers) < 1) {
+      newErrors.travelers = 'At least 1 traveler is required';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -559,7 +576,7 @@ const CreateTripPage = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-12">
+          <form onSubmit={handleSubmit} className="space-y-12" noValidate>
             {/* Basic Info */}
             <section className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-100/50">
               <div className="flex items-center gap-4 mb-10">
@@ -697,10 +714,13 @@ const CreateTripPage = () => {
                       min="1"
                       value={formData.travelers}
                       onChange={handleInputChange}
-                      className="w-full pl-14 pr-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium text-slate-700"
+                      className={`w-full pl-14 pr-6 py-4 rounded-2xl border ${errors.travelers ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50'} outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium text-slate-700`}
                     />
                     <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                   </div>
+                  {errors.travelers && (
+                    <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.travelers}</p>
+                  )}
                 </div>
                 <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
@@ -732,10 +752,13 @@ const CreateTripPage = () => {
                       placeholder="50000"
                       value={formData.budget}
                       onChange={handleInputChange}
-                      className="w-full pl-14 pr-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-black text-indigo-600"
+                      className={`w-full pl-14 pr-6 py-4 rounded-2xl border ${errors.budget ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50'} outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-black text-indigo-600`}
                     />
                     <IndianRupee className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                   </div>
+                  {errors.budget && (
+                    <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.budget}</p>
+                  )}
                 </div>
               </div>
 
@@ -749,11 +772,10 @@ const CreateTripPage = () => {
                       key={interest}
                       type="button"
                       onClick={() => handleInterestChange(interest)}
-                      className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all border ${
-                        formData.interests.includes(interest)
+                      className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all border ${formData.interests.includes(interest)
                           ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-100'
                           : 'bg-white text-slate-500 border-slate-100 hover:border-slate-300'
-                      }`}
+                        }`}
                     >
                       {interest}
                     </button>

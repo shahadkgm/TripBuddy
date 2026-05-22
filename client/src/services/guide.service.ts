@@ -20,6 +20,7 @@ export const guideService = {
       }
       localStorage.setItem('user', JSON.stringify(user));
       window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new Event('user-profile-updated'));
     }
 
     return updatedGuide;

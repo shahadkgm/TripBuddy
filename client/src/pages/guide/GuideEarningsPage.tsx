@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useMemo, type ReactNode } from 'react';
 import {
   IndianRupee,
   TrendingUp,
@@ -11,76 +11,68 @@ import {
 import { authService } from '../../services/auth.service';
 import { tripService } from '../../services/trip.service';
 import { GuideLayout } from './GuideLayout';
-import type { ITrip } from '../../interface/ITripdetails';
 import { TripStatus } from '../../constants/TripStatus';
 import { Pagination } from '../../components/Pagination';
-import toast from 'react-hot-toast';
+import { useQuery } from '@tanstack/react-query';
 
 export const GuideEarningsPage = () => {
   const [currentUser] = useState(authService.getCurrentUser());
-  const [trips, setTrips] = useState<ITrip[]>([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [paginationLoading, setPaginationLoading] = useState(false);
   const LIMIT = 5;
 
-  const [stats, setStats] = useState({
-    totalEarned: 0,
-    pendingPayouts: 0,
-    completedTrips: 0,
-    averagePerTrip: 0,
+  // React Query self-healing profile query
+  const { data: currentUserProfile } = useQuery({
+    queryKey: ['user-profile', currentUser?.id],
+    queryFn: async () => {
+      if (currentUser?.role === 'guide' && !currentUser?.guideProfile?._id) {
+        try {
+          const profile = await authService.getProfile(currentUser.id);
+          return profile;
+        } catch (_error) {
+          console.error(_error);
+        }
+      }
+      return currentUser;
+    },
+    initialData: currentUser,
   });
 
-  useEffect(() => {
-    const fetchEarnings = async () => {
-      const activeUser = currentUser;
-      const activeGuideId = activeUser?.guideProfile?._id;
+  const guideId = currentUserProfile?.guideProfile?._id;
 
-      if (!activeGuideId) {
-        setLoading(false);
-        return;
-      }
+  // React Query fetch guide trips for earnings
+  const { data: earningsData, isLoading: loading, isFetching: paginationLoading } = useQuery({
+    queryKey: ['guide-earnings', guideId, page],
+    queryFn: () => tripService.getGuideTrips(guideId!, page, LIMIT),
+    enabled: !!guideId,
+  });
 
-      try {
-        if (page === 1) setLoading(true);
-        else setPaginationLoading(true);
+  const trips = useMemo(() => earningsData?.trips || [], [earningsData?.trips]);
+  const total = earningsData?.total || 0;
+  const totalPages = Math.ceil(total / LIMIT);
 
-        const data = await tripService.getGuideTrips(activeGuideId, page, LIMIT);
-        const currentRate = activeUser?.guideProfile?.dailyRate || 0;
+  const stats = useMemo(() => {
+    const currentRate = currentUserProfile?.guideProfile?.dailyRate || 0;
 
-        setTrips(data.trips);
-        setTotalPages(Math.ceil(data.total / LIMIT));
+    const completed = trips.filter(t => t.status === TripStatus.COMPLETED);
+    const earnings = completed.reduce((acc, trip) => {
+      const days = calcDays(trip.startDate, trip.endDate);
+      return acc + days * currentRate;
+    }, 0);
 
-        const completed = data.trips.filter(t => t.status === TripStatus.COMPLETED);
-        const earnings = completed.reduce((acc, trip) => {
-          const days = calcDays(trip.startDate, trip.endDate);
-          return acc + days * currentRate;
-        }, 0);
+    const pending = trips
+      .filter(t => t.status === TripStatus.ONGOING || t.status === TripStatus.CONFIRMED)
+      .reduce((acc, trip) => {
+        const days = calcDays(trip.startDate, trip.endDate);
+        return acc + days * currentRate;
+      }, 0);
 
-        const pending = data.trips
-          .filter(t => t.status === TripStatus.ONGOING || t.status === TripStatus.CONFIRMED)
-          .reduce((acc, trip) => {
-            const days = calcDays(trip.startDate, trip.endDate);
-            return acc + days * currentRate;
-          }, 0);
-
-        setStats({
-          totalEarned: earnings,
-          pendingPayouts: pending,
-          completedTrips: completed.length,
-          averagePerTrip: completed.length > 0 ? earnings / completed.length : 0,
-        });
-      } catch (_err) {
-        toast.error('Failed to load earnings data');
-      } finally {
-        setLoading(false);
-        setPaginationLoading(false);
-      }
+    return {
+      totalEarned: earnings,
+      pendingPayouts: pending,
+      completedTrips: completed.length,
+      averagePerTrip: completed.length > 0 ? earnings / completed.length : 0,
     };
-    fetchEarnings();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.guideProfile?._id, page]);
+  }, [trips, currentUserProfile?.guideProfile?.dailyRate]);
 
   return (
     <GuideLayout currentPage="Earnings">

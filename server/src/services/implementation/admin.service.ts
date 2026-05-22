@@ -174,6 +174,7 @@ export class AdminService implements IAdminService {
         message,
         link: '/kyc-status'
       });
+      getIO().to(`user_${userId}`).emit('kyc_status_updated', { status, reason });
     } catch (e) {
       logger.error('Failed to emit KYC socket event', { error: e });
     }

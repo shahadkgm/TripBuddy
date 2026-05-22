@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Sparkles,
   UserCheck,
@@ -16,7 +17,6 @@ import { tripService } from '../../services/trip.service';
 import { connectionService } from '../../services/connection.service';
 import { authService } from '../../services/auth.service';
 import { paymentService } from '../../services/payment.service';
-import type { ITrip } from '../../interface/ITripdetails';
 import { TripStatus } from '../../constants/TripStatus';
 import toast from 'react-hot-toast';
 
@@ -24,48 +24,46 @@ const TripDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
 
   const from = location.state?.from || '/find-travelers';
 
-  const [trip, setTrip] = useState<ITrip | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState<
-    'none' | 'pending' | 'accepted' | 'rejected' | 'incoming_pending' | 'loading'
-  >('loading');
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
 
   const currentUser = authService.getCurrentUser();
 
-  useEffect(() => {
-    const loadTripData = async () => {
-      if (!id) return;
-      try {
-        const data = await tripService.getTripById(id);
-        setTrip(data);
+  // Fetch Trip Details
+  const { data: trip, isLoading: tripLoading } = useQuery({
+    queryKey: ['trip', id],
+    queryFn: async () => {
+      if (!id) throw new Error('No trip id');
+      return tripService.getTripById(id);
+    },
+    enabled: !!id,
+  });
 
-        const tripOrganizerId = typeof data.userId === 'string' ? data.userId : data.userId._id;
+  const tripOrganizerId = trip ? (typeof trip.userId === 'string' ? trip.userId : trip.userId._id) : null;
+  const isOwnTrip = currentUser?.id === tripOrganizerId;
 
-        if (currentUser?.id && tripOrganizerId !== currentUser.id) {
-          const resStatus = await connectionService.getStatus(tripOrganizerId, data._id);
-          setStatus(resStatus || 'none');
-
-          if (resStatus === 'accepted') {
-            await paymentService.getMyPayments(id);
-          }
-        } else {
-          setStatus('none');
-        }
-      } catch (_error) {
-        console.error(_error);
-        toast.error('Failed to load trip details');
-      } finally {
-        setLoading(false);
+  // Fetch Connection Status
+  const { data: statusData, isLoading: statusLoading } = useQuery({
+    queryKey: ['connection-status', tripOrganizerId, id],
+    queryFn: async () => {
+      if (!tripOrganizerId || !id || !currentUser?.id) return 'none';
+      if (isOwnTrip) return 'none';
+      
+      const resStatus = await connectionService.getStatus(tripOrganizerId, id);
+      if (resStatus === 'accepted') {
+        await paymentService.getMyPayments(id);
       }
-    };
+      return resStatus || 'none';
+    },
+    enabled: !!tripOrganizerId && !!id && !!currentUser?.id,
+  });
 
-    loadTripData();
-  }, [id, currentUser?.id]);
+  const status = statusData || 'none';
+  const loading = tripLoading || (statusLoading && !isOwnTrip);
 
   const handleSendRequest = async () => {
     if (!currentUser?.id) {
@@ -76,13 +74,13 @@ const TripDetails = () => {
     if (!trip) return;
 
     try {
-      const tripOrganizerId = typeof trip.userId === 'string' ? trip.userId : trip.userId._id;
-      await connectionService.sendRequest(tripOrganizerId, trip._id);
-      setStatus('pending');
+      const organizerId = typeof trip.userId === 'string' ? trip.userId : trip.userId._id;
+      await connectionService.sendRequest(organizerId, trip._id);
       toast.success('Connection request sent!');
+      // Invalidate the connection status cache so the UI updates to 'pending'
+      queryClient.invalidateQueries({ queryKey: ['connection-status', tripOrganizerId, id] });
     } catch (_error) {
       toast.error('Failed to send request');
-      setStatus('none');
     }
   };
 
@@ -92,7 +90,7 @@ const TripDetails = () => {
       setIsCancelling(true);
       await tripService.cancelTrip(id);
       toast.success('Trip cancelled and members refunded.');
-      if (trip) setTrip({ ...trip, status: TripStatus.CANCELLED });
+      queryClient.invalidateQueries({ queryKey: ['trip', id] });
       setShowCancelModal(false);
     } catch (_error) {
       toast.error('Failed to cancel trip');
@@ -122,9 +120,6 @@ const TripDetails = () => {
       </div>
     );
   }
-
-  const isOwnTrip =
-    currentUser?.id === (typeof trip.userId === 'string' ? trip.userId : trip.userId._id);
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
@@ -238,7 +233,7 @@ const TripDetails = () => {
                       className="flex items-center gap-2 bg-white p-1.5 rounded-full border border-slate-100 shadow-sm pr-3"
                     >
                       <img
-                        src={member.avatarURL || `https://ui-avatars.com/api/?name=${member.name}`}
+                        src={member.avatarURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'}
                         alt=""
                         className="w-6 h-6 rounded-full object-cover"
                       />

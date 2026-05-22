@@ -4,6 +4,7 @@ import { tripService } from '../../services/trip.service';
 import { TravelerCard } from '../../components/TravelerCard';
 import { Pagination } from '../../components/Pagination';
 import { Navbar } from '../../components/home/Navbar';
+import { LocationInput } from '../../components/LocationInput';
 import type { ITrip } from '../../interface/ITripdetails';
 
 const INTERESTS_LIST = [
@@ -90,16 +91,13 @@ const FindTravelers = () => {
         {/* Horizontal Search Bar */}
         <div className="bg-white p-4 rounded-[28px] shadow-xl border border-slate-100 mb-12 flex flex-col md:flex-row items-center gap-3">
           {/* Destination */}
-          <div className="flex-1 w-full relative group">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-tb-purple transition-colors">
-              <MapPin className="w-5 h-5" />
-            </div>
-            <input
-              type="text"
-              placeholder="Where are you going?"
-              className="w-full pl-12 pr-4 py-4 md:py-5 bg-slate-50 group-hover:bg-slate-100 focus:bg-white border-2 border-transparent focus:border-tb-purple/20 rounded-2xl outline-none transition-all font-semibold text-slate-700"
+          <div className="flex-1 w-full relative group z-50">
+            <LocationInput
               value={filters.destination}
-              onChange={e => setFilters({ ...filters, destination: e.target.value })}
+              onChange={val => setFilters({ ...filters, destination: val })}
+              placeholder="Where are you going?"
+              icon={<MapPin className="w-5 h-5 group-focus-within:text-tb-purple transition-colors" />}
+              className="md:py-5 group-hover:bg-slate-100 focus:bg-white focus:border-tb-purple/20 font-semibold text-slate-700"
             />
           </div>
 

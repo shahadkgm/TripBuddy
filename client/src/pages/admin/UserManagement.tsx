@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Search, Ban, Trash2, UserCheck, Check, X, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import api from '../../utils/api';
 import { DataTable } from '../../components/DataTable';
@@ -21,11 +22,8 @@ interface UserData {
 }
 
 export const UserManagement = () => {
-  const [users, setUsers] = useState<UserData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
@@ -35,26 +33,20 @@ export const UserManagement = () => {
   const [rejectionReason, setRejectionReason] = useState('');
   const limit = 3;
 
-  useEffect(() => {
-    fetchUsers();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, searchTerm]);
+  const queryClient = useQueryClient();
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const { data } = await api.get('/api/admin/users', {
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ['admin-users', currentPage, searchTerm],
+    queryFn: async () => {
+      const res = await api.get('/api/admin/users', {
         params: { page: currentPage, limit, search: searchTerm },
       });
-      console.log('data from usermanagement:', data.data.users);
-      setUsers(data.data.users);
-      setTotalPages(data.data.totalPages);
-    } catch (_error) {
-      toast.error('Failed to load users');
-    } finally {
-      setLoading(false);
-    }
-  };
+      return res.data.data as { users: UserData[]; totalPages: number };
+    },
+  });
+
+  const users = data?.users || [];
+  const totalPages = data?.totalPages || 1;
 
   const handleBlockClick = (user: UserData) => {
     setUserToBlock(user);
@@ -67,7 +59,7 @@ export const UserManagement = () => {
       const { id, isBlocked } = userToBlock;
       await api.patch(`/api/admin/users/${id}/block`, { blocked: !isBlocked });
       toast.success(isBlocked ? 'User unblocked' : 'User blocked');
-      setUsers(users.map(u => (u.id === id ? { ...u, isBlocked: !isBlocked } : u)));
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
     } catch (_error) {
       toast.error('Action failed');
     } finally {
@@ -84,7 +76,7 @@ export const UserManagement = () => {
       }
       await api.patch(`/api/admin/kyc/${userId}/approve`, { status, reason: rejectionReason });
       toast.success(`KYC ${status === 'approved' ? 'Approved' : 'Rejected'}`);
-      setUsers(users.map(u => (u.id === userId ? { ...u, kycStatus: status } : u)));
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       setIsKYCModalOpen(false);
       setRejectionReason('');
     } catch (_error) {
@@ -101,7 +93,7 @@ export const UserManagement = () => {
     try {
       await api.delete(`/api/admin/users/${selectedUserId}`);
       toast.success('User deleted successfully');
-      setUsers(users.filter(u => u.id !== selectedUserId));
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
     } catch (_error) {
       toast.error('Deletion failed');
     } finally {

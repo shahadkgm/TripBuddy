@@ -22,6 +22,7 @@ import { authService } from '../../services/auth.service';
 import { connectionService } from '../../services/connection.service';
 import api from '../../utils/api';
 import { useEffect, useState, useRef } from 'react';
+import { useKycStatus } from '../../hooks/useKycStatus';
 import { Navbar } from '../../components/home/Navbar';
 import { MainFooter } from '../../components/MainFooter';
 import { PlannedTrips } from '../../components/profile/PlannedTrips';
@@ -32,8 +33,8 @@ import toast from 'react-hot-toast';
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
+  const { kycStatus } = useKycStatus();
 
-  const [kycStatus, setKycStatus] = useState<string>('loading');
   const [requests, setRequests] = useState<ConnectionRequest[]>([]);
   const [activeTab, setActiveTab] = useState<'planned' | 'requested' | 'chats'>('planned');
   const [isEditing, setIsEditing] = useState(false);
@@ -74,12 +75,10 @@ const ProfilePage = () => {
     const loadInitialData = async () => {
       try {
         console.log('loading profile data for:', userId);
-        const [kycRes, reqData, profileData] = await Promise.all([
-          api.get(`/api/kyc-status/${userId}`),
+        const [reqData, profileData] = await Promise.all([
           connectionService.getPendingRequests(),
           authService.getProfile(userId),
         ]);
-        setKycStatus(kycRes.data.data?.status || 'none');
         setRequests(reqData);
         setCurrentUser(profileData);
       } catch (_err) {
@@ -114,7 +113,8 @@ const ProfilePage = () => {
 
     try {
       setIsSaving(true);
-      await authService.updateProfile(currentUser.id, editData);
+      const updated = await authService.updateProfile(currentUser.id, editData);
+      setCurrentUser(updated);
       toast.success('Profile updated successfully');
       setIsEditing(false);
       setErrors({});
@@ -138,7 +138,8 @@ const ProfilePage = () => {
       const res = await api.post('/api/profile-photo', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      await authService.updateProfile(currentUser.id, { avatarURL: res.data.data.imageUrl });
+      const updated = await authService.updateProfile(currentUser.id, { avatarURL: res.data.data.imageUrl });
+      setCurrentUser(updated);
       toast.success('Profile photo updated successfully');
     } catch (_error: unknown) {
       const err = _error as { response?: { data?: { message?: string } } };

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
 import api from '../../utils/api';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '../../components/Button';
 import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from '../../constants/api.constants';
@@ -15,6 +16,7 @@ const KYCPage = () => {
   const [checking, setChecking] = useState(true);
   const navigate = useNavigate();
   const user = authService.getCurrentUser();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const checkExistingStatus = async () => {
@@ -81,6 +83,8 @@ const KYCPage = () => {
 
       if (response.status === 201) {
         toast.success('KYC submitted successfully 🎉');
+        queryClient.invalidateQueries({ queryKey: ['kyc-status'] });
+        queryClient.invalidateQueries({ queryKey: ['kyc-status-details'] });
         setTimeout(() => navigate('/kyc-status'), 1500);
       }
     } catch (_error: unknown) {

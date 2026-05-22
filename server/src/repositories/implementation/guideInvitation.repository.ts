@@ -46,6 +46,9 @@ export class GuideInvitationRepository implements IGuideInvitationRepository {
     return await GuideInvitationModel.findOne({ tripId, guideId, status: 'pending' });
   }
 
+
+   
+
   async findBySenderId(
     senderId: string,
     skip = 0,

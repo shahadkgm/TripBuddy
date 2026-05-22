@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { authService } from '../../services/auth.service';
+import { useQuery } from '@tanstack/react-query';
 
 interface IKYCData {
   status: string;
@@ -11,29 +11,17 @@ interface IKYCData {
 }
 
 const KYCStatusPage = () => {
-  const [kycData, setKycData] = useState<IKYCData | null>(null);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const user = authService.getCurrentUser();
 
-  useEffect(() => {
-    const fetchKYCDetails = async () => {
-      const userId = user?.id; // The ID from your log
-      if (userId) {
-        try {
-          console.log('userId', userId);
-          const res = await api.get(`/api/kyc-status/${userId}`);
-          console.log('KYC Data from API:', res.data.data);
-          setKycData(res.data.data);
-        } catch (_err) {
-          console.error('Error fetching KYC details:', _err);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-    fetchKYCDetails();
-  }, [user?.id]);
+  const { data: kycData, isLoading: loading } = useQuery({
+    queryKey: ['kyc-status-details', user?.id],
+    queryFn: async () => {
+      const res = await api.get(`/api/kyc-status/${user?.id}`);
+      return res.data.data as IKYCData;
+    },
+    enabled: !!user?.id,
+  });
 
   if (loading)
     return <div className="flex justify-center items-center min-h-screen">Loading...</div>;

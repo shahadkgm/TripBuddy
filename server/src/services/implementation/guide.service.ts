@@ -134,6 +134,11 @@ export class GuideService implements IGuideService {
       await this._userRepository.updateById(userId, { avatarURL: data.avatarURL });
     }
 
+    if (updated && data.name) {
+      // Name lives on the User document — keep both in sync
+      await this._userRepository.updateById(userId, { name: data.name });
+    }
+
     return updated;
   }
 

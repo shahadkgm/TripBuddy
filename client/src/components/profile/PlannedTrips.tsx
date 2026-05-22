@@ -163,7 +163,7 @@ export const PlannedTrips: React.FC<PlannedTripsProps> = ({ userId }) => {
                                 key={i}
                                 src={
                                   member.avatarURL ||
-                                  `https://ui-avatars.com/api/?name=${member.name}`
+                                  'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
                                 }
                                 className="w-8 h-8 rounded-full border-2 border-white object-cover shadow-sm"
                                 alt=""
@@ -224,7 +224,7 @@ export const PlannedTrips: React.FC<PlannedTripsProps> = ({ userId }) => {
                                     <img
                                       src={
                                         member.avatarURL ||
-                                        `https://ui-avatars.com/api/?name=${member.name}`
+                                        'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
                                       }
                                       alt=""
                                       className="w-6 h-6 rounded-full object-cover"
@@ -279,7 +279,7 @@ export const PlannedTrips: React.FC<PlannedTripsProps> = ({ userId }) => {
                                     <img
                                       src={
                                         req.senderId.avatarURL ||
-                                        `https://ui-avatars.com/api/?name=${req.senderId.name}`
+                                        'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
                                       }
                                       alt=""
                                       className="w-8 h-8 rounded-full object-cover border border-white"

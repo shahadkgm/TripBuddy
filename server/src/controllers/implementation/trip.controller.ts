@@ -7,6 +7,14 @@ import { logger } from '@/utils/logger';
 import { BaseController } from './base.controller';
 import { AuthRequest } from '../../types/authRequest';
 
+/** Safely extracts the string ID from either a populated object or a raw ObjectId */
+const getMemberId = (m: unknown): string => {
+  if (m && typeof m === 'object' && '_id' in m) {
+    return (m as { _id: { toString(): string } })._id.toString();
+  }
+  return String(m);
+};
+
 export class TripController extends BaseController {
   constructor(private readonly _tripService: ITripService) {
     super();
@@ -19,8 +27,19 @@ export class TripController extends BaseController {
     this.sendCreated(res, newTrip, 'Trip created successfully');
   });
 
-  getUserTrips = asyncHandler(async (req: Request, res: Response) => {
-    const { userId } = req.params;
+  getUserTrips = asyncHandler(
+    async (
+      req: AuthRequest<{ userId: string }, unknown, unknown, { page?: string; limit?: string }>,
+      res: Response
+    ) => {
+      const { userId } = req.params;
+    
+    // Authorization Check: Users can only fetch their own trips
+    if (req.user?.id !== userId && req.user?.role !== 'admin') {
+      this.sendError(res, 'Unauthorized to view these trips', 403);
+      return;
+    }
+
     const { page, limit } = req.query;
     const pageNum = parseInt(page as string) || 1;
     const limitNum = parseInt(limit as string) || 10;
@@ -29,13 +48,19 @@ export class TripController extends BaseController {
     this.sendSuccess(res, result, 'User trips fetched successfully');
   });
 
-  getTripById = asyncHandler(async (req: Request, res: Response) => {
+  getTripById = asyncHandler(async (req: AuthRequest<{ tripId: string }>, res: Response) => {
     const { tripId } = req.params;
     const trip = await this._tripService.getTripById(tripId);
+
     if (!trip) {
       this.sendNotFound(res, 'Trip not found');
       return;
     }
+
+    // Any authenticated user can view a trip's public details.
+    // This is required so users can browse trips on "Find Trips" and
+    // see the details before deciding to send a join request.
+    // Write operations (update, finalize, etc.) have their own stricter owner-only checks.
     this.sendSuccess(res, trip, 'Trip fetched successfully');
   });
 
@@ -55,9 +80,24 @@ export class TripController extends BaseController {
     this.sendSuccess(res, result, 'All trips fetched successfully');
   });
 
-  updateTrip = asyncHandler(async (req: Request, res: Response) => {
-    const { tripId } = req.params;
+  updateTrip = asyncHandler(
+    async (req: AuthRequest<{ tripId: string }, unknown, Partial<CreateTripDTO>>, res: Response) => {
+      const { tripId } = req.params;
     const updateData = req.body;
+    
+    const trip = await this._tripService.getTripById(tripId);
+    if (!trip) {
+      this.sendNotFound(res, 'Trip not found');
+      return;
+    }
+
+    // Authorization Check: Only the trip owner can update it
+    const ownerId = trip.userId._id ? trip.userId._id.toString() : trip.userId.toString();
+    if (ownerId !== req.user?.id && req.user?.role !== 'admin') {
+      this.sendError(res, 'Unauthorized to update this trip', 403);
+      return;
+    }
+
     logger.info('Trip update request received', { tripId, updateData });
     const updatedTrip = await this._tripService.updateTrip(tripId, updateData);
     if (!updatedTrip) {
@@ -109,8 +149,27 @@ export class TripController extends BaseController {
     this.sendSuccess(res, trip, 'Trip successfully completed and escrow funds released.');
   });
 
-  getChatHistory = asyncHandler(async (req: Request, res: Response) => {
+  getChatHistory = asyncHandler(
+    async (
+      req: AuthRequest<{ tripId: string }, unknown, unknown, { page?: string; limit?: string }>,
+      res: Response
+    ) => {
     const { tripId } = req.params;
+    
+    const trip = await this._tripService.getTripById(tripId);
+    if (!trip) {
+      this.sendNotFound(res, 'Trip not found');
+      return;
+    }
+
+    // Authorization Check: Only members or admin can view chat history
+    // members may be populated objects OR raw ObjectIds — getMemberId handles both
+    const isMember = trip.members.some(m => getMemberId(m) === req.user?.id);
+    if (!isMember && req.user?.role !== 'admin') {
+      this.sendError(res, 'Unauthorized to view chat history', 403);
+      return;
+    }
+
     const { page, limit } = req.query;
     const pageNum = parseInt(page as string) || 1;
     const limitNum = parseInt(limit as string) || 50; // History usually loads more
