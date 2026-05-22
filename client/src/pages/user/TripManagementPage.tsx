@@ -36,6 +36,7 @@ import api from '../../utils/api';
 import { API_ENDPOINTS } from '../../constants/api.constants';
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { ReportModal, ReviewModal } from '../../components/guide';
+import { LocationInput } from '../../components/LocationInput';
 
 const TripManagementPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -46,6 +47,7 @@ const TripManagementPage = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [startingPoint, setStartingPoint] = useState('');
   const [activeTab, setActiveTab] = useState<'itinerary' | 'members' | 'settings' | 'guide'>(
     'itinerary'
   );
@@ -258,7 +260,7 @@ const TripManagementPage = () => {
     try {
       setIsGeneratingAI(true);
       const prompt = `Act as an expert travel planner. Generate a detailed, day-by-day itinerary for a trip to ${trip.destination} from ${new Date(trip.startDate).toLocaleDateString()} to ${new Date(trip.endDate).toLocaleDateString()}.
-            
+${startingPoint ? `The travelers are starting their journey from ${startingPoint}. Plan the first day's travel accordingly, including transport options from ${startingPoint} to ${trip.destination} if they are different cities.` : ''}
 The travelers are interested in: ${trip.preferences?.interests?.join(', ') || 'general sightseeing'}.
 They prefer ${trip.preferences?.transport || 'any'} transport and ${trip.preferences?.accommodation || 'any'} accommodation.
 
@@ -479,35 +481,58 @@ Do not include any other text, markdown formatting, or code blocks outside the J
           <div className="lg:col-span-3">
             {activeTab === 'itinerary' && (
               <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-indigo-50/50 p-6 rounded-[2.5rem] border border-indigo-100/50 shadow-sm relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none transition-all group-hover:bg-purple-500/20"></div>
-                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none transition-all group-hover:bg-indigo-500/20"></div>
-
-                  <div className="relative z-10 flex items-center gap-4">
-                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-md border border-indigo-100 flex-shrink-0 text-indigo-600">
-                      <Wand2 size={24} />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-black text-indigo-950 tracking-tight">
-                        AI Itinerary Generator
-                      </h3>
-                      <p className="text-[11px] text-indigo-600/70 font-bold uppercase tracking-widest mt-1">
-                        Let Trip Buddy automatically plan your trip
-                      </p>
-                    </div>
+                <div className="flex flex-col gap-4 bg-indigo-50/50 p-6 rounded-[2.5rem] border border-indigo-100/50 shadow-sm relative group">
+                  {/* Decorative blobs — isolated overflow so dropdown isn't clipped */}
+                  <div className="absolute inset-0 rounded-[2.5rem] overflow-hidden pointer-events-none">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl -mr-10 -mt-10 transition-all group-hover:bg-purple-500/20"></div>
+                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -ml-10 -mb-10 transition-all group-hover:bg-indigo-500/20"></div>
                   </div>
-                  <button
-                    onClick={handleAIGenerateItinerary}
-                    disabled={isGeneratingAI || isSaving}
-                    className="relative z-10 flex w-full md:w-auto items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-indigo-200/50 hover:shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
-                  >
-                    {isGeneratingAI ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      <Wand2 size={16} />
+
+                  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-md border border-indigo-100 flex-shrink-0 text-indigo-600">
+                        <Wand2 size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-black text-indigo-950 tracking-tight">
+                          AI Itinerary Generator
+                        </h3>
+                        <p className="text-[11px] text-indigo-600/70 font-bold uppercase tracking-widest mt-1">
+                          Let Trip Buddy automatically plan your trip
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleAIGenerateItinerary}
+                      disabled={isGeneratingAI || isSaving}
+                      className="relative z-10 flex w-full md:w-auto items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-indigo-200/50 hover:shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                    >
+                      {isGeneratingAI ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : (
+                        <Wand2 size={16} />
+                      )}
+                      {isGeneratingAI ? 'Generating Magic...' : 'Auto-Generate Plan'}
+                    </button>
+                  </div>
+
+                  {/* Starting Point Input */}
+                  <div className="relative z-10">
+                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-indigo-700/70 mb-2 ml-1">
+                      Starting Point <span className="text-indigo-400 font-medium normal-case tracking-normal">(optional — where are you travelling from?)</span>
+                    </label>
+                    <LocationInput
+                      value={startingPoint}
+                      onChange={val => setStartingPoint(val)}
+                      placeholder="e.g. Mumbai, New Delhi, Bangalore..."
+                      className="border-indigo-100 focus:border-indigo-500"
+                    />
+                    {startingPoint && (
+                      <p className="text-[10px] text-indigo-600 font-bold mt-2 ml-1">
+                        ✓ AI will plan your travel route from <span className="text-indigo-800">{startingPoint}</span> to <span className="text-indigo-800">{trip?.destination}</span>
+                      </p>
                     )}
-                    {isGeneratingAI ? 'Generating Magic...' : 'Auto-Generate Plan'}
-                  </button>
+                  </div>
                 </div>
                 {itinerary.map((day, dayIdx) => (
                   <div

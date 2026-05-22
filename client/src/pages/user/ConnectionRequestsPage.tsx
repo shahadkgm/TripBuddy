@@ -1,30 +1,18 @@
-import { useEffect, useState } from 'react';
 import { connectionService } from '../../services/connection.service';
 import type { ConnectionRequest } from '../../types/auth.dto';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, UserCheck, UserX, Clock, MessageSquare, Plane } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const ConnectionRequestsPage = () => {
-  const [requests, setRequests] = useState<ConnectionRequest[]>([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    loadRequests();
-  }, []);
-
-  const loadRequests = async () => {
-    try {
-      setLoading(true);
-      const data = await connectionService.getPendingRequests();
-      setRequests(data);
-    } catch (_error) {
-      toast.error('Failed to load requests');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: requests = [], isLoading: loading } = useQuery<ConnectionRequest[]>({
+    queryKey: ['pending-requests'],
+    queryFn: () => connectionService.getPendingRequests(),
+  });
 
   const handleAction = async (requestId: string, action: 'accept' | 'reject') => {
     try {
@@ -35,7 +23,16 @@ const ConnectionRequestsPage = () => {
         await connectionService.rejectRequest(requestId);
         toast.success('Request declined');
       }
-      setRequests(requests.filter(req => req._id !== requestId));
+      
+      // Optimistically update UI
+      queryClient.setQueryData(['pending-requests'], (old: ConnectionRequest[] | undefined) => {
+        if (!old) return [];
+        return old.filter(req => req._id !== requestId);
+      });
+
+      // Then trigger background refetch
+      await queryClient.invalidateQueries({ queryKey: ['pending-requests'] });
+      await queryClient.invalidateQueries({ queryKey: ['connection-status'] });
     } catch (_error) {
       toast.error('Action failed');
     }

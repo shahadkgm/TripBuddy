@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { CheckCircle, XCircle, Eye, ShieldCheck, ShieldAlert, Clock, MapPin, Instagram, Linkedin, Globe } from 'lucide-react';
 import api from '../../utils/api';
@@ -43,13 +44,10 @@ interface IGuideApplication {
 }
 
 export const GuideManagement = () => {
-  const [guides, setGuides] = useState<IGuideApplication[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
-  const [loading, setLoading] = useState(true);
   const [viewingGuide, setViewingGuide] = useState<IGuideApplication | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const limit = 3;
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -59,6 +57,8 @@ export const GuideManagement = () => {
   const [reportModalGuide, setReportModalGuide] = useState<IGuideApplication | null>(null);
   const [guideReports, setGuideReports] = useState<IReport[]>([]);
   const [reportsLoading, setReportsLoading] = useState(false);
+  
+  const queryClient = useQueryClient();
 
   const openReportsModal = async (guide: IGuideApplication) => {
     setReportModalGuide(guide);
@@ -83,32 +83,24 @@ export const GuideManagement = () => {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
-  useEffect(() => {
-    loadGuides();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, debouncedTerm]);
-
-  const loadGuides = async () => {
-    try {
-      setLoading(true);
+  const { data: queryData, isLoading: loading } = useQuery({
+    queryKey: ['admin-guides', currentPage, debouncedTerm],
+    queryFn: async () => {
       const { data } = await api.get('/api/admin/guides', {
         params: { page: currentPage, limit, search: debouncedTerm },
       });
-      console.log('from g-management', data.guides);
-      setGuides(data.data.guides);
-      setTotalPages(data.data.totalPages);
-    } catch (_err) {
-      toast.error('Failed to load applications');
-    } finally {
-      setLoading(false);
-    }
-  };
+      return data.data as { guides: IGuideApplication[]; totalPages: number };
+    },
+  });
+
+  const guides = queryData?.guides || [];
+  const totalPages = queryData?.totalPages || 1;
 
   const handleApprove = async (id: string) => {
     try {
       await api.patch(`/api/admin/guides/${id}/verify`);
       toast.success('Guide approved!');
-      loadGuides();
+      queryClient.invalidateQueries({ queryKey: ['admin-guides'] });
     } catch (_err) {
       toast.error('Approval failed');
     }
@@ -124,7 +116,7 @@ export const GuideManagement = () => {
     try {
       await api.patch(`/api/admin/guides/${guideToReject}`, { reason });
       toast.success('Application rejected');
-      loadGuides();
+      queryClient.invalidateQueries({ queryKey: ['admin-guides'] });
     } catch (_err) {
       toast.error('Rejection failed');
     } finally {

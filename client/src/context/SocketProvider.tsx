@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { useQueryClient } from '@tanstack/react-query';
 import { authService } from '../services/auth.service';
 import { tripService } from '../services/trip.service';
 import toast from 'react-hot-toast';
@@ -15,6 +16,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
   const tripTitlesRef = useRef<Record<string, string>>({});
+  const queryClient = useQueryClient();
 
   const currentUser = authService.getCurrentUser();
   const currentChatIdRef = useRef<string | null>(null);
@@ -101,6 +103,16 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     window.addEventListener('storage', handleTokenRefresh);
 
     newSocket.on('global_notification', (notification: { title: string; message: string; link?: string; }) => {
+      if (notification.link === '/admin/guides') {
+        queryClient.invalidateQueries({ queryKey: ['admin-guides'] });
+      }
+      if (notification.link === '/admin/reports') {
+        queryClient.invalidateQueries({ queryKey: ['admin-reports'] });
+      }
+      if (notification.link === '/guide/dashboard') {
+        queryClient.invalidateQueries({ queryKey: ['guide-invitations'] });
+      }
+
       toast.custom(
         t => (
           <div
@@ -214,6 +226,45 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           { duration: 6000, position: 'top-right' }
         );
       }
+    });
+
+    newSocket.on('invitation_responded', (data: { tripId: string; status: string }) => {
+      // Automatically refresh trip & invitation data so UI updates without page reload
+      queryClient.invalidateQueries({ queryKey: ['trip', data.tripId] });
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
+      queryClient.invalidateQueries({ queryKey: ['trip-invitations'] });
+      queryClient.invalidateQueries({ queryKey: ['outbound-invitations'] });
+      queryClient.invalidateQueries({ queryKey: ['guide-invitations'] });
+    });
+
+    newSocket.on('trip_updated', (data: { tripId: string; status: string }) => {
+      queryClient.invalidateQueries({ queryKey: ['trip', data.tripId] });
+      queryClient.invalidateQueries({ queryKey: ['trips'] });
+    });
+
+    newSocket.on('kyc_status_updated', () => {
+      queryClient.invalidateQueries({ queryKey: ['kyc-status'] });
+      queryClient.invalidateQueries({ queryKey: ['kyc-status-details'] });
+    });
+
+    newSocket.on('kyc_submitted', () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+    });
+
+    newSocket.on('connection_responded', (data: { tripId: string | null; status: string }) => {
+      // Refresh connection and trip caches
+      queryClient.invalidateQueries({ queryKey: ['sent-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['connection-status'] });
+      if (data.tripId) {
+        queryClient.invalidateQueries({ queryKey: ['trip', data.tripId] });
+      }
+    });
+
+    newSocket.on('connection_request_received', () => {
+      // Invalidate pending requests list when someone sends us a connection request
+      queryClient.invalidateQueries({ queryKey: ['pending-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['connection-status'] });
     });
 
     return () => {

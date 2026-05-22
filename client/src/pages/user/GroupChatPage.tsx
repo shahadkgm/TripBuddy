@@ -16,7 +16,6 @@ import {
   CreditCard,
   ShieldCheck,
   Settings,
-  Bot,
   Calendar,
   Lock,
   MapPin,
@@ -205,6 +204,20 @@ const GroupChatPage = () => {
       socket.off('receive_message', pageMessageHandler);
     };
   }, [socket]);
+
+  useEffect(() => {
+    if (!socket || !id) return;
+    const tripUpdateHandler = (data: { tripId: string; status: TripStatus }) => {
+      if (data.tripId === id) {
+        setTrip(prev => prev ? { ...prev, status: data.status } : prev);
+      }
+    };
+    
+    socket.on('trip_updated', tripUpdateHandler);
+    return () => {
+      socket.off('trip_updated', tripUpdateHandler);
+    };
+  }, [socket, id]);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -780,22 +793,7 @@ const GroupChatPage = () => {
                                 minute: '2-digit',
                               })}
                             </p>
-                            {msg.messageType !== 'image' && (
-                              <button
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  navigate('/ai-assistant', {
-                                    state: {
-                                      initialContext: `Regarding this message in the group chat: "${msg.content}"\n\nCan you help me with this?`,
-                                    },
-                                  });
-                                }}
-                                className={`p-1 rounded-full ${isOwn ? 'hover:bg-indigo-100 text-indigo-400' : 'hover:bg-slate-200 text-slate-400 hover:text-indigo-600'} transition-colors shadow-sm`}
-                                title="Ask AI Assistant"
-                              >
-                                <Bot size={12} />
-                              </button>
-                            )}
+
                           </div>
                         </div>
                         {isOwn && isFirstInGroup && (

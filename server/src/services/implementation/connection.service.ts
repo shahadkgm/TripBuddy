@@ -37,6 +37,9 @@ export class ConnectionService implements IConnectionService {
               message: tripId ? 'Someone invited you to join a trip!' : 'Someone wants to connect with you.',
               link: '/connection-requests'
             });
+
+            // Emit for React Query auto-invalidation on the receiver's end
+            getIO().to(`user_${receiverId}`).emit('connection_request_received', { tripId });
           } catch (e) {
             logger.error('Failed to emit connection request notification', { error: e });
           }
@@ -60,6 +63,9 @@ export class ConnectionService implements IConnectionService {
         message: tripId ? 'Someone invited you to join a trip!' : 'Someone wants to connect with you.',
         link: '/connection-requests'
       });
+
+      // Emit for React Query auto-invalidation on the receiver's end
+      getIO().to(`user_${receiverId}`).emit('connection_request_received', { tripId });
     } catch (e) {
       logger.error('Failed to emit connection request notification', { error: e });
     }
@@ -89,6 +95,12 @@ export class ConnectionService implements IConnectionService {
             : 'Your connection request was accepted!',
           link: '/connection-requests'
         });
+
+        // Emit for react-query auto-invalidation
+        getIO().to(`user_${senderIdStr}`).emit('connection_responded', {
+          tripId: updated.tripId ? updated.tripId.toString() : null,
+          status: 'accepted',
+        });
       } catch (e) {
         logger.error('Failed to emit request accepted notification', { error: e });
       }
@@ -99,7 +111,22 @@ export class ConnectionService implements IConnectionService {
 
   async rejectRequest(requestId: string): Promise<IConnectionDocument | null> {
     logger.info(`Rejecting connection request: ${requestId}`);
-    return await this._connectionRepository.updateById(requestId, { status: 'rejected' });
+    const updated = await this._connectionRepository.updateById(requestId, { status: 'rejected' });
+    
+    if (updated) {
+      try {
+        const senderIdStr = updated.senderId.toString();
+        // Emit for react-query auto-invalidation
+        getIO().to(`user_${senderIdStr}`).emit('connection_responded', {
+          tripId: updated.tripId ? updated.tripId.toString() : null,
+          status: 'rejected',
+        });
+      } catch (e) {
+        logger.error('Failed to emit request rejected event', { error: e });
+      }
+    }
+    
+    return updated;
   }
 
   async getPendingRequests(userId: string): Promise<IConnectionDocument[]> {

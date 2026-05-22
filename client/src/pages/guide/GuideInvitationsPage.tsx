@@ -1,40 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Mail, MapPin, Calendar, ArrowRight, Loader2, Sparkles, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { guideService } from '../../services/guide.service';
 import { GuideLayout } from './GuideLayout';
 import { Pagination } from '../../components/Pagination';
-import toast from 'react-hot-toast';
 
 export const GuideInvitationsPage = () => {
-  const [invitations, setInvitations] = useState<
-    import('../../interface/ITripdetails').IGuideInvitation[]
-  >([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [paginationLoading, setPaginationLoading] = useState(false);
   const LIMIT = 5;
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchInvitations = async () => {
-      try {
-        if (page === 1) setLoading(true);
-        else setPaginationLoading(true);
+  const { data, isLoading: loading, isFetching: paginationLoading } = useQuery({
+    queryKey: ['guide-invitations', page],
+    queryFn: () => guideService.getInboundInvitations(page, LIMIT),
+  });
 
-        const data = await guideService.getInboundInvitations(page, LIMIT);
-        setInvitations(data.invitations);
-        setTotalPages(Math.ceil(data.total / LIMIT));
-      } catch (_err) {
-        toast.error('Failed to load invitations');
-      } finally {
-        setLoading(false);
-        setPaginationLoading(false);
-      }
-    };
-    fetchInvitations();
-  }, [page]);
+  const invitations = data?.invitations || [];
+  const totalPages = data ? Math.ceil(data.total / LIMIT) : 1;
 
   const getStatusColor = (status: string) => {
     switch (status) {

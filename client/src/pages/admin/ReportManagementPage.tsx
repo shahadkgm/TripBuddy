@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   AlertTriangle,
   CheckCircle,
@@ -10,6 +10,7 @@ import {
   ExternalLink,
   ChevronRight,
 } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { reportService } from '../../services/report.service';
 import toast from 'react-hot-toast';
 import { AdminLayout } from '../../components/admin/AdminLayout';
@@ -42,34 +43,28 @@ interface IReport {
 }
 
 const ReportManagementPage: React.FC = () => {
-  const [reports, setReports] = useState<IReport[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'resolved' | 'dismissed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedReport, setSelectedReport] = useState<IReport | null>(null);
 
-  const fetchReports = async () => {
-    try {
-      setLoading(true);
-      const data = await reportService.getAllReports();
-      setReports(data || []);
-    } catch (_err) {
-      toast.error('Failed to load reports');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    fetchReports();
-  }, []);
+  const { data: reportsData, isLoading: loading } = useQuery({
+    queryKey: ['admin-reports'],
+    queryFn: async () => {
+      const data = await reportService.getAllReports();
+      return (data as unknown as IReport[]) || [];
+    },
+  });
+
+  const reports: IReport[] = reportsData || [];
 
   const handleUpdateStatus = async (reportId: string, status: string) => {
     try {
       await reportService.updateReportStatus(reportId, status);
       toast.success(`Report marked as ${status}`);
       setSelectedReport(null);
-      fetchReports();
+      queryClient.invalidateQueries({ queryKey: ['admin-reports'] });
     } catch (_err) {
       toast.error('Failed to update status');
     }

@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Map, Search, XCircle, CheckCircle, Clock, Star, MessageSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import api from '../../utils/api';
 import { API_ENDPOINTS } from '../../constants/api.constants';
@@ -65,11 +66,7 @@ const statusStyles: Record<string, string> = {
 };
 
 export const AdminTripManagementPage = () => {
-  const [trips, setTrips] = useState<TripData[]>([]);
-  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalTrips, setTotalTrips] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<{
@@ -85,27 +82,21 @@ export const AdminTripManagementPage = () => {
   const [activeTripTitle, setActiveTripTitle] = useState('');
 
   const limit = 8;
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    fetchTrips();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, searchTerm]);
-
-  const fetchTrips = async () => {
-    try {
-      setLoading(true);
+  const { data: tripResponse, isLoading: loading } = useQuery({
+    queryKey: ['admin-trips', currentPage, searchTerm],
+    queryFn: async () => {
       const { data } = await api.get(API_ENDPOINTS.ADMIN.TRIPS, {
         params: { page: currentPage, limit, search: searchTerm },
       });
-      setTrips(data.data.trips);
-      setTotalPages(data.data.totalPages);
-      setTotalTrips(data.data.totalTrips);
-    } catch (_err) {
-      toast.error('Failed to load trips');
-    } finally {
-      setLoading(false);
-    }
-  };
+      return data.data as { trips: TripData[]; totalPages: number; totalTrips: number };
+    },
+  });
+
+  const trips = tripResponse?.trips || [];
+  const totalPages = tripResponse?.totalPages || 1;
+  const totalTrips = tripResponse?.totalTrips || 0;
 
   const confirmStatusUpdate = (trip: TripData, status: string) => {
     setSelectedAction({ tripId: trip._id, status, title: trip.title });
@@ -119,11 +110,7 @@ export const AdminTripManagementPage = () => {
         status: selectedAction.status,
       });
       toast.success(`Trip status updated to "${selectedAction.status}"`);
-      setTrips(prev =>
-        prev.map(t =>
-          t._id === selectedAction.tripId ? { ...t, status: selectedAction.status } : t
-        )
-      );
+      queryClient.invalidateQueries({ queryKey: ['admin-trips'] });
     } catch (_err) {
       toast.error('Failed to update trip status');
     } finally {

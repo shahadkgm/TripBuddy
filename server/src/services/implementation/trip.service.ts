@@ -10,6 +10,7 @@ import { IPaymentPopulatedDocument, PaymentStatus } from '../../types/payment.ty
 import { logger } from '@/utils/logger';
 import mongoose from 'mongoose';
 import guideModel from '../../models/guide.model';
+import { getIO } from '../../config/socket';
 
 export class TripService implements ITripService {
   constructor(
@@ -320,6 +321,12 @@ export class TripService implements ITripService {
           status: PaymentStatus.RELEASED,
         });
       }
+    }
+
+    try {
+      getIO().to(`trip_${tripId}`).emit('trip_updated', { tripId, status: TripStatus.COMPLETED });
+    } catch (e) {
+      logger.error('Failed to emit trip_updated on complete', { error: e });
     }
 
     return completedTrip;
