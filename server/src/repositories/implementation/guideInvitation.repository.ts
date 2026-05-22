@@ -46,6 +46,11 @@ export class GuideInvitationRepository implements IGuideInvitationRepository {
     return await GuideInvitationModel.findOne({ tripId, guideId, status: 'pending' });
   }
 
+  async deleteByTripAndGuide(tripId: string, guideId: string): Promise<void> {
+    await GuideInvitationModel.deleteMany({ tripId, guideId });
+  }
+
+
 
    
 

@@ -61,6 +61,7 @@ const TripManagementPage = () => {
   const [guideDestination, setGuideDestination] = useState('');
   const [guideMaxPrice, setGuideMaxPrice] = useState(5000);
   const [assigningGuideId, setAssigningGuideId] = useState<string | null>(null);
+  const [isRemovingGuide, setIsRemovingGuide] = useState(false);
 
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -212,16 +213,22 @@ const TripManagementPage = () => {
 
   const handleAssignGuide = async (guideId: string | null) => {
     if (!id) return;
-    setAssigningGuideId(guideId);
+    if (guideId === null) {
+      setIsRemovingGuide(true);
+    } else {
+      setAssigningGuideId(guideId);
+    }
     try {
       const updatedTrip = await tripService.assignGuide(id, guideId);
       queryClient.setQueryData(['trip', id], updatedTrip);
+      queryClient.invalidateQueries({ queryKey: ['trip-invitations', id] });
       toast.success(guideId ? 'Guide assigned to trip!' : 'Guide removed from trip.');
     } catch (_err: unknown) {
       const errorObj = _err as { response?: { data?: { message?: string } } };
       toast.error(errorObj?.response?.data?.message || 'Failed to update guide assignment');
     } finally {
       setAssigningGuideId(null);
+      setIsRemovingGuide(false);
     }
   };
 
@@ -864,13 +871,15 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                         />
                       )}
 
-                      <button
-                        onClick={() => handleAssignGuide(null)}
-                        disabled={assigningGuideId === null && assigningGuideId !== undefined}
-                        className="mt-6 w-full py-3 rounded-2xl border-2 border-dashed border-rose-200 text-rose-400 hover:bg-rose-50 hover:border-rose-400 font-black uppercase tracking-widest text-[11px] transition-all"
-                      >
-                        Remove Guide from Trip
-                      </button>
+                      {trip.status === TripStatus.PLANNED && (
+                        <button
+                          onClick={() => handleAssignGuide(null)}
+                          disabled={isRemovingGuide}
+                          className="mt-6 w-full py-3 rounded-2xl border-2 border-dashed border-rose-200 text-rose-400 hover:bg-rose-50 hover:border-rose-400 font-black uppercase tracking-widest text-[11px] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isRemovingGuide ? 'Removing...' : 'Remove Guide from Trip'}
+                        </button>
+                      )}
                     </div>
                   </>
                 ) : (
@@ -898,10 +907,11 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                 )}
 
                 {/* Guide Search Area */}
-                <div
-                  id="guide-search-area"
-                  className="bg-white rounded-[3rem] border border-slate-100 shadow-xl p-8"
-                >
+                {trip.status === TripStatus.PLANNED && (
+                  <div
+                    id="guide-search-area"
+                    className="bg-white rounded-[3rem] border border-slate-100 shadow-xl p-8"
+                  >
                   <h3 className="text-xl font-black text-slate-900 tracking-tighter mb-6 flex items-center gap-3">
                     <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
                       <Search size={22} />
@@ -1243,6 +1253,7 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                     </div>
                   )}
                 </div>
+                )}
               </div>
             )}
             {activeTab === 'settings' && (

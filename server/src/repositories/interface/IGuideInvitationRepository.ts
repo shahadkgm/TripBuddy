@@ -10,6 +10,7 @@ export interface IGuideInvitationRepository {
     limit?: number
   ): Promise<{ invitations: IGuideInvitationDocument[]; total: number }>;
   findByTripAndGuide(tripId: string, guideId: string): Promise<IGuideInvitationDocument | null>;
+  deleteByTripAndGuide(tripId: string, guideId: string): Promise<void>;
   findBySenderId(
     senderId: string,
     skip?: number,

@@ -6,6 +6,7 @@ import { ITripRepository } from '../../repositories/interface/ITripRepository';
 import { ITripService } from '../interface/ITripService';
 import { IPaymentRepository } from '../../repositories/interface/IPaymentRepository';
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
+import { IGuideInvitationRepository } from '../../repositories/interface/IGuideInvitationRepository';
 import { IPaymentPopulatedDocument, PaymentStatus } from '../../types/payment.type';
 import { logger } from '@/utils/logger';
 import mongoose from 'mongoose';
@@ -16,7 +17,8 @@ export class TripService implements ITripService {
   constructor(
     private _tripRepository: ITripRepository,
     private _paymentRepository: IPaymentRepository,
-    private _userRepository: IUserRepository
+    private _userRepository: IUserRepository,
+    private _invitationRepository?: IGuideInvitationRepository
   ) { }
 
   async createTrip(data: CreateTripDTO): Promise<ITripDocument> {
@@ -383,6 +385,11 @@ export class TripService implements ITripService {
     const ownerId = trip.userId._id.toString();
     if (ownerId !== userId) throw new Error('Unauthorized: only the trip owner can assign a guide');
 
+    // Prevent changing guide if trip is finalized or beyond
+    if (trip.status !== TripStatus.PLANNED) {
+      throw new Error(`Cannot change guide assignment for a trip in ${trip.status} status`);
+    }
+
     if (guideId) {
       const guide = await guideModel.findById(guideId);
       if (!guide) throw new Error('Guide not found');
@@ -391,16 +398,35 @@ export class TripService implements ITripService {
       // Add guide's userId to members array for access
       await this._tripRepository.addMember(tripId, guide.userId.toString());
     } else if (trip.guideId) {
-      // Remove previous guide's userId from members if needed?
-      // Actually, keep it for historical reasons or if they were also a traveler?
-      // Safer to just leave it or let them leave manually.
-      // But for a pure guide assignment, we might want to remove them.
       const guide = await guideModel.findById(trip.guideId._id);
       if (guide) {
+        // Remove guide's userId from members array
         const updatedMembers = trip.members.filter(
           m => m._id.toString() !== guide.userId.toString()
         );
         await this._tripRepository.updateById(tripId, { members: updatedMembers.map(m => m._id) });
+
+        // Clean up ALL invitation records for this trip+guide so re-inviting works
+        try {
+          if (this._invitationRepository) {
+            await this._invitationRepository.deleteByTripAndGuide(tripId, guide._id.toString());
+          }
+        } catch (e) {
+          logger.error('Failed to clean up invitation records on guide removal', { error: e });
+        }
+
+        // Notify the guide via socket
+        try {
+          const guideUserIdStr = guide.userId.toString();
+          getIO().to(`user_${guideUserIdStr}`).emit('global_notification', {
+            title: 'Removed from Trip',
+            message: `You have been removed as the guide for the trip "${trip.title}".`,
+            link: '/guide/dashboard',
+          });
+          getIO().to(`user_${guideUserIdStr}`).emit('trip_updated', { tripId, status: trip.status });
+        } catch (e) {
+          logger.error('Failed to notify guide on removal', { error: e });
+        }
       }
     }
 
