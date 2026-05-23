@@ -12,6 +12,7 @@ import { requireKyc } from '../middleware/kycMiddleware';
 
 import { PaymentRepository } from '../repositories/implementation/payment.repository';
 import { UserRepository } from '../repositories/implementation/user.repository';
+import { GuideInvitationRepository } from '../repositories/implementation/guideInvitation.repository';
 
 const router = Router();
 const upload = multer();
@@ -20,7 +21,8 @@ const upload = multer();
 const tripRepository = new TripRepository();
 const paymentRepository = new PaymentRepository();
 const userRepository = new UserRepository();
-const tripService = new TripService(tripRepository, paymentRepository, userRepository);
+const invitationRepository = new GuideInvitationRepository();
+const tripService = new TripService(tripRepository, paymentRepository, userRepository, invitationRepository);
 const tripController = new TripController(tripService);
 
 router.use(protect);

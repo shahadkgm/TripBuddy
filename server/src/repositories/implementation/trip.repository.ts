@@ -67,6 +67,24 @@ export class TripRepository
       .exec();
   }
 
+  override async updateById(
+    id: string | mongoose.Types.ObjectId,
+    update: mongoose.UpdateQuery<ITripDocument>
+  ): Promise<ITripDocument | null> {
+    return await this._model
+      .findByIdAndUpdate(id, update, { new: true })
+      .populate('userId', 'name email avatarURL')
+      .populate('members', 'name email avatarURL')
+      .populate({
+        path: 'guideId',
+        populate: {
+          path: 'userId',
+          select: 'name email avatarURL',
+        },
+      })
+      .exec();
+  }
+
   async findAllTrips(
     filters: ITripFilters,
     page: number,
@@ -150,10 +168,16 @@ export class TripRepository
     const update = guideId ? { $set: { guideId } } : { $unset: { guideId: '' } };
     return await this._model
       .findByIdAndUpdate(tripId, update, { new: true })
-      .populate(
-        'guideId',
-        'name bio dailyRate serviceArea avatarURL specialties isVerified userId averageRating reviewCount'
-      );
+      .populate('userId', 'name email avatarURL')
+      .populate('members', 'name email avatarURL')
+      .populate({
+        path: 'guideId',
+        populate: {
+          path: 'userId',
+          select: 'name email avatarURL',
+        },
+      })
+      .exec();
   }
 
  

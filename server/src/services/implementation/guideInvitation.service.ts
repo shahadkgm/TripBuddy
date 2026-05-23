@@ -41,10 +41,11 @@ export class GuideInvitationService implements IGuideInvitationService {
     const result = await this._invitationRepository.create(invitationData);
     
     try {
-      getIO().to(`user_${guide.userId.toString()}`).emit('global_notification', {
+      const guideIdStr = this.extractId(guide.userId);
+      getIO().to(`user_${guideIdStr}`).emit('global_notification', {
         title: 'New Trip Invitation',
         message: 'You have received a new invitation to lead a trip.',
-        link: '/guide/dashboard'
+        link: '/guide/invitations'
       });
     } catch (e) {
       logger.error('Failed to emit socket event', { error: e });
