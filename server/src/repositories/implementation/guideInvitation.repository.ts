@@ -54,7 +54,7 @@ export class GuideInvitationRepository implements IGuideInvitationRepository {
 
 
 
-   
+
 
   async findBySenderId(
     senderId: string,

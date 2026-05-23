@@ -7,7 +7,7 @@ import { SocketProvider } from './context/SocketProvider';
 function App() {
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'user' || e.key === 'token') {
+      if ((e.key === 'user' || e.key === 'accessToken') && !e.newValue) {
         window.location.reload();
       }
     };

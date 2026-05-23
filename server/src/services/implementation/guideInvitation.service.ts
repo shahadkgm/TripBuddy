@@ -12,7 +12,7 @@ export class GuideInvitationService implements IGuideInvitationService {
   constructor(
     private _invitationRepository: IGuideInvitationRepository,
     private _tripService: ITripService
-  ) {}
+  ) { }
   async sendInvitation(
     tripId: string,
     guideId: string,
@@ -28,7 +28,7 @@ export class GuideInvitationService implements IGuideInvitationService {
     // Check for existing pending invitation
     const existing = await this._invitationRepository.findByTripAndGuide(tripId, guideId);
     if (existing) throw new Error('An invitation is already pending for this guide and trip');
-    
+
 
     const invitationData: Partial<IGuideInvitationDocument> = {
       tripId: new Types.ObjectId(tripId),
@@ -39,7 +39,7 @@ export class GuideInvitationService implements IGuideInvitationService {
     };
 
     const result = await this._invitationRepository.create(invitationData);
-    
+
     try {
       const guideIdStr = this.extractId(guide.userId);
       getIO().to(`user_${guideIdStr}`).emit('global_notification', {
@@ -60,6 +60,7 @@ export class GuideInvitationService implements IGuideInvitationService {
     limit = 10
   ): Promise<{ invitations: IGuideInvitationDocument[]; total: number }> {
     const skip = (page - 1) * limit;
+   
     return await this._invitationRepository.findByReceiverId(guideUserId, skip, limit);
   }
 
@@ -76,7 +77,7 @@ export class GuideInvitationService implements IGuideInvitationService {
       logger.error('Invitation not found', { invitationId });
       throw new Error('Invitation not found');
     }
-    
+
 
     const receiverId = this.extractId(invitation.receiverId);
     logger.info('Comparing receiver and guide IDs', { receiverId, guideUserId });
@@ -172,5 +173,5 @@ export class GuideInvitationService implements IGuideInvitationService {
     return String(field);
   }
 
-  
+
 }

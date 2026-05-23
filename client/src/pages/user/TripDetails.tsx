@@ -99,6 +99,9 @@ const TripDetails = () => {
     }
   };
 
+  console.log("DEBUG - Fetched Trip Data:", trip);
+  console.log("DEBUG - startingPoint:", trip?.startingPoint);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -160,6 +163,10 @@ const TripDetails = () => {
             </h1>
             <p className="text-slate-500 font-bold mb-4">Age: 23</p>
             <div className="space-y-2">
+              <p className="text-slate-700 font-bold flex items-center gap-2 text-lg">
+                <span className="text-indigo-600 font-black">Starting Point:</span>
+                {trip.startingPoint || <span className="text-slate-400 font-medium italic text-sm">Not specified</span>}
+              </p>
               <p className="text-slate-700 font-bold flex items-center gap-2 text-lg">
                 <span className="text-indigo-600 font-black">Destination:</span>
                 {trip.destination}

@@ -53,6 +53,7 @@ export interface ITrip {
   };
   title: string;
   destination: string;
+  startingPoint: string;
   startDate: string | Date;
   endDate: string | Date;
   budget: number;

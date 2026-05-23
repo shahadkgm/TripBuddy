@@ -23,9 +23,9 @@ export class UserMapper {
       kycRejectionReason: user.kyc?.rejectionReason || null,
       walletBalance: user.walletBalance || 0,
       guideProfile:
-        user.guideProfile && typeof user.guideProfile === 'object' && '_id' in user.guideProfile
+        user.guideProfile && typeof user.guideProfile === 'object' && user.guideProfile._id
           ? {
-              _id: user.guideProfile._id?.toString() || '',
+              _id: user.guideProfile._id.toString(),
               dailyRate: (user.guideProfile as IGuide).dailyRate || 0,
               serviceArea: (user.guideProfile as IGuide).serviceArea || '',
               bio: (user.guideProfile as IGuide).bio || '',
