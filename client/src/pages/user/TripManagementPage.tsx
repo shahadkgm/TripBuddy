@@ -36,7 +36,6 @@ import api from '../../utils/api';
 import { API_ENDPOINTS } from '../../constants/api.constants';
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { ReportModal, ReviewModal } from '../../components/guide';
-import { LocationInput } from '../../components/LocationInput';
 
 const TripManagementPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -47,7 +46,6 @@ const TripManagementPage = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
-  const [startingPoint, setStartingPoint] = useState('');
   const [activeTab, setActiveTab] = useState<'itinerary' | 'members' | 'settings' | 'guide'>(
     'itinerary'
   );
@@ -267,7 +265,7 @@ const TripManagementPage = () => {
     try {
       setIsGeneratingAI(true);
       const prompt = `Act as an expert travel planner. Generate a detailed, day-by-day itinerary for a trip to ${trip.destination} from ${new Date(trip.startDate).toLocaleDateString()} to ${new Date(trip.endDate).toLocaleDateString()}.
-${startingPoint ? `The travelers are starting their journey from ${startingPoint}. Plan the first day's travel accordingly, including transport options from ${startingPoint} to ${trip.destination} if they are different cities.` : ''}
+${trip.startingPoint ? `The travelers are starting their journey from ${trip.startingPoint}. Plan the first day's travel accordingly, including transport options from ${trip.startingPoint} to ${trip.destination} if they are different cities.` : ''}
 The travelers are interested in: ${trip.preferences?.interests?.join(', ') || 'general sightseeing'}.
 They prefer ${trip.preferences?.transport || 'any'} transport and ${trip.preferences?.accommodation || 'any'} accommodation.
 
@@ -521,24 +519,6 @@ Do not include any other text, markdown formatting, or code blocks outside the J
                       )}
                       {isGeneratingAI ? 'Generating Magic...' : 'Auto-Generate Plan'}
                     </button>
-                  </div>
-
-                  {/* Starting Point Input */}
-                  <div className="relative z-10">
-                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-indigo-700/70 mb-2 ml-1">
-                      Starting Point <span className="text-indigo-400 font-medium normal-case tracking-normal">(optional — where are you travelling from?)</span>
-                    </label>
-                    <LocationInput
-                      value={startingPoint}
-                      onChange={val => setStartingPoint(val)}
-                      placeholder="e.g. Mumbai, New Delhi, Bangalore..."
-                      className="border-indigo-100 focus:border-indigo-500"
-                    />
-                    {startingPoint && (
-                      <p className="text-[10px] text-indigo-600 font-bold mt-2 ml-1">
-                        ✓ AI will plan your travel route from <span className="text-indigo-800">{startingPoint}</span> to <span className="text-indigo-800">{trip?.destination}</span>
-                      </p>
-                    )}
                   </div>
                 </div>
                 {itinerary.map((day, dayIdx) => (

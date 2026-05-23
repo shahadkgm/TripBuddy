@@ -19,6 +19,11 @@ const tripSchema = new Schema<ITripDocument>(
       required: true,
       trim: true,
     },
+    startingPoint: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     startDate: {
       type: Date,
       required: true,

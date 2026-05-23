@@ -68,6 +68,10 @@ export class CreateTripDTO {
   @IsNotEmpty()
   destination!: string;
 
+  @IsString()
+  @IsNotEmpty()
+  startingPoint!: string;
+
   @IsDateString()
   startDate!: string;
 

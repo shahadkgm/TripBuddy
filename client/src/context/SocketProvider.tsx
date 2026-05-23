@@ -92,9 +92,14 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // When the Axios interceptor refreshes the access token it calls
     // authService.setToken() → localStorage.setItem() → fires 'storage' event.
     // Reconnect the socket with the fresh token so admin_room auth stays valid.
-    const handleTokenRefresh = () => {
+    let lastToken = localStorage.getItem('accessToken');
+    const handleTokenRefresh = (e: Event) => {
+      // If it's a StorageEvent (from another tab), ignore if it's not the accessToken
+      if (e instanceof StorageEvent && e.key !== 'accessToken' && e.key !== null) return;
+      
       const freshToken = localStorage.getItem('accessToken');
-      if (freshToken && newSocket.auth) {
+      if (freshToken && freshToken !== lastToken && newSocket.auth) {
+        lastToken = freshToken;
         (newSocket.auth as { token: string }).token = freshToken;
         newSocket.disconnect().connect();
       }

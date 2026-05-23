@@ -76,6 +76,7 @@ const CreateTripPage = () => {
 
   const [formData, setFormData] = useState({
     title: '',
+    startingPoint: '',
     destination: '',
     travelers: 1,
     startDate: '',
@@ -118,6 +119,7 @@ const CreateTripPage = () => {
           const trip = await tripService.getTripById(id);
           setFormData({
             title: trip.title,
+            startingPoint: trip.startingPoint || '',
             destination: trip.destination,
             travelers: trip.preferences?.travelers || 1,
             startDate: new Date(trip.startDate).toISOString().split('T')[0],
@@ -264,6 +266,7 @@ const CreateTripPage = () => {
     const end = formData.endDate ? new Date(formData.endDate) : null;
 
     if (!formData.title.trim()) newErrors.title = 'Title is required';
+    if (!formData.startingPoint.trim()) newErrors.startingPoint = 'Starting point is required';
     if (!formData.destination.trim()) newErrors.destination = 'Destination is required';
     
     if (!start) {
@@ -308,6 +311,7 @@ const CreateTripPage = () => {
       const tripData = {
         userId: user?._id || user?.id,
         title: formData.title,
+        startingPoint: formData.startingPoint,
         destination: formData.destination,
         startDate: new Date(formData.startDate),
         endDate: new Date(formData.endDate),
@@ -601,6 +605,30 @@ const CreateTripPage = () => {
                   />
                   {errors.title && (
                     <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.title}</p>
+                  )}
+                </div>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                    Starting Point
+                  </label>
+                  <LocationInput
+                    value={formData.startingPoint}
+                    onChange={val => {
+                      setFormData(prev => ({ ...prev, startingPoint: val }));
+                      if (errors.startingPoint)
+                        setErrors(prev => {
+                          const newErrs = { ...prev };
+                          delete newErrs.startingPoint;
+                          return newErrs;
+                        });
+                    }}
+                    placeholder="Where are you starting from?"
+                    error={errors.startingPoint}
+                  />
+                  {errors.startingPoint && (
+                    <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">
+                      {errors.startingPoint}
+                    </p>
                   )}
                 </div>
                 <div className="space-y-3">

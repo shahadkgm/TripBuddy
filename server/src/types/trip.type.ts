@@ -23,6 +23,7 @@ export interface ITrip {
   userId: Types.ObjectId;
   title: string;
   destination: string;
+  startingPoint: string;
   startDate: Date;
   endDate: Date;
   budget?: number;
