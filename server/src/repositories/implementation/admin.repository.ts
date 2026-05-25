@@ -78,32 +78,32 @@ export class AdminRepository
     };
   }
 
-  async findUserById(id: string): Promise<IUser | null> {
-    return await UserModel.findById(id).select('-password');
+  async findUserById(userId: string): Promise<IUser | null> {
+    return await UserModel.findById(userId).select('-password');
   }
 
-  async updateUserBlockStatus(id: string, isBlocked: boolean): Promise<IUser | null> {
-    console.log('id', id);
-    return await UserModel.findByIdAndUpdate(id, { isBlocked }, { new: true }).select('-password');
+  async updateUserBlockStatus(userId: string, isBlocked: boolean): Promise<IUser | null> {
+    console.log('id', userId);
+    return await UserModel.findByIdAndUpdate(userId, { isBlocked }, { new: true }).select('-password');
   }
-  async deleteUser(id: string): Promise<boolean> {
-    logger.info(`Starting cascading delete for user: ${id}`);
+  async deleteUser(userId: string): Promise<boolean> {
+    logger.info(`Starting cascading delete for user: ${userId}`);
 
     // Perform cleanup in parallel
     const [userResult] = await Promise.all([
-      UserModel.findByIdAndDelete(id),
-      GuideProfile.deleteMany({ userId: id }),
-      KYC.deleteMany({ userId: id }),
+      UserModel.findByIdAndDelete(userId),
+      GuideProfile.deleteMany({ userId: userId }),
+      KYC.deleteMany({ userId: userId }),
       // Also cleanup trips if they exist
-      TripModel.deleteMany({ userId: id }),
+      TripModel.deleteMany({ userId: userId }),
     ]);
 
     if (userResult) {
-      logger.info(`Successfully deleted user ${id} and all associated data (Guide, KYC, Trips)`);
+      logger.info(`Successfully deleted user ${userId} and all associated data (Guide, KYC, Trips)`);
       return true;
     }
 
-    logger.warn(`User ${id} not found for deletion`);
+    logger.warn(`User ${userId} not found for deletion`);
     return false;
   }
 
@@ -240,8 +240,8 @@ export class AdminRepository
     ).lean<IGuide>();
   }
 
-  async deleteGuide(id: string): Promise<IGuide | null> {
-    return await GuideProfile.findByIdAndDelete(id).lean<IGuide>();
+  async deleteGuide(guideId: string): Promise<IGuide | null> {
+    return await GuideProfile.findByIdAndDelete(guideId).lean<IGuide>();
   }
 
   async updateUserRole(userId: string, role: 'user' | 'guide' | 'admin'): Promise<IUser | null> {

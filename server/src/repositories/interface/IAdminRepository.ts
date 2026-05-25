@@ -17,11 +17,11 @@ export interface IAdminRepository {
     totalUsers: number;
   }>;
 
-  findUserById(id: string): Promise<IUser | null>;
+  findUserById(userId: string): Promise<IUser | null>;
 
-  updateUserBlockStatus(id: string, isBlocked: boolean): Promise<IUser | null>;
+  updateUserBlockStatus(userId: string, isBlocked: boolean): Promise<IUser | null>;
 
-  deleteUser(id: string): Promise<boolean>;
+  deleteUser(userId: string): Promise<boolean>;
 
   updateUserRole(userId: string, role: 'user' | 'guide' | 'admin'): Promise<IUser | null>;
   updateWalletBalance(
@@ -47,7 +47,7 @@ export interface IAdminRepository {
 
   verifyGuide(guideId: string): Promise<IGuide | null>;
   rejectGuide(guideId: string, reason: string): Promise<IGuide | null>;
-  deleteGuide(id: string): Promise<IGuide | null>;
+  deleteGuide(guideId: string): Promise<IGuide | null>;
   countVerifiedGuides(): Promise<number>;
 
   // trips

@@ -8,16 +8,16 @@ export class GuideInvitationRepository implements IGuideInvitationRepository {
     return await invitation.save();
   }
 
-  async findById(id: string): Promise<IGuideInvitationDocument | null> {
-    return await GuideInvitationModel.findById(id)
+  async findById(invitationId: string): Promise<IGuideInvitationDocument | null> {
+    return await GuideInvitationModel.findById(invitationId)
       .populate('tripId', '_id title destination startDate endDate status')
       .populate('senderId', '_id name email avatarURL')
       .populate('guideId', '_id hourlyRate serviceArea bio')
       .populate('receiverId', '_id name email');
   }
 
-  async updateStatus(id: string, status: string): Promise<IGuideInvitationDocument | null> {
-    return await GuideInvitationModel.findByIdAndUpdate(id, { status }, { new: true });
+  async updateStatus(invitationId: string, status: string): Promise<IGuideInvitationDocument | null> {
+    return await GuideInvitationModel.findByIdAndUpdate(invitationId, { status }, { new: true });
   }
 
   async findByReceiverId(
