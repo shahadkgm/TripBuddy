@@ -106,7 +106,7 @@ export const GuideDashboard = () => {
       const tripDate = new Date(trip.startDate);
       const tripMonth = tripDate.getMonth();
       const tripYear = tripDate.getFullYear();
-      
+
       const match = last6Months.find(m => m.monthNum === tripMonth && m.year === tripYear);
       if (match) {
         match.Bookings += 1;
@@ -200,8 +200,8 @@ export const GuideDashboard = () => {
               <ComposedChart data={chartData}>
                 <defs>
                   <linearGradient id="earningsColor" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.01}/>
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.01} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
