@@ -40,7 +40,7 @@ export const TravelerCard: React.FC<Props> = ({ trip }) => {
   const organizerAvatar =
     organizerObj?.avatarURL ||
     organizerObj?.avatar ||
-    `https://i.pravatar.cc/150?u=${organizerId || 'unknown'}`;
+    'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
 
   const isExpired =
     new Date(trip.startDate).getTime() - 8 * 60 * 60 * 1000 < new Date().getTime() ||

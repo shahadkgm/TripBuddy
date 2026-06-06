@@ -4,7 +4,7 @@
     "react-hot-toast": "^2.6.0"
   },
   "scripts": {
-    "lint": "eslint './server/**/*.{ts,js}' --fix",
+    "lint": "eslint \"server/src/**/*.{ts,js}\" --fix",
     "format": "prettier --write \"client/src/**/*.{ts,tsx}\" \"server/src/**/*.{ts,js}\"",
     "format:check": "prettier --check \"client/src/**/*.{ts,tsx}\" \"server/src/**/*.{ts,js}\""
   },

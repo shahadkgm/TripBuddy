@@ -148,11 +148,11 @@ const TripDetails = () => {
         <div className="flex flex-col md:flex-row gap-8 mb-10">
           <div className="relative shrink-0">
             <img
-              src={
-                typeof trip.userId !== 'string'
-                  ? trip.userId.avatarURL || `https://i.pravatar.cc/300?u=${trip.userId._id}`
-                  : `https://i.pravatar.cc/300?u=${trip.userId}`
-              }
+                src={
+                  typeof trip.userId !== 'string'
+                  ? trip.userId.avatarURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
+                  : 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
+                }
               className="w-32 h-32 md:w-40 md:h-40 rounded-[2.5rem] object-cover border-4 border-indigo-50 shadow-md"
               alt={typeof trip.userId !== 'string' ? trip.userId.name : 'Organizer'}
             />

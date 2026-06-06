@@ -115,7 +115,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             />
           </div>
 
-          <button
+         {! isSubmitting && <button
             type="submit"
             disabled={isSubmitting}
             className="w-full bg-indigo-600 text-white rounded-2xl py-4 font-bold flex items-center justify-center gap-3 hover:bg-indigo-700 transition shadow-lg shadow-indigo-100 disabled:opacity-50"
@@ -128,7 +128,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                 Submit Review
               </>
             )}
-          </button>
+          </button>} 
           <button
             type="button"
             onClick={onClose}

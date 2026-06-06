@@ -105,7 +105,7 @@ const ConnectionRequestsPage = () => {
                   <img
                     src={
                       request.senderId.avatarURL ||
-                      `https://i.pravatar.cc/150?u=${request.senderId._id}`
+                      'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
                     }
                     className="w-14 h-14 rounded-2xl object-cover border-2 border-indigo-50"
                     alt={request.senderId.name}

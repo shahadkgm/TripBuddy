@@ -69,6 +69,8 @@ const GroupChatPage = () => {
     type: 'guide' | 'organizer';
   } | null>(null);
   const [reportedTypes, setReportedTypes] = useState<Set<'guide' | 'organizer'>>(new Set());
+  const [reviewedTypes, setReviewedTypes] = useState<Set<'guide' | 'organizer'>>(new Set());
+  const [cameFromStripe, setCameFromStripe] = useState(false);
 
   const [chatPage, setChatPage] = useState(1);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -120,9 +122,10 @@ const GroupChatPage = () => {
     const loadInitialData = async () => {
       if (!id) return;
       try {
-        const [tripData, historyRes] = await Promise.all([
+        const [tripData, historyRes, reviewsRes] = await Promise.all([
           tripService.getTripById(id),
           tripService.getChatHistory(id, 1, MESSAGES_LIMIT),
+          api.get(`/api/reviews/trip/${id}`).catch(() => ({ data: { data: [] } })),
         ]);
         setTrip(tripData);
         setMessages(historyRes.messages);
@@ -132,6 +135,14 @@ const GroupChatPage = () => {
           const myPayments = await paymentService.getMyPayments(id);
           const paid = myPayments.some(p => p.status === 'escrowed');
           setHasPaidDeposit(paid);
+
+          const myReviews = reviewsRes.data?.data?.filter((r: { reviewerId: string | { _id: string }; target?: 'guide' | 'organizer' }) => {
+            const revId = typeof r.reviewerId === 'object' ? r.reviewerId._id : r.reviewerId;
+            return revId === currentUser.id;
+          }) || [];
+          const reviewed = new Set<'guide' | 'organizer'>();
+          myReviews.forEach((r: { target?: 'guide' | 'organizer' }) => reviewed.add(r.target || 'organizer'));
+          setReviewedTypes(reviewed);
         }
 
         // Initialize finalizeData from trip (default deposit is 20%)
@@ -234,6 +245,7 @@ const GroupChatPage = () => {
     const queryParams = new URLSearchParams(window.location.search);
     const sessionId = queryParams.get('session_id');
     if (sessionId && id) {
+      setCameFromStripe(true);
       const verifyPayment = async () => {
         try {
           await paymentService.verifyStripePayment({ sessionId, tripId: id });
@@ -445,7 +457,13 @@ const GroupChatPage = () => {
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => {
+                if (cameFromStripe) {
+                  navigate(isGuide ? '/guide-dashboard' : '/dashboard', { replace: true });
+                } else {
+                  navigate(-1);
+                }
+              }}
               className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500"
             >
               <ChevronLeft size={24} />
@@ -540,7 +558,8 @@ const GroupChatPage = () => {
                 )}
               </div>
             )}
-            {trip?.status === TripStatus.COMPLETED && (
+            {trip?.status === TripStatus.COMPLETED && 
+              !(isOwner ? reviewedTypes.has('guide') : reviewedTypes.has('organizer')) && (
               <button
                 onClick={() => {
                   setShowMobileMenu(false);
@@ -620,7 +639,7 @@ const GroupChatPage = () => {
                     </div>
                     <div className="flex flex-wrap gap-3">
                       {/* Review buttons */}
-                      {!isOwner && !isGuide && (
+                      {!isOwner && !isGuide && !reviewedTypes.has('organizer') && (
                         <button
                           onClick={() => {
                             setReviewTarget('organizer');
@@ -631,7 +650,7 @@ const GroupChatPage = () => {
                           Review Trip
                         </button>
                       )}
-                      {trip.guideId && !isGuide && (
+                      {trip.guideId && !isGuide && !reviewedTypes.has('guide') && (
                         <button
                           onClick={() => {
                             setReviewTarget('guide');
@@ -1375,7 +1394,10 @@ const GroupChatPage = () => {
               : trip.guideId?.name
           }
           onClose={() => setShowReviewModal(false)}
-          onSuccess={() => { }}
+          onSuccess={() => {
+            setReviewedTypes(prev => new Set(prev).add(reviewTarget));
+            setShowReviewModal(false);
+          }}
         />
       )}
 
