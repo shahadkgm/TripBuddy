@@ -107,8 +107,9 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     window.addEventListener('storage', handleTokenRefresh);
 
-    newSocket.on('global_notification', (notification: { title: string; message: string; link?: string; }) => {
-      console.log('Received global_notification event:', notification);
+    newSocket.on('new_notification', (notification: { link?: string; type?: string; title?: string; message?: string }) => {
+      console.log('Received new_notification event:', notification);
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
       if (notification.link === '/admin/guides') {
         queryClient.invalidateQueries({ queryKey: ['admin-guides'] });
       }
@@ -118,6 +119,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (notification.link === '/guide/dashboard' || notification.link === '/guide/invitations') {
         queryClient.invalidateQueries({ queryKey: ['guide-invitations'] });
       }
+
+      if (notification.type === 'MESSAGE') return;
 
       toast.custom(
         t => (

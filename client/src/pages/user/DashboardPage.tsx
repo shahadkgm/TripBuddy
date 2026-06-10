@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FooterCTA } from '../../components/FooterCTA';
 import { authService } from '../../services/auth.service';
 import { useKycStatus } from '../../hooks/useKycStatus';
-import { Calendar, Users, MapPin, UserCheck, X } from 'lucide-react';
+import { Calendar, Users, MapPin, UserCheck, X, Bell } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const DASHBOARD_FEATURES = [
@@ -72,13 +72,21 @@ const DashboardPage = () => {
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 md:p-8">
       {/* Main Container */}
       <div className="bg-white w-full max-w-4xl rounded-[40px] shadow-2xl overflow-hidden relative p-8 md:p-12 border border-white/20">
-        {/* Close Button */}
-        <button
-          onClick={() => navigate('/')}
-          className="absolute top-8 right-8 text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
-        >
-          <X className="w-6 h-6" />
-        </button>
+        {/* Top Right Controls */}
+        <div className="absolute top-8 right-8 flex items-center gap-2">
+          <button
+            onClick={() => navigate('/notifications')}
+            className="text-gray-400 hover:text-indigo-600 transition-colors p-2 hover:bg-indigo-50 rounded-full"
+          >
+            <Bell className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
 
         {/* Header */}
         <div className="mb-12">

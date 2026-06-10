@@ -20,6 +20,7 @@ import aiRoutes from './routes/ai.routes';
 import paymentRoutes from './routes/payment.routes';
 import guideInvitationRoutes from './routes/guideInvitation.routes';
 import reportRoutes from './routes/report.routes';
+import notificationRoutes from './routes/notification.routes';
 import { connectDB } from './config/db';
 import UserRoutes from './routes/user.routes';
 import { errorMiddleware } from './middleware/error.middleware';
@@ -81,6 +82,7 @@ app.use(API_ROUTES.PAYMENT.BASE, paymentRoutes);
 app.use(API_ROUTES.REVIEW.BASE, reviewRoutes);
 app.use(API_ROUTES.GUIDE_INVITATION.BASE, guideInvitationRoutes);
 app.use(API_ROUTES.REPORT.BASE, reportRoutes);
+app.use(API_ROUTES.NOTIFICATION.BASE, notificationRoutes);
 
 import { startCronJobs } from './jobs/trip.cron';
 

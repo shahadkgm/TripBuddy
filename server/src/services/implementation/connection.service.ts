@@ -5,6 +5,7 @@ import { IConnectionDocument } from '../../types/connection.type';
 import { IUser } from '../../types/user.type';
 import { logger } from '@/utils/logger';
 import { getIO } from '../../config/socket';
+import { NotificationModel } from '../../models/notification.model';
 
 export class ConnectionService implements IConnectionService {
   constructor(
@@ -32,11 +33,15 @@ export class ConnectionService implements IConnectionService {
         
         if (updatedRequest) {
           try {
-            getIO().to(`user_${receiverId}`).emit('global_notification', {
+            const notif = await NotificationModel.create({
+              recipientId: receiverId,
+              senderId: senderId,
+              type: 'CONNECTION',
               title: tripId ? 'New Trip Invitation' : 'New Connection Request',
               message: tripId ? 'Someone invited you to join a trip!' : 'Someone wants to connect with you.',
               link: '/connection-requests'
             });
+            getIO().to(`user_${receiverId}`).emit('new_notification', notif);
 
             // Emit for React Query auto-invalidation on the receiver's end
             getIO().to(`user_${receiverId}`).emit('connection_request_received', { tripId });
@@ -58,11 +63,15 @@ export class ConnectionService implements IConnectionService {
     });
 
     try {
-      getIO().to(`user_${receiverId}`).emit('global_notification', {
+      const notif = await NotificationModel.create({
+        recipientId: receiverId,
+        senderId: senderId,
+        type: 'CONNECTION',
         title: tripId ? 'New Trip Invitation' : 'New Connection Request',
         message: tripId ? 'Someone invited you to join a trip!' : 'Someone wants to connect with you.',
         link: '/connection-requests'
       });
+      getIO().to(`user_${receiverId}`).emit('new_notification', notif);
 
       // Emit for React Query auto-invalidation on the receiver's end
       getIO().to(`user_${receiverId}`).emit('connection_request_received', { tripId });
@@ -88,13 +97,17 @@ export class ConnectionService implements IConnectionService {
     if (updated) {
       try {
         const senderIdStr = updated.senderId.toString();
-        getIO().to(`user_${senderIdStr}`).emit('global_notification', {
+        const notif = await NotificationModel.create({
+          recipientId: senderIdStr,
+          senderId: updated.receiverId.toString(),
+          type: 'CONNECTION',
           title: 'Request Accepted',
           message: updated.tripId 
             ? 'Your trip invitation was accepted!' 
             : 'Your connection request was accepted!',
           link: '/connection-requests'
         });
+        getIO().to(`user_${senderIdStr}`).emit('new_notification', notif);
 
         // Emit for react-query auto-invalidation
         getIO().to(`user_${senderIdStr}`).emit('connection_responded', {

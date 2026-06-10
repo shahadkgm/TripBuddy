@@ -2,12 +2,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
-import { User, ArrowLeft, MessageCircle, Loader2 } from 'lucide-react';
+import { User, ArrowLeft, MessageCircle, Loader2, Bell } from 'lucide-react';
 import { useSocketContext } from '../../hooks/useSocketContext';
 import { tripService } from '../../services/trip.service';
 import type { ITrip } from '../../interface/ITripdetails';
 import { TripStatus } from '../../constants/TripStatus';
 import { Logo } from '../common/Logo';
+import { useQuery } from '@tanstack/react-query';
+import { notificationService } from '../../services/notification.service';
 
 interface NavbarProps {
   variant?: 'floating' | 'sticky';
@@ -21,6 +23,13 @@ export const Navbar = ({ variant = 'floating', showBack = false, backPath = '/' 
   const navigate = useNavigate();
   const [user, setUser] = useState(authService.getCurrentUser());
   const { totalUnread, unreadCounts } = useSocketContext();
+
+  const { data: notifications } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: notificationService.getUserNotifications,
+    enabled: !!user,
+  });
+  const unreadNotifications = notifications?.length || 0;
 
   useEffect(() => {
     const handleProfileUpdate = () => {
@@ -130,6 +139,22 @@ export const Navbar = ({ variant = 'floating', showBack = false, backPath = '/' 
                   )}
                 </div>
               )}
+
+              {/* Notification Bell */}
+              <div
+                onClick={() => navigate('/notifications')}
+                className="relative cursor-pointer hover:bg-slate-50 p-2 rounded-xl transition-all group"
+              >
+                <Bell
+                  size={20}
+                  className="transition-colors text-slate-400 group-hover:text-indigo-600"
+                />
+                {unreadNotifications > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full animate-bounce">
+                    {unreadNotifications}
+                  </span>
+                )}
+              </div>
 
               {/* Chat Icon with Dropdown */}
               <div className="relative" ref={dropdownRef}>

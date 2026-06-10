@@ -20,6 +20,7 @@ const TripDetails = lazy(() => import('../pages/user/TripDetails'));
 const ConnectionRequestsPage = lazy(() => import('../pages/user/ConnectionRequestsPage'));
 const ExpenseSplitPage = lazy(() => import('../pages/user/ExpenseSplitPage'));
 const WeatherPage = lazy(() => import('../pages/user/WeatherPage'));
+const NotificationsPage = lazy(() => import('../pages/user/NotificationsPage'));
 
 const ProfilePage = lazy(() => import('../pages/user/ProfilePage'));
 const GalleryPage = lazy(() => import('../pages/user/GalleryPage'));
@@ -75,6 +76,7 @@ export default function AppRoutes() {
         <Route path="/nearby" element={<NearByPlacesPage />} />
         <Route path="/find-guides" element={<FindGuidesPage />} />
         <Route path="/my-payments" element={<MyPaymentsPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
       </Route>
 
       {/* User KYC Required */}

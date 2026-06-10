@@ -118,4 +118,7 @@ export const API_ROUTES = {
     GET_BY_TARGET: '/target/:targetId',
     UPDATE_STATUS: '/:reportId/status',
   },
+  NOTIFICATION: {
+    BASE: '/api/notifications',
+  },
 };
