@@ -96,32 +96,7 @@ export const setupSocket = (httpServer: HTTPServer) => {
 
           io.to(data.tripId).emit('receive_message', populatedMessage);
 
-          // Create notifications for all trip members
-          const trip = await TripModel.findById(data.tripId);
-          if (trip) {
-            const recipients = new Set<string>();
-            recipients.add(trip.userId.toString());
-            trip.members.forEach((member: { toString(): string }) => recipients.add(member.toString()));
-            
-            if (trip.guideId) {
-              const guide = await GuideModel.findById(trip.guideId);
-              if (guide && guide.userId) recipients.add(guide.userId.toString());
-            }
 
-            recipients.delete(user.id); // Don't notify the sender
-
-            for (const recipientId of recipients) {
-              const notification = await NotificationModel.create({
-                recipientId,
-                senderId: user.id,
-                type: 'MESSAGE',
-                title: 'New Message',
-                message: `You have a new message in ${trip.title}`,
-                link: `/trips/chat/${trip._id}`,
-              });
-              io.to(`user_${recipientId}`).emit('new_notification', notification);
-            }
-          }
         } catch (error) {
           console.error('Error sending message:', error);
         }
