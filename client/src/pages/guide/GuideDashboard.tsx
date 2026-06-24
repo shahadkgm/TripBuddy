@@ -35,7 +35,7 @@ export const GuideDashboard = () => {
   const LIMIT = 5;
 
   // React Query self-healing profile query
-  const { data: currentUserProfile } = useQuery({
+  const { data: currentUserProfile, isFetching: isProfileFetching } = useQuery({
     queryKey: ['user-profile', user?.id],
     queryFn: async () => {
       if (user?.role === 'guide' && !user?.guideProfile?._id) {
@@ -53,6 +53,7 @@ export const GuideDashboard = () => {
       return user;
     },
     initialData: user,
+    staleTime: 0, // Force background refetch on mount to get guideId
   });
 
   const guideId = currentUserProfile?.guideProfile?._id;
@@ -64,7 +65,7 @@ export const GuideDashboard = () => {
     enabled: !!guideId,
   });
 
-  const loading = tripsLoading || (!guideId && user?.role === 'guide');
+  const loading = tripsLoading || (isProfileFetching && !guideId);
 
   const trips = useMemo(() => dashboardData?.trips || [], [dashboardData?.trips]);
   const totalTripsCount = dashboardData?.total || 0;

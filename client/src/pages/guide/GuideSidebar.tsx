@@ -31,13 +31,13 @@ export const GuideSidebar: FC<GuideSidebarProps> = ({ isOpen, onClose }) => {
       {/* Sidebar Container */}
       <aside
         className={`
-        fixed left-0 top-0 h-screen bg-slate-900 text-white z-[70] transition-all duration-500 ease-out
+        fixed left-0 top-0 h-screen bg-slate-900 text-white z-[70] transition-all duration-500 ease-out flex flex-col
         w-80 lg:w-64 border-r border-white/5
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}
       >
         {/* Brand Container */}
-        <div className="p-8 border-b border-white/5 flex items-center justify-between h-[89px]">
+        <div className="p-8 border-b border-white/5 flex items-center justify-between h-[89px] shrink-0">
           <div>
             <Logo dark size="md" className="mb-0.5" />
             <p className="text-[8px] font-black uppercase tracking-[0.4em] text-slate-600">
@@ -53,7 +53,7 @@ export const GuideSidebar: FC<GuideSidebarProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Menu Items */}
-        <nav className="p-6 space-y-1 mt-4">
+        <nav className="p-6 space-y-1 mt-4 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
           {menu.map(({ name, icon: Icon, path }) => (
             <NavLink
               key={name}
@@ -79,7 +79,7 @@ export const GuideSidebar: FC<GuideSidebarProps> = ({ isOpen, onClose }) => {
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="absolute bottom-10 left-0 w-full p-6 text-center">
+        <div className="w-full p-6 pb-10 text-center shrink-0 mt-auto">
           <p className="text-[8px] font-black uppercase tracking-[0.5em] text-slate-700">
             Adventure awaits
           </p>
