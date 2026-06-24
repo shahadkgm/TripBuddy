@@ -58,11 +58,13 @@ export const GuideDashboard = () => {
   const guideId = currentUserProfile?.guideProfile?._id;
 
   // React Query fetch guide trips
-  const { data: dashboardData, isLoading: loading } = useQuery({
+  const { data: dashboardData, isLoading: tripsLoading } = useQuery({
     queryKey: ['guide-dashboard', guideId, page],
     queryFn: () => tripService.getGuideTrips(guideId!, page, LIMIT),
     enabled: !!guideId,
   });
+
+  const loading = tripsLoading || (!guideId && user?.role === 'guide');
 
   const trips = useMemo(() => dashboardData?.trips || [], [dashboardData?.trips]);
   const totalTripsCount = dashboardData?.total || 0;

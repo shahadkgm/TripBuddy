@@ -40,11 +40,13 @@ export const GuideEarningsPage = () => {
   const guideId = currentUserProfile?.guideProfile?._id;
 
   // React Query fetch guide trips for earnings
-  const { data: earningsData, isLoading: loading, isFetching: paginationLoading } = useQuery({
+  const { data: earningsData, isLoading: tripsLoading, isFetching: paginationLoading } = useQuery({
     queryKey: ['guide-earnings', guideId, page],
     queryFn: () => tripService.getGuideTrips(guideId!, page, LIMIT),
     enabled: !!guideId,
   });
+
+  const loading = tripsLoading || (!guideId && currentUser?.role === 'guide');
 
   const trips = useMemo(() => earningsData?.trips || [], [earningsData?.trips]);
   const total = earningsData?.total || 0;

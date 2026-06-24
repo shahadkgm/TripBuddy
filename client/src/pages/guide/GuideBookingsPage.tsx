@@ -43,11 +43,13 @@ export const GuideBookingsPage = () => {
   const guideId = currentUserProfile?.guideProfile?._id;
 
   // React Query fetch bookings
-  const { data: bookingsData, isLoading: loading, isFetching: paginationLoading } = useQuery({
+  const { data: bookingsData, isLoading: tripsLoading, isFetching: paginationLoading } = useQuery({
     queryKey: ['guide-bookings', guideId, page],
     queryFn: () => tripService.getGuideTrips(guideId!, page, LIMIT),
     enabled: !!guideId,
   });
+
+  const loading = tripsLoading || (!guideId && user?.role === 'guide');
 
   const trips = useMemo(() => bookingsData?.trips || [], [bookingsData?.trips]);
   const total = bookingsData?.total || 0;
