@@ -43,7 +43,7 @@ export const GuideDashboard = () => {
         try {
           const profile = await authService.getProfile(user.id);
           if (profile?.guideProfile?._id) {
-            console.log('DEBUG: Profile re-synced successfully:', profile);
+            console.log('debug: Profile re-synced successfully:', profile);
             return profile;
           }
         } catch (_error) {

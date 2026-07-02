@@ -5,6 +5,19 @@ import api from '../../utils/api';
 import { Button } from '../../components/Button';
 import { authService } from '../../services/auth.service';
 
+// Matches signup validation rules exactly
+const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).+$/;
+
+const calculatePasswordStrength = (password: string) => {
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[a-z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+  return score;
+};
+
 export const ResetPasswordPage = () => {
   const { token } = useParams();
   const navigate = useNavigate();
@@ -27,8 +40,11 @@ export const ResetPasswordPage = () => {
     if (!password) {
       newErrors.password = 'Password is required';
       isValid = false;
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else if (!passwordRegex.test(password)) {
+      newErrors.password = 'Password must include at least one letter and one number';
+      isValid = false;
+    } else if (calculatePasswordStrength(password) < 3) {
+      newErrors.password = 'Your password is too weak';
       isValid = false;
     }
 

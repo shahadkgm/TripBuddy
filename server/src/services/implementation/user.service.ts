@@ -57,6 +57,13 @@ export class UserService implements IUserService {
       throw new AppError('User not found', StatusCode.NOT_FOUND);
     }
 
+    if (!user.isVerified) {
+      throw new AppError(
+        'Please verify your email address before resetting your password',
+        StatusCode.FORBIDDEN
+      );
+    }
+
     const resetToken = crypto.randomBytes(32).toString('hex');
     const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 

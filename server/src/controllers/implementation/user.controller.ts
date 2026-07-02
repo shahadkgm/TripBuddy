@@ -55,7 +55,13 @@ export class UserController extends BaseController {
   });
 
   getUserProfile = asyncHandler(async (req: Request, res: Response) => {
+    const authReq = req as AuthRequest;
     const { userId } = req.params;
+
+    if (authReq.user?.id !== userId) {
+      throw new AppError('Forbidden', StatusCode.FORBIDDEN);
+    }
+
     const user = await this._userService.getUserProfile(userId);
     const response = UserMapper.toResponseDTO(user);
     this.sendSuccess(res, response, 'User profile fetched successfully');
