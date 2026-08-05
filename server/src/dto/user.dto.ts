@@ -1,4 +1,5 @@
-import { IsString, IsEmail, IsBoolean, IsOptional, IsEnum, MinLength } from 'class-validator';
+import { IsString, IsEmail, IsBoolean, IsOptional, IsEnum, MinLength, Matches } from 'class-validator';
+import { IsStrongPassword } from './auth.dto';
 
 export class CreateUserDTO {
   @IsString()
@@ -40,17 +41,21 @@ export class ForgotPasswordDTO {
 
 export class ResetPasswordDTO {
   @IsString()
-  @MinLength(6)
+  @MinLength(6, { message: 'Password must be at least 6 characters' })
+  @Matches(/^(?=.*[A-Za-z])(?=.*\d).+$/, { message: 'Password must include at least one letter and one number' })
+  @IsStrongPassword({ message: 'Your password is too weak' })
   password!: string;
 }
 
 export class ChangePasswordDTO {
   @IsString()
-  @MinLength(6)
+  @MinLength(6, { message: 'Password must be at least 6 characters' })
   oldPassword!: string;
 
   @IsString()
-  @MinLength(6)
+  @MinLength(6, { message: 'Password must be at least 6 characters' })
+  @Matches(/^(?=. *[A-Za-z])(?=.*\d).+$/, { message: 'Password must include at least one letter and one number' })
+  @IsStrongPassword({ message: 'Your password is too weak' })
   newPassword!: string;
 }
 
